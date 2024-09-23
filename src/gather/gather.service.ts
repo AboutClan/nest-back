@@ -2,9 +2,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { IGatherData } from './entity/gather.entity';
+import { Injectable } from '@nestjs/common';
 const logger = require('../../logger');
 
-export default class GatherService {
+@Injectable()
+export class GatherService {
   private token: JWT;
 
   constructor(
