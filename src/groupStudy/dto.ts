@@ -1,15 +1,23 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 // DTOs for request validation
-export class SetGiftDto {
-  @IsNotEmpty({ message: 'name is required' })
-  name: string;
+class CreateGroupStudyDto {
+  @IsNotEmpty({ message: 'groupStudy필요' })
+  groupStudy: string;
+}
 
-  @IsNotEmpty({ message: 'cnt is required' })
+class ParticipateGroupStudyDto {
+  @IsNotEmpty({ message: 'id필요' })
   @IsNumber()
-  cnt: number;
+  id: number;
+}
 
-  @IsNotEmpty({ message: 'giftId is required' })
+class CommentDto {
+  @IsNotEmpty({ message: 'id필요' })
   @IsNumber()
-  giftId: number;
+  id: number;
+
+  @IsNotEmpty({ message: 'comment필요' })
+  @IsString()
+  comment: string;
 }
