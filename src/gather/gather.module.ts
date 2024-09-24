@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GatherController } from './gather.controller';
-import GatherService from './gather.service';
+import { GatherService } from './gather.service';
 
 @Module({
   imports: [],
