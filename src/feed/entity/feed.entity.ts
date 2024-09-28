@@ -1,5 +1,5 @@
 import mongoose, { model, Model, Schema } from 'mongoose';
-import { IUser } from './user';
+import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 export const SubCommentZodSchema = z.object({
@@ -55,7 +55,7 @@ export interface IFeed {
   like: string[] | IUser[];
   comments: commentType[];
   createdAt: string;
-  addLike(userId: string): Promise<void>;
+  addLike(userId: string): Promise<boolean>;
   subCategory: string;
 }
 
@@ -143,7 +143,7 @@ export const FeedSchema: Schema<IFeed> = new Schema(
   { timestamps: true },
 );
 
-FeedSchema.methods.addLike = async function (userId: string) {
+FeedSchema.methods.addLike = async function (userId: string): Promise<boolean> {
   const index = this.like.indexOf(userId);
   if (index === -1) {
     this.like.push(userId);

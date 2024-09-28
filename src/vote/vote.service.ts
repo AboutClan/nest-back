@@ -8,7 +8,7 @@ import {
   Vote,
 } from './entity/vote.entity';
 import dayjs, { Dayjs } from 'dayjs';
-import { findOneVote } from './util';
+import { findOneVote, now } from './util';
 import { IUser, User } from 'src/user/entity/user.entity';
 import { IPlace, Place } from 'src/place/entity/place.entity';
 import { strToDate } from 'src/utils/dateUtils';
@@ -207,7 +207,7 @@ export class VoteService {
   }
 
   async getWeekDates(date: any) {
-    const startOfWeek = dayjs(date).startOf('isoWeek'); // ISO 8601 기준 주의 시작 (월요일)
+    const startOfWeek = dayjs(date).startOf('isoWeek' as dayjs.OpUnitType); // ISO 8601 기준 주의 시작 (월요일)
     const weekDates = [];
 
     for (let i = 0; i < 7; i++) {

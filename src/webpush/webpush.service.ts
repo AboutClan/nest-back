@@ -2,6 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { NotificationSub } from './entity/notificationsub.entity';
 import { JWT } from 'next-auth/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AppError } from 'src/errors/AppError';
+import dayjs from 'dayjs';
+import { findOneVote } from 'src/vote/util';
+import { IUser, User } from 'src/user/entity/user.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import {
+  GroupStudy,
+  IGroupStudyData,
+} from 'src/groupStudy/entity/groupStudy.entity';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable()
@@ -12,6 +22,8 @@ export class WebPushService {
 
   constructor(
     private readonly configService: ConfigService,
+    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel(GroupStudy.name) private GroupStudy: Model<IGroupStudyData>,
     token?: JWT,
   ) {
     const publicKey = this.configService.get<string>('PUBLIC_KEY');
@@ -118,7 +130,7 @@ export class WebPushService {
     });
 
     const members = new Set();
-    const groupStudy = await GroupStudy.findOne({ id }).populate([
+    const groupStudy = await this.GroupStudy.findOne({ id }).populate([
       'participants.user',
     ]);
 

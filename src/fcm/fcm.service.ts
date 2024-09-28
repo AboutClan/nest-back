@@ -3,7 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { IDailyCheck } from 'src/dailyCheck/entity/dailyCheck.entity';
+import { IDailyCheck } from 'src/dailycheck/entity/dailycheck.entity';
+import { FcmTokenZodSchema, IFcmToken } from './entity/fcmToken.entity';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { AppError } from 'src/errors/AppError';
+import dayjs from 'dayjs';
+import { findOneVote } from 'src/vote/util';
+import { IUser } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class FcmService {
@@ -12,6 +18,7 @@ export class FcmService {
   static MongooseModule: any;
 
   constructor(
+    @InjectModel('FcmToken') private FcmToken: Model<IFcmToken>,
     @InjectModel('Collection') private DailyCheck: Model<IDailyCheck>,
     token?: JWT,
   ) {
@@ -59,7 +66,7 @@ export class FcmService {
   }
 
   async deleteToken(uid: string, platform: string) {
-    const deleted = await FcmToken.updateOne(
+    const deleted = await this.FcmToken.updateOne(
       {
         uid,
       },
@@ -76,7 +83,7 @@ export class FcmService {
   }
 
   async registerToken(uid: string, fcmToken: string, platform: string) {
-    const fcmTokenOne = await FcmToken.findOne({ uid });
+    const fcmTokenOne = await this.FcmToken.findOne({ uid });
 
     const validatedFcm = FcmTokenZodSchema.parse({
       uid,
@@ -93,12 +100,12 @@ export class FcmService {
         await fcmTokenOne.save();
       }
     } else {
-      FcmToken.create(validatedFcm);
+      this.FcmToken.create(validatedFcm);
     }
   }
 
   async sendNotificationToX(uid: string, title: string, body: string) {
-    const user = await FcmToken.findOne({ uid });
+    const user = await this.FcmToken.findOne({ uid });
 
     if (!user) throw new DatabaseError("can't find toUser");
 
@@ -123,7 +130,7 @@ export class FcmService {
 
   async sendNotificationAllUser(title: string, body: string) {
     try {
-      const targets = await FcmToken.find();
+      const targets = await this.FcmToken.find();
 
       targets.forEach((target) => {
         target.devices.forEach(async (data) => {
@@ -180,7 +187,7 @@ export class FcmService {
     };
 
     try {
-      const subscriptions = await FcmToken.find();
+      const subscriptions = await this.FcmToken.find();
 
       subscriptions.forEach(async (subscription) => {
         if (failure.has(subscription.uid)) {

@@ -1,13 +1,19 @@
-import { IsNotEmpty, IsString, IsArray, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsArray,
+  IsOptional,
+  IsNumber,
+} from 'class-validator';
 
 export class UpdateAvatarDto {
   @IsNotEmpty()
-  @IsString()
-  type: string;
+  @IsNumber()
+  type: number;
 
   @IsNotEmpty()
-  @IsString()
-  bg: string;
+  @IsNumber()
+  bg: number;
 }
 
 export class UpdateCommentDto {
@@ -52,8 +58,8 @@ export class SetFriendDto {
 
 export class PatchBelongDto {
   @IsNotEmpty()
-  @IsString()
-  uid: string;
+  @IsNumber()
+  uid: number;
 
   @IsNotEmpty()
   @IsString()

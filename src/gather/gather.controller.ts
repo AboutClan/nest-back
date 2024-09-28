@@ -16,6 +16,7 @@ import {
   ParticipateGatherDto,
   SetWaitingPersonDto,
 } from './dto';
+import { gatherStatus } from './entity/gather.entity';
 
 @Controller('gather')
 export class GatherController {
@@ -246,7 +247,7 @@ export class GatherController {
   }
 
   @Patch('status')
-  async setStatus(@Body() body: { gatherId: string; status: string }) {
+  async setStatus(@Body() body: { gatherId: string; status: gatherStatus }) {
     try {
       await this.gatherService.setStatus(body.gatherId, body.status);
       return { status: 'success' };

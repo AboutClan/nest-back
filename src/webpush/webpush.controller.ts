@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { WebPushService } from './webpush.service';
 
 @Controller('webpush')
@@ -6,7 +6,7 @@ export class WebPushController {
   constructor(private webPushService: WebPushService) {}
 
   @Post('subscribe')
-  subscribe(): string {
+  subscribe(@Body('subscription') subscription: string): string {
     this.webPushService.subscribe(subscription);
     return 'register success';
   }

@@ -345,7 +345,7 @@ export class FeedService {
   async toggleLike(feedId: string) {
     const feed = await this.Feed.findById(feedId);
 
-    const isLikePush = await feed?.addLike(this.token.id);
+    const isLikePush: boolean = await feed?.addLike(this.token.id);
 
     const user = await this.User.findOne({ uid: this.token.uid });
     if (!user) return;

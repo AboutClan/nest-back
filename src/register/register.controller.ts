@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import RegisterService from './register.service';
-import { ApproveUserDto, RegisterUserDto } from './dto';
+import { ApproveUserDto } from './dto';
 
 @Controller('register')
 export class RegisterController {
@@ -27,8 +27,9 @@ export class RegisterController {
     }
   }
 
+  //todo: dto수정 필요
   @Post()
-  async registerUser(@Body() registerUserDto: RegisterUserDto) {
+  async registerUser(@Body() registerUserDto: any) {
     try {
       await this.registerService.register(registerUserDto);
       return { status: 'success' };

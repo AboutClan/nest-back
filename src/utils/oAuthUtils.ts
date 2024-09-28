@@ -1,13 +1,12 @@
-import axios, { AxiosError } from "axios";
-import { JWT } from "next-auth/jwt";
-import { Account } from "../db/models/account";
-import { User } from "../db/models/user";
-import dbConnect from "../db/conn";
-import { Dayjs } from "dayjs";
+import axios, { AxiosError } from 'axios';
+import { JWT } from 'next-auth/jwt';
+import { Dayjs } from 'dayjs';
+import { User } from 'src/user/entity/user.entity';
+import { Account } from 'src/account/entity/account.entity';
+import dbConnect from 'src/conn';
 
 export interface kakaoProfileInfo {
   name: string;
-
   profileImage: string;
 }
 
@@ -21,22 +20,22 @@ export const getRefreshedAccessToken = async (uid: string) => {
   };
 
   const refreshed: any = await refreshAccessToken(token);
-  return refreshed["accessToken"] as string;
+  return refreshed['accessToken'] as string;
 };
 
 export const refreshAccessToken = async (token: JWT) => {
   try {
     const url =
-      "https://kauth.kakao.com/oauth/token?" +
+      'https://kauth.kakao.com/oauth/token?' +
       new URLSearchParams({
         client_id: process.env.KAKAO_CLIENT_ID as string,
         client_secret: process.env.KAKAO_CLIENT_SECRET as string,
-        grant_type: "refresh_token",
+        grant_type: 'refresh_token',
         refresh_token: token.refreshToken as string,
       });
     const response = await axios.post(url, {
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
       },
     });
 
@@ -76,7 +75,7 @@ export const refreshAccessToken = async (token: JWT) => {
 
     return {
       ...token,
-      error: "RefreshAccessTokenError",
+      error: 'RefreshAccessTokenError',
     };
   }
 };
@@ -90,27 +89,27 @@ export const sendResultMessage = async (
   time: string,
   place: string,
 ) => {
-  const dateKr = date.format("MM/DD");
+  const dateKr = date.format('MM/DD');
   const resultMessage = isOpen
     ? `내일(${dateKr}) 스터디는 ${time}에 ${place}에서 열립니다`
     : `내일(${dateKr}) 스터디가 열리지 못 했어요`;
 
-  const url = "https://kapi.kakao.com/v2/api/talk/memo/default/send?";
+  const url = 'https://kapi.kakao.com/v2/api/talk/memo/default/send?';
 
   const message = JSON.stringify({
-    object_type: "text",
+    object_type: 'text',
     text: resultMessage,
     link: {
       web_url: `${process.env.NEXTAUTH_URL}/result`,
       mobile_web_url: `${process.env.NEXTAUTH_URL}/result`,
     },
-    button_title: "결과 확인",
+    button_title: '결과 확인',
   });
 
   try {
     await axios.post(url, `template_object=${message}`, {
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Bearer ${accessToken}`,
       },
     });
@@ -124,7 +123,7 @@ export const sendResultMessage = async (
       try {
         await axios.post(url, `template_object=${message}`, {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            'Content-Type': 'application/x-www-form-urlencoded',
             Authorization: `Bearer ${accessToken}`,
           },
         });
@@ -138,7 +137,7 @@ export const sendResultMessage = async (
 };
 
 export const withdrawal = async (accessToken: string) => {
-  const url = "https://kapi.kakao.com/v1/user/unlink";
+  const url = 'https://kapi.kakao.com/v1/user/unlink';
 
   let uid: string;
   try {
@@ -147,7 +146,7 @@ export const withdrawal = async (accessToken: string) => {
       {},
       {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          'Content-Type': 'application/x-www-form-urlencoded',
           Authorization: `Bearer ${accessToken}`,
         },
       },
@@ -169,10 +168,10 @@ export const withdrawal = async (accessToken: string) => {
       { uid },
       {
         $set: {
-          name: "(알수없음)",
-          role: "stranger",
-          status: "inactive",
-          uid: "",
+          name: '(알수없음)',
+          role: 'stranger',
+          status: 'inactive',
+          uid: '',
         },
       },
     );
@@ -182,7 +181,7 @@ export const withdrawal = async (accessToken: string) => {
 
 const getNullableProfile = async (accessToken: string) => {
   try {
-    const res = await axios.get("https://kapi.kakao.com/v1/api/talk/profile", {
+    const res = await axios.get('https://kapi.kakao.com/v1/api/talk/profile', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -192,7 +191,7 @@ const getNullableProfile = async (accessToken: string) => {
 
       profileImage:
         (res.data.profileImageURL as string) ||
-        "https://user-images.githubusercontent.com/48513798/173180642-8fc5948e-a437-45f3-91d0-3f0098a38195.png",
+        'https://user-images.githubusercontent.com/48513798/173180642-8fc5948e-a437-45f3-91d0-3f0098a38195.png',
     } as kakaoProfileInfo;
   } catch (err) {
     return null;

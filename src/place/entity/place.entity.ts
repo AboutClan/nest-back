@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { IUser } from './user';
+import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 export const PlaceZodSchema = z.object({

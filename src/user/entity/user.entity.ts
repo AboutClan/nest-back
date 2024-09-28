@@ -1,6 +1,10 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { IPlace } from 'src/place/entity/place.entity';
-import { IRegistered } from 'src/register/entity/register.entity';
+import {
+  InterestSchema,
+  IRegistered,
+  MajorSchema,
+} from 'src/register/entity/register.entity';
 import { z } from 'zod';
 
 // restType Zod schema
@@ -97,6 +101,7 @@ export interface preferenceType {
 }
 
 export interface IUser extends Document, IRegistered {
+  _id: string;
   registerDate: string;
   isActive?: boolean;
   point: number;

@@ -17,6 +17,7 @@ import {
   CreateGroupStudyDto,
   ParticipateGroupStudyDto,
 } from './dto';
+import { IAttendance } from 'src/vote/entity/vote.entity';
 
 @Controller('group-study')
 export class GroupStudyController {
@@ -282,7 +283,7 @@ export class GroupStudyController {
   }
 
   @Get('attendance/:id')
-  async getAttendanceGroupStudy(@Param('id') id: string) {
+  async getAttendanceGroupStudy(@Param('id') id: string): Promise<any> {
     try {
       const result = await this.groupStudyService.getAttendanceGroupStudy(id);
       return result;

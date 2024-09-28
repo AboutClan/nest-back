@@ -15,7 +15,7 @@ export default class GroupStudyService {
   constructor(
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
     @InjectModel('Counter') private Counter: Model<ICounter>,
-    @InjectModel('User') private Usr: Model<IUser>,
+    @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
     token?: JWT,
   ) {
@@ -462,7 +462,7 @@ export default class GroupStudyService {
     }
   }
 
-  async getAttendanceGroupStudy(id: string) {
+  async getAttendanceGroupStudy(id: string): Promise<any> {
     const groupStudy = await this.GroupStudy.findOne({ id });
     if (!groupStudy) throw new DatabaseError();
 

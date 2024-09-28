@@ -12,8 +12,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { FeedService } from '../services/feedService';
 import { memoryStorage } from 'multer';
+import { FeedService } from './feed.service';
 
 @Controller('feed')
 export class FeedController {

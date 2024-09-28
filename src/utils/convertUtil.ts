@@ -1,4 +1,4 @@
-import { avatarType, IUser } from '../db/models/user';
+import { avatarType, IUser } from 'src/user/entity/user.entity';
 
 export interface IUserSummary2 extends IUserSummary {
   birth: string;

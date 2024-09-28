@@ -1,5 +1,5 @@
 import mongoose, { model, Model, Schema } from 'mongoose';
-import { IUser } from './user';
+import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 export type gatherStatus = 'pending' | 'open' | 'close' | 'end';
