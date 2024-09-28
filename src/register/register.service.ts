@@ -1,22 +1,26 @@
 import * as CryptoJS from 'crypto-js';
 import { JWT } from 'next-auth/jwt';
-import dbConnect from '../db/conn';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IRegistered } from './entity/register.entity';
+import { IRegistered, RegisteredZodSchema } from './entity/register.entity';
+import { WebPushService } from 'src/webpush/webpush.service';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { ValidationError } from 'src/errors/ValidationError';
+import { IUser } from 'src/user/entity/user.entity';
+import dbConnect from 'src/conn';
 
 const logger = require('../../logger');
 
 export default class RegisterService {
   private token: JWT;
-  private webPushServiceInstance: WebPushService;
 
   constructor(
     @InjectModel('Register') private Registered: Model<IRegistered>,
+    @InjectModel('User') private User: Model<IUser>,
+    private readonly webPushServiceInstance: WebPushService,
     token?: JWT,
   ) {
     this.token = token as JWT;
-    this.webPushServiceInstance = new WebPushService();
   }
 
   async encodeByAES56(tel: string) {
@@ -95,7 +99,7 @@ export default class RegisterService {
     try {
       session.startTransaction();
 
-      await User.findOneAndUpdate({ uid }, userForm, {
+      await this.User.findOneAndUpdate({ uid }, userForm, {
         upsert: true,
         new: true,
       }).session(session);

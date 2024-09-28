@@ -8,9 +8,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ImageService } from '../services/imageService';
 import { Multer } from 'multer';
 import { memoryStorage } from 'multer';
+import ImageService from './image.service';
 
 @Controller('image')
 export class ImageController {

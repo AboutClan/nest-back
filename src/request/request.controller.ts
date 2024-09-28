@@ -6,7 +6,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { RequestService } from '../services/requestService';
+import RequestService from './request.service';
 
 // DTOs for request validation
 class CreateRequestDto {

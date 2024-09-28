@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { BookService } from './book.service';
 
 @Controller('books')
@@ -10,5 +10,8 @@ export class BookController {
     try {
       const bookList = await this.bookService.getBookList();
       return bookList;
+    } catch (err) {
+      throw Error(err);
+    }
   }
 }

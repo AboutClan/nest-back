@@ -1,8 +1,22 @@
 import { Dayjs } from 'dayjs';
-import mongoose, { model, Schema, Model, Document } from 'mongoose';
-import { IPlace } from './place';
-import { IUser } from './user';
+import mongoose, {
+  model,
+  Schema,
+  Model,
+  Document,
+  InferSchemaType,
+} from 'mongoose';
+import { IPlace } from 'src/place/entity/place.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
+
+export interface IVoteStudyInfo {
+  place?: string;
+  subPlace?: string[];
+  start: Dayjs;
+  end: Dayjs;
+  memo?: string;
+}
 
 const TimeStartToEndHMZodSchema = z.object({
   start: z
@@ -190,7 +204,7 @@ const ParticipationSchema: Schema<IParticipation> = new Schema(
   { _id: false, strict: false },
 );
 
-const VoteSchema: Schema<IVote> = new Schema({
+export const VoteSchema: Schema<IVote> = new Schema({
   date: Date,
   participations: [ParticipationSchema],
 });

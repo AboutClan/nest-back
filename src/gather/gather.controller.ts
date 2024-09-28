@@ -9,8 +9,13 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { GatherService } from '../services/gatherService';
-import { IsNotEmpty, IsNumeric, IsString } from 'class-validator';
+import { GatherService } from './gather.service';
+import {
+  CreateGatherDto,
+  DeleteGatherDto,
+  ParticipateGatherDto,
+  SetWaitingPersonDto,
+} from './dto';
 
 @Controller('gather')
 export class GatherController {
@@ -117,7 +122,7 @@ export class GatherController {
   }
 
   @Post('comment')
-  async createComment(@Body() body: { id: number; comment: string }) {
+  async createComment(@Body() body: { id: string; comment: string }) {
     try {
       await this.gatherService.createComment(body.id, body.comment);
       return { status: 'success' };
@@ -130,7 +135,7 @@ export class GatherController {
   }
 
   @Delete('comment')
-  async deleteComment(@Body() body: { id: number; commentId: string }) {
+  async deleteComment(@Body() body: { id: string; commentId: string }) {
     try {
       await this.gatherService.deleteComment(body.id, body.commentId);
       return { status: 'success' };
@@ -144,7 +149,7 @@ export class GatherController {
 
   @Patch('comment')
   async patchComment(
-    @Body() body: { id: number; commentId: string; comment: string },
+    @Body() body: { id: string; commentId: string; comment: string },
   ) {
     try {
       await this.gatherService.patchComment(
@@ -178,7 +183,7 @@ export class GatherController {
 
   @Post('subComment/like')
   async createSubCommentLike(
-    @Body() body: { gatherId: number; commentId: string; subCommentId: string },
+    @Body() body: { gatherId: string; commentId: string; subCommentId: string },
   ) {
     try {
       await this.gatherService.createSubCommentLike(
@@ -199,7 +204,7 @@ export class GatherController {
   async updateSubComment(
     @Body()
     body: {
-      gatherId: number;
+      gatherId: string;
       commentId: string;
       subCommentId: string;
       comment: string;
@@ -223,7 +228,7 @@ export class GatherController {
 
   @Delete('subComment')
   async deleteSubComment(
-    @Body() body: { gatherId: number; commentId: string; subCommentId: string },
+    @Body() body: { gatherId: string; commentId: string; subCommentId: string },
   ) {
     try {
       await this.gatherService.deleteSubComment(
@@ -241,7 +246,7 @@ export class GatherController {
   }
 
   @Patch('status')
-  async setStatus(@Body() body: { gatherId: number; status: string }) {
+  async setStatus(@Body() body: { gatherId: string; status: string }) {
     try {
       await this.gatherService.setStatus(body.gatherId, body.status);
       return { status: 'success' };

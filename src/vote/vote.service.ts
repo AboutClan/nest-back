@@ -1,13 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
-import { IVote, Vote } from './entity/vote.entity';
+import {
+  IAbsence,
+  IAttendance,
+  IVote,
+  IVoteStudyInfo,
+  Vote,
+} from './entity/vote.entity';
 import dayjs, { Dayjs } from 'dayjs';
 import { findOneVote } from './util';
+import { IUser, User } from 'src/user/entity/user.entity';
+import { IPlace, Place } from 'src/place/entity/place.entity';
+import { strToDate } from 'src/utils/dateUtils';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class VoteService {
   private token: JWT;
-  constructor(token?: JWT) {
+  constructor(
+    @InjectModel('Vote') private Vote: Model<IVote>,
+    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel(Place.name) private Place: Model<IPlace>,
+    token?: JWT,
+  ) {
     this.token = token as JWT;
   }
 
@@ -125,7 +141,7 @@ export class VoteService {
       let vote = await findOneVote(date);
 
       if (!vote) {
-        const places = await Place.find({ status: 'active' });
+        const places = await this.Place.find({ status: 'active' });
         const participants = places.map((place) => {
           const isPrivate = place.brand === '자유 신청';
           return {
@@ -137,7 +153,7 @@ export class VoteService {
           } as any;
         });
 
-        await Vote.create({
+        await this.Vote.create({
           date,
           participations: participants,
         });
@@ -330,30 +346,28 @@ export class VoteService {
 
       //memo는 개인 스터디 신청에 사용 (사전에 작성)
 
-      vote.participations = vote.participations.map(
-        (participation: IParticipation) => {
-          const placeId = (participation.place as IPlace)._id.toString();
-          const subPlaceIdArr = subPlace;
-          if (placeId === place) {
-            return {
-              ...participation,
-              attendences: [
-                ...(participation.attendences || []),
-                { ...attendance, firstChoice: true, memo },
-              ],
-            };
-          } else if (subPlaceIdArr?.includes(placeId)) {
-            return {
-              ...participation,
-              attendences: [
-                ...(participation.attendences || []),
-                { ...attendance, firstChoice: false, memo },
-              ],
-            };
-          }
-          return participation;
-        },
-      );
+      vote.participations = vote.participations.map((participation) => {
+        const placeId = (participation.place as IPlace)._id.toString();
+        const subPlaceIdArr = subPlace;
+        if (placeId === place) {
+          return {
+            ...participation,
+            attendences: [
+              ...(participation.attendences || []),
+              { ...attendance, firstChoice: true, memo },
+            ],
+          };
+        } else if (subPlaceIdArr?.includes(placeId)) {
+          return {
+            ...participation,
+            attendences: [
+              ...(participation.attendences || []),
+              { ...attendance, firstChoice: false, memo },
+            ],
+          };
+        }
+        return participation;
+      });
 
       await vote.save();
     } catch (err) {
@@ -623,7 +637,7 @@ export class VoteService {
   ) {
     try {
       const { start, end } = studyInfo;
-      const user: any = await User.findOne(
+      const user: any = await this.User.findOne(
         { uid: this.token.uid },
         'studyPreference',
       );
@@ -668,7 +682,7 @@ export class VoteService {
 
   async getArriveCheckCnt() {
     try {
-      const arriveCheckCnt = await Vote.collection
+      const arriveCheckCnt = await this.Vote.collection
         .aggregate([
           {
             $match: {

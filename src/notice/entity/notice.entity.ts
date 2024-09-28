@@ -19,7 +19,7 @@ export interface INotice {
   sub?: string;
 }
 
-const noticeSchema: Schema<INotice> = new Schema(
+export const noticeSchema: Schema<INotice> = new Schema(
   {
     from: String,
     to: String,

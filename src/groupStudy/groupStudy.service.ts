@@ -2,19 +2,28 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { IGroupStudyData } from './entity/groupStudy.entity';
+import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
+import { ICounter } from 'src/counter/entity/counter.entity';
+import { C_simpleUser } from 'src/constants';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { WebPushService } from 'src/webpush/webpush.service';
+import { IAttendance } from 'src/vote/entity/vote.entity';
+import { IUser } from 'src/user/entity/user.entity';
 
 export default class GroupStudyService {
   private token: JWT;
   constructor(
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
+    @InjectModel('Counter') private Counter: Model<ICounter>,
+    @InjectModel('User') private Usr: Model<IUser>,
+    private readonly webPushServiceInstance: WebPushService,
     token?: JWT,
   ) {
     this.token = token as JWT;
   }
 
   async getNextSequence(name: any) {
-    const counter = await Counter.findOne({ key: name });
+    const counter = await this.Counter.findOne({ key: name });
     if (counter) {
       counter.seq++;
       await counter.save();
@@ -347,8 +356,7 @@ export default class GroupStudyService {
       await groupStudy?.save();
     }
 
-    const webPushService = new WebPushService(this.token);
-    webPushService.sendNotificationGroupStudy(id);
+    this.webPushServiceInstance.sendNotificationGroupStudy(id);
 
     return;
   }
@@ -632,7 +640,7 @@ export default class GroupStudyService {
 
   async belongToParticipateGroupStudy() {
     const groupStudies = await this.GroupStudy.find({});
-    const allUser = await User.find({ isActive: true });
+    const allUser = await this.User.find({ isActive: true });
     if (!groupStudies) throw new Error();
 
     const checkGroupBelong = (hashArr: string) => {

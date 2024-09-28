@@ -8,6 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import RegisterService from './register.service';
+import { ApproveUserDto, RegisterUserDto } from './dto';
 
 @Controller('register')
 export class RegisterController {

@@ -1,12 +1,15 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { INotice } from './entity/notice.entity';
+import { INotice, NoticeZodSchema } from './entity/notice.entity';
+import { IUser } from 'src/user/entity/user.entity';
+import { DatabaseError } from 'src/errors/DatabaseError';
 const logger = require('../../logger');
 export default class NoticeService {
   private token: JWT;
   constructor(
     @InjectModel('Notice') private Notice: Model<INotice>,
+    @InjectModel('User') private User: Model<IUser>,
     token?: JWT,
   ) {
     this.token = token as JWT;
@@ -23,7 +26,7 @@ export default class NoticeService {
   }
 
   async deleteLike(to: string) {
-    const updated = await User.findOneAndUpdate(
+    const updated = await this.User.findOneAndUpdate(
       { uid: to },
       { $inc: { like: -1 } },
     );
@@ -39,7 +42,10 @@ export default class NoticeService {
       });
 
       await this.Notice.create(validatedNotice);
-      await User.findOneAndUpdate({ uid: to }, { $inc: { like: 1, point: 2 } });
+      await this.User.findOneAndUpdate(
+        { uid: to },
+        { $inc: { like: 1, point: 2 } },
+      );
 
       logger.logger.info(message, {
         metadata: {

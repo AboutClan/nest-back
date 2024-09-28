@@ -13,7 +13,7 @@ export interface IPromotion {
   uid: string;
 }
 
-const promotionSchema: Schema<IPromotion> = new Schema({
+export const promotionSchema: Schema<IPromotion> = new Schema({
   name: String,
   lastDate: Date,
   uid: String,

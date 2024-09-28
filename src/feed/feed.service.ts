@@ -1,20 +1,19 @@
 import { Model, Types } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
+import { Injectable } from '@nestjs/common';
+import ImageService from 'src/imagez/image.service';
 import {
   commentType,
-  Feed,
   FeedZodSchema,
+  IFeed,
   subCommentType,
-} from '../db/models/feed';
-import { IUser, User } from '../db/models/user';
-import { convertUsersToSummary } from '../utils/convertUtils';
-import ImageService from './imageService';
-import { C_simpleUser } from '../utils/constants';
-import { DatabaseError } from '../errors/DatabaseError';
-import { ValidationError } from '../errors/ValidationError';
-import { IFeed } from './entity/feed.entity';
+} from './entity/feed.entity';
+import { C_simpleUser } from 'src/constants';
+import { IUser } from 'src/user/entity/user.entity';
+import { ValidationError } from 'src/errors/ValidationError';
+import { convertUsersToSummary } from 'src/utils/convertUtil';
+import { DatabaseError } from 'src/errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class FeedService {
@@ -23,6 +22,7 @@ export class FeedService {
 
   constructor(
     @InjectModel('Feed') private Feed: Model<IFeed>,
+    @InjectModel('User') private User: Model<IUser>,
     token?: JWT,
   ) {
     this.token = token as JWT;
@@ -199,7 +199,7 @@ export class FeedService {
 
     if (!feed) throw new DatabaseError('reate comment failed');
 
-    const user = await User.findOneAndUpdate(
+    const user = await this.User.findOneAndUpdate(
       { uid: this.token.uid },
       { $inc: { point: 2 } },
       { new: true, useFindAndModify: false },
@@ -347,7 +347,7 @@ export class FeedService {
 
     const isLikePush = await feed?.addLike(this.token.id);
 
-    const user = await User.findOne({ uid: this.token.uid });
+    const user = await this.User.findOne({ uid: this.token.uid });
     if (!user) return;
     if (isLikePush) user.point += 2;
     else user.point -= 1;

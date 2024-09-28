@@ -1,8 +1,17 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { IGatherData } from './entity/gather.entity';
+import {
+  gatherStatus,
+  IGatherData,
+  subCommentType,
+} from './entity/gather.entity';
 import { Injectable } from '@nestjs/common';
+import { ICounter } from 'src/counter/entity/counter.entity';
+import { C_simpleUser } from 'src/constants';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { IUser } from 'src/user/entity/user.entity';
+import { ChatService } from 'src/chatz/chat.service';
 const logger = require('../../logger');
 
 @Injectable()
@@ -11,13 +20,16 @@ export class GatherService {
 
   constructor(
     @InjectModel('Gather') private Gather: Model<IGatherData>,
+    @InjectModel('Counter') private Counter: Model<ICounter>,
+    @InjectModel('User') private User: Model<IUser>,
+    private readonly chatServiceInstance: ChatService,
     token?: JWT,
   ) {
     this.token = token as JWT;
   }
 
   async getNextSequence(name: any) {
-    const counter = await Counter.findOne({ key: name });
+    const counter = await this.Counter.findOne({ key: name });
     if (counter) {
       counter.seq++;
 
@@ -89,7 +101,7 @@ export class GatherService {
 
     if (!created) throw new DatabaseError('create gather failed');
 
-    const user = await User.findOneAndUpdate(
+    const user = await this.User.findOneAndUpdate(
       { _id: this.token.id },
       { $inc: { score: 5, monthScore: 5 } },
       { new: true, useFindAndModify: false },
@@ -127,7 +139,7 @@ export class GatherService {
       await gather?.save();
     }
 
-    const user = await User.findOneAndUpdate(
+    const user = await this.User.findOneAndUpdate(
       { _id: id },
       { $inc: { score: 5, monthScore: 5 } },
       { new: true, useFindAndModify: false },
@@ -165,7 +177,7 @@ export class GatherService {
 
     if (!gather) throw new Error('Gather not found');
 
-    const user = await User.findOneAndUpdate(
+    const user = await this.User.findOneAndUpdate(
       { _id: this.token.id },
       { $inc: { score: -5 } },
       { new: true, useFindAndModify: false },
@@ -401,7 +413,7 @@ export class GatherService {
     const deleted = await this.Gather.deleteOne({ id: gatherId });
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
-    const user = await User.findOneAndUpdate(
+    const user = await this.User.findOneAndUpdate(
       { _id: this.token.id },
       { $inc: { score: -5, monthScore: -5 } },
       { new: true, useFindAndModify: false },

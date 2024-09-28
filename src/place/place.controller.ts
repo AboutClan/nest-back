@@ -7,7 +7,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { PlaceService } from '../services/placeService';
+import PlaceService from './place.service';
 
 @Controller('place')
 export class PlaceController {

@@ -3,30 +3,32 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { WebPushService } from 'src/webpush/webpush.service';
-import { IChat } from './entity/chat.entity';
+import { ChatZodSchema, ContentZodSchema, IChat } from './entity/chat.entity';
 import { IUser } from 'src/user/entity/user.entity';
+import { FcmService } from 'src/fcm/fcm.service';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class ChatService {
   private token: JWT;
-  private fcmServiceInstance: FcmService;
-  private webPushServiceInstance: WebPushService;
 
   //todo: 의존성주입
   constructor(
-    @InjectModel('Chat') private User: Model<IChat>,
+    @InjectModel('Chat') private Chat: Model<IChat>,
+    @InjectModel('User') private User: Model<IUser>,
+    private readonly fcmServiceInstance: WebPushService,
+    private readonly webPushServiceInstance: WebPushService,
     token?: JWT,
   ) {
     this.token = token as JWT;
-    this.fcmServiceInstance = new FcmService();
-    this.webPushServiceInstance = new WebPushService();
   }
 
   async getChat(userId: string) {
     const user1 = this.token.id > userId ? userId : this.token.id;
     const user2 = this.token.id < userId ? userId : this.token.id;
 
-    const chat = await Chat.findOne({ user1, user2 }).populate([
+    const chat = await this.Chat.findOne({ user1, user2 }).populate([
       'user1',
       'user2',
     ]);
@@ -39,7 +41,7 @@ export class ChatService {
   }
 
   async getChats() {
-    const chats = await Chat.find({
+    const chats = await this.Chat.find({
       $or: [{ user1: this.token.id }, { user2: this.token.id }],
     });
 
@@ -47,7 +49,7 @@ export class ChatService {
       chats.map(async (chat) => {
         const opponentUid =
           chat.user1 == this.token.id ? chat.user2 : chat.user1;
-        const opponent = await User.findById(opponentUid);
+        const opponent = await this.User.findById(opponentUid);
 
         return {
           user: opponent,
@@ -68,7 +70,7 @@ export class ChatService {
     });
   }
   async getRecentChat() {
-    const chat = await Chat.find({
+    const chat = await this.Chat.find({
       $or: [{ user1: this.token.id }, { user2: this.token.id }],
     })
       .sort({ createdAt: -1 })
@@ -85,7 +87,7 @@ export class ChatService {
     const user1 = this.token.id > toUserId ? toUserId : this.token.id;
     const user2 = this.token.id < toUserId ? toUserId : this.token.id;
 
-    const chat = await Chat.findOne({ user1, user2 });
+    const chat = await this.Chat.findOne({ user1, user2 });
 
     const contentFill = {
       content: message,
@@ -103,10 +105,10 @@ export class ChatService {
       await chat.updateOne({ $push: { contents: validatedContent } });
       await chat.save();
     } else {
-      await Chat.create(validatedChat);
+      await this.Chat.create(validatedChat);
     }
 
-    const toUser = await User.findById(toUserId);
+    const toUser = await this.User.findById(toUserId);
     if (toUser) {
       await this.fcmServiceInstance.sendNotificationToX(
         toUser.uid,

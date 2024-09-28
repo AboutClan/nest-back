@@ -1,5 +1,5 @@
 import mongoose, { model, Model, Schema, Types } from 'mongoose';
-import { IUser } from './user';
+import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 export const SubCommentZodSchema = z.object({
@@ -105,7 +105,7 @@ export interface subCommentType {
   comment: string;
   likeList?: string[];
 }
-interface SecretSquareItem {
+export interface SecretSquareItem {
   category: SecretSquareCategory;
   title: string;
   content: string;
@@ -121,7 +121,7 @@ interface SecretSquareItem {
   comments: Comment[];
 }
 
-interface PollItem {
+export interface PollItem {
   _id: Types.ObjectId;
   name: string;
   users: Types.ObjectId[];

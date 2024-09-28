@@ -1,6 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { IPlace } from './place';
-import { InterestSchema, IRegistered, MajorSchema } from './registered';
+import { IPlace } from 'src/place/entity/place.entity';
+import { IRegistered } from 'src/register/entity/register.entity';
 import { z } from 'zod';
 
 // restType Zod schema

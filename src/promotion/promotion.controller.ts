@@ -6,7 +6,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { PromotionService } from '../services/promotionService';
+import PromotionService from './promotion.service';
 
 @Controller('promotion')
 export class PromotionController {

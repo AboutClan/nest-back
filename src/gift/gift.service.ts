@@ -1,9 +1,8 @@
 import { JWT } from 'next-auth/jwt';
-import { GiftModel, StoreZodSchema } from '../db/models/gift';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IStoreApplicant } from './entity/gift.entity';
+import { IStoreApplicant, StoreZodSchema } from './entity/gift.entity';
 
 @Injectable()
 export class GiftService {
@@ -16,7 +15,7 @@ export class GiftService {
   }
 
   async getAllGift() {
-    const giftUsers = await GiftModel.find({})
+    const giftUsers = await this.Gift.find({})
       .sort('createdAt')
       .select('-_id -createdAt -updatedAt -__v');
 
@@ -24,7 +23,7 @@ export class GiftService {
   }
 
   async getGift(id: number) {
-    const giftUser = await GiftModel.find({ giftId: id }).select(
+    const giftUser = await this.Gift.find({ giftId: id }).select(
       '-_id -createdAt -updatedAt -__v',
     );
 
@@ -33,7 +32,7 @@ export class GiftService {
 
   async setGift(name: any, cnt: any, giftId: any) {
     const { uid } = this.token;
-    const existingUser = await GiftModel.findOne({
+    const existingUser = await this.Gift.findOne({
       uid,
       giftId,
     });
@@ -45,7 +44,7 @@ export class GiftService {
         giftId,
       });
 
-      const user = await GiftModel.findOneAndUpdate(
+      const user = await this.Gift.findOneAndUpdate(
         { uid: this.token.uid },
         validatedGift,
         { new: true, runValidators: true },
@@ -57,7 +56,7 @@ export class GiftService {
       return user;
     }
 
-    const newUser = await GiftModel.create({ name, uid, cnt, giftId });
+    const newUser = await this.Gift.create({ name, uid, cnt, giftId });
     return newUser;
   }
 }

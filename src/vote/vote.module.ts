@@ -2,9 +2,15 @@ import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { VoteController } from './vote.controller';
 import { VoteService } from './vote.service';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from 'src/user/entity/user.entity';
+import { Place, PlaceSchema } from 'src/place/entity/place.entity';
 
 @Module({
-  imports: [],
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Place.name, schema: PlaceSchema }]),
+  ],
   controllers: [VoteController],
   providers: [VoteService],
   exports: [VoteService],

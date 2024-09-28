@@ -9,6 +9,7 @@ import { IDailyCheck } from 'src/dailyCheck/entity/dailyCheck.entity';
 export class FcmService {
   private token?: JWT;
   private payload: any;
+  static MongooseModule: any;
 
   constructor(
     @InjectModel('Collection') private DailyCheck: Model<IDailyCheck>,

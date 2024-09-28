@@ -1,21 +1,22 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IGroupStudyData } from './entity/groupStudy.entity';
 
 // DTOs for request validation
-class CreateGroupStudyDto {
+export class CreateGroupStudyDto {
   @IsNotEmpty({ message: 'groupStudy필요' })
-  groupStudy: string;
+  groupStudy: IGroupStudyData;
 }
 
-class ParticipateGroupStudyDto {
+export class ParticipateGroupStudyDto {
   @IsNotEmpty({ message: 'id필요' })
   @IsNumber()
-  id: number;
+  id: string;
 }
 
-class CommentDto {
+export class CommentDto {
   @IsNotEmpty({ message: 'id필요' })
   @IsNumber()
-  id: number;
+  id: string;
 
   @IsNotEmpty({ message: 'comment필요' })
   @IsString()

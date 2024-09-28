@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { strToDate } from './utils/strToDate'; // 날짜 변환 함수
+import { strToDate } from 'src/utils/dateUtils';
 
 @Injectable()
 export class SetDateParamMiddleware implements NestMiddleware {

@@ -3,13 +3,29 @@ import { JWT } from 'next-auth/jwt';
 import * as CryptoJS from 'crypto-js';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IUser } from './entity/user.entity';
+import { IUser, restType } from './entity/user.entity';
+import dayjs from 'dayjs';
+import { convertUserToSummary2 } from 'src/utils/convertUtil';
+import { getProfile } from 'src/utils/oAuthUtils';
+import { IVote, Vote } from 'src/vote/entity/vote.entity';
+import { IPlace, Place } from 'src/place/entity/place.entity';
+import { IPromotion, Promotion } from 'src/promotion/entity/promotion.entity';
+import { ILog, Log } from 'src/logz/entity/log.entity';
+import { INotice, Notice } from 'src/notice/entity/notice.entity';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { Counter, ICounter } from 'src/counter/entity/counter.entity';
 
 @Injectable()
 export class UserService {
   private token: JWT;
   constructor(
     @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(Vote.name) private Vote: Model<IVote>,
+    @InjectModel(Place.name) private Place: Model<IPlace>,
+    @InjectModel(Promotion.name) private Promotion: Model<IPromotion>,
+    @InjectModel(Log.name) private Log: Model<ILog>,
+    @InjectModel(Notice.name) private Notice: Model<INotice>,
+    @InjectModel(Counter.name) private Counter: Model<ICounter>,
     token?: JWT,
   ) {
     this.token = token as JWT;
@@ -57,7 +73,10 @@ export class UserService {
     let queryString = this.createQueryString(strArr);
     if (strArr.length) queryString = '-_id' + queryString;
 
-    const result = await User.findOne({ uid: this.token.uid }, queryString);
+    const result = await this.User.findOne(
+      { uid: this.token.uid },
+      queryString,
+    );
 
     if (result && result.telephone)
       result.telephone = await this.decodeByAES256(result.telephone);
@@ -78,7 +97,7 @@ export class UserService {
   }
 
   async getSimpleUserInfo() {
-    const result = await User.findOne({ uid: this.token.uid }).select(
+    const result = await this.User.findOne({ uid: this.token.uid }).select(
       'avatar birth comment isActive location name profileImage score uid',
     );
 
@@ -157,7 +176,7 @@ export class UserService {
       }, []);
 
       let forParticipation: any[];
-      forParticipation = await Vote.collection
+      forParticipation = await this.Vote.collection
         .aggregate([
           {
             $match: {
@@ -246,7 +265,7 @@ export class UserService {
         return { ...accumulator, [user.uid.toString()]: 0 };
       }, {});
 
-      const forVote = await Vote.collection
+      const forVote = await this.Vote.collection
         .aggregate([
           {
             $match: {
@@ -423,7 +442,7 @@ export class UserService {
       //update main preference
       if (user?.studyPreference?.place) {
         const placeId = user?.studyPreference.place;
-        await Place.updateOne(
+        await this.Place.updateOne(
           { _id: placeId, prefCnt: { $gt: 0 } },
           { $inc: { prefCnt: -1 } },
         );
@@ -437,7 +456,7 @@ export class UserService {
       //update sub preference
       if (user?.studyPreference?.subPlace) {
         user?.studyPreference?.subPlace.forEach(async (placeId) => {
-          await Place.updateOne(
+          await this.Place.updateOne(
             { _id: placeId, prefCnt: { $gt: 0 } },
             { $inc: { prefCnt: -1 } },
           );
@@ -445,9 +464,9 @@ export class UserService {
       }
 
       subPlace.forEach(async (placeId) => {
-        await Place.updateOne({ _id: placeId }, { $inc: { prefCnt: 1 } });
+        await this.Place.updateOne({ _id: placeId }, { $inc: { prefCnt: 1 } });
       });
-      await Place.updateOne({ _id: place }, { $inc: { prefCnt: 1 } });
+      await this.Place.updateOne({ _id: place }, { $inc: { prefCnt: 1 } });
     } catch (err: any) {
       throw new Error(err);
     }
@@ -485,7 +504,7 @@ export class UserService {
           user.role = role;
           await user.save();
         }
-        await Counter.updateOne(
+        await this.Counter.updateOne(
           {
             key: 'enthusiasticMember',
             location: user?.location,
@@ -565,7 +584,7 @@ export class UserService {
     await this.User.findOneAndUpdate(filterMine, updateMine, options);
     await this.User.findOneAndUpdate(filterRequester, updateRequester, options);
 
-    await Notice.create({
+    await this.Notice.create({
       from: this.token.uid,
       to: toUid,
       message: `${this.token.name}님과 친구가 되었습니다.`,
@@ -577,19 +596,19 @@ export class UserService {
   }
 
   async getPromotion() {
-    const promotionData = await Promotion.find({}, '-_id -__v');
+    const promotionData = await this.Promotion.find({}, '-_id -__v');
     return promotionData;
   }
 
   async setPromotion(name: string) {
     try {
-      const previousData = await Promotion.findOne({ name });
+      const previousData = await this.Promotion.findOne({ name });
       const now = dayjs().format('YYYY-MM-DD');
 
       if (previousData) {
         const dayDiff = dayjs(now).diff(dayjs(previousData?.lastDate), 'day');
         if (dayDiff > 2) {
-          await Promotion.updateOne(
+          await this.Promotion.updateOne(
             { name },
             { name, uid: this.token.uid, lastDate: now },
           );
@@ -597,7 +616,11 @@ export class UserService {
           await this.updatePoint(200, '홍보 이벤트 참여');
         }
       } else {
-        await Promotion.create({ name, uid: this.token.uid, lastDate: now });
+        await this.Promotion.create({
+          name,
+          uid: this.token.uid,
+          lastDate: now,
+        });
         await this.updatePoint(300, '홍보 이벤트 참여');
       }
     } catch (err: any) {
@@ -627,7 +650,7 @@ export class UserService {
       currentDate.getMonth() + 1,
       0,
     );
-    const logs = await Log.find(
+    const logs = await this.Log.find(
       {
         'meta.type': 'score',
         'meta.uid': this.token.uid,
@@ -644,7 +667,7 @@ export class UserService {
   }
 
   async getLog(type: string) {
-    const logs = await Log.find(
+    const logs = await this.Log.find(
       {
         'meta.uid': this.token.uid,
         'meta.type': type,
@@ -657,7 +680,7 @@ export class UserService {
   }
 
   async getAllLog(type: string) {
-    const logs = await Log.find(
+    const logs = await this.Log.find(
       { 'meta.type': type },
       '-_id timestamp message meta',
     );

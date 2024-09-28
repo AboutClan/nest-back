@@ -1,18 +1,18 @@
 import { IsString, IsDateString, IsOptional } from 'class-validator';
+import { Dayjs } from 'dayjs';
 
 export class CreateVoteDTO {
   @IsString()
   place: string;
 
-  @IsString()
   @IsOptional() // 선택적 필드로 설정
-  subPlace?: string;
+  subPlace?: string[];
 
   @IsString()
-  start: string;
+  start: Dayjs;
 
   @IsString()
-  end: string;
+  end: Dayjs;
 
   @IsString()
   @IsOptional() // 선택적 필드로 설정

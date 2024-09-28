@@ -1,17 +1,20 @@
-import { Request, RequestZodSchema } from '../db/models/request';
+import { InjectModel } from '@nestjs/mongoose';
+
 import { DatabaseError } from '../errors/DatabaseError';
+import { Model } from 'mongoose';
+import { IRequestData, RequestZodSchema } from './entity/request.entity';
 
 export default class RequestService {
-  constructor() {}
+  constructor(@InjectModel('Request') private Request: Model<IRequestData>) {}
 
   async getRequest() {
-    const gatherData = await Request.find({}, '-_id');
+    const gatherData = await this.Request.find({}, '-_id');
     return gatherData;
   }
 
   async createRequest(data: any) {
     const validatedRequest = RequestZodSchema.parse(data);
-    const created = await Request.create(validatedRequest);
+    const created = await this.Request.create(validatedRequest);
 
     if (!created) throw new DatabaseError('create request failed');
     return;

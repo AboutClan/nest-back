@@ -7,13 +7,17 @@ import {
 } from './entity/collection.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { IUser } from 'src/user/entity/user.entity';
+import { ALPHABET_COLLECTION } from 'src/constants';
+import { IRequestData } from 'src/request/entity/request.entity';
 
 @Injectable()
 export class CollectionService {
   private token: JWT;
-  private ALPHABET_COLLECTION = ['A', 'B', 'O', 'U', 'T'];
   constructor(
     @InjectModel('Collection') private Collection: Model<ICollection>,
+    @InjectModel('Request') private Request: Model<IRequestData>,
+    @InjectModel('User') private User: Model<IUser>,
     token?: JWT,
   ) {
     this.token = token as JWT;
@@ -47,7 +51,7 @@ export class CollectionService {
     toUid: string,
   ) {
     //todo: User 의존성
-    const findToUser = await User.findOne({ uid: toUid });
+    const findToUser = await this.User.findOne({ uid: toUid });
     const myAlphabets = await this.Collection.findOne({ user: myId });
     const opponentAlphabets = await this.Collection.findOne({
       user: findToUser?._id,
@@ -84,11 +88,11 @@ export class CollectionService {
         const idx = myAlphabets?.indexOf(item);
         if (idx !== -1) myAlphabets?.splice(idx as number, 1);
       });
-      await Collection.updateOne(
+      await this.Collection.updateOne(
         { user: this.token.id },
         { $set: { collects: myAlphabets }, $inc: { collectCnt: 1 } },
       );
-      await Request.create({
+      await this.Request.create({
         category: '건의',
         title: '알파벳 완성',
         writer: this.token.name,

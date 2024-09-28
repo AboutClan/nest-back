@@ -1,5 +1,8 @@
 import { JWT } from 'next-auth/jwt';
 import S3 from 'aws-sdk/clients/s3';
+import { findOneVote } from 'src/vote/util';
+import { strToDate } from 'src/utils/dateUtils';
+import { IUser } from 'src/user/entity/user.entity';
 
 export default class ImageService {
   private token: JWT;

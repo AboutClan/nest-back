@@ -11,10 +11,10 @@ import {
   UseInterceptors,
   HttpException,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { SquareService } from '../services/squareService';
 import {
   IsNotEmpty,
   IsArray,
@@ -23,29 +23,16 @@ import {
   IsBoolean,
   IsOptional,
 } from 'class-validator';
+import SquareService from './square.service';
+import ImageService from 'src/imagez/image.service';
+import {
+  PollItem,
+  SecretSquareCategory,
+  SecretSquareType,
+} from './entity/square.entity';
+import { CreateSquareDto } from './createSquareDto';
 
 // DTOs for request validation
-class CreateSquareDto {
-  @IsNotEmpty({ message: 'Title is required' })
-  title: string;
-
-  @IsNotEmpty({ message: 'Content is required' })
-  content: string;
-
-  @IsIn(['poll', 'general'], { message: 'Invalid type' })
-  type: string;
-
-  @IsNotEmpty({ message: 'Category is required' })
-  category: string;
-
-  @IsOptional()
-  @IsArray()
-  pollItems?: string[];
-
-  @IsOptional()
-  @IsBoolean()
-  canMultiple?: boolean;
-}
 
 @Controller('square')
 export class SquareController {
@@ -53,7 +40,7 @@ export class SquareController {
 
   @Get()
   async getSquareList(
-    @Query('category') category: string = 'all',
+    @Query('category') category: SecretSquareCategory | 'all' = 'all',
     @Query('cursor') cursor: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor, 10) : null;
