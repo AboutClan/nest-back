@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationSub } from './entity/notificationsub.entity';
 import { JWT } from 'next-auth/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AppError } from 'src/errors/AppError';
@@ -12,6 +11,10 @@ import {
   GroupStudy,
   IGroupStudyData,
 } from 'src/groupStudy/entity/groupStudy.entity';
+import {
+  INotificationSub,
+  NotificationSub,
+} from './entity/notificationsub.entity';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable()
@@ -24,6 +27,8 @@ export class WebPushService {
     private readonly configService: ConfigService,
     @InjectModel(User.name) private User: Model<IUser>,
     @InjectModel(GroupStudy.name) private GroupStudy: Model<IGroupStudyData>,
+    @InjectModel(NotificationSub.name)
+    private NotificationSub: Model<INotificationSub>,
     token?: JWT,
   ) {
     const publicKey = this.configService.get<string>('PUBLIC_KEY');
@@ -72,7 +77,7 @@ export class WebPushService {
 
   //test need
   async subscribe(subscription: any) {
-    await NotificationSub.updateOne(
+    await this.NotificationSub.updateOne(
       { uid: this.token?.uid, endpoint: subscription.endpoint },
       { ...subscription, uid: this.token?.uid },
       { upsert: true }, // 문서가 없으면 새로 생성, 있으면 업데이트 안 함
@@ -82,7 +87,7 @@ export class WebPushService {
   }
 
   async sendNotificationAllUser() {
-    const subscriptions = await NotificationSub.find();
+    const subscriptions = await this.NotificationSub.find();
 
     for (const subscription of subscriptions) {
       try {
@@ -110,7 +115,7 @@ export class WebPushService {
       body: description || '테스트 알림이에요',
     });
 
-    const subscriptions = await NotificationSub.find({ uid });
+    const subscriptions = await this.NotificationSub.find({ uid });
 
     subscriptions.forEach((subscription) => {
       const push = new PushNotifications(this.settings);
@@ -139,7 +144,7 @@ export class WebPushService {
     });
 
     const memberArray = Array.from(members);
-    const subscriptions = await NotificationSub.find({
+    const subscriptions = await this.NotificationSub.find({
       uid: { $in: memberArray },
     });
 
@@ -154,14 +159,14 @@ export class WebPushService {
 
   //Todo: and 사용하도록 수정
   async sendNotificationToManager(location: string) {
-    const managers = await User.find({ role: 'manager' });
+    const managers = await this.User.find({ role: 'manager' });
     const managerUidList = new Array();
 
     managers.forEach((manager) => {
       if (manager.location == location) managerUidList.push(manager.uid);
     });
 
-    const managerNotiInfo = await NotificationSub.find({
+    const managerNotiInfo = await this.NotificationSub.find({
       uid: { $in: managerUidList },
     });
 
@@ -214,7 +219,7 @@ export class WebPushService {
     });
 
     try {
-      const subscriptions = await NotificationSub.find();
+      const subscriptions = await this.NotificationSub.find();
 
       subscriptions.forEach((subscription) => {
         const push = new PushNotifications(this.settings);

@@ -12,10 +12,9 @@ import { Counter, CounterSchema } from 'src/counter/entity/counter.entity';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Gather.name, schema: GatherSchema }]),
     MongooseModule.forFeature([{ name: Counter.name, schema: CounterSchema }]),
-    ChatService,
   ],
   controllers: [GatherController],
-  providers: [GatherService],
+  providers: [GatherService, ChatService],
   exports: [GatherService],
 })
-export class AppModule {}
+export class GatherModule {}

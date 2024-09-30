@@ -8,8 +8,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import { IUser } from 'src/user/entity/user.entity';
 import dbConnect from 'src/conn';
-
-const logger = require('../../logger');
+import * as logger from '../logger';
 
 export default class RegisterService {
   private token: JWT;

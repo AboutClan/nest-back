@@ -8,10 +8,9 @@ import { WebPushService } from 'src/webpush/webpush.service';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    WebPushService,
   ],
   controllers: [RegisterController],
-  providers: [RegisterService],
+  providers: [RegisterService, WebPushService],
   exports: [RegisterService],
 })
-export class AppModule {}
+export class RegisterModule {}

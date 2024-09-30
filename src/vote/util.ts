@@ -9,4 +9,4 @@ export const findOneVote = async (date: Date) =>
   ]);
 
 const TZ_SEOUL = 'Asia/Seoul';
-export const now = () => dayjs().tz(TZ_SEOUL);
+export const now = () => dayjs();

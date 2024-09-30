@@ -14,4 +14,4 @@ import { User, UserSchema } from 'src/user/entity/user.entity';
   providers: [StaticService],
   exports: [StaticService],
 })
-export class AppModule {}
+export class StaticModule {}

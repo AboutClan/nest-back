@@ -14,6 +14,7 @@ import { ILog, Log } from 'src/logz/entity/log.entity';
 import { INotice, Notice } from 'src/notice/entity/notice.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { Counter, ICounter } from 'src/counter/entity/counter.entity';
+import * as logger from '../logger';
 
 @Injectable()
 export class UserService {

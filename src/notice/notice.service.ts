@@ -4,7 +4,8 @@ import { JWT } from 'next-auth/jwt';
 import { INotice, NoticeZodSchema } from './entity/notice.entity';
 import { IUser } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
-const logger = require('../../logger');
+import * as logger from '../logger';
+
 export default class NoticeService {
   private token: JWT;
   constructor(

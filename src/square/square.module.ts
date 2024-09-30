@@ -9,4 +9,4 @@ import ImageService from 'src/imagez/image.service';
   providers: [SquareService],
   exports: [SquareService],
 })
-export class AppModule {}
+export class SquareModule {}

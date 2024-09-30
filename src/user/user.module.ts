@@ -27,4 +27,4 @@ import { Notice, noticeSchema } from 'src/notice/entity/notice.entity';
   providers: [UserService],
   exports: [UserService],
 })
-export class AppModule {}
+export class UserModule {}

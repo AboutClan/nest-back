@@ -1,19 +1,22 @@
 import { JWT } from 'next-auth/jwt';
-import S3 from 'aws-sdk/clients/s3';
+import { S3Client } from '@aws-sdk/client-s3';
 import { findOneVote } from 'src/vote/util';
 import { strToDate } from 'src/utils/dateUtils';
 import { IUser } from 'src/user/entity/user.entity';
+import { Upload } from '@aws-sdk/lib-storage';
 
 export default class ImageService {
   private token: JWT;
-  private s3: S3;
+  private s3: S3Client;
 
   constructor(token?: JWT) {
     this.token = token as JWT;
 
-    this.s3 = new S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_KEY,
+    this.s3 = new S3Client({
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_KEY,
+      },
       region: 'ap-northeast-2',
     });
   }
@@ -30,14 +33,18 @@ export default class ImageService {
   }
 
   async uploadSingleImage(path: string, buffer: Buffer, index?: number) {
-    const params = {
-      Bucket: 'studyabout',
-      Key: `${path}/${Math.floor(Date.now() / 1000).toString()}${index ? index : ''}.jpg`,
-      Body: buffer,
-    };
-
     try {
-      const data = await this.s3.upload(params).promise();
+      // const data = await this.s3.upload(params).promise();
+      const upload = new Upload({
+        client: this.s3, // S3 클라이언트를 설정합니다.
+        params: {
+          Bucket: 'studyabout',
+          Key: `${path}/${Math.floor(Date.now() / 1000).toString()}${index ? index : ''}.jpg`,
+          Body: buffer,
+        },
+      });
+      const data = await upload.done();
+
       return data.Location;
     } catch (error: any) {
       throw new Error(error.message);

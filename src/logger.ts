@@ -1,8 +1,8 @@
-const os = require("os");
-const winston = require("winston");
-const winstonDaily = require("winston-daily-rotate-file");
-require("winston-syslog");
-require("winston-mongodb");
+const os = require('os');
+const winston = require('winston');
+const winstonDaily = require('winston-daily-rotate-file');
+require('winston-syslog');
+require('winston-mongodb');
 // const process = require("process");
 
 const { combine, timestamp, label, printf } = winston.format;
@@ -22,22 +22,22 @@ const logFormat = printf(({ level, message, label, timestamp }: any) => {
 
 const mongoDBTransport = new winston.transports.MongoDB({
   db: process.env.MONGODB_URI,
-  collection: "logs",
+  collection: 'logs',
 });
 
-const logger = winston.createLogger({
+export const logger = winston.createLogger({
   format: winston.format.simple(),
   levels: winston.config.syslog.levels,
   transports: [mongoDBTransport],
 });
 
-const getLogsFromMongoDB = async () => {
+export const getLogsFromMongoDB = async () => {
   try {
-    const logs = await mongoDBTransport.query({}, { limit: 10, order: "desc" });
+    const logs = await mongoDBTransport.query({}, { limit: 10, order: 'desc' });
 
     return logs;
   } catch (error) {
-    console.error("로그 가져오기 실패:", error);
+    console.error('로그 가져오기 실패:', error);
   }
 };
 
@@ -94,5 +94,3 @@ const getLogsFromMongoDB = async () => {
 //     })
 //   );
 // }
-
-module.exports = { logger, getLogsFromMongoDB };

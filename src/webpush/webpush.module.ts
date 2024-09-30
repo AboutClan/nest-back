@@ -19,4 +19,4 @@ import {
   providers: [WebPushService],
   exports: [WebPushService],
 })
-export class AppModule {}
+export class WebPushModule {}

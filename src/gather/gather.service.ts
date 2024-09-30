@@ -12,7 +12,7 @@ import { C_simpleUser } from 'src/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/entity/user.entity';
 import { ChatService } from 'src/chatz/chat.service';
-const logger = require('../../logger');
+import * as logger from '../logger';
 
 @Injectable()
 export class GatherService {

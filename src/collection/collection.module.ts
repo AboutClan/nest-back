@@ -14,4 +14,4 @@ import { User, UserSchema } from 'src/user/entity/user.entity';
   providers: [CollectionService],
   exports: [CollectionService],
 })
-export class AppModule {}
+export class CollectionModule {}

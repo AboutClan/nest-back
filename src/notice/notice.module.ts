@@ -8,12 +8,10 @@ import { User, UserSchema } from 'src/user/entity/user.entity';
 
 @Module({
   imports: [
-    WebPushService,
-    FcmService,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [NoticeController],
-  providers: [NoticeService],
+  providers: [NoticeService, WebPushService, FcmService],
   exports: [NoticeService],
 })
-export class AppModule {}
+export class NoticeModule {}

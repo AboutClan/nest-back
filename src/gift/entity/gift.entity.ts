@@ -16,7 +16,7 @@ export interface IStoreApplicant {
   giftId?: number;
 }
 
-const giftSchema: Schema = new Schema(
+export const giftSchema: Schema = new Schema(
   {
     uid: { type: String, ref: 'User' },
     name: { type: String, ref: 'User' },

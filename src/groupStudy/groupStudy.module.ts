@@ -10,10 +10,9 @@ import { WebPushService } from 'src/webpush/webpush.service';
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Counter.name, schema: CounterSchema }]),
-    WebPushService,
   ],
   controllers: [GroupStudyController],
-  providers: [GroupStudyService],
+  providers: [GroupStudyService, WebPushService],
   exports: [GroupStudyService],
 })
-export class AppModule {}
+export class GroupStudyModule {}
