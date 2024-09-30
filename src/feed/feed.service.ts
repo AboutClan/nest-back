@@ -14,6 +14,7 @@ import { ValidationError } from 'src/errors/ValidationError';
 import { convertUsersToSummary } from 'src/utils/convertUtil';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class FeedService {
@@ -23,10 +24,9 @@ export class FeedService {
   constructor(
     @InjectModel('Feed') private Feed: Model<IFeed>,
     @InjectModel('User') private User: Model<IUser>,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
-    this.imageServiceInstance = new ImageService(token);
+    this.token = RequestContext.getDecodedToken();
+    this.imageServiceInstance = new ImageService();
   }
 
   async findFeedByType(

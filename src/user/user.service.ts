@@ -15,6 +15,7 @@ import { INotice, Notice } from 'src/notice/entity/notice.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { Counter, ICounter } from 'src/counter/entity/counter.entity';
 import * as logger from '../logger';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class UserService {
@@ -27,9 +28,8 @@ export class UserService {
     @InjectModel(Log.name) private Log: Model<ILog>,
     @InjectModel(Notice.name) private Notice: Model<INotice>,
     @InjectModel(Counter.name) private Counter: Model<ICounter>,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async decodeByAES256(encodedTel: string) {

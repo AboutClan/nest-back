@@ -13,6 +13,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/entity/user.entity';
 import { ChatService } from 'src/chatz/chat.service';
 import * as logger from '../logger';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class GatherService {
@@ -23,9 +24,8 @@ export class GatherService {
     @InjectModel('Counter') private Counter: Model<ICounter>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly chatServiceInstance: ChatService,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async getNextSequence(name: any) {

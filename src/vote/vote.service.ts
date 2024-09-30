@@ -14,6 +14,7 @@ import { IPlace, Place } from 'src/place/entity/place.entity';
 import { strToDate } from 'src/utils/dateUtils';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class VoteService {
@@ -22,9 +23,8 @@ export class VoteService {
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel(User.name) private User: Model<IUser>,
     @InjectModel(Place.name) private Place: Model<IPlace>,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async getArrivedPeriod(startDay: string, endDay: string) {

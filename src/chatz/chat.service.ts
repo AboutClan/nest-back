@@ -8,6 +8,7 @@ import { IUser } from 'src/user/entity/user.entity';
 import { FcmService } from 'src/fcm/fcm.service';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import dayjs from 'dayjs';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class ChatService {
@@ -19,9 +20,8 @@ export class ChatService {
     @InjectModel('User') private User: Model<IUser>,
     private readonly fcmServiceInstance: WebPushService,
     private readonly webPushServiceInstance: WebPushService,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async getChat(userId: string) {

@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { JWT } from 'next-auth/jwt';
+import { RequestContext } from 'src/request-context';
 import { now } from 'src/vote/util';
 
 @Injectable()
 export class BookService {
   private token: JWT;
-  constructor(token?: JWT) {
-    this.token = token as JWT;
+  constructor() {
+    this.token = RequestContext.getDecodedToken();
   }
 
   async getBookList() {

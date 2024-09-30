@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import { IUser } from 'src/user/entity/user.entity';
 import { ALPHABET_COLLECTION } from 'src/constants';
 import { IRequestData } from 'src/request/entity/request.entity';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class CollectionService {
@@ -18,9 +19,8 @@ export class CollectionService {
     @InjectModel('Collection') private Collection: Model<ICollection>,
     @InjectModel('Request') private Request: Model<IRequestData>,
     @InjectModel('User') private User: Model<IUser>,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async setCollection(alphabet: string) {

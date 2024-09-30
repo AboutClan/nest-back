@@ -9,6 +9,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { IAttendance } from 'src/vote/entity/vote.entity';
 import { IUser } from 'src/user/entity/user.entity';
+import { RequestContext } from 'src/request-context';
 
 export default class GroupStudyService {
   private token: JWT;
@@ -17,9 +18,8 @@ export default class GroupStudyService {
     @InjectModel('Counter') private Counter: Model<ICounter>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async getNextSequence(name: any) {

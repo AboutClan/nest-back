@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
+import { JWT } from 'next-auth/jwt';
 
 @Injectable()
 export class RequestContext {
@@ -11,5 +12,9 @@ export class RequestContext {
 
   static getRequest(): Request {
     return RequestContext.request;
+  }
+
+  static getDecodedToken(): JWT {
+    return RequestContext.getRequest().decodedToken;
   }
 }

@@ -4,13 +4,14 @@ import { findOneVote } from 'src/vote/util';
 import { strToDate } from 'src/utils/dateUtils';
 import { IUser } from 'src/user/entity/user.entity';
 import { Upload } from '@aws-sdk/lib-storage';
+import { RequestContext } from 'src/request-context';
 
 export default class ImageService {
   private token: JWT;
   private s3: S3Client;
 
-  constructor(token?: JWT) {
-    this.token = token as JWT;
+  constructor() {
+    this.token = RequestContext.getDecodedToken();
 
     this.s3 = new S3Client({
       credentials: {

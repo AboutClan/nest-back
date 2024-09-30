@@ -9,6 +9,7 @@ import { ValidationError } from 'src/errors/ValidationError';
 import { IUser } from 'src/user/entity/user.entity';
 import dbConnect from 'src/conn';
 import * as logger from '../logger';
+import { RequestContext } from 'src/request-context';
 
 export default class RegisterService {
   private token: JWT;
@@ -17,9 +18,8 @@ export default class RegisterService {
     @InjectModel('Register') private Registered: Model<IRegistered>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async encodeByAES56(tel: string) {

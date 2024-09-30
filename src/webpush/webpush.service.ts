@@ -15,6 +15,7 @@ import {
   INotificationSub,
   NotificationSub,
 } from './entity/notificationsub.entity';
+import { RequestContext } from 'src/request-context';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable()
@@ -29,12 +30,11 @@ export class WebPushService {
     @InjectModel(GroupStudy.name) private GroupStudy: Model<IGroupStudyData>,
     @InjectModel(NotificationSub.name)
     private NotificationSub: Model<INotificationSub>,
-    token?: JWT,
   ) {
     const publicKey = this.configService.get<string>('PUBLIC_KEY');
     const privateKey = this.configService.get<string>('PRIVATE_KEY');
 
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
     this.settings = {
       web: {
         vapidDetails: {

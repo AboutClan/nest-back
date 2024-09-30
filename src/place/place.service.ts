@@ -4,14 +4,12 @@ import { JWT } from 'next-auth/jwt';
 import { IPlace, PlaceZodSchema } from './entity/place.entity';
 import { ValidationError } from 'src/errors/ValidationError';
 import { DatabaseError } from 'src/errors/DatabaseError';
+import { RequestContext } from 'src/request-context';
 
 export default class PlaceService {
   private token: JWT;
-  constructor(
-    @InjectModel('Place') private Place: Model<IPlace>,
-    token?: JWT,
-  ) {
-    this.token = token as JWT;
+  constructor(@InjectModel('Place') private Place: Model<IPlace>) {
+    this.token = RequestContext.getDecodedToken();
   }
   async getActivePlace(status: 'active' | 'inactive') {
     try {

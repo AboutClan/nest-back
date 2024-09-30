@@ -10,6 +10,7 @@ import { AppError } from 'src/errors/AppError';
 import dayjs from 'dayjs';
 import { findOneVote } from 'src/vote/util';
 import { IUser } from 'src/user/entity/user.entity';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class FcmService {
@@ -20,9 +21,8 @@ export class FcmService {
   constructor(
     @InjectModel('FcmToken') private FcmToken: Model<IFcmToken>,
     @InjectModel('Collection') private DailyCheck: Model<IDailyCheck>,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
     const fcm = process.env.FCM_INFO;
     if (!admin.apps.length && fcm) {
       const serviceAccount = JSON.parse(fcm);

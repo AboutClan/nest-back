@@ -4,15 +4,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IUser } from 'src/user/entity/user.entity';
 import { ILog, Log } from 'src/logz/entity/log.entity';
+import { RequestContext } from 'src/request-context';
 
 export default class StaticService {
   private token: JWT;
   constructor(
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel(Log.name) private Log: Model<ILog>,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async roleCheck() {

@@ -9,6 +9,7 @@ import {
   subCommentType,
 } from './entity/square.entity';
 import ImageService from 'src/imagez/image.service';
+import { RequestContext } from 'src/request-context';
 
 export default class SquareService {
   private token: JWT;
@@ -16,9 +17,8 @@ export default class SquareService {
   constructor(
     @InjectModel('Square') private SecretSquare: Model<SecretSquareItem>,
     private readonly imageServiceInstance: ImageService,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
 
   async getSquareList({

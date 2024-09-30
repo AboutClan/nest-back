@@ -5,15 +5,15 @@ import { INotice, NoticeZodSchema } from './entity/notice.entity';
 import { IUser } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import * as logger from '../logger';
+import { RequestContext } from 'src/request-context';
 
 export default class NoticeService {
   private token: JWT;
   constructor(
     @InjectModel('Notice') private Notice: Model<INotice>,
     @InjectModel('User') private User: Model<IUser>,
-    token?: JWT,
   ) {
-    this.token = token as JWT;
+    this.token = RequestContext.getDecodedToken();
   }
   async getActiveLog() {
     const result = await this.Notice.find(
