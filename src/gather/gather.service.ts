@@ -2,15 +2,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import {
+  Gather,
   gatherStatus,
   IGatherData,
   subCommentType,
 } from './entity/gather.entity';
 import { Injectable } from '@nestjs/common';
-import { ICounter } from 'src/counter/entity/counter.entity';
+import { Counter, ICounter } from 'src/counter/entity/counter.entity';
 import { C_simpleUser } from 'src/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser, User } from 'src/user/entity/user.entity';
 import { ChatService } from 'src/chatz/chat.service';
 import * as logger from '../logger';
 import { RequestContext } from 'src/request-context';
@@ -20,9 +21,9 @@ export class GatherService {
   private token: JWT;
 
   constructor(
-    @InjectModel('Gather') private Gather: Model<IGatherData>,
-    @InjectModel('Counter') private Counter: Model<ICounter>,
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(Gather.name) private Gather: Model<IGatherData>,
+    @InjectModel(Counter.name) private Counter: Model<ICounter>,
+    @InjectModel(User.name) private User: Model<IUser>,
     private readonly chatServiceInstance: ChatService,
   ) {
     this.token = RequestContext.getDecodedToken();

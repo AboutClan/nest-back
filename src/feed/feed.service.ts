@@ -4,12 +4,13 @@ import { Injectable } from '@nestjs/common';
 import ImageService from 'src/imagez/image.service';
 import {
   commentType,
+  Feed,
   FeedZodSchema,
   IFeed,
   subCommentType,
 } from './entity/feed.entity';
 import { C_simpleUser } from 'src/constants';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser, User } from 'src/user/entity/user.entity';
 import { ValidationError } from 'src/errors/ValidationError';
 import { convertUsersToSummary } from 'src/utils/convertUtil';
 import { DatabaseError } from 'src/errors/DatabaseError';
@@ -22,8 +23,8 @@ export class FeedService {
   private imageServiceInstance: ImageService;
 
   constructor(
-    @InjectModel('Feed') private Feed: Model<IFeed>,
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(Feed.name) private Feed: Model<IFeed>,
+    @InjectModel(User.name) private User: Model<IUser>,
   ) {
     this.token = RequestContext.getDecodedToken();
     this.imageServiceInstance = new ImageService();

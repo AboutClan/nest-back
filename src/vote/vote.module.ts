@@ -5,9 +5,11 @@ import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/user/entity/user.entity';
 import { Place, PlaceSchema } from 'src/place/entity/place.entity';
+import { Vote, VoteSchema } from './entity/vote.entity';
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: Vote.name, schema: VoteSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Place.name, schema: PlaceSchema }]),
   ],

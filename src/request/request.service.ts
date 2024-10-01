@@ -2,10 +2,16 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { DatabaseError } from '../errors/DatabaseError';
 import { Model } from 'mongoose';
-import { IRequestData, RequestZodSchema } from './entity/request.entity';
+import {
+  IRequestData,
+  Request,
+  RequestZodSchema,
+} from './entity/request.entity';
 
 export default class RequestService {
-  constructor(@InjectModel('Request') private Request: Model<IRequestData>) {}
+  constructor(
+    @InjectModel(Request.name) private Request: Model<IRequestData>,
+  ) {}
 
   async getRequest() {
     const gatherData = await this.Request.find({}, '-_id');

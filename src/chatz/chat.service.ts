@@ -3,12 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { WebPushService } from 'src/webpush/webpush.service';
-import { ChatZodSchema, ContentZodSchema, IChat } from './entity/chat.entity';
-import { IUser } from 'src/user/entity/user.entity';
-import { FcmService } from 'src/fcm/fcm.service';
+import {
+  Chat,
+  ChatZodSchema,
+  ContentZodSchema,
+  IChat,
+} from './entity/chat.entity';
+import { IUser, User } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import dayjs from 'dayjs';
 import { RequestContext } from 'src/request-context';
+import { FcmService } from 'src/fcm/fcm.service';
 
 @Injectable()
 export class ChatService {
@@ -16,10 +21,10 @@ export class ChatService {
 
   //todo: 의존성주입
   constructor(
-    @InjectModel('Chat') private Chat: Model<IChat>,
-    @InjectModel('User') private User: Model<IUser>,
-    private readonly fcmServiceInstance: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
     private readonly webPushServiceInstance: WebPushService,
+    @InjectModel(Chat.name) private Chat: Model<IChat>,
+    @InjectModel(User.name) private User: Model<IUser>,
   ) {
     this.token = RequestContext.getDecodedToken();
   }

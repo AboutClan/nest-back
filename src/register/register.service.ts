@@ -2,11 +2,15 @@ import * as CryptoJS from 'crypto-js';
 import { JWT } from 'next-auth/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IRegistered, RegisteredZodSchema } from './entity/register.entity';
+import {
+  IRegistered,
+  Registered,
+  RegisteredZodSchema,
+} from './entity/register.entity';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser, User } from 'src/user/entity/user.entity';
 import dbConnect from 'src/conn';
 import * as logger from '../logger';
 import { RequestContext } from 'src/request-context';
@@ -15,8 +19,8 @@ export default class RegisterService {
   private token: JWT;
 
   constructor(
-    @InjectModel('Register') private Registered: Model<IRegistered>,
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(Registered.name) private Registered: Model<IRegistered>,
+    @InjectModel(User.name) private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
   ) {
     this.token = RequestContext.getDecodedToken();

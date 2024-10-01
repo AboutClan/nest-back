@@ -2,13 +2,19 @@ import { JWT } from 'next-auth/jwt';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IStoreApplicant, StoreZodSchema } from './entity/gift.entity';
+import {
+  GiftModel,
+  IStoreApplicant,
+  StoreZodSchema,
+} from './entity/gift.entity';
 import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class GiftService {
   private token: JWT;
-  constructor(@InjectModel('Gift') private Gift: Model<IStoreApplicant>) {
+  constructor(
+    @InjectModel(GiftModel.name) private Gift: Model<IStoreApplicant>,
+  ) {
     this.token = RequestContext.getDecodedToken();
   }
 

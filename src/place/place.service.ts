@@ -1,14 +1,14 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { IPlace, PlaceZodSchema } from './entity/place.entity';
+import { IPlace, Place, PlaceZodSchema } from './entity/place.entity';
 import { ValidationError } from 'src/errors/ValidationError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
 
 export default class PlaceService {
   private token: JWT;
-  constructor(@InjectModel('Place') private Place: Model<IPlace>) {
+  constructor(@InjectModel(Place.name) private Place: Model<IPlace>) {
     this.token = RequestContext.getDecodedToken();
   }
   async getActivePlace(status: 'active' | 'inactive') {

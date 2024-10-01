@@ -3,7 +3,7 @@ import { JWT } from 'next-auth/jwt';
 import * as CryptoJS from 'crypto-js';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IUser, restType } from './entity/user.entity';
+import { IUser, restType, User } from './entity/user.entity';
 import dayjs from 'dayjs';
 import { convertUserToSummary2 } from 'src/utils/convertUtil';
 import { getProfile } from 'src/utils/oAuthUtils';
@@ -21,7 +21,7 @@ import { RequestContext } from 'src/request-context';
 export class UserService {
   private token: JWT;
   constructor(
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(User.name) private User: Model<IUser>,
     @InjectModel(Vote.name) private Vote: Model<IVote>,
     @InjectModel(Place.name) private Place: Model<IPlace>,
     @InjectModel(Promotion.name) private Promotion: Model<IPromotion>,

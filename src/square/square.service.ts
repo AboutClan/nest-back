@@ -2,6 +2,7 @@ import { Model, type Types } from 'mongoose';
 import { type JWT } from 'next-auth/jwt/types';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+  SecretSquare,
   SecretSquareCategory,
   SecretSquareItem,
   SecretSquareType,
@@ -15,7 +16,8 @@ export default class SquareService {
   private token: JWT;
 
   constructor(
-    @InjectModel('Square') private SecretSquare: Model<SecretSquareItem>,
+    @InjectModel(SecretSquare.name)
+    private SecretSquare: Model<SecretSquareItem>,
     private readonly imageServiceInstance: ImageService,
   ) {
     this.token = RequestContext.getDecodedToken();

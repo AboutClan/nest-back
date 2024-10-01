@@ -4,13 +4,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { IDailyCheck } from 'src/dailycheck/entity/dailycheck.entity';
-import { FcmTokenZodSchema, IFcmToken } from './entity/fcmToken.entity';
+import {
+  FcmToken,
+  FcmTokenZodSchema,
+  IFcmToken,
+} from './entity/fcmToken.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { AppError } from 'src/errors/AppError';
 import dayjs from 'dayjs';
 import { findOneVote } from 'src/vote/util';
 import { IUser } from 'src/user/entity/user.entity';
 import { RequestContext } from 'src/request-context';
+import { Collection } from 'src/collection/entity/collection.entity';
 
 @Injectable()
 export class FcmService {
@@ -19,8 +24,8 @@ export class FcmService {
   static MongooseModule: any;
 
   constructor(
-    @InjectModel('FcmToken') private FcmToken: Model<IFcmToken>,
-    @InjectModel('Collection') private DailyCheck: Model<IDailyCheck>,
+    @InjectModel(FcmToken.name) private FcmToken: Model<IFcmToken>,
+    @InjectModel(Collection.name) private DailyCheck: Model<IDailyCheck>,
   ) {
     this.token = RequestContext.getDecodedToken();
     const fcm = process.env.FCM_INFO;
