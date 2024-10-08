@@ -8,6 +8,6 @@ async function bootstrap() {
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
     allowedHeaders: 'Content-Type,Authorization', // 허용할 헤더
   });
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

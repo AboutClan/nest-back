@@ -41,6 +41,6 @@ export const NotificationSubSchema: Schema<INotificationSub> = new Schema({
   },
 });
 
-export const NotificationSub =
-  (mongoose.models.NotificationSub as Model<INotificationSub, {}, {}, {}>) ||
+export const NotificationSub: Model<INotificationSub> =
+  mongoose.models.NotificationSub ||
   model<INotificationSub>('NotificationSub', NotificationSubSchema);

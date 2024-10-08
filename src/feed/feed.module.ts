@@ -10,6 +10,6 @@ import { Feed, FeedSchema } from './entity/feed.entity';
   ],
   controllers: [FeedController],
   providers: [FeedService],
-  exports: [FeedService],
+  exports: [FeedService, MongooseModule],
 })
 export class FeedModule {}

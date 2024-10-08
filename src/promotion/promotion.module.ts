@@ -13,6 +13,6 @@ import { Promotion, promotionSchema } from './entity/promotion.entity';
   ],
   controllers: [PromotionController],
   providers: [PromotionService, UserService],
-  exports: [PromotionService],
+  exports: [PromotionService, MongooseModule],
 })
 export class PromotionModule {}

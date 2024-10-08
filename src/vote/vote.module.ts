@@ -6,16 +6,18 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/user/entity/user.entity';
 import { Place, PlaceSchema } from 'src/place/entity/place.entity';
 import { Vote, VoteSchema } from './entity/vote.entity';
+import { UserModule } from 'src/user/user.module';
+import { PlaceModule } from 'src/place/place.module';
 
 @Module({
   imports: [
+    UserModule,
+    PlaceModule,
     MongooseModule.forFeature([{ name: Vote.name, schema: VoteSchema }]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Place.name, schema: PlaceSchema }]),
   ],
   controllers: [VoteController],
   providers: [VoteService],
-  exports: [VoteService],
+  exports: [VoteService, MongooseModule],
 })
 export class VoteModule {
   configure(consumer: MiddlewareConsumer) {

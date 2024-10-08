@@ -4,17 +4,11 @@ import { ConfigService } from '@nestjs/config';
 import { AppError } from 'src/errors/AppError';
 import dayjs from 'dayjs';
 import { findOneVote } from 'src/vote/util';
-import { IUser, User } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  GroupStudy,
-  IGroupStudyData,
-} from 'src/groupStudy/entity/groupStudy.entity';
-import {
-  INotificationSub,
-  NotificationSub,
-} from './entity/notificationsub.entity';
+import { IGroupStudyData } from 'src/groupStudy/entity/groupStudy.entity';
+import { INotificationSub } from './entity/notificationsub.entity';
 import { RequestContext } from 'src/request-context';
 const PushNotifications = require('node-pushnotifications');
 
@@ -26,9 +20,9 @@ export class WebPushService {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectModel(User.name) private User: Model<IUser>,
-    @InjectModel(GroupStudy.name) private GroupStudy: Model<IGroupStudyData>,
-    @InjectModel(NotificationSub.name)
+    @InjectModel('User') private readonly User: Model<IUser>,
+    @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
+    @InjectModel('NotificationSub')
     private NotificationSub: Model<INotificationSub>,
   ) {
     const publicKey = this.configService.get<string>('PUBLIC_KEY');
@@ -117,6 +111,7 @@ export class WebPushService {
 
     const subscriptions = await this.NotificationSub.find({ uid });
 
+    console.log(subscriptions);
     subscriptions.forEach((subscription) => {
       const push = new PushNotifications(this.settings);
 
@@ -134,26 +129,41 @@ export class WebPushService {
       body: '소모임을 확인해보세요.',
     });
 
-    const members = new Set();
     const groupStudy = await this.GroupStudy.findOne({ id }).populate([
       'participants.user',
     ]);
 
-    groupStudy?.participants.forEach((participant) => {
-      members.add((participant.user as IUser).uid);
-    });
+    const memberUids = groupStudy.participants.map(
+      (participant) => (participant.user as IUser).uid,
+    );
+    const memberArray = Array.from(new Set(memberUids));
 
-    const memberArray = Array.from(members);
     const subscriptions = await this.NotificationSub.find({
       uid: { $in: memberArray },
     });
 
-    subscriptions.forEach((subscription) => {
-      const push = new PushNotifications(this.settings);
-      push.send(subscription, payload, (err: any, result: any) => {
-        if (err) throw new Error(err);
-      });
+    const pLimit = (await import('p-limit')).default;
+    const limit = pLimit(10);
+
+    // 병렬로 알림 전송
+    const results = await Promise.allSettled(
+      subscriptions.map(async (subscription) => {
+        limit(async () => {
+          const push = new PushNotifications(this.settings);
+          await push.send(subscription, payload);
+        });
+      }),
+    );
+
+    const failed = results.filter((result) => result.status === 'rejected');
+
+    failed.forEach((failure, index) => {
+      console.error(
+        `Error #${index + 1}:`,
+        (failure as PromiseRejectedResult).reason,
+      );
     });
+
     return;
   }
 
@@ -176,12 +186,26 @@ export class WebPushService {
       body: '앱을 확인해보세요.',
     });
 
-    managerNotiInfo.forEach((subscription) => {
-      const push = new PushNotifications(this.settings);
+    const pLimit = (await import('p-limit')).default;
+    const limit = pLimit(10);
 
-      push.send(subscription, payload, (err: any, result: any) => {
-        if (err) throw new AppError(`error at ${subscription}`, 500);
-      });
+    // 병렬로 알림 전송
+    const results = await Promise.allSettled(
+      managerNotiInfo.map(async (subscription) => {
+        limit(async () => {
+          const push = new PushNotifications(this.settings);
+          await push.send(subscription, payload);
+        });
+      }),
+    );
+
+    const failed = results.filter((result) => result.status === 'rejected');
+
+    failed.forEach((failure, index) => {
+      console.error(
+        `Error #${index + 1}:`,
+        (failure as PromiseRejectedResult).reason,
+      );
     });
   }
 
@@ -218,25 +242,45 @@ export class WebPushService {
       body: '내일 스터디 투표를 참여해보세요',
     });
 
-    try {
-      const subscriptions = await this.NotificationSub.find();
+    const subscriptions = await this.NotificationSub.find();
 
-      subscriptions.forEach((subscription) => {
-        const push = new PushNotifications(this.settings);
+    const pLimit = (await import('p-limit')).default;
+    const limit = pLimit(10);
 
-        if (failure.has(subscription.uid)) {
-          push.send(subscription, failPayload, (err: any, result: any) => {
-            if (err) throw new AppError(err, 500);
-          });
-        } else if (success.has(subscription.uid)) {
-          push.send(subscription, successPayload, (err: any, result: any) => {
-            if (err) throw new AppError(err, 500);
-          });
-        }
-      });
-      return;
-    } catch (err) {
-      return;
-    }
+    const results = await Promise.allSettled(
+      subscriptions.map((subscription) => {
+        limit(async () => {
+          const push = new PushNotifications(this.settings);
+
+          if (failure.has(subscription.uid)) {
+            await push.send(
+              subscription,
+              failPayload,
+              (err: any, result: any) => {
+                if (err) throw new AppError(err, 500);
+              },
+            );
+          } else if (success.has(subscription.uid)) {
+            await push.send(
+              subscription,
+              successPayload,
+              (err: any, result: any) => {
+                if (err) throw new AppError(err, 500);
+              },
+            );
+          }
+        });
+      }),
+    );
+
+    const failed = results.filter((result) => result.status === 'rejected');
+
+    failed.forEach((failure, index) => {
+      console.error(
+        `Error #${index + 1}:`,
+        (failure as PromiseRejectedResult).reason,
+      );
+    });
+    return;
   }
 }

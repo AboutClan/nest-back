@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import helmet from 'helmet';
-import * as compression from 'compression';
+import compression from 'compression';
 import { TokenValidatorMiddleware } from './middlewares/tokenValidator';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database.module';

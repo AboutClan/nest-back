@@ -5,16 +5,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/user/entity/user.entity';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { Registered, RegisteredSchema } from './entity/register.entity';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
+    UserModule,
     MongooseModule.forFeature([
       { name: Registered.name, schema: RegisteredSchema },
     ]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [RegisterController],
   providers: [RegisterService, WebPushService],
-  exports: [RegisterService],
+  exports: [RegisterService, MongooseModule],
 })
 export class RegisterModule {}

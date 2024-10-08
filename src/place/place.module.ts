@@ -10,6 +10,6 @@ import { Place, PlaceSchema } from './entity/place.entity';
   ],
   controllers: [PlaceController],
   providers: [PlaceService],
-  exports: [PlaceService],
+  exports: [PlaceService, PlaceModule],
 })
 export class PlaceModule {}

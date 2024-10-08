@@ -10,6 +10,6 @@ import { GiftModel, giftSchema } from './entity/gift.entity';
   ],
   controllers: [GiftController],
   providers: [GiftService],
-  exports: [GiftService],
+  exports: [GiftService, MongooseModule],
 })
 export class GiftModule {}

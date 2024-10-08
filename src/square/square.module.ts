@@ -13,6 +13,6 @@ import { SecretSquare, secretSquareSchema } from './entity/square.entity';
   ],
   controllers: [SquareController],
   providers: [SquareService, ImageService],
-  exports: [SquareService],
+  exports: [SquareService, MongooseModule],
 })
 export class SquareModule {}

@@ -2,21 +2,22 @@ import { Module } from '@nestjs/common';
 import { WebPushController } from './webpush.controller';
 import { WebPushService } from './webpush.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/user/entity/user.entity';
-import {
-  GroupStudy,
-  GroupStudySchema,
-} from 'src/groupStudy/entity/groupStudy.entity';
+import { UserSchema } from 'src/user/entity/user.entity';
+import { GroupStudySchema } from 'src/groupStudy/entity/groupStudy.entity';
+import { NotificationSubSchema } from './entity/notificationsub.entity';
+import { UserModule } from 'src/user/user.module';
+import { GroupStudyModule } from 'src/groupStudy/groupStudy.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    UserModule,
+    GroupStudyModule,
     MongooseModule.forFeature([
-      { name: GroupStudy.name, schema: GroupStudySchema },
+      { name: 'NotificationSub', schema: NotificationSubSchema },
     ]),
   ],
   controllers: [WebPushController],
   providers: [WebPushService],
-  exports: [WebPushService],
+  exports: [WebPushService, MongooseModule],
 })
 export class WebPushModule {}

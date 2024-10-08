@@ -12,6 +12,6 @@ import { FcmToken, FcmTokenSchema } from './entity/fcmToken.entity';
   ],
   controllers: [FcmController],
   providers: [FcmService],
-  exports: [FcmService],
+  exports: [FcmService, MongooseModule],
 })
 export class FcmAModule {}

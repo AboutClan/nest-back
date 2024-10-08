@@ -4,12 +4,11 @@ import { CollectionService } from './collection.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Request, RequestSchema } from 'src/request/entity/request.entity';
 import { User, UserSchema } from 'src/user/entity/user.entity';
+import { RequestModule } from 'src/request/request.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Request.name, schema: RequestSchema }]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
+  imports: [RequestModule, UserModule],
   controllers: [CollectionController],
   providers: [CollectionService],
   exports: [CollectionService],
