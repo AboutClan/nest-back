@@ -23,7 +23,7 @@ import {
 } from './dto';
 import { UserService } from './user.service';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -52,6 +52,7 @@ export class UserController {
     return { message: 'Avatar updated successfully' };
   }
 
+  //todo: 사용처 궁금
   @Get('comment')
   async getAllComments() {
     const comments = await this.userService.getAllUserInfo(['comment', 'name']);
@@ -84,7 +85,9 @@ export class UserController {
   //todo: boolean값 들어오는지 check
   @Patch('isPrivate')
   async patchIsPrivate(@Body() body: { isPrivate: boolean }) {
-    await this.userService.patchIsPrivate(body.isPrivate);
+    const { isPrivate } = body;
+
+    await this.userService.updateUser({ isPrivate });
     return { message: 'Privacy setting updated successfully' };
   }
 
@@ -158,8 +161,7 @@ export class UserController {
 
   @Post('profile')
   async updateProfile(@Body() registerForm: any) {
-    await this.userService.updateUser(registerForm);
-    const updatedUser = await this.userService.getUserInfo([]);
+    const updatedUser = await this.userService.updateUser(registerForm);
     return updatedUser;
   }
 
@@ -172,20 +174,17 @@ export class UserController {
   @Patch('belong')
   @UsePipes(new ValidationPipe({ transform: true }))
   async patchBelong(@Body() patchBelongDto: PatchBelongDto) {
-    await this.userService.patchBelong(
-      patchBelongDto.uid,
-      patchBelongDto.belong,
-    );
+    const { uid, belong } = patchBelongDto;
+    await this.userService.patchBelong(uid, belong);
     return { message: 'Belong updated successfully' };
   }
 
   @Post('preference')
   @UsePipes(new ValidationPipe({ transform: true }))
   async setPreference(@Body() setPreferenceDto: SetPreferenceDto) {
-    await this.userService.setPreference(
-      setPreferenceDto.place,
-      setPreferenceDto.subPlace,
-    );
+    const { place, subPlace } = setPreferenceDto;
+
+    await this.userService.setPreference(place, subPlace);
     return { message: 'Preference updated successfully' };
   }
 

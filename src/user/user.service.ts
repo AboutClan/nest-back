@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 import * as CryptoJS from 'crypto-js';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,17 +7,18 @@ import { IUser, restType, User } from './entity/user.entity';
 import dayjs from 'dayjs';
 import { convertUserToSummary2 } from 'src/utils/convertUtil';
 import { getProfile } from 'src/utils/oAuthUtils';
-import { IVote, Vote } from 'src/vote/entity/vote.entity';
-import { IPlace, Place } from 'src/place/entity/place.entity';
-import { IPromotion, Promotion } from 'src/promotion/entity/promotion.entity';
-import { ILog, Log } from 'src/logz/entity/log.entity';
-import { INotice, Notice } from 'src/notice/entity/notice.entity';
+import { IVote } from 'src/vote/entity/vote.entity';
+import { IPlace } from 'src/place/entity/place.entity';
+import { IPromotion } from 'src/promotion/entity/promotion.entity';
+import { ILog } from 'src/logz/entity/log.entity';
+import { INotice } from 'src/notice/entity/notice.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { Counter, ICounter } from 'src/counter/entity/counter.entity';
+import { ICounter } from 'src/counter/entity/counter.entity';
 import * as logger from '../logger';
-import { RequestContext } from 'src/request-context';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class UserService {
   private token: JWT;
   constructor(
@@ -28,8 +29,9 @@ export class UserService {
     @InjectModel('Log') private Log: Model<ILog>,
     @InjectModel('Notice') private Notice: Model<INotice>,
     @InjectModel('Counter') private Counter: Model<ICounter>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async decodeByAES256(encodedTel: string) {
@@ -117,11 +119,13 @@ export class UserService {
   }
 
   async updateUser(updateInfo: Partial<IUser>) {
-    const updated = await this.User.updateOne(
+    const updated = await this.User.findOneAndUpdate(
       { uid: this.token.uid },
       { $set: updateInfo },
+      { new: true, upsert: false },
     );
     if (!updated) throw new DatabaseError('update user failed');
+    return updated;
   }
 
   async setUserInactive() {
@@ -483,6 +487,7 @@ export class UserService {
     return result;
   }
 
+  //todo: 필요 없어보임
   async patchRole(role: string) {
     if (
       ![
@@ -517,17 +522,6 @@ export class UserService {
       throw new Error(err);
     }
   }
-  async patchIsPrivate(isPrivate: boolean) {
-    const updatedUser = await this.User.findOneAndUpdate(
-      { uid: this.token.uid }, // 검색 조건
-      { $set: { isPrivate: isPrivate } }, // isPrivate 필드를 업데이트
-      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
-    );
-
-    if (!updatedUser) throw new DatabaseError('User not found');
-
-    return;
-  }
 
   async setRest(info: Omit<restType, 'restCnt' | 'cumulativeSum'>) {
     try {
@@ -540,24 +534,25 @@ export class UserService {
       const endDay = dayjs(endDate, 'YYYY-MM-DD');
       const dayDiff = endDay.diff(startDay, 'day');
 
-      if (!user.rest) {
-        user.rest = {
-          type,
-          content,
-          startDate,
-          endDate,
-          restCnt: 1,
-          cumulativeSum: dayDiff,
-        };
-      } else {
-        user.rest.type = type;
-        user.rest.content = content;
-        user.rest.startDate = startDate;
-        user.rest.endDate = endDate;
-        user.rest.restCnt = user.rest.restCnt + 1;
-        user.rest.cumulativeSum = user.rest.cumulativeSum + dayDiff;
-      }
-      await user.save();
+      const result = await this.User.findOneAndUpdate(
+        { uid: this.token.uid }, // 사용자를 uid로 찾음
+        {
+          $set: {
+            'rest.type': type,
+            'rest.content': content,
+            'rest.startDate': startDate,
+            'rest.endDate': endDate,
+          },
+          $inc: { 'rest.restCnt': 1, 'rest.cumulativeSum': dayDiff }, // restCnt와 cumulativeSum 증가
+        },
+        {
+          upsert: true, // rest 필드가 없는 경우 생성
+          new: true, // 업데이트된 값을 반환
+        },
+      );
+
+      if (!result) throw new Error('User not found or update failed');
+      return result;
     } catch (err: any) {
       throw new Error(err);
     }
@@ -603,26 +598,26 @@ export class UserService {
 
   async setPromotion(name: string) {
     try {
-      const previousData = await this.Promotion.findOne({ name });
       const now = dayjs().format('YYYY-MM-DD');
 
-      if (previousData) {
+      // Promotion 컬렉션에서 name에 해당하는 데이터를 업데이트하고, 없으면 새로 생성
+      const result = await this.Promotion.updateOne(
+        { name },
+        {
+          $set: { uid: this.token.uid, lastDate: now },
+        },
+        { upsert: true, new: true },
+      );
+
+      // result.upsertedCount가 1이면 새로 생성된 경우, 아니면 업데이트된 경우
+      if (result.upsertedCount > 0) {
+        await this.updatePoint(300, '홍보 이벤트 참여'); // 새로 생성된 경우
+      } else {
+        const previousData = await this.Promotion.findOne({ name });
         const dayDiff = dayjs(now).diff(dayjs(previousData?.lastDate), 'day');
         if (dayDiff > 2) {
-          await this.Promotion.updateOne(
-            { name },
-            { name, uid: this.token.uid, lastDate: now },
-          );
-
-          await this.updatePoint(200, '홍보 이벤트 참여');
+          await this.updatePoint(200, '홍보 이벤트 참여'); // 기존 데이터 업데이트
         }
-      } else {
-        await this.Promotion.create({
-          name,
-          uid: this.token.uid,
-          lastDate: now,
-        });
-        await this.updatePoint(300, '홍보 이벤트 참여');
       }
     } catch (err: any) {
       throw new Error(err);
@@ -630,10 +625,14 @@ export class UserService {
   }
 
   async patchBelong(uid: number, belong: string) {
-    const updated = await this.User.updateOne({ uid }, { belong });
+    const updated = await this.User.findOneAndUpdate(
+      { uid },
+      { belong },
+      { new: true, upsert: false },
+    );
     if (!updated) throw new DatabaseError('update belong failed');
 
-    return;
+    return updated;
   }
 
   async getMonthScoreLog() {

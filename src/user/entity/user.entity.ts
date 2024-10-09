@@ -149,7 +149,7 @@ export const avatarSchema: Schema<avatarType> = new Schema(
       default: 1,
     },
   },
-  { timestamps: false },
+  { timestamps: false, _id: false },
 );
 
 //Todo: Error
