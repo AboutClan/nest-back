@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 import {
   IAbsence,
@@ -8,24 +8,33 @@ import {
   Vote,
 } from './entity/vote.entity';
 import dayjs, { Dayjs } from 'dayjs';
-import { findOneVote, now } from './util';
-import { IUser, User } from 'src/user/entity/user.entity';
-import { IPlace, Place } from 'src/place/entity/place.entity';
+import { now } from './util';
+import { IUser } from 'src/user/entity/user.entity';
+import { IPlace } from 'src/place/entity/place.entity';
 import { strToDate } from 'src/utils/dateUtils';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RequestContext } from 'src/request-context';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class VoteService {
   private token: JWT;
   constructor(
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Place') private Place: Model<IPlace>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
+
+  findOneVote = async (date: Date) =>
+    await this.Vote.findOne({ date }).populate([
+      'participations.place',
+      'participations.attendences.user',
+      'participations.absences.user',
+    ]);
 
   async getArrivedPeriod(startDay: string, endDay: string) {
     try {
@@ -136,20 +145,20 @@ export class VoteService {
     }
   }
 
+  //todo: participatns => places이름 변경 필요.
   async getVote(date: any): Promise<IVote> {
     try {
-      let vote = await findOneVote(date);
+      let vote = await this.findOneVote(date);
 
       if (!vote) {
         const places = await this.Place.find({ status: 'active' });
         const participants = places.map((place) => {
-          const isPrivate = place.brand === '자유 신청';
           return {
             place: place._id,
             attendences: [],
             absences: [],
             invitations: [],
-            status: !isPrivate ? 'pending' : 'free',
+            status: place.brand === '자유 신청' ? 'free' : 'pending',
           } as any;
         });
 
@@ -158,7 +167,7 @@ export class VoteService {
           participations: participants,
         });
 
-        vote = await findOneVote(date);
+        vote = await this.findOneVote(date);
       }
 
       return vote as IVote;
@@ -177,9 +186,9 @@ export class VoteService {
             return (attendance.user as IUser)?._id;
           }),
         )
-        .find((ObjId) => String(ObjId) === this.token.id);
+        .find((ObjId) => String(ObjId) == this.token.id);
 
-      return isVoting;
+      return isVoting ? true : false;
     } catch (err) {
       throw new Error();
     }
@@ -246,7 +255,7 @@ export class VoteService {
 
       await Promise.all(
         dateList.map(async (date, i) => {
-          let vote = await findOneVote(date);
+          let vote = await this.findOneVote(date);
           if (!vote) return cntList;
 
           const map = new Map();
@@ -325,49 +334,91 @@ export class VoteService {
       const isVoting = await this.isVoting(date);
       const vote = await this.getVote(date);
 
+      //vote 돼있는 유저면 삭제 기능
       if (isVoting) {
-        vote.participations = vote.participations.map((participation) => ({
-          ...participation,
-          attendences: participation.attendences?.filter((attandence) => {
-            return (
-              (attandence.user as IUser)?.uid.toString() !==
-              this.token.uid?.toString()
-            );
-          }),
-        }));
-
-        await vote.save();
+        // 사용자 UID로 투표한 attendance를 삭제
+        await this.Vote.updateOne(
+          { date },
+          {
+            $pull: {
+              // `participations` 배열 내부의 `attendences`에서 해당 사용자의 UID와 일치하는 참석 기록을 제거
+              'participations.$[].attendences': {
+                user: this.token.id?.toString(),
+              },
+            },
+          },
+        );
       }
+
+      // if (isVoting) {
+      //   vote.participations = vote.participations.map((participation) => ({
+      //     ...participation,
+      //     attendences: participation.attendences?.filter((attandence) => {
+      //       return (
+      //         (attandence.user as IUser)?.uid.toString() !==
+      //         this.token.uid?.toString()
+      //       );
+      //     }),
+      //   }));
+
+      //   await vote.save();
+      // }
 
       const attendance = {
         time: { start: start, end: end },
         user: this.token.id,
       } as IAttendance;
 
+      console.log(attendance);
       //memo는 개인 스터디 신청에 사용 (사전에 작성)
 
-      vote.participations = vote.participations.map((participation) => {
-        const placeId = (participation.place as IPlace)._id.toString();
-        const subPlaceIdArr = subPlace;
-        if (placeId === place) {
-          return {
-            ...participation,
-            attendences: [
-              ...(participation.attendences || []),
-              { ...attendance, firstChoice: true, memo },
-            ],
-          };
-        } else if (subPlaceIdArr?.includes(placeId)) {
-          return {
-            ...participation,
-            attendences: [
-              ...(participation.attendences || []),
-              { ...attendance, firstChoice: false, memo },
-            ],
-          };
-        }
-        return participation;
-      });
+      await this.Vote.updateOne(
+        { date }, // 날짜가 일치하는 vote 문서 찾기
+        {
+          $push: {
+            'participations.$[main].attendences': {
+              ...attendance,
+              firstChoice: true,
+              memo,
+            }, // 메인 장소에 참석 정보 추가
+            'participations.$[sub].attendences': {
+              ...attendance,
+              firstChoice: false,
+              memo,
+            }, // 서브 장소에 참석 정보 추가
+          },
+        },
+        {
+          arrayFilters: [
+            { 'main.place': place }, // 메인 장소 필터
+            { 'sub.place': { $in: subPlace } }, // 서브 장소 필터
+          ],
+          new: true,
+        },
+      );
+
+      // vote.participations = vote.participations.map((participation) => {
+      //   const placeId = (participation.place as IPlace)._id.toString();
+      //   const subPlaceIdArr = subPlace;
+      //   if (placeId === place) {
+      //     return {
+      //       ...participation,
+      //       attendences: [
+      //         ...(participation.attendences || []),
+      //         { ...attendance, firstChoice: true, memo },
+      //       ],
+      //     };
+      //   } else if (subPlaceIdArr?.includes(placeId)) {
+      //     return {
+      //       ...participation,
+      //       attendences: [
+      //         ...(participation.attendences || []),
+      //         { ...attendance, firstChoice: false, memo },
+      //       ],
+      //     };
+      //   }
+      //   return participation;
+      // });
 
       await vote.save();
     } catch (err) {
@@ -380,56 +431,51 @@ export class VoteService {
     if (!vote) throw new Error();
 
     try {
-      if (start && end) {
-        vote.participations.map((participation) => {
-          participation.attendences?.map((attendance) => {
-            if (
-              (attendance.user as IUser)?.uid.toString() ===
-              this.token.uid?.toString()
-            ) {
-              attendance.time.start = start;
-              attendance.time.end = end;
-            }
-          });
-        });
-
-        await vote.save();
-      } else {
-        return new Error();
+      if (!start || !end) {
+        throw new Error('Invalid start or end time');
       }
+
+      // 유효한 투표를 찾고, 사용자의 출석 시간을 업데이트
+      const updatedVote = await this.Vote.findOneAndUpdate(
+        { date, 'participations.attendences.user': this.token.id },
+        {
+          $set: {
+            'participations.$[].attendences.$[attendance].time.start': start,
+            'participations.$[].attendences.$[attendance].time.end': end,
+          },
+        },
+        {
+          arrayFilters: [{ 'attendance.user': this.token.id }],
+          new: true, // 업데이트된 문서 반환
+        },
+      );
+
+      if (!updatedVote) {
+        throw new Error('Vote not found or update failed');
+      }
+
+      return updatedVote;
     } catch (err) {
+      console.log(err);
       throw new Error();
     }
   }
 
   async deleteVote(date: any) {
     try {
-      const vote = await this.getVote(date);
-      if (!vote) throw new Error();
+      const result = await this.Vote.updateOne(
+        { date, 'participations.attendences.user': this.token.id },
+        {
+          $pull: {
+            'participations.$[].attendences': { user: this.token.id },
+          },
+        },
+      );
 
-      const isVoting = vote.participations
-        .flatMap((participation) =>
-          participation.attendences?.map((attendence) => {
-            return (attendence.user as IUser)?._id;
-          }),
-        )
-        .find((ObjId) => String(ObjId) === this.token.id);
-
-      if (!isVoting) {
-        throw new Error();
+      // result.nModified를 통해 수정된 문서가 있는지 확인
+      if (result.modifiedCount === 0) {
+        throw new Error('No matching vote found or user not participating');
       }
-
-      vote.participations = vote.participations.map((participation) => ({
-        ...participation,
-        attendences: participation.attendences?.filter((attendance) => {
-          return (
-            (attendance.user as IUser)?.uid.toString() !==
-            this.token.uid?.toString()
-          );
-        }),
-      }));
-
-      await vote.save();
     } catch (err) {
       throw new Error();
     }
@@ -437,19 +483,22 @@ export class VoteService {
 
   async getAbsence(date: any) {
     try {
-      const result: any[] = [];
+      const vote = await this.Vote.findOne(
+        { date },
+        { 'participations.absences': 1 },
+      )
+        .populate('participations.absences.user')
+        .lean();
+      if (!vote) throw new Error('Vote not found');
 
-      const vote = await this.getVote(date);
-      if (!vote) throw new Error();
-
-      vote?.participations.map((participation) => {
-        participation.absences?.map((absence) => {
-          result.push({
+      // 결석 정보를 배열 형태로 수집
+      const result = vote.participations.flatMap(
+        (participation) =>
+          participation.absences?.map((absence) => ({
             uid: (absence.user as IUser)?.uid,
             message: absence.message,
-          });
-        });
-      });
+          })) || [],
+      );
 
       return result;
     } catch (err) {
@@ -459,37 +508,37 @@ export class VoteService {
 
   async setAbsence(date: any, message: string) {
     try {
-      const vote = await this.getVote(date);
+      const result = await this.Vote.updateOne(
+        {
+          date,
+          'participations.attendences.user': this.token.id,
+          'participations.attendences.firstChoice': true,
+        },
+        {
+          $addToSet: {
+            'participations.$[].absences': {
+              user: this.token.id,
+              noShow: true,
+              message,
+            },
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              'attendance.user': this.token.id,
+              'attendance.firstChoice': true,
+            },
+          ],
+        },
+      );
 
-      await vote?.participations.map((participation) => {
-        participation.attendences?.map((attendence) => {
-          if (
-            (attendence.user as IUser)?.uid.toString() ===
-              this.token.uid?.toString() &&
-            attendence.firstChoice
-          ) {
-            if (
-              !participation.absences?.some(
-                (absence) =>
-                  (absence.user as IUser)?.uid.toString() ===
-                  this.token.uid?.toString(),
-              )
-            )
-              participation.absences = [
-                ...(participation.absences || []),
-                {
-                  user: this.token.id as string,
-                  noShow: true,
-                  message,
-                },
-              ];
-          }
-        });
-      });
-
-      await vote?.save();
-
-      return;
+      // 업데이트가 이루어지지 않은 경우 에러 처리
+      if (result.modifiedCount === 0) {
+        throw new Error(
+          'Failed to set absence or no matching attendance found.',
+        );
+      }
     } catch (err: any) {
       throw new Error(err);
     }
@@ -526,31 +575,41 @@ export class VoteService {
     }
   }
 
-  async deleteField() {
-    return null;
-  }
-
   async patchArrive(date: any, memo: any) {
     const vote = await this.getVote(date);
+    const currentTime = now().add(9, 'hour').toDate();
+
     if (!vote) throw new Error();
 
     try {
-      const currentTime = now().add(9, 'hour');
+      const result = await this.Vote.updateOne(
+        {
+          date,
+          'participations.attendences.user': this.token.id,
+          'participations.attendences.firstChoice': true,
+        },
+        {
+          $set: {
+            'participations.$[].attendences.$[attendance].arrived': currentTime,
+            ...(memo && {
+              'participations.$[].attendences.$[attendance].memo': memo,
+            }), // memo가 있을 때만 업데이트
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              'attendance.user': this.token.id,
+              'attendance.firstChoice': true,
+            },
+          ],
+        },
+      );
 
-      vote.participations.forEach((participation: any) => {
-        participation.attendences.forEach((att: any) => {
-          if (
-            (att.user as IUser)._id?.toString() === this.token.id?.toString() &&
-            att?.firstChoice
-          ) {
-            att.arrived = currentTime.toDate();
-            //memo가 빈문자열인 경우는 출석이 아닌 개인 스터디 신청에서 사용한 경우
-            if (memo) att.memo = memo;
-          }
-        });
-      });
+      if (result.modifiedCount === 0) {
+        throw new Error('No matching attendance found or update failed');
+      }
 
-      await vote.save();
       return true;
     } catch (err) {
       throw new Error();
@@ -559,48 +618,61 @@ export class VoteService {
 
   async patchConfirm(date: any) {
     try {
-      const vote = await findOneVote(date);
-      if (!vote) throw new Error();
+      // 특정 날짜와 사용자의 출석 상태를 업데이트
+      const result = await this.Vote.updateOne(
+        { date, 'participations.attendences.user': this.token.id },
+        {
+          $set: {
+            'participations.$[].attendences.$[attendance].confirmed': true,
+          },
+        },
+        {
+          arrayFilters: [{ 'attendance.user': this.token.id }],
+        },
+      );
 
-      vote.participations.forEach((participation) => {
-        participation.attendences?.forEach((attendance) => {
-          if (
-            (attendance.user as IUser).uid.toString() ===
-            this.token.uid?.toString()
-          ) {
-            attendance.confirmed = true;
-          }
-        });
-      });
+      if (result.modifiedCount === 0) {
+        throw new Error('No matching attendance found or update failed');
+      }
+
+      return true;
     } catch (err) {
-      throw new Error();
+      throw new Error(`Failed to confirm attendance: ${err.message}`);
     }
   }
 
   async patchDismiss(date: any) {
-    const vote = await findOneVote(date);
+    const vote = await this.findOneVote(date);
     if (!vote) throw new Error();
 
     try {
-      vote.participations.forEach((participation) => {
-        const isTargetParticipation = !!participation.attendences?.find(
-          (att) =>
-            (att.user as IUser)?.uid.toString() === this.token.uid?.toString(),
-        );
-        if (isTargetParticipation) {
-          participation.attendences = participation.attendences?.filter(
-            (att) =>
-              (att.user as IUser)?.uid.toString() !==
-              this.token.uid?.toString(),
-          );
-          participation.absences = [
-            ...(participation.absences as IAbsence[]),
-            { user: this.token._id, noShow: false, message: '' } as IAbsence,
-          ];
-        }
-      });
+      const result = await this.Vote.updateOne(
+        {
+          date,
+          'participations.attendences.user': this.token.id,
+        },
+        {
+          $pull: {
+            'participations.$[].attendences': { user: this.token.id },
+          },
+          $push: {
+            'participations.$[].absences': {
+              user: this.token.id,
+              noShow: false,
+              message: '',
+            },
+          },
+        },
+        {
+          arrayFilters: [{ 'attendance.user': this.token.id }],
+        },
+      );
 
-      await vote.save();
+      if (result.modifiedCount === 0) {
+        throw new Error('No matching participation found or update failed');
+      }
+
+      return true;
     } catch (err) {
       throw new Error();
     }
@@ -608,22 +680,23 @@ export class VoteService {
 
   async getStart(date: any) {
     try {
-      const vote = await findOneVote(date);
-      if (!vote) return [];
-
-      const result: any = [];
-      vote.participations.map((participation) => {
-        if (
-          ['open', 'free'].includes(participation.status as string) &&
-          participation.startTime
-        ) {
-          const openInfo = {
-            place_id: participation.place?._id,
-            startTime: participation.startTime,
-          };
-          result.push(openInfo);
-        }
-      });
+      const result = await this.Vote.aggregate([
+        { $match: { date } }, // 날짜 기준으로 필터링
+        { $unwind: '$participations' }, // participations 배열을 펼침
+        {
+          $match: {
+            'participations.status': { $in: ['open', 'free'] }, // status 필터링
+            'participations.startTime': { $exists: true }, // startTime이 있는 참여자만
+          },
+        },
+        {
+          $project: {
+            _id: 0, // _id 필드 제외
+            place_id: '$participations.place', // place._id 필드만 포함
+            startTime: '$participations.startTime', // startTime 필드 포함
+          },
+        },
+      ]);
 
       return result;
     } catch (err) {
@@ -662,19 +735,28 @@ export class VoteService {
 
   async setFree(date: any, placeId: any) {
     try {
-      const vote = await findOneVote(date);
+      const result = await this.Vote.updateOne(
+        {
+          date, // 특정 날짜의 투표 필터링
+          'participations.place': placeId, // placeId가 일치하는 participation 필터링
+        },
+        {
+          $set: { 'participations.$[participation].status': 'free' }, // status 업데이트
+        },
+        {
+          arrayFilters: [
+            { 'participation.place': placeId }, // 특정 placeId를 가진 participation만 업데이트
+          ],
+          new: true,
+        },
+      );
 
-      if (!vote) return;
+      // 업데이트 결과 확인
+      if (result.modifiedCount === 0) {
+        throw new Error('No matching participation found or update failed');
+      }
 
-      vote.participations.forEach(async (participation) => {
-        if (participation.place?._id.toString() === placeId) {
-          participation.status = 'free';
-          participation.attendences;
-          await vote.save();
-        }
-      });
-
-      return;
+      return true;
     } catch (err) {
       throw new Error();
     }

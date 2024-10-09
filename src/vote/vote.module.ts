@@ -21,6 +21,6 @@ export class VoteModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(SetDateParamMiddleware) // 작성한 미들웨어 적용
-      .forRoutes('/:date'); // 특정 경로에 미들웨어 적용
+      .forRoutes('vote/:date'); // 특정 경로에 미들웨어 적용
   }
 }

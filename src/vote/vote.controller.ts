@@ -14,7 +14,7 @@ import { UpdateVoteDTO } from './dto/updateVoteDTO.dto';
 import { CreateQuickVoteDTO } from './dto/createQuickVoteDTO.dto';
 import { Request } from 'express';
 
-@Controller()
+@Controller('vote')
 export class VoteController {
   constructor(private voteService: VoteService) {}
 
@@ -23,6 +23,7 @@ export class VoteController {
     @Query('startDay') startDay: string,
     @Query('endDay') endDay: string,
   ): Promise<any> {
+    console.log(startDay, endDay);
     const results = await this.voteService.getArrivedPeriod(startDay, endDay);
     return results;
   }
@@ -39,12 +40,6 @@ export class VoteController {
       endDay,
     );
     return results;
-  }
-
-  @Get('deleteField')
-  async deleteField(): Promise<any> {
-    await this.voteService.deleteField();
-    return 'hello';
   }
 
   @Get('arriveCnt')
@@ -144,6 +139,7 @@ export class VoteController {
     return result;
   }
 
+  //todo: 이름변경
   @Patch(':date/arrive')
   async patchArrive(
     @Req() req: Request,
