@@ -8,7 +8,7 @@ import { SecretSquare, secretSquareSchema } from './entity/square.entity';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: SecretSquare.name, schema: secretSquareSchema },
+      { name: 'SecretSquare', schema: secretSquareSchema },
     ]),
   ],
   controllers: [SquareController],

@@ -7,14 +7,18 @@ import { WebPushService } from 'src/webpush/webpush.service';
 import { User, UserSchema } from 'src/user/entity/user.entity';
 import { FcmService } from 'src/fcm/fcm.service';
 import { UserModule } from 'src/user/user.module';
+import { FcmAModule } from 'src/fcm/fcm.module';
+import { WebPushModule } from 'src/webpush/webpush.module';
 
 @Module({
   imports: [
     UserModule,
-    MongooseModule.forFeature([{ name: Chat.name, schema: ChatSchema }]),
+    FcmAModule,
+    WebPushModule,
+    MongooseModule.forFeature([{ name: 'Chat', schema: ChatSchema }]),
   ],
   controllers: [ChatContoller],
-  providers: [ChatService, FcmService, WebPushService],
-  exports: [ChatService, FcmService, WebPushService, MongooseModule],
+  providers: [ChatService],
+  exports: [ChatService, MongooseModule],
 })
 export class ChatModule {}

@@ -23,8 +23,8 @@ export class FeedService {
   private imageServiceInstance: ImageService;
 
   constructor(
-    @InjectModel(Feed.name) private Feed: Model<IFeed>,
-    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel('Feed') private Feed: Model<IFeed>,
+    @InjectModel('User') private User: Model<IUser>,
   ) {
     this.token = RequestContext.getDecodedToken();
     this.imageServiceInstance = new ImageService();

@@ -6,16 +6,18 @@ import { User, UserSchema } from 'src/user/entity/user.entity';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { Registered, RegisteredSchema } from './entity/register.entity';
 import { UserModule } from 'src/user/user.module';
+import { WebPushModule } from 'src/webpush/webpush.module';
 
 @Module({
   imports: [
     UserModule,
+    WebPushModule,
     MongooseModule.forFeature([
-      { name: Registered.name, schema: RegisteredSchema },
+      { name: 'Registered', schema: RegisteredSchema },
     ]),
   ],
   controllers: [RegisterController],
-  providers: [RegisterService, WebPushService],
+  providers: [RegisterService],
   exports: [RegisterService, MongooseModule],
 })
 export class RegisterModule {}

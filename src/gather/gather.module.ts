@@ -2,22 +2,21 @@ import { Module } from '@nestjs/common';
 import { GatherController } from './gather.controller';
 import { GatherService } from './gather.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/user/entity/user.entity';
 import { ChatService } from 'src/chatz/chat.service';
-import { Gather, GatherSchema } from './entity/gather.entity';
-import { Counter, CounterSchema } from 'src/counter/entity/counter.entity';
+import { GatherSchema } from './entity/gather.entity';
 import { ChatModule } from 'src/chatz/chat.module';
 import { UserModule } from 'src/user/user.module';
+import { CounterModule } from 'src/counter/couter.module';
 
 @Module({
   imports: [
     UserModule,
-    MongooseModule.forFeature([{ name: Gather.name, schema: GatherSchema }]),
-    MongooseModule.forFeature([{ name: Counter.name, schema: CounterSchema }]),
+    CounterModule,
+    MongooseModule.forFeature([{ name: 'Gather', schema: GatherSchema }]),
     ChatModule,
   ],
   controllers: [GatherController],
-  providers: [GatherService, ChatService],
+  providers: [GatherService],
   exports: [GatherService, MongooseModule],
 })
 export class GatherModule {}

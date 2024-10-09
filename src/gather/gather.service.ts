@@ -21,9 +21,9 @@ export class GatherService {
   private token: JWT;
 
   constructor(
-    @InjectModel(Gather.name) private Gather: Model<IGatherData>,
-    @InjectModel(Counter.name) private Counter: Model<ICounter>,
-    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel('Gather') private Gather: Model<IGatherData>,
+    @InjectModel('Counter') private Counter: Model<ICounter>,
+    @InjectModel('User') private User: Model<IUser>,
     private readonly chatServiceInstance: ChatService,
   ) {
     this.token = RequestContext.getDecodedToken();

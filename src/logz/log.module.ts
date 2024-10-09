@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Log, LogSchema } from './entity/log.entity';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Log.name, schema: LogSchema }])],
+  imports: [MongooseModule.forFeature([{ name: 'Log', schema: LogSchema }])],
   controllers: [LogController],
   providers: [LogService],
   exports: [LogService, MongooseModule],

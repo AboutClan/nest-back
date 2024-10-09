@@ -9,8 +9,8 @@ import { RequestContext } from 'src/request-context';
 export default class StaticService {
   private token: JWT;
   constructor(
-    @InjectModel(User.name) private User: Model<IUser>,
-    @InjectModel(Log.name) private Log: Model<ILog>,
+    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel('Log') private Log: Model<ILog>,
   ) {
     this.token = RequestContext.getDecodedToken();
   }

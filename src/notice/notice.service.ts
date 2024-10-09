@@ -10,8 +10,8 @@ import { RequestContext } from 'src/request-context';
 export default class NoticeService {
   private token: JWT;
   constructor(
-    @InjectModel(Notice.name) private Notice: Model<INotice>,
-    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel('Notice') private Notice: Model<INotice>,
+    @InjectModel('User') private User: Model<IUser>,
   ) {
     this.token = RequestContext.getDecodedToken();
   }

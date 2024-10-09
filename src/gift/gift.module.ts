@@ -6,7 +6,7 @@ import { GiftModel, giftSchema } from './entity/gift.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: GiftModel.name, schema: giftSchema }]),
+    MongooseModule.forFeature([{ name: 'GiftModel', schema: giftSchema }]),
   ],
   controllers: [GiftController],
   providers: [GiftService],

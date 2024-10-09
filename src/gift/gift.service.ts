@@ -12,9 +12,7 @@ import { RequestContext } from 'src/request-context';
 @Injectable()
 export class GiftService {
   private token: JWT;
-  constructor(
-    @InjectModel(GiftModel.name) private Gift: Model<IStoreApplicant>,
-  ) {
+  constructor(@InjectModel('GiftModel') private Gift: Model<IStoreApplicant>) {
     this.token = RequestContext.getDecodedToken();
   }
 

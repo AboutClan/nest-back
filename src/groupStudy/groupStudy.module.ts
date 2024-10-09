@@ -1,23 +1,24 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { GroupStudyController } from './groupStudy.controller';
 import GroupStudyService from './groupStudy.service';
-import { User, UserSchema } from 'src/user/entity/user.entity';
-import { Counter, CounterSchema } from 'src/counter/entity/counter.entity';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WebPushService } from 'src/webpush/webpush.service';
-import { GroupStudy, GroupStudySchema } from './entity/groupStudy.entity';
+import { GroupStudySchema } from './entity/groupStudy.entity';
 import { UserModule } from 'src/user/user.module';
+import { CounterModule } from 'src/counter/couter.module';
+import { WebPushModule } from 'src/webpush/webpush.module';
 
 @Module({
   imports: [
     UserModule,
+    CounterModule,
+    forwardRef(() => WebPushModule),
     MongooseModule.forFeature([
-      { name: GroupStudy.name, schema: GroupStudySchema },
+      { name: 'GroupStudy', schema: GroupStudySchema },
     ]),
-    MongooseModule.forFeature([{ name: Counter.name, schema: CounterSchema }]),
   ],
   controllers: [GroupStudyController],
-  providers: [GroupStudyService, WebPushService],
+  providers: [GroupStudyService],
   exports: [GroupStudyService, MongooseModule],
 })
 export class GroupStudyModule {}

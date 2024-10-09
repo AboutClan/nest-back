@@ -6,7 +6,7 @@ import { RequestContext } from 'src/request-context';
 
 export default class LogService {
   private token: JWT;
-  constructor(@InjectModel(Log.name) private Log: Model<ILog>) {
+  constructor(@InjectModel('Log') private Log: Model<ILog>) {
     this.token = RequestContext.getDecodedToken();
   }
 

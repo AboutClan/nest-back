@@ -21,13 +21,13 @@ import { RequestContext } from 'src/request-context';
 export class UserService {
   private token: JWT;
   constructor(
-    @InjectModel(User.name) private User: Model<IUser>,
-    @InjectModel(Vote.name) private Vote: Model<IVote>,
-    @InjectModel(Place.name) private Place: Model<IPlace>,
-    @InjectModel(Promotion.name) private Promotion: Model<IPromotion>,
-    @InjectModel(Log.name) private Log: Model<ILog>,
-    @InjectModel(Notice.name) private Notice: Model<INotice>,
-    @InjectModel(Counter.name) private Counter: Model<ICounter>,
+    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel('Vote') private Vote: Model<IVote>,
+    @InjectModel('Place') private Place: Model<IPlace>,
+    @InjectModel('Promotion') private Promotion: Model<IPromotion>,
+    @InjectModel('Log') private Log: Model<ILog>,
+    @InjectModel('Notice') private Notice: Model<INotice>,
+    @InjectModel('Counter') private Counter: Model<ICounter>,
   ) {
     this.token = RequestContext.getDecodedToken();
   }

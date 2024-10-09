@@ -19,8 +19,8 @@ export default class RegisterService {
   private token: JWT;
 
   constructor(
-    @InjectModel(Registered.name) private Registered: Model<IRegistered>,
-    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel('Registered') private Registered: Model<IRegistered>,
+    @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
   ) {
     this.token = RequestContext.getDecodedToken();

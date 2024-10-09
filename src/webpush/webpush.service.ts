@@ -111,11 +111,11 @@ export class WebPushService {
 
     const subscriptions = await this.NotificationSub.find({ uid });
 
-    console.log(subscriptions);
     subscriptions.forEach((subscription) => {
       const push = new PushNotifications(this.settings);
 
       push.send(subscription, payload, (err: any, result: any) => {
+        console.log(result);
         if (err) throw new AppError(`error at ${subscription}`, 500);
       });
     });

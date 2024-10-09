@@ -9,9 +9,7 @@ import {
 } from './entity/request.entity';
 
 export default class RequestService {
-  constructor(
-    @InjectModel(Request.name) private Request: Model<IRequestData>,
-  ) {}
+  constructor(@InjectModel('Request') private Request: Model<IRequestData>) {}
 
   async getRequest() {
     const gatherData = await this.Request.find({}, '-_id');

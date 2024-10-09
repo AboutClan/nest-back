@@ -23,10 +23,7 @@ export class FcmService {
   private payload: any;
   static MongooseModule: any;
 
-  constructor(
-    @InjectModel(FcmToken.name) private FcmToken: Model<IFcmToken>,
-    @InjectModel(Collection.name) private DailyCheck: Model<IDailyCheck>,
-  ) {
+  constructor(@InjectModel('FcmToken') private FcmToken: Model<IFcmToken>) {
     this.token = RequestContext.getDecodedToken();
     const fcm = process.env.FCM_INFO;
     if (!admin.apps.length && fcm) {

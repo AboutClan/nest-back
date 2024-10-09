@@ -8,7 +8,7 @@ import { RequestContext } from 'src/request-context';
 
 export default class PlaceService {
   private token: JWT;
-  constructor(@InjectModel(Place.name) private Place: Model<IPlace>) {
+  constructor(@InjectModel('Place') private Place: Model<IPlace>) {
     this.token = RequestContext.getDecodedToken();
   }
   async getActivePlace(status: 'active' | 'inactive') {

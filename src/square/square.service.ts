@@ -16,7 +16,7 @@ export default class SquareService {
   private token: JWT;
 
   constructor(
-    @InjectModel(SecretSquare.name)
+    @InjectModel('SecretSquare')
     private SecretSquare: Model<SecretSquareItem>,
     private readonly imageServiceInstance: ImageService,
   ) {

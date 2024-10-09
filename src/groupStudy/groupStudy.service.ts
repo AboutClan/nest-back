@@ -18,9 +18,9 @@ import { RequestContext } from 'src/request-context';
 export default class GroupStudyService {
   private token: JWT;
   constructor(
-    @InjectModel(GroupStudy.name) private GroupStudy: Model<IGroupStudyData>,
-    @InjectModel(Counter.name) private Counter: Model<ICounter>,
-    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
+    @InjectModel('Counter') private Counter: Model<ICounter>,
+    @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
   ) {
     this.token = RequestContext.getDecodedToken();

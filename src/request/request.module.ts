@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Request.name, schema: RequestSchema }]),
+    MongooseModule.forFeature([{ name: 'Request', schema: RequestSchema }]),
   ],
   controllers: [RequestController],
   providers: [RequestService],

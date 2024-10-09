@@ -23,8 +23,8 @@ export class ChatService {
   constructor(
     private readonly fcmServiceInstance: FcmService,
     private readonly webPushServiceInstance: WebPushService,
-    @InjectModel(Chat.name) private Chat: Model<IChat>,
-    @InjectModel(User.name) private User: Model<IUser>,
+    @InjectModel('Chat') private Chat: Model<IChat>,
+    @InjectModel('User') private User: Model<IUser>,
   ) {
     this.token = RequestContext.getDecodedToken();
   }

@@ -20,9 +20,9 @@ import { RequestContext } from 'src/request-context';
 export class VoteService {
   private token: JWT;
   constructor(
-    @InjectModel(Vote.name) private Vote: Model<IVote>,
-    @InjectModel(User.name) private User: Model<IUser>,
-    @InjectModel(Place.name) private Place: Model<IPlace>,
+    @InjectModel('Vote') private Vote: Model<IVote>,
+    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel('Place') private Place: Model<IPlace>,
   ) {
     this.token = RequestContext.getDecodedToken();
   }

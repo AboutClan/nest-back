@@ -6,9 +6,7 @@ import { FcmToken, FcmTokenSchema } from './entity/fcmToken.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: FcmToken.name, schema: FcmTokenSchema },
-    ]),
+    MongooseModule.forFeature([{ name: 'FcmToken', schema: FcmTokenSchema }]),
   ],
   controllers: [FcmController],
   providers: [FcmService],

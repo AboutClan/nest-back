@@ -13,7 +13,7 @@ import { RequestContext } from 'src/request-context';
 export default class PromotionService {
   private token: JWT;
   constructor(
-    @InjectModel(Promotion.name) private Promotion: Model<IPromotion>,
+    @InjectModel('Promotion') private Promotion: Model<IPromotion>,
     private readonly userServiceInstance: UserService,
   ) {
     this.token = RequestContext.getDecodedToken();
