@@ -4,7 +4,7 @@ import { IGatherData } from './entity/gather.entity';
 // DTOs for request validation
 export class CreateGatherDto {
   @IsNotEmpty({ message: 'gather필요' })
-  gather: IGatherData;
+  gather: Partial<IGatherData>;
 }
 
 export class DeleteGatherDto {

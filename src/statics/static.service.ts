@@ -4,15 +4,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IUser, User } from 'src/user/entity/user.entity';
 import { ILog, Log } from 'src/logz/entity/log.entity';
-import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class StaticService {
   private token: JWT;
   constructor(
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Log') private Log: Model<ILog>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async roleCheck() {

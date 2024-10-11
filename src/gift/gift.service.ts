@@ -1,5 +1,5 @@
 import { JWT } from 'next-auth/jwt';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -8,12 +8,17 @@ import {
   StoreZodSchema,
 } from './entity/gift.entity';
 import { RequestContext } from 'src/request-context';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class GiftService {
   private token: JWT;
-  constructor(@InjectModel('GiftModel') private Gift: Model<IStoreApplicant>) {
-    this.token = RequestContext.getDecodedToken();
+  constructor(
+    @InjectModel('GiftModel') private Gift: Model<IStoreApplicant>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
+  ) {
+    this.token = this.request.decodedToken;
   }
 
   async getAllGift() {

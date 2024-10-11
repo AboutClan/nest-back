@@ -5,11 +5,17 @@ import { IPlace, Place, PlaceZodSchema } from './entity/place.entity';
 import { ValidationError } from 'src/errors/ValidationError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class PlaceService {
   private token: JWT;
-  constructor(@InjectModel('Place') private Place: Model<IPlace>) {
-    this.token = RequestContext.getDecodedToken();
+  constructor(
+    @InjectModel('Place') private Place: Model<IPlace>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
+  ) {
+    this.token = this.request.decodedToken;
   }
   async getActivePlace(status: 'active' | 'inactive') {
     try {

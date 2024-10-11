@@ -6,14 +6,18 @@ import { IUser, User } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import * as logger from '../logger';
 import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class NoticeService {
   private token: JWT;
   constructor(
     @InjectModel('Notice') private Notice: Model<INotice>,
     @InjectModel('User') private User: Model<IUser>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
   async getActiveLog() {
     const result = await this.Notice.find(
@@ -99,6 +103,8 @@ export default class NoticeService {
       throw new DatabaseError('create notice failed');
     }
   }
+
+  //todo: 이게 무슨로직??
   async updateRequestFriend(
     type: 'friend' | 'alphabet',
     from: string,

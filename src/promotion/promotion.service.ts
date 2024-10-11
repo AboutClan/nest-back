@@ -9,14 +9,18 @@ import {
 } from './entity/promotion.entity';
 import { UserService } from 'src/user/user.service';
 import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class PromotionService {
   private token: JWT;
   constructor(
     @InjectModel('Promotion') private Promotion: Model<IPromotion>,
     private readonly userServiceInstance: UserService,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async getPromotion() {

@@ -3,11 +3,17 @@ import { JWT } from 'next-auth/jwt';
 import { ILog, Log } from './entity/log.entity';
 import { Model } from 'mongoose';
 import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class LogService {
   private token: JWT;
-  constructor(@InjectModel('Log') private Log: Model<ILog>) {
-    this.token = RequestContext.getDecodedToken();
+  constructor(
+    @InjectModel('Log') private Log: Model<ILog>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
+  ) {
+    this.token = this.request.decodedToken;
   }
 
   async getMonthScoreLog() {

@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import ImageService from 'src/imagez/image.service';
 import {
   commentType,
@@ -16,6 +16,8 @@ import { convertUsersToSummary } from 'src/utils/convertUtil';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
 import { RequestContext } from 'src/request-context';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class FeedService {
@@ -25,8 +27,9 @@ export class FeedService {
   constructor(
     @InjectModel('Feed') private Feed: Model<IFeed>,
     @InjectModel('User') private User: Model<IUser>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
     this.imageServiceInstance = new ImageService();
   }
 

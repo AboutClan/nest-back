@@ -7,7 +7,7 @@ import {
   IGatherData,
   subCommentType,
 } from './entity/gather.entity';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Counter, ICounter } from 'src/counter/entity/counter.entity';
 import { C_simpleUser } from 'src/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
@@ -15,6 +15,8 @@ import { IUser, User } from 'src/user/entity/user.entity';
 import { ChatService } from 'src/chatz/chat.service';
 import * as logger from '../logger';
 import { RequestContext } from 'src/request-context';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class GatherService {
@@ -25,8 +27,9 @@ export class GatherService {
     @InjectModel('Counter') private Counter: Model<ICounter>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly chatServiceInstance: ChatService,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async getNextSequence(name: any) {
@@ -87,8 +90,9 @@ export class GatherService {
     return gatherData;
   }
 
+  //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
-  async createGather(data: IGatherData) {
+  async createGather(data: Partial<IGatherData>) {
     const nextId = await this.getNextSequence('counterid');
 
     const gatherInfo = {

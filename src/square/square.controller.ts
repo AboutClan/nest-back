@@ -15,21 +15,8 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import {
-  IsNotEmpty,
-  IsArray,
-  IsIn,
-  IsString,
-  IsBoolean,
-  IsOptional,
-} from 'class-validator';
 import SquareService from './square.service';
-import ImageService from 'src/imagez/image.service';
-import {
-  PollItem,
-  SecretSquareCategory,
-  SecretSquareType,
-} from './entity/square.entity';
+import { SecretSquareCategory } from './entity/square.entity';
 import { CreateSquareDto } from './createSquareDto';
 
 // DTOs for request validation
@@ -84,32 +71,6 @@ export class SquareController {
     }
   }
 
-  @Delete(':squareId')
-  async deleteSquare(@Param('squareId') squareId: string) {
-    try {
-      await this.squareService.deleteSquare(squareId);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting square',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get(':squareId')
-  async getSquare(@Param('squareId') squareId: string) {
-    try {
-      const square = await this.squareService.getSquare(squareId);
-      return { square };
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching square',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
   @Post('comment')
   async createSquareComment(
     @Body() commentDto: { comment: string; squareId: string },
@@ -128,6 +89,7 @@ export class SquareController {
     }
   }
 
+  //todo: 왜안됨
   @Delete('comment')
   async deleteSquareComment(
     @Body() commentDto: { squareId: string; commentId: string },
@@ -135,7 +97,8 @@ export class SquareController {
     try {
       await this.squareService.deleteSquareComment(commentDto);
       return { status: 'success' };
-    } catch (err) {
+    } catch (err: any) {
+      console.log(err);
       throw new HttpException(
         'Error deleting comment',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -186,6 +149,32 @@ export class SquareController {
     } catch (err) {
       throw new HttpException(
         'Error deleting sub-comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Delete(':squareId')
+  async deleteSquare(@Param('squareId') squareId: string) {
+    try {
+      await this.squareService.deleteSquare(squareId);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error deleting square',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get(':squareId')
+  async getSquare(@Param('squareId') squareId: string) {
+    try {
+      const square = await this.squareService.getSquare(squareId);
+      return { square };
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching square',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

@@ -28,6 +28,7 @@ import { FeedModule } from './feed/feed.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { RequestContextInterceptor } from './request-context.intercepter';
+import { CollectionModule } from './collection/collection.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { RequestContextInterceptor } from './request-context.intercepter';
     FcmAModule,
     ChatModule,
     BookModule,
+    CollectionModule,
   ],
   controllers: [AppController],
   providers: [

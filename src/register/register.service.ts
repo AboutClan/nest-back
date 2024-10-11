@@ -14,6 +14,9 @@ import { IUser, User } from 'src/user/entity/user.entity';
 import dbConnect from 'src/conn';
 import * as logger from '../logger';
 import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class RegisterService {
   private token: JWT;
@@ -22,8 +25,9 @@ export default class RegisterService {
     @InjectModel('Registered') private Registered: Model<IRegistered>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async encodeByAES56(tel: string) {

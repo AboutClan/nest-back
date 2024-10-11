@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 import {
   Collection,
@@ -11,16 +11,19 @@ import { IUser } from 'src/user/entity/user.entity';
 import { ALPHABET_COLLECTION } from 'src/constants';
 import { IRequestData } from 'src/request/entity/request.entity';
 import { RequestContext } from 'src/request-context';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class CollectionService {
   private token: JWT;
   constructor(
-    @InjectModel('Collection') private Collection: Model<ICollection>,
+    @InjectModel('collection') private Collection: Model<ICollection>,
     @InjectModel('Request') private Request: Model<IRequestData>,
     @InjectModel('User') private User: Model<IUser>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async setCollection(alphabet: string) {
@@ -30,7 +33,7 @@ export class CollectionService {
       collectCnt: 0,
     });
 
-    await Collection.findOneAndUpdate(
+    await this.Collection.findOneAndUpdate(
       { user: this.token.id },
       {
         $push: { collects: alphabet },
@@ -79,7 +82,7 @@ export class CollectionService {
   }
 
   async setCollectionCompleted() {
-    const previousData = await Collection.findOne({ user: this.token.id });
+    const previousData = await this.Collection.findOne({ user: this.token.id });
     const myAlphabets = previousData?.collects?.length
       ? [...previousData?.collects]
       : null;
@@ -106,14 +109,14 @@ export class CollectionService {
   }
 
   async getCollection() {
-    const result = await Collection.findOne({ user: this.token.id })
+    const result = await this.Collection.findOne({ user: this.token.id })
       .populate('user')
       .select('-_id');
     return result;
   }
 
   async getCollectionAll() {
-    const result = await Collection.find({}, '-_id -__v').populate('user');
+    const result = await this.Collection.find({}, '-_id -__v').populate('user');
     return result;
   }
 }

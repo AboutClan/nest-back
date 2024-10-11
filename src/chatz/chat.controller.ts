@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
+//todo: user정보 populate 관련 수정
 @Controller('chat')
 export class ChatContoller {
   constructor(private readonly chatService: ChatService) {}

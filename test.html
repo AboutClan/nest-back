@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FormData Example</title>
+  </head>
+  <body>
+    <h2>Submit Square Data with Images</h2>
+    <form id="squareForm" enctype="multipart/form-data">
+      <div>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+      <div>
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" required></textarea>
+      </div>
+      <div>
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type" value="general" required />
+      </div>
+      <div>
+        <label for="category">Category:</label>
+        <input
+          type="text"
+          id="category"
+          name="category"
+          value="일상"
+          required
+        />
+      </div>
+      <div>
+        <label for="pollItemName">Poll Item Name:</label>
+        <input
+          type="text"
+          id="pollItemName"
+          name="pollItemName"
+          value="hello"
+          required
+        />
+      </div>
+      <div>
+        <label for="canMultiple">Can Multiple:</label>
+        <select id="canMultiple" name="canMultiple">
+          <option value="true">True</option>
+          <option value="false" selected>False</option>
+        </select>
+      </div>
+      <div>
+        <label for="images">Upload Images:</label>
+        <input
+          type="file"
+          id="images"
+          name="images"
+          multiple
+          accept="image/*"
+        />
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+
+    <script>
+      document
+        .getElementById('squareForm')
+        .addEventListener('submit', async function (event) {
+          event.preventDefault();
+
+          // Create a new FormData object
+          const formData = new FormData();
+
+          // Append form fields
+          formData.append('title', document.getElementById('title').value);
+          formData.append('content', document.getElementById('content').value);
+          formData.append('type', document.getElementById('type').value);
+          formData.append(
+            'category',
+            document.getElementById('category').value,
+          );
+
+          // Append pollItems as a JSON string
+          const pollItemName = document.getElementById('pollItemName').value;
+          const pollItems = [{ name: pollItemName, users: [] }];
+          formData.append('pollItems', JSON.stringify(pollItems));
+
+          // Append canMultiple field
+          formData.append(
+            'canMultiple',
+            document.getElementById('canMultiple').value,
+          );
+
+          // Append images
+          const imagesInput = document.getElementById('images');
+          for (const file of imagesInput.files) {
+            formData.append('images', file);
+          }
+
+          // Make a POST request using Fetch API
+          try {
+            const response = await fetch(
+              'http://localhost:3001/square?cursor=1',
+              {
+                method: 'POST',
+                headers: {
+                  Authorization:
+                    'Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..nptdCxy19SoAz-yT.8z6AltSTvrA8RfxZCneRnRC3arHk1G_1TipQ8hbipejLivotpfnbwLuwRrsX1iOtsGwhGfBda_2IEwM77sAPQU6wy90vI3HcX5PlfZ9R3hi3bjVkW3PGhG9g9hTrOBSLGsB4c461G5Y4Mqf-PtyLb1lVoPcUOeWmHKXnEen2TlhljTIx5xq7jJQRS50IQ5NdqPvt5y2lmHO8LPBnz1C2SBS-2GRPeDDpJt3MZkDKadTOMpAcnrDnxdPmhmOK1DTD0a_Oha09E0X4L4uahcx0JgkVQkh7TYkZVaTdkgmYuripgpZ2yQdYEMCjM3npr_a1cv22Dq2ahwm9NizxiZnN-JrRFzMXEr5vt9wsi-OcuAGRR8BTPxbf9wDNZSZo-IfAFtsq8Fek2m8BFtTP-22v2rn1K7DY0LmffO4eyZr1hfO9zUqtNtNk-wEs8L15MaDPILsOpstIJ0X-vPdqy2MyflmsN26kOvfLFghBbQ2x9Mj05n0VgfdFgBFJ7riFixDgdxxoNgyGcLWzPZyFplr81HJyErhpytLjMAeW6TPUOBBmccFyxtItnYw0Za4-JLIkU1Jq48xxsIkvq_oMmOgJbTrvqtN6chLyC20Vrd88V-Cz9Iac1GPktj5LZ4M_YdspIXff_FHYEZqXCYIBnyo62JOESxRmpOMrvMU.2WeDaJjtyx61Q050ffvEDw', // Replace with your actual JWT token
+                },
+                body: formData,
+              },
+            );
+
+            if (response.ok) {
+              const result = await response.json();
+              alert('Data submitted successfully: ' + JSON.stringify(result));
+            } else {
+              const errorText = await response.text();
+              alert('Failed to submit: ' + errorText);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting data: ' + error.message);
+          }
+        });
+    </script>
+  </body>
+</html>

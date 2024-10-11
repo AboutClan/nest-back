@@ -14,6 +14,9 @@ import { WebPushService } from 'src/webpush/webpush.service';
 import { IAttendance } from 'src/vote/entity/vote.entity';
 import { IUser, User } from 'src/user/entity/user.entity';
 import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class GroupStudyService {
   private token: JWT;
@@ -22,8 +25,9 @@ export default class GroupStudyService {
     @InjectModel('Counter') private Counter: Model<ICounter>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async getNextSequence(name: any) {
@@ -292,6 +296,7 @@ export default class GroupStudyService {
     return;
   }
 
+  //Counter 분리 필요
   async createGroupStudy(data: IGroupStudyData) {
     const nextId = await this.getNextSequence('groupStudyId');
 

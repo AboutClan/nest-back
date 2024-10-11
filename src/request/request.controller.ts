@@ -7,10 +7,22 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import RequestService from './request.service';
+import { RequestCategory, RequestLocation } from './entity/request.entity';
 
 // DTOs for request validation
 class CreateRequestDto {
-  request: string;
+  request: {
+    category: RequestCategory;
+    title: string;
+    writer: string;
+    content: string;
+    rest: {
+      type: '일반' | '특별';
+      start: Date;
+      end: Date;
+    };
+    location: RequestLocation;
+  };
 }
 
 @Controller('request')

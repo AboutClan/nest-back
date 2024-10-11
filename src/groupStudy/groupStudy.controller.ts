@@ -19,10 +19,11 @@ import {
 } from './dto';
 import { IAttendance } from 'src/vote/entity/vote.entity';
 
-@Controller('group-study')
+@Controller('groupStudy')
 export class GroupStudyController {
   constructor(private readonly groupStudyService: GroupStudyService) {}
 
+  //todo: groupStudyId정도는 분리하는게 좋아보임
   @Get()
   async getGroupStudy(
     @Query('groupStudyId') groupStudyId?: string,
@@ -65,6 +66,7 @@ export class GroupStudyController {
     }
   }
 
+  //todo: groupStudy 조정 필요
   @Post()
   async createGroupStudy(@Body() createGroupStudyDto: CreateGroupStudyDto) {
     try {

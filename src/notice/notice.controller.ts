@@ -12,6 +12,7 @@ import NoticeService from './notice.service';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { FcmService } from 'src/fcm/fcm.service';
 
+//todo: Notice 전반적인 수정 필요해보임
 @Controller('notice')
 export class NoticeController {
   constructor(
@@ -20,6 +21,7 @@ export class NoticeController {
     private readonly fcmService: FcmService,
   ) {}
 
+  //todo: 이름 무슨의미?
   @Get('score')
   async getActiveLog() {
     try {
@@ -46,6 +48,7 @@ export class NoticeController {
     }
   }
 
+  //todo: 동일 유저 방어 로직 필요
   @Post('like')
   async setLike(@Body('to') to: string, @Body('message') message: string) {
     try {

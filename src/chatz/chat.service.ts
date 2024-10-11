@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
@@ -14,6 +14,8 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import dayjs from 'dayjs';
 import { RequestContext } from 'src/request-context';
 import { FcmService } from 'src/fcm/fcm.service';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class ChatService {
@@ -25,8 +27,9 @@ export class ChatService {
     private readonly webPushServiceInstance: WebPushService,
     @InjectModel('Chat') private Chat: Model<IChat>,
     @InjectModel('User') private User: Model<IUser>,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async getChat(userId: string) {

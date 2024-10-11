@@ -20,7 +20,7 @@ export interface ICollection {
   collectCnt: number;
 }
 
-const colectionSchema: Schema<ICollection> = new Schema(
+export const CollectionSchema: Schema<ICollection> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -40,4 +40,4 @@ const colectionSchema: Schema<ICollection> = new Schema(
 
 export const Collection =
   (mongoose.models.Collection as Model<ICollection, {}, {}, {}>) ||
-  mongoose.model<ICollection>('collection', colectionSchema);
+  mongoose.model<ICollection>('collection', CollectionSchema);

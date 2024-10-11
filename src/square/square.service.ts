@@ -11,6 +11,9 @@ import {
 } from './entity/square.entity';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 export default class SquareService {
   private token: JWT;
@@ -19,8 +22,9 @@ export default class SquareService {
     @InjectModel('SecretSquare')
     private SecretSquare: Model<SecretSquareItem>,
     private readonly imageServiceInstance: ImageService,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
   }
 
   async getSquareList({

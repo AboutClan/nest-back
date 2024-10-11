@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { CollectionService } from './collection.service';
 
-@Controller('collections')
+@Controller('collection')
 export class CollectionController {
   constructor(private readonly collectionService: CollectionService) {}
 
@@ -70,6 +70,8 @@ export class CollectionController {
   async setCollectionCompleted() {
     try {
       const result = await this.collectionService.setCollectionCompleted();
+
+      //todo: Error 타입 수정
       if (result === 'not completed') {
         throw new HttpException('Not completed', HttpStatus.BAD_REQUEST);
       }

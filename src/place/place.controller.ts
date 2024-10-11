@@ -28,6 +28,7 @@ export class PlaceController {
     }
   }
 
+  //todo: 타입 정의 필요
   @Post()
   async addPlace(@Body() placeInfo: any) {
     try {

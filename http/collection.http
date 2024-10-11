@@ -1,0 +1,30 @@
+@jwt = eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..nptdCxy19SoAz-yT.8z6AltSTvrA8RfxZCneRnRC3arHk1G_1TipQ8hbipejLivotpfnbwLuwRrsX1iOtsGwhGfBda_2IEwM77sAPQU6wy90vI3HcX5PlfZ9R3hi3bjVkW3PGhG9g9hTrOBSLGsB4c461G5Y4Mqf-PtyLb1lVoPcUOeWmHKXnEen2TlhljTIx5xq7jJQRS50IQ5NdqPvt5y2lmHO8LPBnz1C2SBS-2GRPeDDpJt3MZkDKadTOMpAcnrDnxdPmhmOK1DTD0a_Oha09E0X4L4uahcx0JgkVQkh7TYkZVaTdkgmYuripgpZ2yQdYEMCjM3npr_a1cv22Dq2ahwm9NizxiZnN-JrRFzMXEr5vt9wsi-OcuAGRR8BTPxbf9wDNZSZo-IfAFtsq8Fek2m8BFtTP-22v2rn1K7DY0LmffO4eyZr1hfO9zUqtNtNk-wEs8L15MaDPILsOpstIJ0X-vPdqy2MyflmsN26kOvfLFghBbQ2x9Mj05n0VgfdFgBFJ7riFixDgdxxoNgyGcLWzPZyFplr81HJyErhpytLjMAeW6TPUOBBmccFyxtItnYw0Za4-JLIkU1Jq48xxsIkvq_oMmOgJbTrvqtN6chLyC20Vrd88V-Cz9Iac1GPktj5LZ4M_YdspIXff_FHYEZqXCYIBnyo62JOESxRmpOMrvMU.2WeDaJjtyx61Q050ffvEDw
+
+###
+GET http://localhost:3001/collection/alphabet
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+###
+GET http://localhost:3001/collection/alphabet/all
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+###
+PATCH http://localhost:3001/collection/alphabet
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+    "alphabet": "a"
+}
+
+###
+PATCH http://localhost:3001/collection/alphabet/change
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+###
+POST http://localhost:3001/collection/alphabet/completed
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
