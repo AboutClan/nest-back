@@ -9,10 +9,13 @@ import {
   Injectable,
   Res,
   Next,
+  Delete,
+  HttpStatus,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request, Response, NextFunction } from 'express';
 import RealtimeService from './realtime.service';
+import { memoryStorage } from 'multer';
 
 @Injectable()
 @Controller('realtime')
@@ -45,12 +48,11 @@ export class RealtimeController {
   }
 
   @Post('/attendance')
-  @UseInterceptors(FilesInterceptor('images', 5))
+  @UseInterceptors(FilesInterceptor('images', 5, { storage: memoryStorage() }))
   async markAttendance(
-    @Body() markAttendanceDto: any,
     @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
-    @Next() next: NextFunction,
+    @Body() markAttendanceDto: any,
   ) {
     try {
       const buffers = files ? files.map((file) => file.buffer) : [];
@@ -60,12 +62,12 @@ export class RealtimeController {
       );
       return res.status(200).json(updatedStudy);
     } catch (err) {
-      next(err);
+      console.log(err);
     }
   }
 
   @Post('/directAttendance')
-  @UseInterceptors(FilesInterceptor('images', 5))
+  @UseInterceptors(FilesInterceptor('images', 5, { storage: memoryStorage() }))
   async directAttendance(
     @Body() markAttendanceDto: any,
     @UploadedFiles() files: Express.Multer.File[],
@@ -98,6 +100,60 @@ export class RealtimeController {
       } else {
         return res.status(404).json({ message: 'Study not found' });
       }
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  @Patch('time')
+  async patchVote(
+    @Body('start') start: string,
+    @Body('end') end: string,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      await this.realtimeService.patchVote(start, end);
+      return res.status(HttpStatus.OK).end();
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  //todo:route명 수정
+  @Delete('cancel')
+  async deleteVote(@Res() res: Response, @Next() next: NextFunction) {
+    try {
+      await this.realtimeService.deleteVote();
+      return res.status(HttpStatus.NO_CONTENT).end();
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  @Patch('comment')
+  async patchComment(
+    @Body('comment') comment: string,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      await this.realtimeService.patchComment(comment);
+      return res.status(HttpStatus.OK).end();
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  @Patch('status')
+  async patchStatus(
+    @Body('status') status: string,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.realtimeService.patchStatus(status);
+      return res.status(HttpStatus.OK).json(result);
     } catch (err) {
       next(err);
     }

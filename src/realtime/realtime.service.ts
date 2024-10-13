@@ -48,6 +48,7 @@ export default class RealtimeService {
 
   // 기본 투표 생성
   async createBasicVote(studyData: Partial<IRealtime>) {
+    console.log(studyData);
     const todayData = await this.getTodayData();
 
     const isVoting = await this.voteServiceInstance.isVoting(
@@ -93,6 +94,7 @@ export default class RealtimeService {
     return todayData;
   }
 
+  //todo: 수정 급함
   async markAttendance(studyData: Partial<IRealtimeUser>, buffers: Buffer[]) {
     const todayData = await this.getTodayData();
     const isVoting = await this.voteServiceInstance.isVoting(
@@ -258,6 +260,72 @@ export default class RealtimeService {
 
     if (!updatedRealtime) throw new DatabaseError('Failed to update study');
     return updatedRealtime;
+  }
+
+  async patchVote(start: any, end: any) {
+    const todayData = await this.getTodayData();
+    try {
+      if (start && end && todayData?.userList) {
+        todayData.userList.forEach((userInfo) => {
+          if (userInfo.user.toString() === this.token.id) {
+            userInfo.time.start = start;
+            userInfo.time.end = end;
+          }
+        });
+
+        await todayData.save();
+      } else {
+        return new Error();
+      }
+    } catch (err) {
+      throw new Error();
+    }
+  }
+
+  async deleteVote() {
+    const todayData = await this.getTodayData();
+    try {
+      todayData.userList = todayData.userList?.filter(
+        (userInfo) => userInfo.user.toString() !== this.token.id,
+      );
+
+      await todayData.save();
+    } catch (err) {
+      throw new Error();
+    }
+  }
+  async patchStatus(status: any) {
+    const todayData = await this.getTodayData();
+
+    try {
+      todayData.userList?.forEach((userInfo) => {
+        if (userInfo.user.toString() === this.token.id) {
+          userInfo.status = status;
+        }
+      });
+
+      await todayData.save();
+    } catch (err) {
+      throw new Error();
+    }
+  }
+  async patchComment(comment: string) {
+    const todayData = await this.getTodayData();
+
+    try {
+      todayData.userList?.forEach((userInfo) => {
+        if (
+          userInfo.user.toString() === this.token.id &&
+          userInfo.comment?.text
+        ) {
+          userInfo.comment.text = comment;
+        }
+      });
+
+      await todayData.save();
+    } catch (err) {
+      throw new Error();
+    }
   }
 
   // 가장 최근의 스터디 가져오기

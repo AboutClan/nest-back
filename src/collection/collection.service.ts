@@ -124,6 +124,27 @@ export class CollectionService {
     return null;
   }
 
+  async setCollection(alphabet: string) {
+    const validatedCollection = CollectionZodSchema.parse({
+      user: this.token.id,
+      collects: [alphabet],
+      collectCnt: 0,
+    });
+
+    await this.Collection.findOneAndUpdate(
+      { user: this.token.id },
+      {
+        $push: { collects: alphabet },
+        $setOnInsert: {
+          user: validatedCollection.user,
+          collectCnt: validatedCollection.collectCnt,
+        },
+      },
+      { upsert: true, new: true },
+    );
+    return null;
+  }
+
   async setCollectionCompleted() {
     const previousData = await this.Collection.findOne({ user: this.token.id });
     const myAlphabets = previousData?.collects?.length

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RealtimeSchema } from './realtime.entity';
 import { RealtimeController } from './realtime.controller';
@@ -10,7 +10,7 @@ import { CollectionModule } from 'src/collection/collection.module';
 @Module({
   imports: [
     ImageModule,
-    VoteModule,
+    forwardRef(() => VoteModule),
     CollectionModule,
     MongooseModule.forFeature([{ name: 'Realtime', schema: RealtimeSchema }]),
   ],

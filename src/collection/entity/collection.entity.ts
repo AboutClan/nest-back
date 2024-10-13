@@ -11,6 +11,7 @@ export const CollectionZodSchema = z.object({
   type: z.enum(['alphabet']).default('alphabet'),
   collects: z.array(z.string()),
   collectCnt: z.number(),
+  stamps: z.number(),
 });
 
 export interface ICollection {
@@ -18,6 +19,7 @@ export interface ICollection {
   type: string;
   collects: string[];
   collectCnt: number;
+  stamps: number;
 }
 
 export const CollectionSchema: Schema<ICollection> = new Schema(
@@ -32,6 +34,10 @@ export const CollectionSchema: Schema<ICollection> = new Schema(
     },
     collects: {
       type: [String],
+    },
+    stamps: {
+      type: Number,
+      default: 0,
     },
     collectCnt: Number,
   },

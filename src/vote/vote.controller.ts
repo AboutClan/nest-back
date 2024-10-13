@@ -139,15 +139,15 @@ export class VoteController {
   }
 
   //todo: 이름변경
-  @Patch(':date/arrive')
+  @Patch(':date/arrived')
   async patchArrive(
     @Req() req: Request,
-    @Body() body: { memo: string },
+    @Body() body: { memo: string; endHour: any },
   ): Promise<any> {
-    const { memo = '' } = body; // message 값, 기본값 설정
+    const { memo = '', endHour } = body; // message 값, 기본값 설정
     const { date } = req; // 미들웨어에서 설정된 date 값 가져오기
 
-    const result = await this.voteService.patchArrive(date, memo);
+    const result = await this.voteService.patchArrive(date, memo, endHour);
     return result;
   }
 

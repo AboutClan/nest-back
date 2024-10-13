@@ -12,10 +12,10 @@ Authorization: Bearer {{jwt}}
 
 {
     "place": {
-        "lat": 3424,
-        "lon": 321423,
-        "text": "hello",
-        "location": "dsfa"
+        "latitude": 3424,
+        "longitude": 321423,
+        "name": "hello",
+        "address": "dsfa"
     },
     "time": {
         "start": "asdf",
@@ -60,6 +60,26 @@ Content-Type: application/json
     "status": "solo"
 }
 --boundary--
+
+###
+POST http://localhost:3001/realtime/attendance
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+    "memo": "dfsaf",
+    "status": "solo",
+    "place": {
+        "lat": 3424,
+        "lon": 321423,
+        "text": "hello",
+        "location": "dsfa"
+    },
+    "time": {
+        "start": "asdf",
+        "end": "dfas"
+    }
+}
 
 ###
 POST http://localhost:3001/realtime/directAttendance

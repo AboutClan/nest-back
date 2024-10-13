@@ -6,7 +6,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwt}}
 
 ###
-POST http://localhost:3001/square?cursor=1
+POST http://localhost:3001/square
 Content-Type: application/json
 Authorization: Bearer {{jwt}}
 
