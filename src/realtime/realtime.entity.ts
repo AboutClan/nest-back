@@ -21,14 +21,14 @@ export const RealtimeUserZodSchema = z.object({
   image: z.custom<Buffer[]>().optional(),
   memo: z.string().optional(),
   comment: z.object({ text: z.string() }).optional(),
-  status: z.enum(['pending', 'solo', 'open', 'completed']),
+  status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']),
   time: TimeSchema,
 });
 
 export const RealtimeAttZodSchema = z.object({
   image: z.custom<Buffer[]>(),
   memo: z.string().optional(),
-  status: z.enum(['pending', 'solo', 'open', 'completed']),
+  status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']),
 });
 
 export interface IPlace {
@@ -55,7 +55,7 @@ export interface IRealtimeUser {
   image?: string[] | Buffer[];
   memo?: string;
   comment?: IComment;
-  status: 'pending' | 'solo' | 'open' | 'completed';
+  status: 'pending' | 'solo' | 'open' | 'free' | 'cancel';
   time: ITime;
 }
 
@@ -66,11 +66,12 @@ export interface IRealtime extends Document {
 
 const commentSchema: Schema<IComment> = new Schema(
   {
-    text: { type: String },
+    text: {
+      type: String,
+      required: false,
+    },
   },
-  {
-    timestamps: true,
-  },
+  { _id: false, timestamps: true },
 );
 
 const placeSchema: Schema<IPlace> = new Schema({
@@ -91,10 +92,10 @@ const realtimeUserSchema: Schema<IRealtimeUser> = new Schema({
   arrived: { type: Date },
   image: { type: [String] },
   memo: { type: String },
-  comment: { type: String },
+  comment: commentSchema,
   status: {
     type: String,
-    enum: ['pending', 'solo', 'open', 'completed'],
+    enum: ['pending', 'solo', 'open', 'free', 'cancel'],
     required: true,
   },
   time: { type: timeSchema, required: true },

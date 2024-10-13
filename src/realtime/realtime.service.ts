@@ -314,10 +314,8 @@ export default class RealtimeService {
 
     try {
       todayData.userList?.forEach((userInfo) => {
-        if (
-          userInfo.user.toString() === this.token.id &&
-          userInfo.comment?.text
-        ) {
+        if (userInfo.user.toString() === this.token.id) {
+          userInfo.comment = userInfo.comment || { text: '' };
           userInfo.comment.text = comment;
         }
       });
