@@ -10,7 +10,6 @@ import { Model } from 'mongoose';
 import { IUser } from 'src/user/entity/user.entity';
 import { ALPHABET_COLLECTION } from 'src/constants';
 import { IRequestData } from 'src/request/entity/request.entity';
-import { RequestContext } from 'src/request-context';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
@@ -26,25 +25,69 @@ export class CollectionService {
     this.token = this.request.decodedToken;
   }
 
-  async setCollection(alphabet: string) {
+  async setCollectionStamp(id: string) {
     const validatedCollection = CollectionZodSchema.parse({
-      user: this.token.id,
-      collects: [alphabet],
+      user: id,
+      type: 'alphabet',
+      collects: [],
       collectCnt: 0,
+      stamps: 0,
     });
+    const currentCollection = await this.Collection.findOne({
+      user: id,
+    });
+    const currentStamps = currentCollection?.stamps ?? 0;
 
-    await this.Collection.findOneAndUpdate(
-      { user: this.token.id },
-      {
-        $push: { collects: alphabet },
-        $setOnInsert: {
-          user: validatedCollection.user,
-          collectCnt: validatedCollection.collectCnt,
+    let updatedStamps = currentStamps;
+    let updatedAlphabet = null;
+
+    if (currentStamps < 5) {
+      if (!currentCollection) {
+        // 문서가 없으면 새로 생성
+        await this.Collection.create(validatedCollection);
+      } else {
+        // 문서가 있으면 stamps 증가
+        await this.Collection.findOneAndUpdate(
+          { user: id },
+          { $inc: { stamps: 1 } },
+          { new: true },
+        );
+      }
+
+      updatedStamps++;
+    }
+
+    const getRandomAlphabet = (percent: number) => {
+      const randomValue = Math.random();
+
+      if (randomValue <= percent / 100) {
+        const randomIdx = Math.floor(Math.random() * 5);
+        const alphabet = ALPHABET_COLLECTION[randomIdx];
+        return alphabet;
+      }
+      return null;
+    };
+    // stamps가 5인 경우에만 alphabet을 추가합니다
+    if (currentCollection?.stamps === 4) {
+      const alphabet = getRandomAlphabet(20);
+      // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
+      await this.Collection.findOneAndUpdate(
+        { user: id },
+        {
+          $push: { collects: alphabet }, // alphabet을 collects 배열에 추가
+          $inc: { collectCnt: 1 }, // collectCnt 값을 1 증가
+          $set: { stamps: 0 },
         },
-      },
-      { upsert: true, new: true },
-    );
-    return null;
+        { new: true },
+      );
+      updatedAlphabet = alphabet;
+      updatedStamps = 0;
+    }
+
+    return {
+      alphabet: updatedAlphabet, // alphabet을 얻었으면 반환하고, 그렇지 않으면 null
+      stamps: updatedStamps, // 현재 stamps에서 1 증가한 값 반환
+    };
   }
 
   async changeCollection(

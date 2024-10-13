@@ -118,6 +118,10 @@ export interface IVote extends Document {
   participations: IParticipation[];
 }
 
+export interface IComment {
+  text: string;
+}
+
 export interface IAttendance {
   user: string | IUser;
   time: ITimeStartToEnd;
@@ -127,7 +131,18 @@ export interface IAttendance {
   confirmed: boolean;
   memo?: string;
   imageUrl: string;
+  comment?: IComment;
 }
+
+const CommentSchema: Schema<IComment> = new Schema(
+  {
+    text: {
+      type: String,
+      required: false,
+    },
+  },
+  { _id: false, timestamps: true },
+);
 
 export interface IAbsence {
   user: string | IUser;
@@ -158,6 +173,8 @@ const AttendanceSchema: Schema<IAttendance> = new Schema(
     time: ParticipantTimeSchema,
 
     arrived: Date,
+
+    comment: CommentSchema,
 
     firstChoice: {
       type: Schema.Types.Boolean,

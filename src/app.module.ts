@@ -29,6 +29,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { RequestContextInterceptor } from './request-context.intercepter';
 import { CollectionModule } from './collection/collection.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { CollectionModule } from './collection/collection.module';
     ChatModule,
     BookModule,
     CollectionModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [

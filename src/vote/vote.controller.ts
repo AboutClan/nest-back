@@ -23,7 +23,6 @@ export class VoteController {
     @Query('startDay') startDay: string,
     @Query('endDay') endDay: string,
   ): Promise<any> {
-    console.log(startDay, endDay);
     const results = await this.voteService.getArrivedPeriod(startDay, endDay);
     return results;
   }
@@ -194,5 +193,16 @@ export class VoteController {
 
     await this.voteService.setFree(date, placeId);
     return 'hello';
+  }
+
+  @Patch(':date/comment')
+  async patchComment(
+    @Req() req: Request,
+    @Body() comment: string,
+  ): Promise<any> {
+    const { date } = req;
+
+    await this.voteService.patchComment(date, comment);
+    return 'success';
   }
 }
