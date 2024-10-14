@@ -1,8 +1,4 @@
-import {
-  IGatherData,
-  gatherStatus,
-  subCommentType,
-} from '../entity/gather.entity';
+import { gatherStatus, IGatherData } from './entity/gather.entity';
 
 export interface IGatherService {
   getNextSequence(name: string): Promise<number | undefined>;

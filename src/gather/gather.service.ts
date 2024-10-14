@@ -17,6 +17,7 @@ import * as logger from '../logger';
 import { RequestContext } from 'src/request-context';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { CounterService } from 'src/counter/counter.service';
 
 @Injectable()
 export class GatherService {
@@ -24,22 +25,12 @@ export class GatherService {
 
   constructor(
     @InjectModel('Gather') private Gather: Model<IGatherData>,
-    @InjectModel('Counter') private Counter: Model<ICounter>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly chatServiceInstance: ChatService,
+    private readonly counterServiceInstance: CounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
-  }
-
-  async getNextSequence(name: any) {
-    const counter = await this.Counter.findOne({ key: name });
-    if (counter) {
-      counter.seq++;
-
-      await counter.save();
-      return counter.seq;
-    }
   }
 
   async getGatherById(gatherId: number) {
@@ -93,7 +84,8 @@ export class GatherService {
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
   async createGather(data: Partial<IGatherData>) {
-    const nextId = await this.getNextSequence('counterid');
+    const nextId =
+      await this.counterServiceInstance.getNextSequence('counterid');
 
     const gatherInfo = {
       ...data,

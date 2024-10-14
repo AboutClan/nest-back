@@ -1,4 +1,4 @@
-import { IFeed, commentType, subCommentType } from '../entity/feed.entity';
+import { IFeed } from './entity/feed.entity';
 
 export interface IFeedService {
   findFeedByType(

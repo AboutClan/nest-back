@@ -17,26 +17,18 @@ import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { CounterService } from 'src/counter/counter.service';
 
 export default class GroupStudyService {
   private token: JWT;
   constructor(
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
-    @InjectModel('Counter') private Counter: Model<ICounter>,
     @InjectModel('User') private User: Model<IUser>,
     private readonly webPushServiceInstance: WebPushService,
+    private readonly counterServiceInstance: CounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
-  }
-
-  async getNextSequence(name: any) {
-    const counter = await this.Counter.findOne({ key: name });
-    if (counter) {
-      counter.seq++;
-      await counter.save();
-      return counter.seq;
-    }
   }
 
   async getGroupStudyByFilterAndCategory(
@@ -298,7 +290,8 @@ export default class GroupStudyService {
 
   //Counter 분리 필요
   async createGroupStudy(data: IGroupStudyData) {
-    const nextId = await this.getNextSequence('groupStudyId');
+    const nextId =
+      await this.counterServiceInstance.getNextSequence('groupStudyId');
 
     const groupStudyInfo: IGroupStudyData = {
       ...data,

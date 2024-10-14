@@ -504,20 +504,7 @@ export class UserService {
       throw new Error();
 
     try {
-      if (role === 'enthusiastic') {
-        const user = await this.User.findOne({ uid: this.token.uid });
-        if (user) {
-          user.role = role;
-          await user.save();
-        }
-        await this.Counter.updateOne(
-          {
-            key: 'enthusiasticMember',
-            location: user?.location,
-          },
-          { $inc: { seq: 1 } },
-        );
-      } else await this.updateUser({ role });
+      this.updateUser({ role });
     } catch (err: any) {
       throw new Error(err);
     }

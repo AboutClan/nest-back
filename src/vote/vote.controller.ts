@@ -198,7 +198,7 @@ export class VoteController {
   @Patch(':date/comment')
   async patchComment(
     @Req() req: Request,
-    @Body() comment: string,
+    @Body() { comment }: { comment: string },
   ): Promise<any> {
     const { date } = req;
 

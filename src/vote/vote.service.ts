@@ -346,6 +346,7 @@ export class VoteService {
     }
   }
 
+  //todo: 어디에 위치시킬지 고민
   async getWeekDates(date: any) {
     const startOfWeek = dayjs(date).startOf('isoWeek' as dayjs.OpUnitType); // ISO 8601 기준 주의 시작 (월요일)
     const weekDates = [];
@@ -488,6 +489,7 @@ export class VoteService {
       } as IAttendance;
 
       //todo: 조금 신중히 수정
+      //todo: free open 분리
       //memo는 개인 스터디 신청에 사용 (사전에 작성)
       vote.participations = vote.participations.map(
         (participation: IParticipation) => {
@@ -548,6 +550,7 @@ export class VoteService {
 
       if (!updatedVote) throw new Error('Failed to update comment');
     } catch (err) {
+      console.log(err);
       throw new Error();
     }
   }
@@ -598,10 +601,7 @@ export class VoteService {
         },
       );
 
-      // result.nModified를 통해 수정된 문서가 있는지 확인
-      if (result.modifiedCount === 0) {
-        throw new Error('No matching vote found or user not participating');
-      }
+      return;
     } catch (err) {
       throw new Error();
     }
@@ -671,7 +671,10 @@ export class VoteService {
   }
 
   async getArrived(date: any) {
-    const vote = await this.getVote(date);
+    const vote = await this.Vote.findOne({ date }).populate([
+      'participations.attendences.user',
+      'participations.place',
+    ]);
     if (!vote) throw new Error();
 
     try {

@@ -4,18 +4,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import ImageService from 'src/imagez/image.service';
 import {
   commentType,
-  Feed,
   FeedZodSchema,
   IFeed,
   subCommentType,
 } from './entity/feed.entity';
 import { C_simpleUser } from 'src/constants';
-import { IUser, User } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import { ValidationError } from 'src/errors/ValidationError';
 import { convertUsersToSummary } from 'src/utils/convertUtil';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
-import { RequestContext } from 'src/request-context';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 

@@ -68,8 +68,8 @@ Content-Type: application/json
 Authorization: Bearer {{jwt}}
 
 ###
-PATCH http://localhost:3001/vote/2024-09-08/arrive
-Content-Type: application/json
+PATCH http://localhost:3001/vote/2024-09-08/arrived
+Content-Type: application/jsond
 Authorization: Bearer {{jwt}}
 
 {
@@ -90,3 +90,12 @@ Authorization: Bearer {{jwt}}
 GET http://localhost:3001/vote/2024-09-08/start
 Content-Type: application/json
 Authorization: Bearer {{jwt}}
+
+###
+PATCH http://localhost:3001/vote/2024-09-08/comment
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+    "comment": "arrived"
+}
