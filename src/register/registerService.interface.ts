@@ -1,0 +1,12 @@
+import { IRegistered } from './entity/register.entity';
+
+export interface IRegisterService {
+  encodeByAES56(tel: string): Promise<string>;
+  decodeByAES256(encodedTel: string): Promise<string>;
+  register(
+    subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>,
+  ): Promise<void>;
+  approve(uid: string): Promise<void>;
+  deleteRegisterUser(uid: string, session?: any): Promise<void>;
+  getRegister(): Promise<IRegistered[]>;
+}

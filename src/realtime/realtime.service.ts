@@ -6,14 +6,12 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  IPlace,
   IRealtime,
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { Model } from 'mongoose';
 import { VoteService } from 'src/vote/vote.service';
-import { IUser } from 'src/user/entity/user.entity';
 import { CollectionService } from 'src/collection/collection.service';
 
 export default class RealtimeService {
@@ -48,33 +46,7 @@ export default class RealtimeService {
 
   // 기본 투표 생성
   async createBasicVote(studyData: Partial<IRealtime>) {
-    console.log(studyData);
-    const todayData = await this.getTodayData();
-
-    const isVoting = await this.voteServiceInstance.isVoting(
-      this.getToday(),
-      this.token.id,
-    );
-
-    if (isVoting) {
-      const vote = await this.voteServiceInstance.getVote(this.getToday());
-      vote.participations = vote.participations.map((participation) => ({
-        ...participation,
-        attendences: participation.attendences?.filter((attandence) => {
-          return (
-            (attandence.user as IUser)?.uid.toString() !==
-            this.token.uid?.toString()
-          );
-        }),
-      }));
-      await vote.save();
-    }
-
-    if (todayData?.userList) {
-      todayData.userList = todayData.userList.filter(
-        (user) => user.user.toString() !== this.token.id,
-      );
-    }
+    const date = this.getToday();
     // 데이터 유효성 검사
     const validatedStudy = RealtimeUserZodSchema.parse({
       ...studyData,
@@ -82,25 +54,35 @@ export default class RealtimeService {
       user: this.token.id,
     });
 
-    const isDuplicate = todayData.userList?.some(
-      (item) => item.user == validatedStudy.user,
+    this.voteServiceInstance.deleteVote(date);
+
+    const updatedData = await this.RealtimeModel.findOneAndUpdate(
+      { date },
+      {
+        $addToSet: { userList: validatedStudy }, // 중복 방지와 추가 동시에 수행
+        $setOnInsert: { date }, // 문서가 없을 때만 date 필드 설정
+      },
+      {
+        new: true, // 업데이트된 문서를 반환
+        upsert: true, // 문서가 없으면 새로 생성
+      },
     );
 
-    if (!isDuplicate) {
-      await todayData.userList?.push(validatedStudy as IRealtimeUser);
-      await todayData.save();
-    }
-
-    return todayData;
+    return updatedData;
   }
 
   //todo: 수정 급함
+  //test
   async markAttendance(studyData: Partial<IRealtimeUser>, buffers: Buffer[]) {
-    const todayData = await this.getTodayData();
-    const isVoting = await this.voteServiceInstance.isVoting(
-      this.getToday(),
-      this.token.id,
-    );
+    const date = this.getToday();
+
+    const validatedStudy = RealtimeUserZodSchema.parse({
+      ...studyData,
+      time: JSON.parse(studyData.time as unknown as string),
+      place: JSON.parse(studyData.place as unknown as string),
+      arrived: new Date(),
+      user: this.token.id,
+    });
 
     if (buffers.length && studyData?.image) {
       const images = await this.imageServiceInstance.uploadImgCom(
@@ -111,125 +93,28 @@ export default class RealtimeService {
       studyData.image = images;
     }
 
-    const validatedStudy = RealtimeUserZodSchema.parse({
-      ...studyData,
-      time: JSON.parse(studyData.time as unknown as string),
-      place: JSON.parse(studyData.place as unknown as string),
-      arrived: new Date(),
-      user: this.token.id,
-    });
+    this.voteServiceInstance.deleteVote(date);
 
-    if (isVoting) {
-      const vote = await this.voteServiceInstance.getVote(this.getToday());
-      vote.participations = vote.participations.map((participation) => ({
-        ...participation,
-        attendences: participation.attendences?.filter((attandence) => {
-          return (
-            (attandence.user as IUser)?.uid.toString() !==
-            this.token.uid?.toString()
-          );
-        }),
-      }));
-      await vote.save();
-    }
+    const updatedData = await this.RealtimeModel.findOneAndUpdate(
+      { date },
+      {
+        $set: {
+          'userList.$[elem].': validatedStudy,
+        },
+        $addToSet: { userList: validatedStudy }, // 중복되지 않는 사용자 추가
+      },
+      {
+        new: true,
+        upsert: true, // 없으면 새로 생성
+        arrayFilters: [{ 'elem.user': this.token.id }], // 배열 필터로 특정 사용자 타겟팅
+      },
+    );
 
-    let hasPrevVote = false;
-    if (todayData?.userList) {
-      todayData.userList.forEach((user, index) => {
-        if (user.user.toString() === this.token.id) {
-          const place = JSON.parse(
-            studyData.place as unknown as string,
-          ) as IPlace;
-          if (user.place.address !== place.address) {
-            todayData.userList?.splice(index, 1);
-          } else {
-            hasPrevVote = true;
-
-            user.arrived = new Date();
-            user.status = studyData.status || 'solo';
-            user.image = studyData.image;
-            user.memo = studyData.memo;
-            user.place = place;
-            if (studyData?.time)
-              user.time = JSON.parse(studyData.time as unknown as string);
-          }
-        }
-      });
-    }
-
-    if (!hasPrevVote) {
-      await todayData.userList?.push(validatedStudy as IRealtimeUser);
-      await todayData.save();
-    }
-
-    await todayData.save();
     const result = this.collectionServiceInstance.setCollectionStamp(
       this.token.id,
     );
 
     return result;
-  }
-
-  // 정보를 포함한 직접 출석
-  async directAttendance(studyData: Partial<IRealtimeUser>, buffers: Buffer[]) {
-    const isVoting = await this.voteServiceInstance.isVoting(
-      this.getToday(),
-      this.token.id,
-    );
-
-    // 데이터 유효성 검사
-    const validatedStudy = RealtimeUserZodSchema.parse({
-      ...studyData,
-      time: JSON.parse(studyData.time as unknown as string),
-      place: JSON.parse(studyData.place as unknown as string),
-      arrived: new Date(),
-      user: this.token.id,
-    });
-
-    const todayData = await this.getTodayData();
-
-    if (buffers.length) {
-      const images = await this.imageServiceInstance.uploadImgCom(
-        'studyAttend',
-        buffers,
-      );
-
-      studyData.image = images;
-    }
-
-    if (isVoting) {
-      const vote = await this.voteServiceInstance.getVote(this.getToday());
-      vote.participations = vote.participations.map((participation) => ({
-        ...participation,
-        attendences: participation.attendences?.filter((attandence) => {
-          return (
-            (attandence.user as IUser)?.uid.toString() !==
-            this.token.uid?.toString()
-          );
-        }),
-      }));
-      await vote.save();
-    }
-
-    if (todayData?.userList) {
-      todayData.userList.forEach((user, index) => {
-        if ((user.user as unknown as String) == this.token.id) {
-          if (user.place._id !== studyData.place?._id) {
-            todayData.userList?.splice(index, 1);
-          }
-        }
-      });
-    }
-
-    await todayData.userList?.push(validatedStudy as IRealtimeUser);
-    await todayData.save();
-
-    const result = this.collectionServiceInstance.setCollectionStamp(
-      this.token.id,
-    );
-    return result;
-
-    // return todayData;
   }
 
   // 스터디 정보 업데이트

@@ -66,26 +66,6 @@ export class RealtimeController {
     }
   }
 
-  @Post('/directAttendance')
-  @UseInterceptors(FilesInterceptor('images', 5, { storage: memoryStorage() }))
-  async directAttendance(
-    @Body() markAttendanceDto: any,
-    @UploadedFiles() files: Express.Multer.File[],
-    @Res() res: Response,
-    @Next() next: NextFunction,
-  ) {
-    try {
-      const buffers = files ? files.map((file) => file.buffer) : [];
-      const newStudy = await this.realtimeService.directAttendance(
-        markAttendanceDto,
-        buffers,
-      );
-      return res.status(201).json(newStudy);
-    } catch (err) {
-      next(err);
-    }
-  }
-
   @Patch()
   async updateStudy(
     @Body() updateStudyDto: any,

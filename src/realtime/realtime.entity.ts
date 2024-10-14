@@ -21,7 +21,7 @@ export const RealtimeUserZodSchema = z.object({
   image: z.custom<Buffer[]>().optional(),
   memo: z.string().optional(),
   comment: z.object({ text: z.string() }).optional(),
-  status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']),
+  status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']).default('solo'),
   time: TimeSchema,
 });
 

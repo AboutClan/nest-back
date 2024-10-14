@@ -1,12 +1,10 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 import {
-  IAbsence,
   IAttendance,
   IParticipation,
   IVote,
   IVoteStudyInfo,
-  Vote,
 } from './entity/vote.entity';
 import dayjs, { Dayjs } from 'dayjs';
 import { now } from './util';
@@ -44,7 +42,7 @@ export class VoteService {
 
   async getArrivedPeriod(startDay: string, endDay: string) {
     try {
-      let userArrivedInfo = await Vote.collection
+      let userArrivedInfo = await this.Vote.collection
         .aggregate([
           {
             $match: {
@@ -182,21 +180,16 @@ export class VoteService {
     }
   }
 
-  async isVoting(date: any, id?: string) {
+  async isVoting(date: any) {
     try {
-      let vote = await this.getVote(date);
+      const result = await this.Vote.exists({
+        date,
+        'participations.attendences.user': this.token.id, // 참석자 중 현재 사용자 존재 여부 확인
+      });
 
-      const isVoting = vote.participations
-        .flatMap((participation) =>
-          participation.attendences?.map((attendance) => {
-            return (attendance.user as IUser)?._id;
-          }),
-        )
-        .find((ObjId) => String(ObjId) === id || this?.token?.id);
-
-      return isVoting ? true : false;
+      return result !== null; // 문서가 존재하면 true, 없으면 false
     } catch (err) {
-      throw new Error();
+      throw new Error('Error checking voting status');
     }
   }
 
@@ -469,103 +462,62 @@ export class VoteService {
   async setVote(date: any, studyInfo: IVoteStudyInfo) {
     try {
       const { place, subPlace, start, end, memo }: IVoteStudyInfo = studyInfo;
-      const isVoting = await this.isVoting(date);
       const vote = await this.getVote(date);
-      const realTime = await this.Realtime.findOne({ date });
 
-      if (realTime?.userList) {
-        realTime.userList = realTime.userList?.filter(
-          (user) => user.user.toString() !== this.token.id.toString(),
-        );
-        await realTime.save();
-      }
+      await this.Realtime.updateOne(
+        { date },
+        {
+          $pull: { userList: { user: this.token.id } },
+        },
+      );
 
-      //vote 돼있는 유저면 삭제 기능
-      if (isVoting) {
-        // 사용자 UID로 투표한 attendance를 삭제
-        await this.Vote.updateOne(
-          { date },
-          {
-            $pull: {
-              // `participations` 배열 내부의 `attendences`에서 해당 사용자의 UID와 일치하는 참석 기록을 제거
-              'participations.$[].attendences': {
-                user: this.token.id?.toString(),
-              },
+      await this.Vote.updateOne(
+        { date },
+        {
+          $pull: {
+            'participations.$[].attendences': {
+              'user.uid': this.token.uid,
             },
           },
-        );
-      }
-
-      // if (isVoting) {
-      //   vote.participations = vote.participations.map((participation) => ({
-      //     ...participation,
-      //     attendences: participation.attendences?.filter((attandence) => {
-      //       return (
-      //         (attandence.user as IUser)?.uid.toString() !==
-      //         this.token.uid?.toString()
-      //       );
-      //     }),
-      //   }));
-
-      //   await vote.save();
-      // }
+        },
+      );
 
       const attendance = {
         time: { start: start, end: end },
         user: this.token.id,
       } as IAttendance;
 
-      console.log(attendance);
+      //todo: 조금 신중히 수정
       //memo는 개인 스터디 신청에 사용 (사전에 작성)
+      vote.participations = vote.participations.map(
+        (participation: IParticipation) => {
+          const placeId = (participation.place as IPlace)._id.toString();
+          const subPlaceIdArr = subPlace;
 
-      await this.Vote.updateOne(
-        { date }, // 날짜가 일치하는 vote 문서 찾기
-        {
-          $push: {
-            'participations.$[main].attendences': {
-              ...attendance,
-              firstChoice: true,
-              memo,
-            }, // 메인 장소에 참석 정보 추가
-            'participations.$[sub].attendences': {
-              ...attendance,
-              firstChoice: false,
-              memo,
-            }, // 서브 장소에 참석 정보 추가
-          },
-        },
-        {
-          arrayFilters: [
-            { 'main.place': place }, // 메인 장소 필터
-            { 'sub.place': { $in: subPlace } }, // 서브 장소 필터
-          ],
-          new: true,
+          if (placeId === place) {
+            if (participation.status === 'dismissed') {
+              participation.status = 'free';
+            }
+            return {
+              ...participation,
+              attendences: [
+                ...(participation.attendences || []),
+                { ...attendance, firstChoice: true, memo },
+              ],
+            };
+          } else if (subPlaceIdArr?.includes(placeId)) {
+            return {
+              ...participation,
+              attendences: [
+                ...(participation.attendences || []),
+                { ...attendance, firstChoice: false, memo },
+              ],
+            };
+          }
+
+          return participation;
         },
       );
-
-      // vote.participations = vote.participations.map((participation) => {
-      //   const placeId = (participation.place as IPlace)._id.toString();
-      //   const subPlaceIdArr = subPlace;
-      //   if (placeId === place) {
-      //     return {
-      //       ...participation,
-      //       attendences: [
-      //         ...(participation.attendences || []),
-      //         { ...attendance, firstChoice: true, memo },
-      //       ],
-      //     };
-      //   } else if (subPlaceIdArr?.includes(placeId)) {
-      //     return {
-      //       ...participation,
-      //       attendences: [
-      //         ...(participation.attendences || []),
-      //         { ...attendance, firstChoice: false, memo },
-      //       ],
-      //     };
-      //   }
-      //   return participation;
-      // });
-
       await vote.save();
     } catch (err) {
       throw new Error();
