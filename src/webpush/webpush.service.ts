@@ -3,13 +3,13 @@ import { JWT } from 'next-auth/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AppError } from 'src/errors/AppError';
 import dayjs from 'dayjs';
-import { findOneVote } from 'src/vote/util';
 import { IUser } from 'src/user/entity/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IGroupStudyData } from 'src/groupStudy/entity/groupStudy.entity';
 import { INotificationSub } from './entity/notificationsub.entity';
 import { RequestContext } from 'src/request-context';
+import { IVote } from 'src/vote/entity/vote.entity';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable()
@@ -21,6 +21,7 @@ export class WebPushService {
   constructor(
     private readonly configService: ConfigService,
     @InjectModel('User') private readonly User: Model<IUser>,
+    @InjectModel('Vote') private readonly Vote: Model<IVote>,
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
     @InjectModel('NotificationSub')
     private NotificationSub: Model<INotificationSub>,
@@ -122,16 +123,16 @@ export class WebPushService {
     return;
   }
 
-  async sendNotificationGroupStudy(id: string) {
+  async sendNotificationGroupStudy(groupStudyId: string) {
     const payload = JSON.stringify({
       ...this.basePayload,
       title: '소모임에 누군가 가입했어요!',
       body: '소모임을 확인해보세요.',
     });
 
-    const groupStudy = await this.GroupStudy.findOne({ id }).populate([
-      'participants.user',
-    ]);
+    const groupStudy = await this.GroupStudy.findOne({ groupStudyId }).populate(
+      ['participants.user'],
+    );
 
     const memberUids = groupStudy.participants.map(
       (participant) => (participant.user as IUser).uid,
@@ -169,12 +170,9 @@ export class WebPushService {
 
   //Todo: and 사용하도록 수정
   async sendNotificationToManager(location: string) {
-    const managers = await this.User.find({ role: 'manager' });
-    const managerUidList = new Array();
-
-    managers.forEach((manager) => {
-      if (manager.location == location) managerUidList.push(manager.uid);
-    });
+    const managerUidList = (
+      await this.User.find({ role: 'manager', location }).lean()
+    ).map((manager) => manager.uid);
 
     const managerNotiInfo = await this.NotificationSub.find({
       uid: { $in: managerUidList },
@@ -210,13 +208,16 @@ export class WebPushService {
   }
 
   //Todo: dayjs의존성 제가 가능?
-  //Todo: findOneVote
+
+  //Todo: Notification에 uid말고 _id기록
   async sendNotificationVoteResult() {
     const failure = new Set();
     const success = new Set();
 
     const date = dayjs().startOf('day').toDate();
-    const vote = await findOneVote(date);
+    const vote = await this.Vote.findOne({ date }).populate([
+      'participations.attendences.user',
+    ]);
 
     vote?.participations.forEach((participation) => {
       if (participation.status == 'dismissed') {

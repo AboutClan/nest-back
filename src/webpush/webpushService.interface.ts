@@ -6,7 +6,7 @@ export interface IWebPushService {
     title?: string,
     description?: string,
   ): Promise<void>;
-  sendNotificationGroupStudy(id: string): Promise<void>;
+  sendNotificationGroupStudy(groupStudyId: string): Promise<void>;
   sendNotificationToManager(location: string): Promise<void>;
   sendNotificationVoteResult(): Promise<void>;
 }
