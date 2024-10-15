@@ -1,9 +1,16 @@
-import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
-import LogService from './log.service';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Inject,
+} from '@nestjs/common';
+import { ILOG_SERVICE } from 'src/utils/di.tokens';
+import { ILogService } from './logService.interface';
 
 @Controller('log')
 export class LogController {
-  constructor(private readonly logService: LogService) {}
+  constructor(@Inject(ILOG_SERVICE) private logService: ILogService) {}
 
   @Get('score')
   async getScoreLog() {
