@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { ClassProvider, forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RealtimeSchema } from './realtime.entity';
 import { RealtimeController } from './realtime.controller';
@@ -6,6 +6,12 @@ import RealtimeService from './realtime.service';
 import { ImageModule } from 'src/imagez/image.module';
 import { VoteModule } from 'src/vote/vote.module';
 import { CollectionModule } from 'src/collection/collection.module';
+import { IREALTIME_SERVICE } from 'src/utils/di.tokens';
+
+const realtimeServiceProvider: ClassProvider = {
+  provide: IREALTIME_SERVICE,
+  useClass: RealtimeService,
+};
 
 @Module({
   imports: [
@@ -15,7 +21,7 @@ import { CollectionModule } from 'src/collection/collection.module';
     MongooseModule.forFeature([{ name: 'Realtime', schema: RealtimeSchema }]),
   ],
   controllers: [RealtimeController],
-  providers: [RealtimeService],
-  exports: [RealtimeService, MongooseModule],
+  providers: [realtimeServiceProvider],
+  exports: [realtimeServiceProvider, MongooseModule],
 })
 export class RealtimeModule {}

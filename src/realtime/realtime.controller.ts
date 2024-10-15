@@ -11,16 +11,20 @@ import {
   Next,
   Delete,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Request, Response, NextFunction } from 'express';
-import RealtimeService from './realtime.service';
+import { Response, NextFunction } from 'express';
 import { memoryStorage } from 'multer';
+import { IREALTIME_SERVICE } from 'src/utils/di.tokens';
+import { IRealtimeService } from './realtimeService';
 
 @Injectable()
 @Controller('realtime')
 export class RealtimeController {
-  constructor(private readonly realtimeService: RealtimeService) {}
+  constructor(
+    @Inject(IREALTIME_SERVICE) private realtimeService: IRealtimeService,
+  ) {}
 
   @Post('/basicVote')
   async createBasicVote(
