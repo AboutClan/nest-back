@@ -8,8 +8,8 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import { GatherService } from './gather.service';
 import {
   CreateGatherDto,
   DeleteGatherDto,
@@ -17,10 +17,12 @@ import {
   SetWaitingPersonDto,
 } from './dto';
 import { gatherStatus } from './entity/gather.entity';
+import { IGATHER_SERVICE } from 'src/utils/di.tokens';
+import { IGatherService } from './gatherService.interface';
 
 @Controller('gather')
 export class GatherController {
-  constructor(private readonly gatherService: GatherService) {}
+  constructor(@Inject(IGATHER_SERVICE) private gatherService: IGatherService) {}
 
   @Get()
   async getGather(

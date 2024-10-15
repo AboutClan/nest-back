@@ -1,16 +1,16 @@
-import { Module } from '@nestjs/common';
+import { ClassProvider, Module } from '@nestjs/common';
 import { GatherController } from './gather.controller';
 import { GatherService } from './gather.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ChatService } from 'src/chatz/chat.service';
 import { GatherSchema } from './entity/gather.entity';
 import { ChatModule } from 'src/chatz/chat.module';
 import { UserModule } from 'src/user/user.module';
 import { CounterModule } from 'src/counter/couter.module';
+import { IGATHER_SERVICE } from 'src/utils/di.tokens';
 
-const giftServiceProvider: ClassProvider = {
-  provide: IGIFT_SERVICE,
-  useClass: GiftService,
+const gatherServiceProvider: ClassProvider = {
+  provide: IGATHER_SERVICE,
+  useClass: GatherService,
 };
 
 @Module({
@@ -21,7 +21,7 @@ const giftServiceProvider: ClassProvider = {
     ChatModule,
   ],
   controllers: [GatherController],
-  providers: [GatherService],
-  exports: [GatherService, MongooseModule],
+  providers: [gatherServiceProvider],
+  exports: [gatherServiceProvider, MongooseModule],
 })
 export class GatherModule {}

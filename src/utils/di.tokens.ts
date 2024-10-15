@@ -13,3 +13,4 @@ export const ILOG_SERVICE = 'ILogService';
 export const IIMAGE_SERVICE = 'IImageService';
 export const IGROUPSTUDY_SERVICE = 'IGroupStudyService';
 export const IGIFT_SERVICE = 'IGiftService';
+export const IGATHER_SERVICE = 'IGatherService';
