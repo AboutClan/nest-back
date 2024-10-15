@@ -11,7 +11,6 @@ import {
 import { C_simpleUser } from 'src/constants';
 import { IUser } from 'src/user/entity/user.entity';
 import { ValidationError } from 'src/errors/ValidationError';
-import { convertUsersToSummary } from 'src/utils/convertUtil';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
 import { REQUEST } from '@nestjs/core';
@@ -118,8 +117,12 @@ export class FeedService {
     if (!Types.ObjectId.isValid(id)) {
       throw new ValidationError('invalid mongoDB Id type');
     }
-    const feed = await this.Feed.findById(id).populate(['like']);
-    return convertUsersToSummary(feed?.like as IUser[]);
+    const feed = await this.Feed.findById(id).populate({
+      path: 'like',
+      select: 'avatar name profileImage uid _id', // 필요한 필드만 선택
+    });
+
+    return feed?.like as IUser[];
   }
 
   async findAllFeeds(cursor: number | null, isRecent?: boolean) {

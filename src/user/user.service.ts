@@ -5,7 +5,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IUser, restType, User } from './entity/user.entity';
 import dayjs from 'dayjs';
-import { convertUserToSummary2 } from 'src/utils/convertUtil';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/entity/vote.entity';
 import { IPlace } from 'src/place/entity/place.entity';
@@ -166,19 +165,17 @@ export class UserService {
     summary?: boolean,
   ) {
     try {
-      const allUser = all
-        ? await this.User.find({ isActive: true })
-        : await this.User.find({ isActive: true, uid: this.token.uid });
-      let attendForm = allUser.reduce((accumulator: any[], user) => {
-        return [
-          ...accumulator,
-          {
-            uid: user.uid,
-            cnt: 0,
-            userSummary: convertUserToSummary2(user),
-          },
-        ];
-      }, []);
+      const allUser = await this.User.find({
+        isActive: true,
+        ...(all ? {} : { uid: this.token.uid }), // 조건에 따라 필터링
+      }).select(
+        'birth avatar comment isActive location name profileImage score uid _id monthScore',
+      ); // 필요한 필드만 선택
+      let attendForm = allUser.map((user) => ({
+        uid: user.uid,
+        cnt: 0,
+        userSummary: { ...user.toJSON() },
+      }));
 
       let forParticipation: any[];
       forParticipation = await this.Vote.collection
