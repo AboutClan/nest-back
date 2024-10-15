@@ -1,12 +1,16 @@
-import { Module } from '@nestjs/common';
+import { ClassProvider, Module } from '@nestjs/common';
 import { RegisterController } from './register.controller';
 import RegisterService from './register.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/user/entity/user.entity';
-import { WebPushService } from 'src/webpush/webpush.service';
-import { Registered, RegisteredSchema } from './entity/register.entity';
+import { RegisteredSchema } from './entity/register.entity';
 import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
+import { IREGISTER_SERVICE } from 'src/utils/di.tokens';
+
+const registerServiceProvider: ClassProvider = {
+  provide: IREGISTER_SERVICE,
+  useClass: RegisterService,
+};
 
 @Module({
   imports: [
@@ -17,7 +21,7 @@ import { WebPushModule } from 'src/webpush/webpush.module';
     ]),
   ],
   controllers: [RegisterController],
-  providers: [RegisterService],
-  exports: [RegisterService, MongooseModule],
+  providers: [registerServiceProvider],
+  exports: [registerServiceProvider, MongooseModule],
 })
 export class RegisterModule {}

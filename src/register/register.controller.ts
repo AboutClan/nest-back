@@ -6,13 +6,17 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import RegisterService from './register.service';
 import { ApproveUserDto } from './dto';
+import { IREGISTER_SERVICE } from 'src/utils/di.tokens';
+import { IRegisterService } from './registerService.interface';
 
 @Controller('register')
 export class RegisterController {
-  constructor(private readonly registerService: RegisterService) {}
+  constructor(
+    @Inject(IREGISTER_SERVICE) private registerService: IRegisterService,
+  ) {}
 
   @Get()
   async getRegisteredUsers() {
