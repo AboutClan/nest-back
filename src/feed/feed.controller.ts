@@ -10,14 +10,17 @@ import {
   UseInterceptors,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { FeedService } from './feed.service';
+import { IFEED_SERVICE } from 'src/utils/di.tokens';
+import { IFeedService } from './feedService.interface';
 
 @Controller('feed')
 export class FeedController {
-  constructor(private readonly feedService: FeedService) {}
+  constructor(@Inject(IFEED_SERVICE) private feedService: IFeedService) {}
 
   @Get()
   async getFeed(

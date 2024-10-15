@@ -10,9 +10,14 @@ import {
   Inject,
 } from '@nestjs/common';
 import { FcmService } from 'src/fcm/fcm.service';
-import { INOTICE_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import {
+  IFCM_SERVICE,
+  INOTICE_SERVICE,
+  IWEBPUSH_SERVICE,
+} from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { INoticeService } from './noticeService.interface';
+import { IFcmService } from 'src/fcm/fcm.interface';
 
 //todo: Notice 전반적인 수정 필요해보임
 @Controller('notice')
@@ -20,7 +25,7 @@ export class NoticeController {
   constructor(
     @Inject(INOTICE_SERVICE) private noticeService: INoticeService,
     @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
-    private readonly fcmService: FcmService,
+    @Inject(IFCM_SERVICE) private fcmService: IFcmService,
   ) {}
 
   //todo: 이름 무슨의미?

@@ -15,8 +15,9 @@ import dayjs from 'dayjs';
 import { FcmService } from 'src/fcm/fcm.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { IFCM_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
+import { IFcmService } from 'src/fcm/fcm.interface';
 
 @Injectable()
 export class ChatService {
@@ -24,7 +25,7 @@ export class ChatService {
 
   //todo: 의존성주입
   constructor(
-    private readonly fcmServiceInstance: FcmService,
+    @Inject(IFCM_SERVICE) private fcmServiceInstance: IFcmService,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @InjectModel('Chat') private Chat: Model<IChat>,
     @InjectModel('User') private User: Model<IUser>,
