@@ -12,3 +12,4 @@ export const IPLACE_SERVICE = 'IPlaceService';
 export const INOTICE_SERVICE = 'INoticeService';
 export const ILOG_SERVICE = 'ILogService';
 export const IIMAGE_SERVICE = 'IImageService';
+export const IGROUPSTUDY_SERVICE = 'IGroupStudyService';

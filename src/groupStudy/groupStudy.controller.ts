@@ -9,19 +9,22 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import GroupStudyService from './groupStudy.service';
 import { GroupStudyStatus } from './entity/groupStudy.entity';
 import {
   CommentDto,
   CreateGroupStudyDto,
   ParticipateGroupStudyDto,
 } from './dto';
-import { IAttendance } from 'src/vote/entity/vote.entity';
+import { IGROUPSTUDY_SERVICE } from 'src/utils/di.tokens';
+import { IGroupStudyService } from './groupStudyService.interface';
 
 @Controller('groupStudy')
 export class GroupStudyController {
-  constructor(private readonly groupStudyService: GroupStudyService) {}
+  constructor(
+    @Inject(IGROUPSTUDY_SERVICE) private groupStudyService: IGroupStudyService,
+  ) {}
 
   //todo: groupStudyId정도는 분리하는게 좋아보임
   @Get()
