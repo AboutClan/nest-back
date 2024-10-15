@@ -12,18 +12,20 @@ import {
   HttpException,
   HttpStatus,
   Put,
+  Inject,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import SquareService from './square.service';
 import { SecretSquareCategory } from './entity/square.entity';
 import { CreateSquareDto } from './createSquareDto';
+import { ISquareService } from './squareService.interface';
+import { ISQUARE_SERVICE } from 'src/utils/di.tokens';
 
 // DTOs for request validation
 
 @Controller('square')
 export class SquareController {
-  constructor(private readonly squareService: SquareService) {}
+  constructor(@Inject(ISQUARE_SERVICE) private squareService: ISquareService) {}
 
   @Get()
   async getSquareList(

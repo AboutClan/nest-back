@@ -4,13 +4,14 @@ import {
   Query,
   HttpException,
   HttpStatus,
-  UseGuards,
+  Inject,
 } from '@nestjs/common';
-import StaticService from './static.service';
+import { ISTATIC_SERVICE } from 'src/utils/di.tokens';
+import { IStaticService } from './staticService.interface';
 
 @Controller('static')
 export class StaticController {
-  constructor(private readonly staticService: StaticService) {}
+  constructor(@Inject(ISTATIC_SERVICE) private staticService: IStaticService) {}
 
   @Get('sameLoc')
   async getUserStaticSameLocation(@Query('date') date: string) {
