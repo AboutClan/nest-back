@@ -6,13 +6,15 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import { GiftService } from './gift.service';
 import { SetGiftDto } from './dto';
+import { IGIFT_SERVICE } from 'src/utils/di.tokens';
+import { IGiftService } from './giftService.interface';
 
 @Controller('gift')
 export class GiftController {
-  constructor(private readonly giftService: GiftService) {}
+  constructor(@Inject(IGIFT_SERVICE) private giftService: IGiftService) {}
 
   @Post()
   async setGift(@Body() setGiftDto: SetGiftDto) {

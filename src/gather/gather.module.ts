@@ -8,6 +8,11 @@ import { ChatModule } from 'src/chatz/chat.module';
 import { UserModule } from 'src/user/user.module';
 import { CounterModule } from 'src/counter/couter.module';
 
+const giftServiceProvider: ClassProvider = {
+  provide: IGIFT_SERVICE,
+  useClass: GiftService,
+};
+
 @Module({
   imports: [
     UserModule,
