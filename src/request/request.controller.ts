@@ -5,9 +5,11 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import RequestService from './request.service';
 import { RequestCategory, RequestLocation } from './entity/request.entity';
+import { IREQUEST_SERVICE } from 'src/utils/di.tokens';
+import { IRequestService } from './request.interface';
 
 // DTOs for request validation
 class CreateRequestDto {
@@ -27,7 +29,9 @@ class CreateRequestDto {
 
 @Controller('request')
 export class RequestController {
-  constructor(private readonly requestService: RequestService) {}
+  constructor(
+    @Inject(IREQUEST_SERVICE) private requestService: IRequestService,
+  ) {}
 
   @Get()
   async getRequestData() {
