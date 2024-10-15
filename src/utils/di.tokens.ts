@@ -8,5 +8,5 @@ export const IREGISTER_SERVICE = 'IRegisterService';
 
 export const IREALTIME_SERVICE = 'IRealtimeService';
 export const IPROMOTION_SERVICE = 'IPromotionService';
-// export const IREQUEST_SERVICE = 'IRequestService';
+export const IPLACE_SERVICE = 'IPlaceService';
 // export const IREGISTER_SERVICE = 'IRegisterService';
