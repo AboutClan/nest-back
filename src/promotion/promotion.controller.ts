@@ -5,12 +5,16 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import PromotionService from './promotion.service';
+import { IPROMOTION_SERVICE } from 'src/utils/di.tokens';
+import { IPromotionService } from './promotionService.interface';
 
 @Controller('promotion')
 export class PromotionController {
-  constructor(private readonly promotionService: PromotionService) {}
+  constructor(
+    @Inject(IPROMOTION_SERVICE) private promotionService: IPromotionService,
+  ) {}
 
   @Get()
   async getPromotion() {

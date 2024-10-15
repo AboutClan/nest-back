@@ -7,6 +7,6 @@ export const IREQUEST_SERVICE = 'IRequestService';
 export const IREGISTER_SERVICE = 'IRegisterService';
 
 export const IREALTIME_SERVICE = 'IRealtimeService';
-// export const ISQUARE_SERVICE = 'ISquareService';
+export const IPROMOTION_SERVICE = 'IPromotionService';
 // export const IREQUEST_SERVICE = 'IRequestService';
 // export const IREGISTER_SERVICE = 'IRegisterService';
