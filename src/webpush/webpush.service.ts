@@ -10,10 +10,11 @@ import { IGroupStudyData } from 'src/groupStudy/entity/groupStudy.entity';
 import { INotificationSub } from './entity/notificationsub.entity';
 import { RequestContext } from 'src/request-context';
 import { IVote } from 'src/vote/entity/vote.entity';
+import { IWebPushService } from './webpushService.interface';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable()
-export class WebPushService {
+export class WebPushService implements IWebPushService {
   private token: JWT;
   private basePayload: Object;
   private settings: any;

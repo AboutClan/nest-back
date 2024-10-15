@@ -2,21 +2,17 @@ import * as CryptoJS from 'crypto-js';
 import { JWT } from 'next-auth/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  IRegistered,
-  Registered,
-  RegisteredZodSchema,
-} from './entity/register.entity';
-import { WebPushService } from 'src/webpush/webpush.service';
+import { IRegistered, RegisteredZodSchema } from './entity/register.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
-import { IUser, User } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import dbConnect from 'src/conn';
 import * as logger from '../logger';
-import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
 
 export default class RegisterService {
   private token: JWT;
@@ -24,7 +20,7 @@ export default class RegisterService {
   constructor(
     @InjectModel('Registered') private Registered: Model<IRegistered>,
     @InjectModel('User') private User: Model<IUser>,
-    private readonly webPushServiceInstance: WebPushService,
+    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

@@ -2,29 +2,23 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import {
-  GroupStudy,
-  IGroupStudyData,
-  subCommentType,
-} from './entity/groupStudy.entity';
-import { Counter, ICounter } from 'src/counter/entity/counter.entity';
+import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { C_simpleUser } from 'src/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { WebPushService } from 'src/webpush/webpush.service';
-import { IAttendance } from 'src/vote/entity/vote.entity';
 import { IUser, User } from 'src/user/entity/user.entity';
-import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { CounterService } from 'src/counter/counter.service';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
+import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 
 export default class GroupStudyService {
   private token: JWT;
   constructor(
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
     @InjectModel('User') private User: Model<IUser>,
-    private readonly webPushServiceInstance: WebPushService,
+    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     private readonly counterServiceInstance: CounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {

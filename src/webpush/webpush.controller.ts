@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { WebPushService } from './webpush.service';
+import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { createSubDTO } from './webpush.dto';
+import { IWebPushService } from './webpushService.interface';
+import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 
 @Controller('webpush')
 export class WebPushController {
-  constructor(private webPushService: WebPushService) {}
+  constructor(
+    @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
+  ) {}
 
   @Post('subscribe')
   subscribe(@Body('subscription') subscription: createSubDTO): string {

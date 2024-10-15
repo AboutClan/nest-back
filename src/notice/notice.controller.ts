@@ -7,17 +7,19 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import NoticeService from './notice.service';
-import { WebPushService } from 'src/webpush/webpush.service';
 import { FcmService } from 'src/fcm/fcm.service';
+import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
 
 //todo: Notice 전반적인 수정 필요해보임
 @Controller('notice')
 export class NoticeController {
   constructor(
     private readonly noticeService: NoticeService,
-    private readonly webPushService: WebPushService,
+    @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
     private readonly fcmService: FcmService,
   ) {}
 

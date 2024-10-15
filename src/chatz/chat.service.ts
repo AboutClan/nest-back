@@ -9,13 +9,14 @@ import {
   ContentZodSchema,
   IChat,
 } from './entity/chat.entity';
-import { IUser, User } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import dayjs from 'dayjs';
-import { RequestContext } from 'src/request-context';
 import { FcmService } from 'src/fcm/fcm.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
 
 @Injectable()
 export class ChatService {
@@ -24,7 +25,7 @@ export class ChatService {
   //todo: 의존성주입
   constructor(
     private readonly fcmServiceInstance: FcmService,
-    private readonly webPushServiceInstance: WebPushService,
+    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @InjectModel('Chat') private Chat: Model<IChat>,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
