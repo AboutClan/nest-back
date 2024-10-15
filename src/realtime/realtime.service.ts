@@ -11,7 +11,6 @@ import {
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { Model } from 'mongoose';
-import { VoteService } from 'src/vote/vote.service';
 import { CollectionService } from 'src/collection/collection.service';
 import { IVoteService } from 'src/vote/voteService.interface';
 import { IVOTE_SERVICE } from 'src/utils/di.tokens';

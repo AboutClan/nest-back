@@ -10,6 +10,7 @@ import {
   UsePipes,
   ValidationPipe,
   Delete,
+  Inject,
 } from '@nestjs/common';
 import {
   UpdateAvatarDto,
@@ -21,11 +22,12 @@ import {
   SetFriendDto,
   PatchBelongDto,
 } from './dto';
-import { UserService } from './user.service';
+import { IUserService } from './userService.interface';
+import { IUSER_SERVICE } from 'src/utils/di.tokens';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(@Inject(IUSER_SERVICE) private userService: IUserService) {}
 
   @Get('active')
   async getActive() {

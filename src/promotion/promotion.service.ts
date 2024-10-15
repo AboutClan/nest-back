@@ -2,22 +2,18 @@ import { JWT } from 'next-auth/jwt';
 import dayjs from 'dayjs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  IPromotion,
-  Promotion,
-  PromotionZodSchema,
-} from './entity/promotion.entity';
-import { UserService } from 'src/user/user.service';
-import { RequestContext } from 'src/request-context';
+import { IPromotion, PromotionZodSchema } from './entity/promotion.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { IUSER_SERVICE } from 'src/utils/di.tokens';
+import { IUserService } from 'src/user/userService.interface';
 
 export default class PromotionService {
   private token: JWT;
   constructor(
     @InjectModel('Promotion') private Promotion: Model<IPromotion>,
-    private readonly userServiceInstance: UserService,
+    @Inject(IUSER_SERVICE) private userServiceInstance: IUserService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
