@@ -16,9 +16,10 @@ import { Model } from 'mongoose';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IRealtime } from 'src/realtime/realtime.entity';
-import { CollectionService } from 'src/collection/collection.service';
 import { convertUserToSummary } from 'src/convert';
 import { IVoteService } from './voteService.interface';
+import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
+import { ICollectionService } from 'src/collection/collectionService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VoteService implements IVoteService {
@@ -28,7 +29,8 @@ export class VoteService implements IVoteService {
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Place') private Place: Model<IPlace>,
     @InjectModel('Realtime') private Realtime: Model<IRealtime>,
-    private readonly collectionServiceInstance: CollectionService,
+    @Inject(ICOLLECTION_SERVICE)
+    private collectionServiceInstance: ICollectionService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

@@ -16,3 +16,6 @@ export const IGIFT_SERVICE = 'IGiftService';
 export const IGATHER_SERVICE = 'IGatherService';
 export const IFEED_SERVICE = 'IFeedService';
 export const IFCM_SERVICE = 'IFcmService';
+export const ICOUNTER_SERVICE = 'ICounterService';
+export const ICOLLECTION_SERVICE = 'ICollectionService';
+export const ICHAT_SERVICE = 'ICollectionService';

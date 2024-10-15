@@ -6,13 +6,16 @@ import {
   Body,
   HttpException,
   HttpStatus,
-  Req,
+  Inject,
 } from '@nestjs/common';
-import { CollectionService } from './collection.service';
+import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
+import { ICollectionService } from './collectionService.interface';
 
 @Controller('collection')
 export class CollectionController {
-  constructor(private readonly collectionService: CollectionService) {}
+  constructor(
+    @Inject(ICOLLECTION_SERVICE) private collectionService: ICollectionService,
+  ) {}
 
   @Get('alphabet')
   async getCollection() {

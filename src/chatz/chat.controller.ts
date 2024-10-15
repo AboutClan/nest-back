@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
+import { ICHAT_SERVICE } from 'src/utils/di.tokens';
+import { IChatService } from './chatService.interface';
 
 //todo: user정보 populate 관련 수정
 @Controller('chat')
 export class ChatContoller {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(@Inject(ICHAT_SERVICE) private chatService: IChatService) {}
 
   @Post()
   async createChat(

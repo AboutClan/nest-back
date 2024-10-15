@@ -2,22 +2,21 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import {
-  Gather,
   gatherStatus,
   IGatherData,
   subCommentType,
 } from './entity/gather.entity';
 import { Inject, Injectable } from '@nestjs/common';
-import { Counter, ICounter } from 'src/counter/entity/counter.entity';
 import { C_simpleUser } from 'src/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser, User } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import { ChatService } from 'src/chatz/chat.service';
 import * as logger from '../logger';
-import { RequestContext } from 'src/request-context';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { CounterService } from 'src/counter/counter.service';
+import { ICHAT_SERVICE, ICOUNTER_SERVICE } from 'src/utils/di.tokens';
+import { ICounterService } from 'src/counter/counterService.interface';
+import { IChatService } from 'src/chatz/chatService.interface';
 
 @Injectable()
 export class GatherService {
@@ -26,8 +25,8 @@ export class GatherService {
   constructor(
     @InjectModel('Gather') private Gather: Model<IGatherData>,
     @InjectModel('User') private User: Model<IUser>,
-    private readonly chatServiceInstance: ChatService,
-    private readonly counterServiceInstance: CounterService,
+    @Inject(ICHAT_SERVICE) private chatServiceInstance: IChatService,
+    @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

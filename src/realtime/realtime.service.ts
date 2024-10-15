@@ -13,8 +13,13 @@ import {
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/collection/collection.service';
 import { IVoteService } from 'src/vote/voteService.interface';
-import { IIMAGE_SERVICE, IVOTE_SERVICE } from 'src/utils/di.tokens';
+import {
+  ICOLLECTION_SERVICE,
+  IIMAGE_SERVICE,
+  IVOTE_SERVICE,
+} from 'src/utils/di.tokens';
 import { IImageService } from 'src/imagez/imageService.interface';
+import { ICollectionService } from 'src/collection/collectionService.interface';
 
 export default class RealtimeService {
   private token: JWT;
@@ -23,7 +28,8 @@ export default class RealtimeService {
     @InjectModel('Realtime') private RealtimeModel: Model<IRealtime>,
     @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
     @Inject(IVOTE_SERVICE) private voteServiceInstance: IVoteService,
-    private readonly collectionServiceInstance: CollectionService,
+    @Inject(ICOLLECTION_SERVICE)
+    private collectionServiceInstance: ICollectionService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

@@ -11,7 +11,8 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { CounterService } from 'src/counter/counter.service';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
-import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { ICOUNTER_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { ICounterService } from 'src/counter/counterService.interface';
 
 export default class GroupStudyService {
   private token: JWT;
@@ -19,7 +20,7 @@ export default class GroupStudyService {
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
-    private readonly counterServiceInstance: CounterService,
+    @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
