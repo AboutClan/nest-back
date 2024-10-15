@@ -19,7 +19,7 @@ export interface IUserService {
     summary?: boolean,
   ): Promise<any>;
   getVoteRate(startDay: string, endDay: string): Promise<any>;
-  patchProfile(): Promise<IUser>;
+  patchProfile(): Promise<any>;
   updatePoint(point: number, message: string, sub?: string): Promise<void>;
   initMonthScore(): Promise<void>;
   updateScore(score: number, message: string, sub?: string): Promise<void>;

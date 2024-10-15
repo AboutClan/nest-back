@@ -8,8 +8,9 @@ import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { IPlaceService } from './placeService.interface';
 
-export default class PlaceService {
+export default class PlaceService implements IPlaceService {
   private token: JWT;
   constructor(
     @InjectModel('Place') private Place: Model<IPlace>,

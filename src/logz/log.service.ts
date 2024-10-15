@@ -6,8 +6,9 @@ import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { ILogService } from './logService.interface';
 
-export default class LogService {
+export default class LogService implements ILogService {
   private token: JWT;
   constructor(
     @InjectModel('Log') private Log: Model<ILog>,

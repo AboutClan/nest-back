@@ -1,7 +1,6 @@
 import { gatherStatus, IGatherData } from './entity/gather.entity';
 
 export interface IGatherService {
-  getNextSequence(name: string): Promise<number | undefined>;
   getGatherById(gatherId: number): Promise<IGatherData | null>;
   getThreeGather(): Promise<IGatherData[]>;
   getGather(cursor: number | null): Promise<IGatherData[]>;

@@ -2,20 +2,18 @@ import { Model, type Types } from 'mongoose';
 import { type JWT } from 'next-auth/jwt/types';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  SecretSquare,
   SecretSquareCategory,
   SecretSquareItem,
-  SecretSquareType,
   SecretSquareZodSchema,
   subCommentType,
 } from './entity/square.entity';
 import ImageService from 'src/imagez/image.service';
-import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { ISquareService } from './squareService.interface';
 
-export default class SquareService {
+export default class SquareService implements ISquareService {
   private token: JWT;
 
   constructor(

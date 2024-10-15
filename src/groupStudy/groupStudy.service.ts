@@ -9,12 +9,12 @@ import { IUser, User } from 'src/user/entity/user.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { CounterService } from 'src/counter/counter.service';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { ICOUNTER_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { ICounterService } from 'src/counter/counterService.interface';
+import { IGroupStudyService } from './groupStudyService.interface';
 
-export default class GroupStudyService {
+export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
   constructor(
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,

@@ -18,9 +18,10 @@ import { Request } from 'express';
 import { IFCM_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IFcmService } from 'src/fcm/fcm.interface';
+import { IChatService } from './chatService.interface';
 
 @Injectable()
-export class ChatService {
+export class ChatService implements IChatService {
   private token: JWT;
 
   //todo: 의존성주입

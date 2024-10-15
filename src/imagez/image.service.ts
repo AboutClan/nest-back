@@ -5,8 +5,9 @@ import { strToDate } from 'src/utils/dateUtils';
 import { IUser } from 'src/user/entity/user.entity';
 import { Upload } from '@aws-sdk/lib-storage';
 import { RequestContext } from 'src/request-context';
+import { IImageService } from './imageService.interface';
 
-export default class ImageService {
+export default class ImageService implements IImageService {
   private token: JWT;
   private s3: S3Client;
 

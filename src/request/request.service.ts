@@ -7,8 +7,9 @@ import {
   Request,
   RequestZodSchema,
 } from './entity/request.entity';
+import { IRequestService } from './request.interface';
 
-export default class RequestService {
+export default class RequestService implements IRequestService {
   constructor(@InjectModel('Request') private Request: Model<IRequestData>) {}
 
   //todo: 다가져와야하나

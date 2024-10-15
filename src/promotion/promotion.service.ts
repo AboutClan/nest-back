@@ -8,8 +8,9 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IUSER_SERVICE } from 'src/utils/di.tokens';
 import { IUserService } from 'src/user/userService.interface';
+import { IPromotionService } from './promotionService.interface';
 
-export default class PromotionService {
+export default class PromotionService implements IPromotionService {
   private token: JWT;
   constructor(
     @InjectModel('Promotion') private Promotion: Model<IPromotion>,

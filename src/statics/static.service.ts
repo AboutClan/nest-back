@@ -2,13 +2,14 @@ import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from '../errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IUser, User } from 'src/user/entity/user.entity';
-import { ILog, Log } from 'src/logz/entity/log.entity';
+import { IUser } from 'src/user/entity/user.entity';
+import { ILog } from 'src/logz/entity/log.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { IStaticService } from './staticService.interface';
 
-export default class StaticService {
+export default class StaticService implements IStaticService {
   private token: JWT;
   constructor(
     @InjectModel('User') private User: Model<IUser>,

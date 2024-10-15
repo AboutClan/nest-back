@@ -12,9 +12,10 @@ import { ALPHABET_COLLECTION } from 'src/constants';
 import { IRequestData } from 'src/request/entity/request.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { ICollectionService } from './collectionService.interface';
 
 @Injectable()
-export class CollectionService {
+export class CollectionService implements ICollectionService {
   private token: JWT;
   constructor(
     @InjectModel('collection') private Collection: Model<ICollection>,

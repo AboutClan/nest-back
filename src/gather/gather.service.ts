@@ -17,9 +17,10 @@ import { Request } from 'express';
 import { ICHAT_SERVICE, ICOUNTER_SERVICE } from 'src/utils/di.tokens';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { IChatService } from 'src/chatz/chatService.interface';
+import { IGatherService } from './gatherService.interface';
 
 @Injectable()
-export class GatherService {
+export class GatherService implements IGatherService {
   private token: JWT;
 
   constructor(

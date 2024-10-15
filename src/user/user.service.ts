@@ -16,9 +16,10 @@ import { ICounter } from 'src/counter/entity/counter.entity';
 import * as logger from '../logger';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { IUserService } from './userService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
-export class UserService {
+export class UserService implements IUserService {
   private token: JWT;
   constructor(
     @InjectModel('User') private User: Model<IUser>,

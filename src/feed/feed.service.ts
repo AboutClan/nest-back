@@ -15,9 +15,10 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { IFeedService } from './feedService.interface';
 
 @Injectable()
-export class FeedService {
+export class FeedService implements IFeedService {
   private token: JWT;
   private imageServiceInstance: ImageService;
 

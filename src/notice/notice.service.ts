@@ -1,16 +1,16 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { INotice, Notice, NoticeZodSchema } from './entity/notice.entity';
-import { IUser, User } from 'src/user/entity/user.entity';
+import { INotice, NoticeZodSchema } from './entity/notice.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import * as logger from '../logger';
-import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { INoticeService } from './noticeService.interface';
 
-export default class NoticeService {
+export default class NoticeService implements INoticeService {
   private token: JWT;
   constructor(
     @InjectModel('Notice') private Notice: Model<INotice>,

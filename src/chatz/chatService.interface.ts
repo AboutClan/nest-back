@@ -17,8 +17,8 @@ export interface IChatResponse {
 }
 
 export interface IChatService {
-  getChat(userId: string): Promise<IChatResponse>;
-  getChats(): Promise<IChatWithUser[]>;
-  getRecentChat(): Promise<string>;
-  createChat(toUserId: string, message: string): Promise<void>;
+  getChat(userId: string): Promise<any>;
+  getChats(): Promise<any>;
+  getRecentChat(): Promise<any>;
+  createChat(toUserId: string, message: string): Promise<any>;
 }

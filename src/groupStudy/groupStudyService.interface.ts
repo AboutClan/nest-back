@@ -1,7 +1,6 @@
 import { IGroupStudyData } from './entity/groupStudy.entity';
 
 export interface IGroupStudyService {
-  getNextSequence(name: string): Promise<number | undefined>;
   getGroupStudyByFilterAndCategory(
     filter: string,
     category: string,

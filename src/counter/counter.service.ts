@@ -4,9 +4,10 @@ import { ICounter } from './entity/counter.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Model } from 'mongoose';
+import { ICounterService } from './counterService.interface';
 
 @Injectable()
-export class CounterService {
+export class CounterService implements ICounterService {
   private token;
   constructor(
     @InjectModel('Counter') private Counter: Model<ICounter>,

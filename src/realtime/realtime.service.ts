@@ -20,8 +20,9 @@ import {
 } from 'src/utils/di.tokens';
 import { IImageService } from 'src/imagez/imageService.interface';
 import { ICollectionService } from 'src/collection/collectionService.interface';
+import { IRealtimeService } from './realtimeService';
 
-export default class RealtimeService {
+export default class RealtimeService implements IRealtimeService {
   private token: JWT;
 
   constructor(

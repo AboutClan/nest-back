@@ -13,8 +13,9 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
+import { IRegisterService } from './registerService.interface';
 
-export default class RegisterService {
+export default class RegisterService implements IRegisterService {
   private token: JWT;
 
   constructor(

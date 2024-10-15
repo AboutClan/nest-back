@@ -7,9 +7,9 @@ export interface IRealtimeService {
   markAttendance(
     studyData: Partial<IRealtimeUser>,
     buffers: Buffer[],
-  ): Promise<void>;
+  ): Promise<any>;
   updateStudy(studyData: Partial<IRealtime>): Promise<IRealtime>;
-  patchVote(start: any, end: any): Promise<void>;
+  patchVote(start: any, end: any): Promise<any>;
   deleteVote(): Promise<void>;
   patchStatus(status: any): Promise<void>;
   patchComment(comment: string): Promise<void>;
