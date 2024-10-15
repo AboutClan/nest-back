@@ -18,9 +18,10 @@ import { Request } from 'express';
 import { IRealtime } from 'src/realtime/realtime.entity';
 import { CollectionService } from 'src/collection/collection.service';
 import { convertUserToSummary } from 'src/convert';
+import { IVoteService } from './voteService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
-export class VoteService {
+export class VoteService implements IVoteService {
   private token: JWT;
   constructor(
     @InjectModel('Vote') private Vote: Model<IVote>,

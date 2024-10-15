@@ -13,6 +13,8 @@ import {
 import { Model } from 'mongoose';
 import { VoteService } from 'src/vote/vote.service';
 import { CollectionService } from 'src/collection/collection.service';
+import { IVoteService } from 'src/vote/voteService.interface';
+import { IVOTE_SERVICE } from 'src/utils/di.tokens';
 
 export default class RealtimeService {
   private token: JWT;
@@ -20,7 +22,7 @@ export default class RealtimeService {
   constructor(
     @InjectModel('Realtime') private RealtimeModel: Model<IRealtime>,
     private readonly imageServiceInstance: ImageService,
-    private readonly voteServiceInstance: VoteService,
+    @Inject(IVOTE_SERVICE) private voteServiceInstance: IVoteService,
     private readonly collectionServiceInstance: CollectionService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {

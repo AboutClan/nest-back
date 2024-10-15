@@ -3,20 +3,22 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
-import { VoteService } from './vote.service';
 import { CreateVoteDTO } from './dto/createVoteDTO.dto';
 import { UpdateVoteDTO } from './dto/updateVoteDTO.dto';
 import { CreateQuickVoteDTO } from './dto/createQuickVoteDTO.dto';
 import { Request } from 'express';
+import { IVOTE_SERVICE } from 'src/utils/di.tokens';
+import { IVoteService } from './voteService.interface';
 
 @Controller('vote')
 export class VoteController {
-  constructor(private voteService: VoteService) {}
+  constructor(@Inject(IVOTE_SERVICE) private voteService: IVoteService) {}
 
   @Get('arrived')
   async getArrivedPeriod(
