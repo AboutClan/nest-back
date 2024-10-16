@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AppError } from 'src/errors/AppError';
@@ -7,10 +7,12 @@ import { IUser } from 'src/user/entity/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IGroupStudyData } from 'src/groupStudy/entity/groupStudy.entity';
-import { INotificationSub } from './entity/notificationsub.entity';
-import { RequestContext } from 'src/request-context';
 import { IVote } from 'src/vote/entity/vote.entity';
 import { IWebPushService } from './webpushService.interface';
+import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
+import { WebpushRepository } from './webpush.repository.interface';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable()
@@ -24,13 +26,14 @@ export class WebPushService implements IWebPushService {
     @InjectModel('User') private readonly User: Model<IUser>,
     @InjectModel('Vote') private readonly Vote: Model<IVote>,
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
-    @InjectModel('NotificationSub')
-    private NotificationSub: Model<INotificationSub>,
+    @Inject(IWEBPUSH_REPOSITORY)
+    private readonly WebpushRepository: WebpushRepository,
+    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     const publicKey = this.configService.get<string>('PUBLIC_KEY');
     const privateKey = this.configService.get<string>('PRIVATE_KEY');
 
-    this.token = RequestContext.getDecodedToken();
+    this.token = this.request.decodedToken;
     this.settings = {
       web: {
         vapidDetails: {
@@ -73,17 +76,13 @@ export class WebPushService implements IWebPushService {
 
   //test need
   async subscribe(subscription: any) {
-    await this.NotificationSub.updateOne(
-      { uid: this.token?.uid, endpoint: subscription.endpoint },
-      { ...subscription, uid: this.token?.uid },
-      { upsert: true }, // 문서가 없으면 새로 생성, 있으면 업데이트 안 함
-    );
+    await this.WebpushRepository.enrollSubscribe(this.token?.uid, subscription);
 
     return;
   }
 
   async sendNotificationAllUser() {
-    const subscriptions = await this.NotificationSub.find();
+    const subscriptions = await this.WebpushRepository.findAll();
 
     for (const subscription of subscriptions) {
       try {
@@ -111,7 +110,7 @@ export class WebPushService implements IWebPushService {
       body: description || '테스트 알림이에요',
     });
 
-    const subscriptions = await this.NotificationSub.find({ uid });
+    const subscriptions = await this.WebpushRepository.findByUid(uid);
 
     subscriptions.forEach((subscription) => {
       const push = new PushNotifications(this.settings);
@@ -140,9 +139,10 @@ export class WebPushService implements IWebPushService {
     );
     const memberArray = Array.from(new Set(memberUids));
 
-    const subscriptions = await this.NotificationSub.find({
-      uid: { $in: memberArray },
-    });
+    // const subscriptions = await this.NotificationSub.find({
+    //   uid: { $in: memberArray },
+    // });
+    const subscriptions = await this.WebpushRepository.findByArray(memberArray);
 
     const pLimit = (await import('p-limit')).default;
     const limit = pLimit(10);
@@ -175,9 +175,8 @@ export class WebPushService implements IWebPushService {
       await this.User.find({ role: 'manager', location }).lean()
     ).map((manager) => manager.uid);
 
-    const managerNotiInfo = await this.NotificationSub.find({
-      uid: { $in: managerUidList },
-    });
+    const managerNotiInfo =
+      await this.WebpushRepository.findByArray(managerUidList);
 
     const payload = JSON.stringify({
       ...this.basePayload,
@@ -244,7 +243,7 @@ export class WebPushService implements IWebPushService {
       body: '내일 스터디 투표를 참여해보세요',
     });
 
-    const subscriptions = await this.NotificationSub.find();
+    const subscriptions = await this.WebpushRepository.findAll();
 
     const pLimit = (await import('p-limit')).default;
     const limit = pLimit(10);
