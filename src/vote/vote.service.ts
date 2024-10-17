@@ -595,7 +595,7 @@ export class VoteService implements IVoteService {
 
   async deleteVote(date: any) {
     try {
-      const result = await this.Vote.updateOne(
+      await this.Vote.updateOne(
         { date, 'participations.attendences.user': this.token.id },
         {
           $pull: {
