@@ -14,8 +14,8 @@ export default class RequestService implements IRequestService {
 
   //todo: 다가져와야하나
   async getRequest() {
-    const gatherData = await this.Request.find({}, '-_id');
-    return gatherData;
+    const requestData = await this.Request.find({}, '-_id');
+    return requestData;
   }
 
   async createRequest(data: any) {

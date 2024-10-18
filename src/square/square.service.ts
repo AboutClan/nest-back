@@ -381,6 +381,7 @@ export default class SquareService implements ISquareService {
     return pollItems;
   }
 
+  //todo: 수정가능
   async putLikeSquare({ squareId }: { squareId: string }) {
     const secretSquare = await this.SecretSquare.findById(squareId);
 
@@ -407,6 +408,7 @@ export default class SquareService implements ISquareService {
     });
   }
 
+  //todo: 수정가능
   async getIsLike({ squareId }: { squareId: string }) {
     const secretSquare = await this.SecretSquare.findById(squareId);
 
