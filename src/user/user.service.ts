@@ -88,8 +88,10 @@ export class UserService implements IUserService {
   }
 
   async getAllUserInfo(strArr: string[]) {
-    const queryString = this.createQueryString(strArr);
-    const users = await this.User.find({}, '-_id' + queryString);
+    let queryString = this.createQueryString(strArr);
+    if (strArr.length) queryString = '-_id' + queryString;
+
+    const users = await this.User.find({}, queryString);
 
     users.forEach(async (user) => {
       if (user.telephone)
@@ -396,6 +398,7 @@ export class UserService implements IUserService {
     return;
   }
 
+  //todo: mongoose사용
   async updateUserAllScore() {
     try {
       const users = await this.User.find();
@@ -549,8 +552,14 @@ export class UserService implements IUserService {
     const filterRequester = { uid: toUid };
     const updateRequester = { $pull: { friend: this.token.uid } };
 
-    await this.User.findOneAndUpdate(filterMine, updateMine);
-    await this.User.findOneAndUpdate(filterRequester, updateRequester);
+    await this.User.findOneAndUpdate(
+      { uid: this.token.uid },
+      { $pull: { friend: toUid } },
+    );
+    await this.User.findOneAndUpdate(
+      { uid: toUid },
+      { $pull: { friend: this.token.uid } },
+    );
 
     return null;
   }
@@ -562,8 +571,16 @@ export class UserService implements IUserService {
     const updateRequester = { $addToSet: { friend: this.token.uid } };
     const options = { upsert: true };
 
-    await this.User.findOneAndUpdate(filterMine, updateMine, options);
-    await this.User.findOneAndUpdate(filterRequester, updateRequester, options);
+    await this.User.findOneAndUpdate(
+      { uid: this.token.uid },
+      { $addToSet: { friend: toUid } },
+      { upsert: true },
+    );
+    await this.User.findOneAndUpdate(
+      { uid: toUid },
+      { $addToSet: { friend: this.token.uid } },
+      { upsert: true },
+    );
 
     await this.Notice.create({
       from: this.token.uid,
