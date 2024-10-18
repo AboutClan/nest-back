@@ -5,7 +5,28 @@ import { IRegistered } from './entity/register.entity';
 
 export class MongoRegisterRepository implements RegisterRepository {
   constructor(
-    @InjectModel('Register')
-    private readonly Register: Model<IRegistered>,
+    @InjectModel('Registered')
+    private readonly Registered: Model<IRegistered>,
   ) {}
+  async updateByUid(uid: string, data: any): Promise<null> {
+    await this.Registered.findOneAndUpdate({ uid }, data, {
+      upsert: true,
+      new: true,
+    });
+    return null;
+  }
+  async findByUid(uid: string): Promise<IRegistered> {
+    return await this.Registered.findOne({ uid }, '-_id -__v');
+  }
+  async deleteByUidWithSession(uid: string, session: any): Promise<null> {
+    await this.Registered.deleteOne({ uid }).session(session);
+    return null;
+  }
+  async deleteByUid(uid: string): Promise<null> {
+    await this.Registered.deleteOne({ uid });
+    return null;
+  }
+  async findAll(): Promise<IRegistered[]> {
+    return await this.Registered.find({});
+  }
 }
