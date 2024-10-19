@@ -3,6 +3,7 @@ import { IVote, IParticipation } from './entity/vote.entity';
 import { VoteRepository } from './vote.repository.interface';
 import { Model } from 'mongoose';
 import { strToDate } from 'src/utils/dateUtils';
+import dayjs from 'dayjs';
 
 export class MongoVoteRepository implements VoteRepository {
   constructor(

@@ -19,5 +19,6 @@ export const IFCM_SERVICE = 'IFcmService';
 export const ICOUNTER_SERVICE = 'ICounterService';
 export const ICOLLECTION_SERVICE = 'ICollectionService';
 export const ICHAT_SERVICE = 'ICollectionService';
+export const IDAILYCHECK_SERVICE = 'IDailyCheckService';
 
 export const IWEBPUSH_REPOSITORY = 'WebpushRepository';
