@@ -93,13 +93,13 @@ export default class RealtimeService implements IRealtimeService {
       user: this.token.id,
     });
 
-    if (buffers.length && studyData?.image) {
+    if (buffers.length) {
       const images = await this.imageServiceInstance.uploadImgCom(
         'studyAttend',
         buffers,
       );
 
-      studyData.image = images;
+      studyData.image = images[0];
     }
 
     this.voteServiceInstance.deleteVote(date);

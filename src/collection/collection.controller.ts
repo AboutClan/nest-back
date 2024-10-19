@@ -30,10 +30,11 @@ export class CollectionController {
     }
   }
 
+  //todo: 이게 도대체 뭐냐
   @Patch('alphabet')
-  async setCollection(@Body('alphabet') alphabet: string) {
+  async setCollection() {
     try {
-      await this.collectionService.setCollection(alphabet);
+      // const result = await this.collectionService?.setCollectionStamp();
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(

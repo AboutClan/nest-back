@@ -34,7 +34,7 @@ export class CollectionService implements ICollectionService {
       collectCnt: 0,
       stamps: 0,
     });
-    const currentCollection = await this.Collection.findOne({
+    const currentCollection = await Collection.findOne({
       user: id,
     });
     const currentStamps = currentCollection?.stamps ?? 0;
@@ -45,10 +45,10 @@ export class CollectionService implements ICollectionService {
     if (currentStamps < 5) {
       if (!currentCollection) {
         // 문서가 없으면 새로 생성
-        await this.Collection.create(validatedCollection);
+        await Collection.create(validatedCollection);
       } else {
         // 문서가 있으면 stamps 증가
-        await this.Collection.findOneAndUpdate(
+        await Collection.findOneAndUpdate(
           { user: id },
           { $inc: { stamps: 1 } },
           { new: true },
@@ -58,21 +58,16 @@ export class CollectionService implements ICollectionService {
       updatedStamps++;
     }
 
-    const getRandomAlphabet = (percent: number) => {
-      const randomValue = Math.random();
-
-      if (randomValue <= percent / 100) {
-        const randomIdx = Math.floor(Math.random() * 5);
-        const alphabet = ALPHABET_COLLECTION[randomIdx];
-        return alphabet;
-      }
-      return null;
+    const getRandomAlphabet = () => {
+      const randomIdx = Math.floor(Math.random() * 5);
+      const alphabet = ALPHABET_COLLECTION[randomIdx];
+      return alphabet;
     };
     // stamps가 5인 경우에만 alphabet을 추가합니다
     if (currentCollection?.stamps === 4) {
-      const alphabet = getRandomAlphabet(20);
+      const alphabet = getRandomAlphabet();
       // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
-      await this.Collection.findOneAndUpdate(
+      await Collection.findOneAndUpdate(
         { user: id },
         {
           $push: { collects: alphabet }, // alphabet을 collects 배열에 추가
@@ -81,6 +76,7 @@ export class CollectionService implements ICollectionService {
         },
         { new: true },
       );
+
       updatedAlphabet = alphabet;
       updatedStamps = 0;
     }
@@ -90,7 +86,6 @@ export class CollectionService implements ICollectionService {
       stamps: updatedStamps, // 현재 stamps에서 1 증가한 값 반환
     };
   }
-
   async changeCollection(
     mine: string,
     opponent: string,
