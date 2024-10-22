@@ -57,7 +57,7 @@ export default class RealtimeService implements IRealtimeService {
   async createBasicVote(studyData: Partial<IRealtime>) {
     const date = this.getToday();
     // 데이터 유효성 검사
-    const validatedStudy = RealtimeUserZodSchema.parse({
+    const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
       status: 'pending',
       user: this.token.id,
@@ -68,7 +68,7 @@ export default class RealtimeService implements IRealtimeService {
     const updatedData = await this.RealtimeModel.findOneAndUpdate(
       { date },
       {
-        $addToSet: { userList: validatedStudy }, // 중복 방지와 추가 동시에 수행
+        $addToSet: { userList: validatedUserData }, // 중복 방지와 추가 동시에 수행
         $setOnInsert: { date }, // 문서가 없을 때만 date 필드 설정
       },
       {
