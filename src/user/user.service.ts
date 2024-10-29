@@ -172,7 +172,7 @@ export class UserService implements IUserService {
         isActive: true,
         ...(all ? {} : { uid: this.token.uid }), // 조건에 따라 필터링
       }).select(
-        'birth avatar comment isActive location name profileImage score uid _id monthScore',
+        'birth avatar comment isActive location name profileImage score uid _id monthScore weekStudyAccumulationMinutes',
       ); // 필요한 필드만 선택
       let attendForm = allUser.map((user) => ({
         uid: user.uid,
@@ -329,6 +329,17 @@ export class UserService implements IUserService {
     } catch (err: any) {
       throw new Error(err);
     }
+  }
+
+  async patchStudyTargetHour(hour: number) {
+    const updated = await User.updateOne(
+      { uid: this.token.uid },
+      { weekStudyTragetHour: hour },
+    );
+
+    if (!updated) throw new DatabaseError('update belong failed');
+
+    return;
   }
 
   async patchProfile() {

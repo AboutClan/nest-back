@@ -5,6 +5,7 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Model } from 'mongoose';
 import { ICounterService } from './counterService.interface';
+import { DatabaseError } from 'src/errors/DatabaseError';
 
 @Injectable()
 export class CounterService implements ICounterService {
@@ -15,6 +16,26 @@ export class CounterService implements ICounterService {
   ) {
     this.token = this.request.decodedToken;
   }
+  async setCounter(key: string, location: string) {
+    const findData = await this.Counter.findOne({ key, location });
+    if (findData) {
+      await this.Counter.updateOne({ key, location }, { $inc: { seq: 1 } });
+    } else {
+      await this.Counter.create({
+        key,
+        seq: 1,
+        location,
+      });
+    }
+    return;
+  }
+
+  async getCounter(key: string, location: string) {
+    const result = await this.Counter.findOne({ key, location });
+    if (!result) throw new DatabaseError("can't find counter");
+    return result.seq;
+  }
+
   async getNextSequence(name: any) {
     const updatedCounter = await this.Counter.findOneAndUpdate(
       { key: name }, // 조건

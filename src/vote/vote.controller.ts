@@ -112,6 +112,15 @@ export class VoteController {
     return filteredVote;
   }
 
+  @Get(':date/one')
+  async getFilteredVoteByDateOne(@Req() req: Request): Promise<any> {
+    const { date } = req;
+
+    const filteredVote = await this.voteService?.getFilteredVoteOne(date);
+
+    return filteredVote;
+  }
+
   @Post(':date/absence')
   async setAbsence(
     @Req() req: Request,

@@ -64,11 +64,11 @@ export class NoticeController {
         '좋아요를 받았어요!',
         `님이 좋아요를 보냈어요!`,
       );
-      await this.fcmService.sendNotificationToX(
-        to,
-        '좋아요를 받았어요!',
-        `님이 좋아요를 보냈어요!`,
-      );
+      // await this.fcmService.sendNotificationToX(
+      //   to,
+      //   '좋아요를 받았어요!',
+      //   `님이 좋아요를 보냈어요!`,
+      // );
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(

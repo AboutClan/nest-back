@@ -183,7 +183,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
         'comments._id': commentId,
         'comments.subComments._id': subCommentId,
       },
-      { $set: { 'comments.$[].subComments.$[sub].comment': messasge } },
+      { $set: { 'comments.$[].subComments.$[sub].comment': message } },
       {
         arrayFilters: [{ 'sub._id': subCommentId }],
       },

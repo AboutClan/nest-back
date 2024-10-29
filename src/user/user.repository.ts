@@ -37,7 +37,7 @@ export class MongoUserRepository implements UserRepository {
       isActive,
       ...(all ? {} : { uid }), // 조건에 따라 필터링
     }).select(
-      'birth avatar comment isActive location name profileImage score uid _id monthScore',
+      'birth avatar comment isActive location name profileImage score uid _id monthScore weekStudyAccumulationMinutes',
     ); // 필요한 필드만 선택
   }
   async findByIsActive(isActive: boolean): Promise<IUser[]> {

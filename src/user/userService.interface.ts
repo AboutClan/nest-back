@@ -40,4 +40,5 @@ export interface IUserService {
   getLog(type: string): Promise<any>;
   getAllLog(type: string): Promise<any>;
   test(): Promise<void>;
+  patchStudyTargetHour(hour: number): Promise<void>;
 }

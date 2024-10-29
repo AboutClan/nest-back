@@ -79,6 +79,8 @@ const userZodSchema = z.object({
   like: z.number().default(0),
   instagram: z.string().default(''),
   studyPreference: preferenceZodSchema.optional(),
+  weekStudyTragetHour: z.number().default(0),
+  weekStudyAccumulationMinutes: z.number().default(0),
 });
 
 export interface restType {
@@ -118,6 +120,8 @@ export interface IUser extends Document, IRegistered {
   monthScore: number;
   isPrivate?: boolean;
   instagram?: string;
+  weekStudyTragetHour: number;
+  weekStudyAccumulationMinutes: number;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -279,6 +283,8 @@ export const UserSchema: Schema<IUser> = new Schema({
   studyPreference: {
     type: preferenceSchema,
   },
+  weekStudyTragetHour: { type: Number, default: 0 },
+  weekStudyAccumulationMinutes: { type: Number, default: 0 },
 });
 
 export const User =

@@ -325,4 +325,10 @@ export class UserController {
     ]);
     return userDeposits;
   }
+
+  @Patch('weekStudyTargetHour')
+  async patchStudyTargetHour(@Body('hour') hour) {
+    await this.userService?.patchStudyTargetHour(hour);
+    return;
+  }
 }

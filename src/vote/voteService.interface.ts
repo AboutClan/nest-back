@@ -31,4 +31,5 @@ export interface IVoteService {
   ): Promise<boolean>;
   setFree(date: any, placeId: any): Promise<boolean>;
   getArriveCheckCnt(): Promise<any>;
+  getFilteredVoteOne(date: any): Promise<any>;
 }
