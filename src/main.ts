@@ -9,6 +9,20 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type,Authorization', // 허용할 헤더
     credentials: true,
   });
+  // 직접 헤더 추가
+  app.use((req, res, next) => {
+    res.header(
+      'Access-Control-Allow-Origin',
+      'https://studyabout.herokuapp.com',
+    );
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET,HEAD,PUT,PATCH,POST,DELETE',
+    );
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+  });
   await app.listen(3001);
 }
 bootstrap();
