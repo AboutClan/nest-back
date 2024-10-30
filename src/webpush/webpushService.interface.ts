@@ -1,7 +1,7 @@
 export const WEB_PUSH_SERVICE = Symbol('IWebPushService');
 
 export interface IWebPushService {
-  subscribe(subscription: any): Promise<void>;
+  subscribe(subscription: any, uid: string): Promise<void>;
   sendNotificationAllUser(): Promise<void>;
   sendNotificationToX(
     uid: string,

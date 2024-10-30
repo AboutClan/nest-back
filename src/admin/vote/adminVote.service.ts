@@ -1,3 +1,4 @@
+import { Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
@@ -11,6 +12,7 @@ import { findOneVote, now } from 'src/vote/util';
 
 type voteTime = { start: Dayjs | Date; end: Dayjs | Date };
 
+@Injectable({ scope: Scope.DEFAULT })
 export default class AdminVoteService {
   constructor(@InjectModel('Vote') private Vote: Model<IVote>) {}
 

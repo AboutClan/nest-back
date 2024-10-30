@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AppError } from 'src/errors/AppError';
@@ -11,14 +11,10 @@ import { IVote } from 'src/vote/entity/vote.entity';
 import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { Cron } from '@nestjs/schedule';
 const PushNotifications = require('node-pushnotifications');
 
-@Injectable()
+@Injectable({ scope: Scope.DEFAULT })
 export class WebPushService implements IWebPushService {
-  private token: JWT;
   private basePayload: Object;
   private settings: any;
 
@@ -29,12 +25,10 @@ export class WebPushService implements IWebPushService {
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
     @Inject(IWEBPUSH_REPOSITORY)
     private readonly WebpushRepository: WebpushRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     const publicKey = this.configService.get<string>('PUBLIC_KEY');
     const privateKey = this.configService.get<string>('PRIVATE_KEY');
 
-    this.token = this.request.decodedToken;
     this.settings = {
       web: {
         vapidDetails: {
@@ -76,8 +70,8 @@ export class WebPushService implements IWebPushService {
   }
 
   //test need
-  async subscribe(subscription: any) {
-    await this.WebpushRepository.enrollSubscribe(this.token?.uid, subscription);
+  async subscribe(subscription: any, uid) {
+    await this.WebpushRepository.enrollSubscribe(uid, subscription);
 
     return;
   }

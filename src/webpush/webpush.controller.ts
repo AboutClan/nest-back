@@ -1,7 +1,16 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { createSubDTO } from './webpush.dto';
 import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { Request } from 'express';
 
 @Controller('webpush')
 export class WebPushController {
@@ -10,8 +19,11 @@ export class WebPushController {
   ) {}
 
   @Post('subscribe')
-  subscribe(@Body('subscription') subscription: createSubDTO): string {
-    this.webPushService.subscribe(subscription);
+  subscribe(
+    @Body('subscription') subscription: createSubDTO,
+    @Req() req: Request,
+  ): string {
+    this.webPushService.subscribe(subscription, req.decodedToken.uid);
     return 'register success';
   }
   @Post('sendNotification')

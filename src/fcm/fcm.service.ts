@@ -2,28 +2,20 @@ import admin from 'firebase-admin';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
 import { FcmTokenZodSchema, IFcmToken } from './entity/fcmToken.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { AppError } from 'src/errors/AppError';
 import dayjs from 'dayjs';
 import { findOneVote } from 'src/vote/util';
 import { IUser } from 'src/user/entity/user.entity';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 import { IFcmService } from './fcm.interface';
 
-@Injectable()
+@Injectable({ scope: Scope.DEFAULT })
 export class FcmService implements IFcmService {
-  private token?: JWT;
   private payload: any;
   static MongooseModule: any;
 
-  constructor(
-    @InjectModel('FcmToken') private FcmToken: Model<IFcmToken>,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
+  constructor(@InjectModel('FcmToken') private FcmToken: Model<IFcmToken>) {
     const fcm = process.env.FCM_INFO;
     if (!admin.apps.length && fcm) {
       const serviceAccount = JSON.parse(fcm);
