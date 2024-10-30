@@ -1,68 +1,108 @@
-// import dayjs from 'dayjs';
-// import { User } from '../db/models/user';
-// import AdminVoteService from '../services/adminVoteServices';
-// import WebPushService from '../services/webPushService';
-// import FcmService from '../services/fcmService';
+import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { Model } from 'mongoose';
+import AdminVoteService from 'src/admin/vote/adminVote.service';
+import { IFcmService } from 'src/fcm/fcm.interface';
+import { FcmService } from 'src/fcm/fcm.service';
+import { IUser } from 'src/user/entity/user.entity';
+import { IFCM_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { WebPushService } from 'src/webpush/webpush.service';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
 
-// const schedule = require('node-schedule');
+@Injectable()
+export class NotificationScheduler {
+  private readonly logger = new Logger(NotificationScheduler.name);
 
-// export function sendNoti() {
-//   try {
-//     const rule = new schedule.RecurrenceRule();
-//     rule.dayOfWeek = [2, 3, 5, 6]; // 월, 화, 수, 금, 토
-//     rule.hour = 18; // 오후 6시
-//     rule.minute = 0;
-//     rule.tz = 'Asia/Seoul'; // 한국 시간대
+  constructor(
+    // private readonly webPushService: WebPushService,
+    // private readonly fcmService: FcmService,
+    @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
+    @Inject(IFCM_SERVICE) private fcmService: IFcmService,
+    private readonly adminVoteService: AdminVoteService,
+    @InjectModel('User') private readonly User: Model<IUser>,
+  ) {}
 
-//     const webPushServiceInstance = new WebPushService();
-//     const fcmServiceInstance = new FcmService();
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    timeZone: 'Asia/Seoul',
+  })
+  async asendNotificationToX() {
+    console.log(12);
+  }
 
-//     const job = schedule.scheduleJob(
-//       rule,
-//       webPushServiceInstance.sendNotificationAllUser,
-//       () =>
-//         fcmServiceInstance.sendNotificationAllUser(
-//           '스터디 투표',
-//           '스터디 마감이 얼마 남지 않았어요. 지금 신청하세요!',
-//         ),
-//     );
-//   } catch (err: any) {
-//     throw new Error(err);
-//   }
-// }
-// sendNoti();
+  //   @Cron(CronExpression.EVERY_30_SECONDS, {
+  //     timeZone: 'Asia/Seoul',
+  //   })
+  //   async asendNotificationToX() {
+  //     console.log(12);
+  //     try {
+  //       console.log(12);
+  //       await this.webPushService.sendNotificationToX('2283035576');
+  //       console.log('hello');
+  //     } catch (error) {
+  //       this.logger.error('Error sending notifications:', error);
+  //       throw new Error(error);
+  //     }
+  //   }
 
-// // export const noti = schedule.scheduleJob("*/1 * * * *", () => {
-// //   console.log("Sending request...");
-// //   const webPushServiceInstance = new WebPushService();
-// //   webPushServiceInstance.sendNotificationAllUser();
-// //   return;
-// // });
+  //   @Cron('17 23 * * *', {
+  //     timeZone: 'Asia/Seoul',
+  //   })
+  //   async sendNotificationToX() {
+  //     console.log(12);
+  //     try {
+  //       console.log(12);
+  //       await this.webPushService.sendNotificationToX('2283035576');
+  //       console.log('hello');
+  //     } catch (error) {
+  //       this.logger.error('Error sending notifications:', error);
+  //       throw new Error(error);
+  //     }
+  //   }
 
-// //투표 결과 발표
-// export const voteResult = schedule.scheduleJob('0 9 * * *', async () => {
-//   try {
-//     const adminVoteServiceInstance = new AdminVoteService();
-//     const webPushServiceInstance = new WebPushService();
-//     const fcmServiceInstance = new FcmService();
+  //   @Cron('0 18 * * 2,3,5,6', {
+  //     timeZone: 'Asia/Seoul',
+  //   })
+  //   async sendNotification() {
+  //     try {
+  //       await this.webPushService.sendNotificationAllUser();
+  //       await this.fcmService.sendNotificationAllUser(
+  //         '스터디 투표',
+  //         '스터디 마감이 얼마 남지 않았어요. 지금 신청하세요!',
+  //       );
+  //       this.logger.log('Notifications sent successfully to all users.');
+  //     } catch (error) {
+  //       this.logger.error('Error sending notifications:', error);
+  //       throw new Error(error);
+  //     }
+  //   }
 
-//     const date = dayjs().format('YYYY-MM-DD');
-//     await adminVoteServiceInstance.confirm(date);
-//     await webPushServiceInstance.sendNotificationVoteResult();
-//     await fcmServiceInstance.sendNotificationVoteResult();
+  //   @Cron(CronExpression.EVERY_DAY_AT_9AM, {
+  //     timeZone: 'Asia/Seoul',
+  //   })
+  //   async announceVoteResult() {
+  //     try {
+  //       const date = dayjs().format('YYYY-MM-DD');
+  //       await this.adminVoteService.confirm(date);
+  //       await this.webPushService.sendNotificationVoteResult();
+  //       await this.fcmService.sendNotificationVoteResult();
+  //       this.logger.log('Vote result notifications sent successfully.');
+  //     } catch (error) {
+  //       this.logger.error('Error sending vote result notifications:', error);
+  //       throw new Error(error);
+  //     }
+  //   }
 
-//     console.log('vote result succeess.');
-//   } catch (err: any) {
-//     throw new Error(err);
-//   }
-// });
-
-// //매월 monthScore 초기화
-// export const initMonthScore = schedule.scheduleJob('0 0 1 * *', async () => {
-//   try {
-//     await User.updateMany({}, { monthScore: 0 });
-//     console.log('month score init success');
-//   } catch (err: any) {
-//     throw new Error(err);
-//   }
-// });
+  //   @Cron('0 0 1 * *', {
+  //     timeZone: 'Asia/Seoul',
+  //   })
+  //   async resetMonthlyScores() {
+  //     try {
+  //       await this.User.updateMany({}, { monthScore: 0 });
+  //       this.logger.log('Monthly scores reset successfully.');
+  //     } catch (error) {
+  //       this.logger.error('Error resetting monthly scores:', error);
+  //       throw new Error(error);
+  //     }
+  //   }
+}

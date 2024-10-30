@@ -1,10 +1,23 @@
-import { Controller, Get, Post, Query, Body, Res, Next } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  Body,
+  Res,
+  Next,
+  Inject,
+} from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 import { CounterService } from 'src/counter/counter.service';
+import { ICounterService } from 'src/counter/counterService.interface';
+import { ICOUNTER_SERVICE } from 'src/utils/di.tokens';
 
 @Controller('admin/counter')
 export class AdminCounterController {
-  constructor(private readonly counterService: CounterService) {}
+  constructor(
+    @Inject(ICOUNTER_SERVICE) private counterService: ICounterService,
+  ) {}
 
   @Get('/')
   async getCounter(

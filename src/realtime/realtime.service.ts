@@ -33,7 +33,7 @@ export default class RealtimeService implements IRealtimeService {
     private collectionServiceInstance: ICollectionService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = this.request.decodedToken;
+    this.token = this.request?.decodedToken;
   }
 
   getToday() {

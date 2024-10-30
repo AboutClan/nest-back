@@ -13,6 +13,7 @@ import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { Cron } from '@nestjs/schedule';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable()
@@ -284,4 +285,17 @@ export class WebPushService implements IWebPushService {
     });
     return;
   }
+
+  // @Cron('54 22 * * *', {
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async asendNotificationToX() {
+  //   try {
+  //     console.log(12);
+  //     await this.sendNotificationToX('2283035576');
+  //     console.log('hello');
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  // }
 }

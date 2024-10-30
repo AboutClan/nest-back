@@ -32,3 +32,21 @@ const webPushRepositoryProvider: ClassProvider = {
   exports: [webPushServiceProvider, webPushRepositoryProvider],
 })
 export class WebPushModule {}
+// @Module({
+//   imports: [
+//     UserModule,
+//     GroupStudyModule,
+//     VoteModule,
+//     MongooseModule.forFeature([
+//       { name: 'NotificationSub', schema: NotificationSubSchema },
+//     ]),
+//   ], // Mongoose 모델 등록],
+//   controllers: [WebPushController],
+//   providers: [
+//     WebPushService,
+//     webPushRepositoryProvider,
+//     webPushServiceProvider,
+//   ],
+//   exports: [WebPushService],
+// })
+// export class WebPushModuleSche {}

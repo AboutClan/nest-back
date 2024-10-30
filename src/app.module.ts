@@ -30,12 +30,20 @@ import { AuthGuard } from './auth/auth.guard';
 import { RequestContextInterceptor } from './request-context.intercepter';
 import { CollectionModule } from './collection/collection.module';
 import { RealtimeModule } from './realtime/realtime.module';
+import { AdminCounterModule } from './admin/counter/adminCounter.module';
+import { AdminLogModule } from './admin/log/adminLog.module';
+import { AdminUserModule } from './admin/user/adminUser.module';
+import { AdminVoteModule } from './admin/vote/adminVote.module';
+import { AdminManageModule } from './admin/manage/adminManage.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationScheduler } from './schedule/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
 
     DatabaseModule,
     WebPushModule,
@@ -59,12 +67,18 @@ import { RealtimeModule } from './realtime/realtime.module';
     BookModule,
     CollectionModule,
     RealtimeModule,
+    AdminCounterModule,
+    AdminLogModule,
+    AdminUserModule,
+    AdminVoteModule,
+    AdminManageModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: RequestContextInterceptor },
+    NotificationScheduler,
   ],
 })
 export class AppModule implements NestModule {
