@@ -7,6 +7,7 @@ async function bootstrap() {
     origin: 'https://studyabout.herokuapp.com',
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
     allowedHeaders: 'Content-Type,Authorization', // 허용할 헤더
+    credentials: true,
   });
   await app.listen(3001);
 }
