@@ -149,8 +149,7 @@ export class MongoGatherRepository implements GatherRepository {
       },
       {
         $addToSet: {
-          'comments.$[comment].subComments.$[subComment].likeList':
-            this.token.id,
+          'comments.$[comment].subComments.$[subComment].likeList': userId,
         },
       },
       {
