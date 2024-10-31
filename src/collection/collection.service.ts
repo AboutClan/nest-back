@@ -45,10 +45,10 @@ export class CollectionService implements ICollectionService {
     if (currentStamps < 5) {
       if (!currentCollection) {
         // 문서가 없으면 새로 생성
-        await Collection.create(validatedCollection);
+        await this.Collection.create(validatedCollection);
       } else {
         // 문서가 있으면 stamps 증가
-        await Collection.findOneAndUpdate(
+        await this.Collection.findOneAndUpdate(
           { user: id },
           { $inc: { stamps: 1 } },
           { new: true },
@@ -67,7 +67,7 @@ export class CollectionService implements ICollectionService {
     if (currentCollection?.stamps === 4) {
       const alphabet = getRandomAlphabet();
       // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
-      await Collection.findOneAndUpdate(
+      await this.Collection.findOneAndUpdate(
         { user: id },
         {
           $push: { collects: alphabet }, // alphabet을 collects 배열에 추가
