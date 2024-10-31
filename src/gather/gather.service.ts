@@ -65,18 +65,19 @@ export class GatherService implements IGatherService {
       .sort({ id: -1 })
       .skip(start)
       .limit(gap)
-      .select('-_id');
+      .select('-_id')
+      .populate([
+        { path: 'user' },
+        { path: 'participants.user' },
+        { path: 'comments.user' },
+        { path: 'waiting.user' },
+        {
+          path: 'comments.subComments.user',
+          select: C_simpleUser,
+        },
+      ]);
 
-    gatherData = await this.Gather.populate(gatherData, [
-      { path: 'user' },
-      { path: 'participants.user' },
-      { path: 'comments.user' },
-      { path: 'waiting.user' },
-      {
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      },
-    ]);
+    // gatherData = await this.Gather
 
     return gatherData;
   }
