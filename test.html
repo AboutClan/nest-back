@@ -3,89 +3,69 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Form Data Submission</title>
+    <title>Vote Filter Test</title>
   </head>
   <body>
-    <h2>Square Form Submission</h2>
-    <form id="squareForm" enctype="multipart/form-data" method="POST">
-      <label for="title">Title:</label>
+    <h1>Vote Filter Test</h1>
+    <form id="voteForm">
+      <label for="date">Date:</label>
       <input
         type="text"
-        id="title"
-        name="title"
-        value="test"
+        id="date"
+        name="date"
+        placeholder="Enter date (e.g., 2024-10-31)"
         required
-      /><br /><br />
-
-      <label for="content">Content:</label>
+      />
+      <br /><br />
+      <label for="location">Location:</label>
       <input
         type="text"
-        id="content"
-        name="content"
-        value="test"
+        id="location"
+        name="location"
+        placeholder="Enter location"
         required
-      /><br /><br />
-
-      <label for="type">Type:</label>
-      <input
-        type="text"
-        id="type"
-        name="type"
-        value="general"
-        required
-      /><br /><br />
-
-      <label for="category">Category:</label>
-      <input
-        type="text"
-        id="category"
-        name="category"
-        value="일상"
-        required
-      /><br /><br />
-
-      <label for="pollItems">Poll Items (JSON):</label>
-      <textarea id="pollItems" name="pollItems" rows="4" cols="50">
-[{"name": "hello", "users": []}]
-    </textarea
-      ><br /><br />
-
-      <label for="canMultiple">Can Multiple:</label>
-      <select id="canMultiple" name="canMultiple">
-        <option value="true">True</option>
-        <option value="false" selected>False</option></select
-      ><br /><br />
-
+      />
+      <br /><br />
       <button type="submit">Submit</button>
     </form>
 
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+
     <script>
       document
-        .getElementById('squareForm')
-        .addEventListener('submit', async (event) => {
-          event.preventDefault(); // 기본 폼 제출 방지
+        .getElementById('voteForm')
+        .addEventListener('submit', async function (event) {
+          event.preventDefault();
 
-          const form = event.target;
-          const formData = new FormData(form);
+          const date = document.getElementById('date').value;
+          const location = document.getElementById('location').value;
 
           try {
-            const response = await fetch('http://localhost:3001/square', {
-              method: 'POST',
-              headers: {
-                Authorization:
-                  'Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..nptdCxy19SoAz-yT.8z6AltSTvrA8RfxZCneRnRC3arHk1G_1TipQ8hbipejLivotpfnbwLuwRrsX1iOtsGwhGfBda_2IEwM77sAPQU6wy90vI3HcX5PlfZ9R3hi3bjVkW3PGhG9g9hTrOBSLGsB4c461G5Y4Mqf-PtyLb1lVoPcUOeWmHKXnEen2TlhljTIx5xq7jJQRS50IQ5NdqPvt5y2lmHO8LPBnz1C2SBS-2GRPeDDpJt3MZkDKadTOMpAcnrDnxdPmhmOK1DTD0a_Oha09E0X4L4uahcx0JgkVQkh7TYkZVaTdkgmYuripgpZ2yQdYEMCjM3npr_a1cv22Dq2ahwm9NizxiZnN-JrRFzMXEr5vt9wsi-OcuAGRR8BTPxbf9wDNZSZo-IfAFtsq8Fek2m8BFtTP-22v2rn1K7DY0LmffO4eyZr1hfO9zUqtNtNk-wEs8L15MaDPILsOpstIJ0X-vPdqy2MyflmsN26kOvfLFghBbQ2x9Mj05n0VgfdFgBFJ7riFixDgdxxoNgyGcLWzPZyFplr81HJyErhpytLjMAeW6TPUOBBmccFyxtItnYw0Za4-JLIkU1Jq48xxsIkvq_oMmOgJbTrvqtN6chLyC20Vrd88V-Cz9Iac1GPktj5LZ4M_YdspIXff_FHYEZqXCYIBnyo62JOESxRmpOMrvMU.2WeDaJjtyx61Q050ffvEDw',
+            const response = await fetch(
+              `http://localhost:3001/vote/${date}?location=${location}`,
+              {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..nptdCxy19SoAz-yT.8z6AltSTvrA8RfxZCneRnRC3arHk1G_1TipQ8hbipejLivotpfnbwLuwRrsX1iOtsGwhGfBda_2IEwM77sAPQU6wy90vI3HcX5PlfZ9R3hi3bjVkW3PGhG9g9hTrOBSLGsB4c461G5Y4Mqf-PtyLb1lVoPcUOeWmHKXnEen2TlhljTIx5xq7jJQRS50IQ5NdqPvt5y2lmHO8LPBnz1C2SBS-2GRPeDDpJt3MZkDKadTOMpAcnrDnxdPmhmOK1DTD0a_Oha09E0X4L4uahcx0JgkVQkh7TYkZVaTdkgmYuripgpZ2yQdYEMCjM3npr_a1cv22Dq2ahwm9NizxiZnN-JrRFzMXEr5vt9wsi-OcuAGRR8BTPxbf9wDNZSZo-IfAFtsq8Fek2m8BFtTP-22v2rn1K7DY0LmffO4eyZr1hfO9zUqtNtNk-wEs8L15MaDPILsOpstIJ0X-vPdqy2MyflmsN26kOvfLFghBbQ2x9Mj05n0VgfdFgBFJ7riFixDgdxxoNgyGcLWzPZyFplr81HJyErhpytLjMAeW6TPUOBBmccFyxtItnYw0Za4-JLIkU1Jq48xxsIkvq_oMmOgJbTrvqtN6chLyC20Vrd88V-Cz9Iac1GPktj5LZ4M_YdspIXff_FHYEZqXCYIBnyo62JOESxRmpOMrvMU.2WeDaJjtyx61Q050ffvEDw`,
+                },
               },
-              body: formData,
-            });
+            );
 
-            const result = await response.json();
-            if (response.ok) {
-              alert('Success: ' + JSON.stringify(result));
-            } else {
-              alert('Error: ' + JSON.stringify(result));
+            if (!response.ok) {
+              throw new Error(`Error: ${response.statusText}`);
             }
+
+            const data = await response.json();
+            document.getElementById('response').textContent = JSON.stringify(
+              data,
+              null,
+              2,
+            );
           } catch (error) {
-            alert('Request failed: ' + error.message);
+            document.getElementById('response').textContent =
+              `Request failed: ${error.message}`;
           }
         });
     </script>
