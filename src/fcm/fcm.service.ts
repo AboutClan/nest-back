@@ -18,7 +18,7 @@ export class FcmService implements IFcmService {
   constructor(@InjectModel('FcmToken') private FcmToken: Model<IFcmToken>) {
     const fcm = process.env.FCM_INFO;
     if (!admin.apps.length && fcm) {
-      const serviceAccount = JSON.parse(fcm);
+      const serviceAccount = JSON.parse(fcm.replace(/\\n/g, '\n'));
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
