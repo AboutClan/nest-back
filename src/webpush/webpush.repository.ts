@@ -17,7 +17,7 @@ export class MongoWebpushRepository implements WebpushRepository {
   async enrollSubscribe(uid: string, subscription: any): Promise<null> {
     try {
       if (!subscription || !subscription.endpoint) {
-        throw new Error('no subscription info');
+        return;
       }
 
       await NotificationSub.findOneAndUpdate(
