@@ -15,20 +15,24 @@ export class MongoWebpushRepository implements WebpushRepository {
   ) {}
 
   async enrollSubscribe(uid: string, subscription: any): Promise<null> {
-    if (!subscription || !subscription.endpoint) {
-      throw new Error('Invalid subscription object');
+    try {
+      if (!subscription || !subscription.endpoint) {
+        throw new Error('no subscription info');
+      }
+
+      await NotificationSub.findOneAndUpdate(
+        { uid, endpoint: subscription.endpoint },
+        {
+          ...subscription,
+          uid,
+        },
+        { upsert: true }, // 구독이 없을 경우 새로 생성
+      );
+
+      return null;
+    } catch (err) {
+      throw new Error('no subscription info');
     }
-
-    await NotificationSub.findOneAndUpdate(
-      { uid, endpoint: subscription.endpoint },
-      {
-        ...subscription,
-        uid,
-      },
-      { upsert: true }, // 구독이 없을 경우 새로 생성
-    );
-
-    return null;
   }
   async findAll(): Promise<INotificationSub[]> {
     return await this.NotificationSub.find();
