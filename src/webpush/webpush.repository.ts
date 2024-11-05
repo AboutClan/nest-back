@@ -13,11 +13,15 @@ export class MongoWebpushRepository implements WebpushRepository {
     @InjectModel('NotificationSub')
     private readonly NotificationSub: Model<INotificationSub>,
   ) {}
+
   async enrollSubscribe(uid: string, subscription: any): Promise<null> {
-    await this.NotificationSub.updateOne(
+    await NotificationSub.findOneAndUpdate(
       { uid, endpoint: subscription.endpoint },
-      { ...subscription, uid },
-      { upsert: true },
+      {
+        ...subscription,
+        uid,
+      },
+      { upsert: true }, // 구독이 없을 경우 새로 생성
     );
 
     return null;
