@@ -44,7 +44,6 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async announceVoteResult() {
-    console.log('1');
     try {
       const date = dayjs().format('YYYY-MM-DD');
       await this.adminVoteService.confirm(date);
