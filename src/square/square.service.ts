@@ -102,11 +102,6 @@ export default class SquareService implements ISquareService {
             images,
           });
 
-    if (squareType === 'poll') {
-      const { _id: squareId } = await this.SecretSquare.create(validatedSquare);
-      return { squareId };
-    }
-
     const { _id: squareId } = await this.SecretSquare.create(validatedSquare);
     return { squareId };
   }
