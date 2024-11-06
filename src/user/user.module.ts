@@ -14,25 +14,29 @@ import { PromotionModule } from 'src/promotion/promotion.module';
 import { LogModule } from 'src/logz/log.module';
 import { NoticeModule } from 'src/notice/notice.module';
 import { CounterModule } from 'src/counter/couter.module';
-import { IUSER_SERVICE } from 'src/utils/di.tokens';
+import { IUSER_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
+import { MongoUserRepository } from './user.repository';
 
 const userServiceProvider: ClassProvider = {
   provide: IUSER_SERVICE,
   useClass: UserService,
 };
 
+const userRepositoryProvider: ClassProvider = {
+  provide: IUSER_REPOSITORY,
+  useClass: MongoUserRepository,
+};
+
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     forwardRef(() => VoteModule),
     PlaceModule,
     forwardRef(() => PromotionModule),
     LogModule,
     forwardRef(() => NoticeModule),
-    CounterModule,
   ],
   controllers: [UserController],
-  providers: [userServiceProvider],
-  exports: [userServiceProvider, MongooseModule],
+  providers: [userRepositoryProvider],
+  exports: [userServiceProvider, userRepositoryProvider],
 })
 export class UserModule {}

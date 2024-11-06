@@ -12,23 +12,26 @@ import { IPromotion } from 'src/promotion/entity/promotion.entity';
 import { ILog } from 'src/logz/entity/log.entity';
 import { INotice } from 'src/notice/entity/notice.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { ICounter } from 'src/counter/entity/counter.entity';
 import * as logger from '../logger';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IUserService } from './userService.interface';
+import { C_simpleUser } from 'src/constants';
+import { AppError } from 'src/errors/AppError';
+import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
+import { UserRepository } from './user.repository.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService implements IUserService {
   private token: JWT;
   constructor(
-    @InjectModel('User') private User: Model<IUser>,
+    @Inject(IUSER_REPOSITORY)
+    private readonly UserRepository: UserRepository,
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel('Place') private Place: Model<IPlace>,
     @InjectModel('Promotion') private Promotion: Model<IPromotion>,
     @InjectModel('Log') private Log: Model<ILog>,
     @InjectModel('Notice') private Notice: Model<INotice>,
-    @InjectModel('Counter') private Counter: Model<ICounter>,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
@@ -43,6 +46,7 @@ export class UserService implements IUserService {
     return originalText;
   }
 
+  //User의 정보 중에서 특정 정보만 선택
   createQueryString(strArr: string[]) {
     let result = '';
     strArr.forEach((str) => {
@@ -53,7 +57,7 @@ export class UserService implements IUserService {
   }
 
   async getUserWithUid(uid: string) {
-    const result = await this.User.findOne({ uid });
+    const result = await this.UserRepository.findByUid(uid);
 
     if (result && result.telephone)
       result.telephone = await this.decodeByAES256(result.telephone);
@@ -61,7 +65,7 @@ export class UserService implements IUserService {
     return result;
   }
   async getUsersWithUids(uids: string[]) {
-    const results = await this.User.find({ uid: { $in: uids } });
+    const results = await this.UserRepository.findByUids(uids);
 
     for (const result of results) {
       if (result.telephone)
@@ -76,8 +80,8 @@ export class UserService implements IUserService {
     let queryString = this.createQueryString(strArr);
     if (strArr.length) queryString = '-_id' + queryString;
 
-    const result = await this.User.findOne(
-      { uid: this.token.uid },
+    const result = await this.UserRepository.findByUid(
+      this.token.uid,
       queryString,
     );
 
@@ -91,7 +95,7 @@ export class UserService implements IUserService {
     let queryString = this.createQueryString(strArr);
     if (strArr.length) queryString = '-_id' + queryString;
 
-    const users = await this.User.find({}, queryString);
+    const users = await this.UserRepository.findAll(queryString);
 
     users.forEach(async (user) => {
       if (user.telephone)
@@ -102,64 +106,29 @@ export class UserService implements IUserService {
   }
 
   async getSimpleUserInfo() {
-    const result = await this.User.findOne({ uid: this.token.uid }).select(
-      'avatar birth comment isActive location name profileImage score uid',
+    const result = await this.UserRepository.findByUid(
+      this.token.uid,
+      C_simpleUser,
     );
-
-    if (result && result.telephone)
-      result.telephone = await this.decodeByAES256(result.telephone);
 
     return result;
   }
 
   async getAllSimpleUserInfo() {
-    const users = await this.User.find({}).select(
-      'avatar birth comment isActive location name profileImage score uid',
-    );
+    const users = await this.UserRepository.findAll(C_simpleUser);
 
     return users;
   }
 
   async updateUser(updateInfo: Partial<IUser>) {
-    const updated = await this.User.findOneAndUpdate(
-      { uid: this.token.uid },
-      { $set: updateInfo },
-      { new: true, upsert: false },
+    const updated = await this.UserRepository.updateUser(
+      this.token.uid,
+      updateInfo,
     );
-    if (!updated) throw new DatabaseError('update user failed');
     return updated;
   }
 
-  async setUserInactive() {
-    const users = await this.User.find({ location: '수원' });
-    if (!users) return;
-
-    const temp1 = [
-      '윤경',
-      '최소영',
-      '최지원',
-      '권혜지',
-      '서윤호',
-      '조현정',
-      '윤주열',
-      '이민복',
-      '재유',
-      '이소정',
-      '김석훈',
-      '선준',
-      '시온',
-      '조민성',
-    ];
-
-    users?.forEach((item) => {
-      if (temp1.includes(item?.name)) {
-        item.isActive = true;
-        item.belong = '수원/C';
-      }
-      item.save();
-    });
-  }
-
+  //test: test필요
   async getParticipationRate(
     startDay: string,
     endDay: string,
@@ -168,12 +137,17 @@ export class UserService implements IUserService {
     summary?: boolean,
   ) {
     try {
-      const allUser = await this.User.find({
-        isActive: true,
-        ...(all ? {} : { uid: this.token.uid }), // 조건에 따라 필터링
-      }).select(
-        'birth avatar comment isActive location name profileImage score uid _id monthScore weekStudyAccumulationMinutes',
-      ); // 필요한 필드만 선택
+      const allUser = all
+        ? await this.UserRepository.findByIsActive(
+            true,
+            C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
+          )
+        : await this.UserRepository.findByIsActiveUid(
+            this.token.uid,
+            true,
+            C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
+          );
+
       let attendForm = allUser.map((user) => ({
         uid: user.uid,
         cnt: 0,
@@ -337,7 +311,7 @@ export class UserService implements IUserService {
       { weekStudyTragetHour: hour },
     );
 
-    if (!updated) throw new DatabaseError('update belong failed');
+    if (!updated) throw new DatabaseError('update studyTargetHour failed');
 
     return;
   }
@@ -348,28 +322,22 @@ export class UserService implements IUserService {
       this.token.uid as string,
     );
     if (!profile) {
-      return new Error();
+      return new AppError('profile patching failed', 500);
     }
 
-    const updatedUser = await this.User.findOneAndUpdate(
-      { uid: this.token.uid }, // 검색 조건
-      { $set: profile }, // 업데이트 내용
-      { new: true }, // 업데이트 후의 최신 문서를 반환
+    const updatedUser = await this.UserRepository.updateUser(
+      this.token.uid,
+      profile,
     );
-
-    if (!updatedUser) throw new DatabaseError('update profile failed');
 
     return updatedUser;
   }
 
   async updatePoint(point: number, message: string, sub?: string) {
-    const updatedUser = await this.User.findOneAndUpdate(
-      { uid: this.token.uid }, // 검색 조건
-      { $inc: { point: point } }, // point 필드 값을 증가
-      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+    const updatedUser = await this.UserRepository.increasePoint(
+      point,
+      this.token.uid,
     );
-
-    if (!updatedUser) throw new DatabaseError('User not found');
 
     logger.logger.info(message, {
       metadata: {
@@ -383,25 +351,12 @@ export class UserService implements IUserService {
   }
 
   async initMonthScore() {
-    const users = await this.User.find();
-    if (!users) return;
-
-    users.forEach((user) => {
-      user.monthScore = 0;
-      user.save();
-    });
-
+    await this.UserRepository.initMonthScore();
     return;
   }
 
   async updateScore(score: number, message: string, sub?: string) {
-    const updatedUser = await this.User.findOneAndUpdate(
-      { uid: this.token.uid }, // 검색 조건
-      { $inc: { score: score, monthScore: score } }, // score와 monthScore 필드를 동시에 증가
-      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
-    );
-
-    if (!updatedUser) throw new DatabaseError('User not found');
+    await this.UserRepository.increaseScore(score, this.token.uid);
 
     logger.logger.info(message, {
       metadata: { type: 'score', sub, uid: this.token.uid, value: score },
@@ -412,7 +367,7 @@ export class UserService implements IUserService {
   //todo: mongoose사용
   async updateUserAllScore() {
     try {
-      const users = await this.User.find();
+      const users = await this.UserRepository.findAll();
       if (!users) throw new Error();
 
       for (const user of users) {
@@ -435,13 +390,7 @@ export class UserService implements IUserService {
   }
 
   async updateDeposit(deposit: number, message: string, sub?: string) {
-    const updatedUser = await this.User.findOneAndUpdate(
-      { uid: this.token.uid }, // 검색 조건
-      { $inc: { deposit: deposit } }, // deposit 필드를 증가
-      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
-    );
-
-    if (!updatedUser) throw new DatabaseError('User not found');
+    await this.UserRepository.increaseDeposit(deposit, this.token.uid);
 
     logger.logger.info(message, {
       metadata: { type: 'deposit', sub, uid: this.token.uid, value: deposit },
@@ -451,39 +400,40 @@ export class UserService implements IUserService {
 
   async setPreference(place: any, subPlace: any[]) {
     try {
-      const user = await this.User.findOne(
-        { uid: this.token.uid },
+      const user = await this.UserRepository.findByUid(
+        this.token.uid,
         'studyPreference',
       );
 
-      //update main preference
+      // 기존 main preference 감소
       if (user?.studyPreference?.place) {
-        const placeId = user?.studyPreference.place;
         await this.Place.updateOne(
-          { _id: placeId, prefCnt: { $gt: 0 } },
+          { _id: user.studyPreference.place, prefCnt: { $gt: 0 } },
           { $inc: { prefCnt: -1 } },
         );
       }
 
-      await this.User.updateOne(
-        { uid: this.token.uid },
-        { studyPreference: { place, subPlace } },
-      );
-
-      //update sub preference
-      if (user?.studyPreference?.subPlace) {
-        user?.studyPreference?.subPlace.forEach(async (placeId) => {
-          await this.Place.updateOne(
-            { _id: placeId, prefCnt: { $gt: 0 } },
-            { $inc: { prefCnt: -1 } },
-          );
-        });
+      // 기존 sub preference 감소
+      if (user?.studyPreference?.subPlace?.length) {
+        await Promise.all(
+          user.studyPreference.subPlace.map((placeId) =>
+            this.Place.updateOne(
+              { _id: placeId, prefCnt: { $gt: 0 } },
+              { $inc: { prefCnt: -1 } },
+            ),
+          ),
+        );
       }
 
-      subPlace.forEach(async (placeId) => {
-        await this.Place.updateOne({ _id: placeId }, { $inc: { prefCnt: 1 } });
-      });
-      await this.Place.updateOne({ _id: place }, { $inc: { prefCnt: 1 } });
+      await Promise.all([
+        await this.UserRepository.updateUser(this.token.uid, {
+          studyPreference: { place, subPlace },
+        }),
+        this.Place.updateOne({ _id: place }, { $inc: { prefCnt: 1 } }),
+        ...subPlace.map((placeId) =>
+          this.Place.updateOne({ _id: placeId }, { $inc: { prefCnt: 1 } }),
+        ),
+      ]);
     } catch (err: any) {
       throw new Error(err);
     }
@@ -493,7 +443,8 @@ export class UserService implements IUserService {
 
   // studyPreference도 id만 보내는 걸로 변경
   async getPreference() {
-    const result = await this.User.findOne({ uid: this.token.uid }).select(
+    const result = await this.UserRepository.findByUid(
+      this.token.uid,
       'studyPreference',
     );
     return result;
@@ -524,30 +475,19 @@ export class UserService implements IUserService {
 
   async setRest(info: Omit<restType, 'restCnt' | 'cumulativeSum'>) {
     try {
-      const { startDate, endDate, type, content } = info;
+      const { startDate, endDate } = info;
 
-      const user = await this.User.findOne({ uid: this.token.uid });
+      const user = await this.UserRepository.findByUid(this.token.uid);
       if (!user) throw new Error();
 
       const startDay = dayjs(startDate, 'YYYY-MM-DD');
       const endDay = dayjs(endDate, 'YYYY-MM-DD');
       const dayDiff = endDay.diff(startDay, 'day');
 
-      const result = await this.User.findOneAndUpdate(
-        { uid: this.token.uid }, // 사용자를 uid로 찾음
-        {
-          $set: {
-            'rest.type': type,
-            'rest.content': content,
-            'rest.startDate': startDate,
-            'rest.endDate': endDate,
-          },
-          $inc: { 'rest.restCnt': 1, 'rest.cumulativeSum': dayDiff }, // restCnt와 cumulativeSum 증가
-        },
-        {
-          upsert: true, // rest 필드가 없는 경우 생성
-          new: true, // 업데이트된 값을 반환
-        },
+      const result = await this.UserRepository.setRest(
+        info,
+        this.token.uid,
+        dayDiff,
       );
 
       if (!result) throw new Error('User not found or update failed');
@@ -558,40 +498,12 @@ export class UserService implements IUserService {
   }
 
   async deleteFriend(toUid: string) {
-    const filterMine = { uid: this.token.uid };
-    const updateMine = { $pull: { friend: toUid } };
-    const filterRequester = { uid: toUid };
-    const updateRequester = { $pull: { friend: this.token.uid } };
-
-    await this.User.findOneAndUpdate(
-      { uid: this.token.uid },
-      { $pull: { friend: toUid } },
-    );
-    await this.User.findOneAndUpdate(
-      { uid: toUid },
-      { $pull: { friend: this.token.uid } },
-    );
-
+    await this.UserRepository.deleteFriend(this.token.uid, toUid);
     return null;
   }
 
   async setFriend(toUid: string) {
-    const filterMine = { uid: this.token.uid };
-    const updateMine = { $addToSet: { friend: toUid } };
-    const filterRequester = { uid: toUid };
-    const updateRequester = { $addToSet: { friend: this.token.uid } };
-    const options = { upsert: true };
-
-    await this.User.findOneAndUpdate(
-      { uid: this.token.uid },
-      { $addToSet: { friend: toUid } },
-      { upsert: true },
-    );
-    await this.User.findOneAndUpdate(
-      { uid: toUid },
-      { $addToSet: { friend: this.token.uid } },
-      { upsert: true },
-    );
+    await this.UserRepository.updateFriend(this.token.uid, toUid);
 
     await this.Notice.create({
       from: this.token.uid,
@@ -637,13 +549,8 @@ export class UserService implements IUserService {
     }
   }
 
-  async patchBelong(uid: number, belong: string) {
-    const updated = await this.User.findOneAndUpdate(
-      { uid },
-      { belong },
-      { new: true, upsert: false },
-    );
-    if (!updated) throw new DatabaseError('update belong failed');
+  async patchBelong(uid: string, belong: string) {
+    const updated = await this.UserRepository.updateBelong(uid, belong);
 
     return updated;
   }
@@ -704,17 +611,14 @@ export class UserService implements IUserService {
   async test() {
     const targetDate = new Date('2024-06-01T00:00:00Z');
 
-    const users = await this.User.find();
+    const users = await this.UserRepository.findAll();
     users.forEach(async (user) => {
       const registerDate = new Date(user.registerDate); // 문자열을 Date 객체로 변환
       if (
         registerDate < targetDate &&
         !['manager', 'privileged'].includes(user.role as string)
       ) {
-        await this.User.updateOne(
-          { _id: user._id },
-          { $set: { isActive: false } },
-        );
+        await this.UserRepository.updateUserById(user._id, { isActive: false });
       }
     });
   }

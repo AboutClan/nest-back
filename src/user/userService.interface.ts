@@ -10,7 +10,6 @@ export interface IUserService {
   getSimpleUserInfo(): Promise<IUser | null>;
   getAllSimpleUserInfo(): Promise<IUser[]>;
   updateUser(updateInfo: Partial<IUser>): Promise<IUser>;
-  setUserInactive(): Promise<void>;
   getParticipationRate(
     startDay: string,
     endDay: string,
@@ -35,7 +34,7 @@ export interface IUserService {
   setFriend(toUid: string): Promise<null>;
   getPromotion(): Promise<any>;
   setPromotion(name: string): Promise<void>;
-  patchBelong(uid: number, belong: string): Promise<IUser>;
+  patchBelong(uid: string, belong: string): Promise<IUser>;
   getMonthScoreLog(): Promise<any>;
   getLog(type: string): Promise<any>;
   getAllLog(type: string): Promise<any>;
