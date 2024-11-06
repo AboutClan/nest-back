@@ -239,7 +239,8 @@ export class UserService implements IUserService {
 
   async getVoteRate(startDay: string, endDay: string) {
     try {
-      const allUser = await this.User.find({ isActive: true });
+      const allUser = await this.UserRepository.findByIsActive(true);
+
       const attendForm = allUser.reduce((accumulator, user) => {
         return { ...accumulator, [user.uid.toString()]: 0 };
       }, {});
@@ -306,12 +307,9 @@ export class UserService implements IUserService {
   }
 
   async patchStudyTargetHour(hour: number) {
-    const updated = await User.updateOne(
-      { uid: this.token.uid },
-      { weekStudyTragetHour: hour },
-    );
-
-    if (!updated) throw new DatabaseError('update studyTargetHour failed');
+    await this.UserRepository.updateUser(this.token.uid, {
+      weekStudyTragetHour: hour,
+    });
 
     return;
   }
@@ -550,7 +548,7 @@ export class UserService implements IUserService {
   }
 
   async patchBelong(uid: string, belong: string) {
-    const updated = await this.UserRepository.updateBelong(uid, belong);
+    const updated = await this.UserRepository.updateUser(uid, { belong });
 
     return updated;
   }

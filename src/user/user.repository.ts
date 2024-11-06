@@ -15,7 +15,7 @@ export class MongoUserRepository implements UserRepository {
   }
   async findAll(queryString?: string): Promise<IUser[]> {
     return queryString
-      ? await this.User.findOne({}, queryString)
+      ? await this.User.find({}, queryString)
       : await this.User.find();
   }
   async updateUser(uid: string, updateInfo: any): Promise<null> {
@@ -49,7 +49,9 @@ export class MongoUserRepository implements UserRepository {
     isActive: boolean,
     queryString?: string,
   ): Promise<IUser[]> {
-    return await this.User.find({ isActive }, queryString);
+    return queryString
+      ? await this.User.find({ isActive }, queryString)
+      : await this.User.find({ isActive });
   }
   async findByIsActiveUid(
     uid: string,
