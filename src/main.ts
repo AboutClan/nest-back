@@ -4,7 +4,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: true });
   app.enableCors({
-    origin: 'https://studyabout.herokuapp.com',
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://about-aboutclub20s-projects.vercel.app',
+      'https://studyabout.herokuapp.com',
+    ], // 허용하고자 하는 URL 목록을 배열로 작성
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: '*',
