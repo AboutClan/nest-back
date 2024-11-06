@@ -56,10 +56,8 @@ export default class RegisterService implements IRegisterService {
     if (encodedTel === telephone) throw new Error('Key not exist');
     if (encodedTel.length == 0) throw new Error('Key not exist');
 
-    const a = await this.decodeByAES256(
-      'U2FsdGVkX1+Wz6uV+ErLREqYytNiVKsMU95smfwpGoo=',
-    );
-    const validatedResgisterForm = RegisteredZodSchema.parse({
+    let validatedResgisterForm;
+    validatedResgisterForm = RegisteredZodSchema.parse({
       uid: this.token.uid,
       profileImage: this.token.picture,
       ...subRegisterForm,
@@ -97,24 +95,14 @@ export default class RegisterService implements IRegisterService {
       deposit: 3000,
     };
 
-    const db = await dbConnect();
-    const session = await db.startSession();
-
     try {
-      session.startTransaction();
-
       await this.User.findOneAndUpdate({ uid }, userForm, {
         upsert: true,
         new: true,
-      }).session(session);
+      });
 
-      await this.deleteRegisterUser(uid, session);
-
-      await session.commitTransaction();
-      session.endSession();
+      await this.deleteRegisterUser(uid);
     } catch (err: any) {
-      await session.abortTransaction();
-      session.endSession();
       throw new Error(err);
     }
 
@@ -124,7 +112,7 @@ export default class RegisterService implements IRegisterService {
     return;
   }
 
-  async deleteRegisterUser(uid: string, session: any) {
+  async deleteRegisterUser(uid: string, session?: any) {
     if (session) {
       await this.Registered.deleteOne({ uid }).session(session);
     } else {
