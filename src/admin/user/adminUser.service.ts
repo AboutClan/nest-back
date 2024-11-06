@@ -8,6 +8,7 @@ import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { convertUserToSummary } from 'src/convert';
+import { C_simpleUser } from 'src/constants';
 
 const logger = require('../../logger');
 
@@ -48,10 +49,12 @@ export default class AdminUserService {
         break;
     }
 
-    const users = await this.User.find(query);
-
-    if (isSummary) return users.map((user) => convertUserToSummary(user));
-    else return users;
+    return isSummary
+      ? await this.User.find(
+          query,
+          C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
+        )
+      : await this.User.find(query);
   }
 
   async updateProfile(profile: Partial<IUser>) {
