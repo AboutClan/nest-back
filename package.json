@@ -34,6 +34,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/schedule": "^4.1.1",
     "@types/multer": "^1.4.12",
+    "@types/node-pushnotifications": "^1.0.8",
     "@types/p-limit": "^2.2.0",
     "aws-sdk": "^2.1691.0",
     "axios": "^1.7.7",

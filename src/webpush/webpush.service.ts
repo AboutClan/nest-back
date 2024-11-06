@@ -1,8 +1,5 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { JWT } from 'next-auth/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AppError } from 'src/errors/AppError';
-import dayjs from 'dayjs';
 import { IUser } from 'src/user/entity/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -11,6 +8,7 @@ import { IVote } from 'src/vote/entity/vote.entity';
 import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
+import { INotificationSub } from './entity/notificationsub.entity';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable({ scope: Scope.DEFAULT })
@@ -72,29 +70,13 @@ export class WebPushService implements IWebPushService {
   //test need
   async subscribe(subscription: any, uid) {
     await this.WebpushRepository.enrollSubscribe(uid, subscription);
-
     return;
   }
 
   async sendNotificationAllUser() {
     const subscriptions = await this.WebpushRepository.findAll();
-
-    for (const subscription of subscriptions) {
-      try {
-        const push = new PushNotifications(this.settings);
-
-        // Create payload
-        await push.send(subscription, this.basePayload);
-      } catch (err) {
-        console.log(
-          `Failed to send notification to subscription: ${subscription}, error: ${err}`,
-        );
-        // Continue to the next subscription without breaking the loop
-        continue;
-      }
-    }
-
-    console.log('sending notification success');
+    const results = await this.sendParallel(subscriptions, this.basePayload);
+    this.logForFailure(results);
     return;
   }
 
@@ -104,17 +86,11 @@ export class WebPushService implements IWebPushService {
       title: title || '테스트 알림이에요',
       body: description || '테스트 알림이에요',
     });
-
     const subscriptions = await this.WebpushRepository.findByUid(uid);
+    const results = await this.sendParallel(subscriptions, payload);
 
-    subscriptions.forEach((subscription) => {
-      const push = new PushNotifications(this.settings);
+    this.logForFailure(results);
 
-      push.send(subscription, payload, (err: any, result: any) => {
-        console.log(result);
-        if (err) throw new AppError(`error at ${subscription}`, 500);
-      });
-    });
     return;
   }
 
@@ -134,33 +110,10 @@ export class WebPushService implements IWebPushService {
     );
     const memberArray = Array.from(new Set(memberUids));
 
-    // const subscriptions = await this.NotificationSub.find({
-    //   uid: { $in: memberArray },
-    // });
     const subscriptions = await this.WebpushRepository.findByArray(memberArray);
 
-    const pLimit = (await import('p-limit')).default;
-    const limit = pLimit(10);
-
-    // 병렬로 알림 전송
-    const results = await Promise.allSettled(
-      subscriptions.map(async (subscription) => {
-        limit(async () => {
-          const push = new PushNotifications(this.settings);
-          await push.send(subscription, payload);
-        });
-      }),
-    );
-
-    const failed = results.filter((result) => result.status === 'rejected');
-
-    failed.forEach((failure, index) => {
-      console.error(
-        `Error #${index + 1}:`,
-        (failure as PromiseRejectedResult).reason,
-      );
-    });
-
+    const results = await this.sendParallel(subscriptions, payload);
+    this.logForFailure(results);
     return;
   }
 
@@ -170,7 +123,7 @@ export class WebPushService implements IWebPushService {
       await this.User.find({ role: 'manager', location }).lean()
     ).map((manager) => manager.uid);
 
-    const managerNotiInfo =
+    const managerSubscriptions =
       await this.WebpushRepository.findByArray(managerUidList);
 
     const payload = JSON.stringify({
@@ -179,37 +132,20 @@ export class WebPushService implements IWebPushService {
       body: '앱을 확인해보세요.',
     });
 
-    const pLimit = (await import('p-limit')).default;
-    const limit = pLimit(10);
-
-    // 병렬로 알림 전송
-    const results = await Promise.allSettled(
-      managerNotiInfo.map(async (subscription) => {
-        limit(async () => {
-          const push = new PushNotifications(this.settings);
-          await push.send(subscription, payload);
-        });
-      }),
-    );
-
-    const failed = results.filter((result) => result.status === 'rejected');
-
-    failed.forEach((failure, index) => {
-      console.error(
-        `Error #${index + 1}:`,
-        (failure as PromiseRejectedResult).reason,
-      );
-    });
+    const results = await this.sendParallel(managerSubscriptions, payload);
+    this.logForFailure(results);
+    return;
   }
 
   //Todo: dayjs의존성 제가 가능?
-
   //Todo: Notification에 uid말고 _id기록
   async sendNotificationVoteResult() {
-    const failure = new Set();
-    const success = new Set();
+    const failure = new Set<string>();
+    const success = new Set<string>();
 
-    const date = dayjs().startOf('day').toDate();
+    const date = new Date();
+    date.setHours(0, 0, 0, 0); // 오늘의 시작시간
+
     const vote = await this.Vote.findOne({ date }).populate([
       'participations.attendences.user',
     ]);
@@ -226,6 +162,14 @@ export class WebPushService implements IWebPushService {
       }
     });
 
+    const failureArr = Array.from(failure);
+    const successArr = Array.from(success);
+
+    const failureSubscriptions =
+      await this.WebpushRepository.findByArray(failureArr);
+    const successSubscriptions =
+      await this.WebpushRepository.findByArray(successArr);
+
     const successPayload = JSON.stringify({
       ...this.basePayload,
       title: '스터디가 오픈했어요!',
@@ -238,39 +182,23 @@ export class WebPushService implements IWebPushService {
       body: '내일 스터디 투표를 참여해보세요',
     });
 
-    const subscriptions = await this.WebpushRepository.findAll();
-
-    const pLimit = (await import('p-limit')).default;
-    const limit = pLimit(10);
-
-    const results = await Promise.allSettled(
-      subscriptions.map((subscription) => {
-        limit(async () => {
-          const push = new PushNotifications(this.settings);
-
-          if (failure.has(subscription.uid)) {
-            await push.send(
-              subscription,
-              failPayload,
-              (err: any, result: any) => {
-                if (err) throw new AppError(err, 500);
-              },
-            );
-          } else if (success.has(subscription.uid)) {
-            await push.send(
-              subscription,
-              successPayload,
-              (err: any, result: any) => {
-                if (err) throw new AppError(err, 500);
-              },
-            );
-          }
-        });
-      }),
+    const failureResults = await this.sendParallel(
+      failureSubscriptions,
+      failPayload,
+    );
+    const successResults = await this.sendParallel(
+      successSubscriptions,
+      successPayload,
     );
 
-    const failed = results.filter((result) => result.status === 'rejected');
+    this.logForFailure(failureResults);
+    this.logForFailure(successResults);
+    return;
+  }
 
+  //알림 전송 실패한 사람들 로그
+  logForFailure = (results: any[]) => {
+    const failed = results.filter((result) => result.status === 'rejected');
     failed.forEach((failure, index) => {
       console.error(
         `Error #${index + 1}:`,
@@ -278,18 +206,24 @@ export class WebPushService implements IWebPushService {
       );
     });
     return;
-  }
+  };
 
-  // @Cron('54 22 * * *', {
-  //   timeZone: 'Asia/Seoul',
-  // })
-  // async asendNotificationToX() {
-  //   try {
-  //     console.log(12);
-  //     await this.sendNotificationToX('2283035576');
-  //     console.log('hello');
-  //   } catch (error) {
-  //     throw new Error(error);
-  //   }
-  // }
+  sendParallel = async (
+    subscriptions: INotificationSub[],
+    payload: any,
+  ): Promise<any> => {
+    const pLimit = (await import('p-limit')).default;
+    const limit = pLimit(10);
+
+    const results = await Promise.allSettled(
+      subscriptions.map(async (subscription) => {
+        limit(async () => {
+          const push = new PushNotifications(this.settings);
+          await push.send(subscription, payload);
+        });
+      }),
+    );
+
+    return results;
+  };
 }
