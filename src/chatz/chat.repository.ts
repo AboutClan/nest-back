@@ -8,6 +8,9 @@ export class MongoChatRepository implements ChatRepository {
     @InjectModel('Chat')
     private readonly Chat: Model<IChat>,
   ) {}
+  async find(user1: string, user2: string): Promise<IChat> {
+    return await this.Chat.findOne({ user1, user2 });
+  }
   async findChat(user1: string, user2: string): Promise<IChat> {
     return await this.Chat.findOne({ user1, user2 }).populate([
       'user1',
