@@ -51,10 +51,7 @@ export class RegisterController {
       await this.registerService.approve(approveUserDto.uid);
       return { status: 'success' };
     } catch (err) {
-      throw new HttpException(
-        'Error approving user',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

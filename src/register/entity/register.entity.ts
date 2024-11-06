@@ -12,7 +12,6 @@ export const InterestZodSchema = z.object({
 export const RegisteredZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
-  location: z.string(),
   mbti: z.string().optional(),
   gender: z.string(),
   profileImage: z.string().optional(),
