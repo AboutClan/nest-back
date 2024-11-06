@@ -239,7 +239,6 @@ export class VoteService implements IVoteService {
       const findStudy = data?.userList?.find(
         (user) => (user.user as IUser)._id.toString() === this.token.id,
       );
-      console.log(1234225);
 
       if (!findStudy) return;
 

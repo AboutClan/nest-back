@@ -16,7 +16,6 @@ export class RequestContext {
 
   static getDecodedToken(): JWT {
     const decodedToken = RequestContext.getRequest()?.decodedToken;
-    console.log(decodedToken);
     if (!decodedToken) return null;
     return decodedToken;
   }
