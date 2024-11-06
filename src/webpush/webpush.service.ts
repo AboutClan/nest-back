@@ -1,6 +1,5 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import dayjs from 'dayjs';
 import { IUser } from 'src/user/entity/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -144,7 +143,9 @@ export class WebPushService implements IWebPushService {
     const failure = new Set<string>();
     const success = new Set<string>();
 
-    const date = dayjs().startOf('day').toDate();
+    const date = new Date();
+    date.setHours(0, 0, 0, 0); // 오늘의 시작시간
+
     const vote = await this.Vote.findOne({ date }).populate([
       'participations.attendences.user',
     ]);
