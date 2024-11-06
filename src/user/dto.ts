@@ -58,8 +58,8 @@ export class SetFriendDto {
 
 export class PatchBelongDto {
   @IsNotEmpty()
-  @IsNumber()
-  uid: number;
+  @IsString()
+  uid: string;
 
   @IsNotEmpty()
   @IsString()
