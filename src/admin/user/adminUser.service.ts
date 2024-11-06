@@ -7,6 +7,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { convertUserToSummary } from 'src/convert';
 
 const logger = require('../../logger');
 
@@ -49,7 +50,7 @@ export default class AdminUserService {
 
     const users = await this.User.find(query);
 
-    if (isSummary) return users.map((user) => convertUserToSummary2(user));
+    if (isSummary) return users.map((user) => convertUserToSummary(user));
     else return users;
   }
 
@@ -124,11 +125,4 @@ export default class AdminUserService {
     await this.User.updateMany({ uid }, { $set: { belong } });
     return;
   }
-}
-function convertUserToSummary2(
-  user: import('mongoose').Document<unknown, {}, IUser> &
-    IUser &
-    Required<{ _id: string }>,
-): any {
-  throw new Error('Function not implemented.');
 }
