@@ -11,6 +11,12 @@ export interface GroupStudyRepository {
   findByIdWithWaiting(groupStudyId: string): Promise<IGroupStudyData>;
   findByIdWithPop(groupStudyId: number): Promise<IGroupStudyData>;
   findByParticipant(userId: string): Promise<IGroupStudyData[]>;
+  addParticipantWithAttendance(
+    id: string,
+    userId: string,
+    userName: string,
+    userUid: string,
+  ): Promise<IGroupStudyData>;
   findAllFilter(start: number, gap: number): Promise<IGroupStudyData[]>;
   createSubComment(
     groupStudyId: string,

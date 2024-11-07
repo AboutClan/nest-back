@@ -2,7 +2,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { JWT } from 'next-auth/jwt';
 import { ILog, Log } from './entity/log.entity';
 import { Model } from 'mongoose';
-import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';

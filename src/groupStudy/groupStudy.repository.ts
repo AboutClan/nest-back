@@ -39,6 +39,34 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       })
       .select('-_id');
   }
+
+  async addParticipantWithAttendance(
+    id: string,
+    userId: string,
+    userName: string,
+    userUid: string,
+  ): Promise<IGroupStudyData> {
+    return await this.GroupStudy.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          participants: { user: userId, role: 'member', attendCnt: 0 },
+          'attendance.thisWeek': {
+            uid: userUid,
+            name: userName,
+            attendRecord: [],
+          },
+          'attendance.lastWeek': {
+            uid: userUid,
+            name: userName,
+            attendRecord: [],
+          },
+        },
+      },
+      { new: true },
+    );
+  }
+
   async findByCategory(category: string): Promise<IGroupStudyData[]> {
     return await this.GroupStudy.find({
       'category.main': category,

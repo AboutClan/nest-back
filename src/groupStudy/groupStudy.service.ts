@@ -194,6 +194,9 @@ export default class GroupStudyService implements IGroupStudyService {
       throw new Error(err);
     }
   }
+
+  //todo: 테스트 필요
+  //todo: 수정도 필요
   async participateGroupStudy(id: string) {
     const groupStudy = await this.groupStudyRepository.findById(id);
 
@@ -204,22 +207,12 @@ export default class GroupStudyService implements IGroupStudyService {
         (participant) => participant.user == this.token.id,
       )
     ) {
-      groupStudy.participants.push({
-        user: this.token.id,
-        role: 'member',
-        attendCnt: 0,
-      });
-      groupStudy.attendance.thisWeek.push({
-        uid: this.token.uid as string,
-        name: this.token.name as string,
-        attendRecord: [],
-      });
-      groupStudy.attendance.lastWeek.push({
-        uid: this.token.uid as string,
-        name: this.token.name as string,
-        attendRecord: [],
-      });
-      await groupStudy?.save();
+      await this.groupStudyRepository.addParticipantWithAttendance(
+        id,
+        this.token.id,
+        this.token.name,
+        this.token.uid,
+      );
     }
 
     this.webPushServiceInstance.sendNotificationGroupStudy(id);
