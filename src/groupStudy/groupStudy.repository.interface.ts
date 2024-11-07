@@ -1,4 +1,4 @@
-import { IGroupStudyData } from './entity/groupStudy.entity';
+import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 
 export interface GroupStudyRepository {
   findByStatusAndCategory(
@@ -8,12 +8,14 @@ export interface GroupStudyRepository {
   ): Promise<IGroupStudyData[]>;
   findByCategory(category: string): Promise<IGroupStudyData[]>;
   findById(groupStudyId: string): Promise<IGroupStudyData>;
+  findByIdWithWaiting(groupStudyId: string): Promise<IGroupStudyData>;
+  findByIdWithPop(groupStudyId: number): Promise<IGroupStudyData>;
   findByParticipant(userId: string): Promise<IGroupStudyData[]>;
   findAllFilter(start: number, gap: number): Promise<IGroupStudyData[]>;
   createSubComment(
     groupStudyId: string,
     commentId: string,
-    message: string,
+    message: subCommentType,
   ): Promise<null>;
   deleteSubComment(
     groupStudyId: string,
@@ -29,14 +31,13 @@ export interface GroupStudyRepository {
   createGroupStudy(
     groupStudyData: Partial<IGroupStudyData>,
   ): Promise<IGroupStudyData>;
-  findById(groupStudyId: string): Promise<IGroupStudyData>;
   createCommentLike(
-    groupStudyId: string,
+    groupStudyId: number,
     commentId: string,
     userId: string,
   ): Promise<IGroupStudyData>;
   createSubCommentLike(
-    groupStudyId: string,
+    groupStudyId: number,
     commentId: string,
     subCommentId: string,
     userId: string,
