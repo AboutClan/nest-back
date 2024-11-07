@@ -1,7 +1,8 @@
-import { IGatherData } from './entity/gather.entity';
+import { IGatherData, subCommentType } from './entity/gather.entity';
 
 export interface GatherRepository {
-  findById(gatherId: number): Promise<IGatherData>;
+  findById(gatherId: string): Promise<IGatherData>;
+  findByIdPop(gatherId: number): Promise<IGatherData>;
   findThree(): Promise<IGatherData[]>;
   findAll(start: number, gap: number): Promise<IGatherData[]>;
   createGather(gatherData: Partial<IGatherData>): Promise<IGatherData>;
@@ -9,11 +10,11 @@ export interface GatherRepository {
     gatherId: number,
     gatherData: Partial<IGatherData>,
   ): Promise<null>;
-  deleteParticipants(gatherId: number, userId: string): Promise<null>;
+  deleteParticipants(gatherId: string, userId: string): Promise<null>;
   createSubComment(
     gatherId: string,
     commentId: string,
-    message: string,
+    message: subCommentType,
   ): Promise<null>;
   deleteSubComment(
     gatherId: string,
@@ -34,7 +35,7 @@ export interface GatherRepository {
     comment: string,
   ): Promise<null>;
   createCommentLike(
-    gatherId: string,
+    gatherId: number,
     commentId: string,
     userId: string,
   ): Promise<IGatherData>;

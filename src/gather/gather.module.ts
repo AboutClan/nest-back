@@ -6,11 +6,17 @@ import { GatherSchema } from './entity/gather.entity';
 import { ChatModule } from 'src/chatz/chat.module';
 import { UserModule } from 'src/user/user.module';
 import { CounterModule } from 'src/counter/couter.module';
-import { IGATHER_SERVICE } from 'src/utils/di.tokens';
+import { IGATHER_REPOSITORY, IGATHER_SERVICE } from 'src/utils/di.tokens';
+import { MongoGatherRepository } from './gather.repository';
 
 const gatherServiceProvider: ClassProvider = {
   provide: IGATHER_SERVICE,
   useClass: GatherService,
+};
+
+const gatherRepositoryProvider: ClassProvider = {
+  provide: IGATHER_REPOSITORY,
+  useClass: MongoGatherRepository,
 };
 
 @Module({
@@ -21,7 +27,7 @@ const gatherServiceProvider: ClassProvider = {
     ChatModule,
   ],
   controllers: [GatherController],
-  providers: [gatherServiceProvider],
-  exports: [gatherServiceProvider, MongooseModule],
+  providers: [gatherServiceProvider, gatherRepositoryProvider],
+  exports: [gatherServiceProvider, MongooseModule, gatherRepositoryProvider],
 })
 export class GatherModule {}

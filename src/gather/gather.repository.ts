@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { GatherRepository } from './gather.repository.interface';
 import { Model } from 'mongoose';
-import { IGatherData } from './entity/gather.entity';
+import { IGatherData, subCommentType } from './entity/gather.entity';
 import { C_simpleUser } from 'src/constants';
 
 export class MongoGatherRepository implements GatherRepository {
@@ -9,8 +9,16 @@ export class MongoGatherRepository implements GatherRepository {
     @InjectModel('Gather')
     private readonly Gather: Model<IGatherData>,
   ) {}
-  async findById(gatherId: number): Promise<IGatherData> {
+  async findById(gatherId: string): Promise<IGatherData> {
     return await this.Gather.findOne({ id: gatherId });
+  }
+  async findByIdPop(gatherId: number): Promise<IGatherData> {
+    return await this.Gather.findOne({ id: gatherId })
+      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'comments.subComments.user',
+        select: C_simpleUser,
+      });
   }
   async findThree(): Promise<IGatherData[]> {
     return await this.Gather.find()
@@ -49,7 +57,7 @@ export class MongoGatherRepository implements GatherRepository {
     await this.Gather.updateOne({ id: gatherId }, gatherData);
     return null;
   }
-  async deleteParticipants(gatherId: number, userId: string): Promise<null> {
+  async deleteParticipants(gatherId: string, userId: string): Promise<null> {
     await this.Gather.findOneAndUpdate(
       { id: gatherId },
       {
@@ -62,7 +70,7 @@ export class MongoGatherRepository implements GatherRepository {
   async createSubComment(
     gatherId: string,
     commentId: string,
-    message: string,
+    message: subCommentType,
   ): Promise<null> {
     await this.Gather.updateOne(
       {
@@ -120,7 +128,7 @@ export class MongoGatherRepository implements GatherRepository {
     throw new Error('Method not implemented.');
   }
   async createCommentLike(
-    gatherId: string,
+    gatherId: number,
     commentId: string,
     userId: string,
   ): Promise<IGatherData> {

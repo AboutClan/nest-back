@@ -29,3 +29,4 @@ export const ICOUNTER_REPOSITORY = 'CounterRepository';
 export const IDAILYCHECK_REPOSITORY = 'DailyCheckRepository';
 export const IFCM_REPOSITORY = 'FcmRepository';
 export const IFEED_REPOSITORY = 'FeedRepository';
+export const IGATHER_REPOSITORY = 'GatherRepository';
