@@ -27,7 +27,11 @@ export interface GatherRepository {
     subCommentId: string,
     comment: string,
   ): Promise<null>;
-  createComment(gatherId: string, message: string): Promise<null>;
+  createComment(
+    gatherId: string,
+    userId: string,
+    message: string,
+  ): Promise<null>;
   deleteComment(gatherId: string, commentId: string): Promise<null>;
   updateComment(
     gatherId: string,

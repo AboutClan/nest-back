@@ -263,44 +263,21 @@ export class GatherService implements IGatherService {
 
   //수정필요
   async createComment(gatherId: string, comment: string) {
-    const gather = await this.gatherRepository.findById(gatherId);
-    if (!gather) throw new Error();
-
-    gather.comments.push({
-      user: this.token.id,
-      comment,
-    });
-
-    await gather.save();
+    await this.gatherRepository.createComment(gatherId, this.token.id, comment);
 
     return;
   }
 
   //수정필요
   async deleteComment(gatherId: string, commentId: string) {
-    const gather = await this.gatherRepository.findById(gatherId);
-    if (!gather) throw new Error();
-
-    gather.comments = gather.comments.filter(
-      (com: any) => (com._id as string) != commentId,
-    );
-
-    await gather.save();
+    await this.gatherRepository.deleteComment(gatherId, commentId);
 
     return;
   }
 
   //수정필요
   async patchComment(gatherId: string, commentId: string, comment: string) {
-    const gather = await this.gatherRepository.findById(gatherId);
-    if (!gather) throw new Error();
-
-    gather.comments.forEach(async (com: any) => {
-      if ((com._id as string) == commentId) {
-        com.comment = comment;
-        await gather.save();
-      }
-    });
+    await this.gatherRepository.updateComment(gatherId, commentId, comment);
     return;
   }
 

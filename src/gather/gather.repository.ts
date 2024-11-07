@@ -114,18 +114,43 @@ export class MongoGatherRepository implements GatherRepository {
     );
     return null;
   }
-  createComment(gatherId: string, message: string): Promise<null> {
-    throw new Error('Method not implemented.');
+  async createComment(
+    gatherId: string,
+    userId: string,
+    message: string,
+  ): Promise<null> {
+    await this.Gather.findByIdAndUpdate(
+      gatherId,
+      {
+        $push: {
+          comments: {
+            user: userId,
+            comment: message,
+          },
+        },
+      },
+      { new: true }, // 업데이트 후 변경된 문서를 반환 (선택 사항)
+    );
+    return null;
   }
-  deleteComment(gatherId: string, commentId: string): Promise<null> {
-    throw new Error('Method not implemented.');
+  async deleteComment(gatherId: string, commentId: string): Promise<null> {
+    await this.Gather.findOneAndUpdate(
+      { _id: gatherId },
+      { $pull: { comments: { _id: commentId } } },
+    );
+    return null;
   }
-  updateComment(
+  async updateComment(
     gatherId: string,
     commentId: string,
     comment: string,
   ): Promise<null> {
-    throw new Error('Method not implemented.');
+    await this.Gather.updateOne(
+      { _id: gatherId, 'comments._id': commentId },
+      { $set: { 'comments.$.comment': comment } },
+    );
+
+    return null;
   }
   async createCommentLike(
     gatherId: number,
