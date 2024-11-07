@@ -48,7 +48,9 @@ export default class GroupStudyService implements IGroupStudyService {
       gap,
     );
 
-    return groupStudyData;
+    const shuffledGroups = groupStudyData.sort(() => Math.random() - 0.5);
+
+    return shuffledGroups;
   }
 
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
@@ -64,7 +66,9 @@ export default class GroupStudyService implements IGroupStudyService {
       gap,
     );
 
-    return groupStudyData;
+    const shuffledGroups = groupStudyData.sort(() => Math.random() - 0.5);
+
+    return shuffledGroups;
   }
 
   async getGroupStudyByCategory(category: string) {
