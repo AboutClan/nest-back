@@ -27,3 +27,4 @@ export const ICHAT_REPOSITORY = 'ChatRepository';
 export const ICOLLECTION_REPOSITORY = 'CollectionRepository';
 export const ICOUNTER_REPOSITORY = 'counterRepository';
 export const IDAILYCHECK_REPOSITORY = 'dailyCheckRepository';
+export const IFCM_REPOSITORY = 'dailyCheckRepository';

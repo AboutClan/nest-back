@@ -9,13 +9,18 @@ import dayjs from 'dayjs';
 import { findOneVote } from 'src/vote/util';
 import { IUser } from 'src/user/entity/user.entity';
 import { IFcmService } from './fcm.interface';
+import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
+import { FcmRepository } from './fcm.repository.interfae';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class FcmService implements IFcmService {
   private payload: any;
   static MongooseModule: any;
 
-  constructor(@InjectModel('FcmToken') private FcmToken: Model<IFcmToken>) {
+  constructor(
+    @Inject(IFCM_REPOSITORY)
+    private readonly fcmRepository: FcmRepository,
+  ) {
     const fcm = process.env.FCM_INFO;
     if (!admin.apps.length && fcm) {
       const serviceAccount = JSON.parse(fcm);
@@ -59,16 +64,7 @@ export class FcmService implements IFcmService {
   }
 
   async deleteToken(uid: string, platform: string) {
-    const deleted = await this.FcmToken.updateOne(
-      {
-        uid,
-      },
-      {
-        $pull: {
-          devices: { platform },
-        },
-      },
-    );
+    const deleted = await this.fcmRepository.deleteToken(uid, platform);
 
     if (!deleted.modifiedCount)
       throw new DatabaseError('fcm token delete failed');
@@ -76,7 +72,7 @@ export class FcmService implements IFcmService {
   }
 
   async registerToken(uid: string, fcmToken: string, platform: string) {
-    const fcmTokenOne = await this.FcmToken.findOne({ uid });
+    const fcmTokenOne = await this.fcmRepository.findByUid(uid);
 
     const validatedFcm = FcmTokenZodSchema.parse({
       uid,
@@ -93,12 +89,12 @@ export class FcmService implements IFcmService {
         await fcmTokenOne.save();
       }
     } else {
-      this.FcmToken.create(validatedFcm);
+      await this.fcmRepository.createToken(validatedFcm);
     }
   }
 
   async sendNotificationToX(uid: string, title: string, body: string) {
-    const user = await this.FcmToken.findOne({ uid });
+    const user = await this.fcmRepository.findByUid(uid);
 
     if (!user) throw new DatabaseError("can't find toUser");
 
@@ -123,7 +119,7 @@ export class FcmService implements IFcmService {
 
   async sendNotificationAllUser(title: string, body: string) {
     try {
-      const targets = await this.FcmToken.find();
+      const targets = await this.fcmRepository.findAll();
 
       targets.forEach((target) => {
         target.devices.forEach(async (data) => {
@@ -180,7 +176,7 @@ export class FcmService implements IFcmService {
     };
 
     try {
-      const subscriptions = await this.FcmToken.find();
+      const subscriptions = await this.fcmRepository.findAll();
 
       subscriptions.forEach(async (subscription) => {
         if (failure.has(subscription.uid)) {
