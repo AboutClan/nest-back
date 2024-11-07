@@ -1,4 +1,5 @@
 import mongoose, {
+  Document,
   Model,
   Schema,
   StringExpressionOperatorReturningBoolean,
@@ -14,7 +15,7 @@ export const CollectionZodSchema = z.object({
   stamps: z.number(),
 });
 
-export interface ICollection {
+export interface ICollection extends Document {
   user: string | IUser;
   type: string;
   collects: string[];

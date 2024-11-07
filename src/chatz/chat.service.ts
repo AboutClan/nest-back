@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { WebPushService } from 'src/webpush/webpush.service';
 import {
   Chat,
   ChatZodSchema,
@@ -12,13 +11,17 @@ import {
 import { IUser } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import dayjs from 'dayjs';
-import { FcmService } from 'src/fcm/fcm.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IFCM_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import {
+  ICHAT_REPOSITORY,
+  IFCM_SERVICE,
+  IWEBPUSH_SERVICE,
+} from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IFcmService } from 'src/fcm/fcm.interface';
 import { IChatService } from './chatService.interface';
+import { ChatRepository } from './chat.repository.interface';
 
 @Injectable()
 export class ChatService implements IChatService {
@@ -28,7 +31,8 @@ export class ChatService implements IChatService {
   constructor(
     @Inject(IFCM_SERVICE) private fcmServiceInstance: IFcmService,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
-    @InjectModel('Chat') private Chat: Model<IChat>,
+    @Inject(ICHAT_REPOSITORY)
+    private readonly chatRepository: ChatRepository,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
@@ -39,10 +43,8 @@ export class ChatService implements IChatService {
     const user1 = this.token.id > userId ? userId : this.token.id;
     const user2 = this.token.id < userId ? userId : this.token.id;
 
-    const chat = await this.Chat.findOne({ user1, user2 }).populate([
-      'user1',
-      'user2',
-    ]);
+    const chat = await this.chatRepository.findChat(user1, user2);
+
     if (!chat) throw new DatabaseError("Can't find chatting");
     const opponent =
       (chat.user1 as IUser).id == this.token.id
@@ -52,9 +54,7 @@ export class ChatService implements IChatService {
   }
 
   async getChats() {
-    const chats = await this.Chat.find({
-      $or: [{ user1: this.token.id }, { user2: this.token.id }],
-    });
+    const chats = await this.chatRepository.findChats(this.token.id);
 
     const chatWithUsers = await Promise.all(
       chats.map(async (chat) => {
@@ -81,11 +81,7 @@ export class ChatService implements IChatService {
     });
   }
   async getRecentChat() {
-    const chat = await this.Chat.find({
-      $or: [{ user1: this.token.id }, { user2: this.token.id }],
-    })
-      .sort({ createdAt: -1 })
-      .limit(1);
+    const chat = await this.chatRepository.findRecentChat(this.token.id);
 
     if (chat.length) {
       return chat?.[0]._id;
@@ -98,7 +94,7 @@ export class ChatService implements IChatService {
     const user1 = this.token.id > toUserId ? toUserId : this.token.id;
     const user2 = this.token.id < toUserId ? toUserId : this.token.id;
 
-    const chat = await this.Chat.findOne({ user1, user2 });
+    const chat = await this.chatRepository.find(user1, user2);
 
     const contentFill = {
       content: message,
@@ -116,7 +112,7 @@ export class ChatService implements IChatService {
       await chat.updateOne({ $push: { contents: validatedContent } });
       await chat.save();
     } else {
-      await this.Chat.create(validatedChat);
+      await this.chatRepository.createChat(validatedChat);
     }
 
     const toUser = await this.User.findById(toUserId);

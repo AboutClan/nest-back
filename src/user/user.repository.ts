@@ -5,17 +5,18 @@ import { UserRepository } from './user.repository.interface';
 
 export class MongoUserRepository implements UserRepository {
   constructor(@InjectModel('User') private readonly User: Model<IUser>) {}
-  async findByUid(uid: string): Promise<IUser> {
-    return await this.User.findOne({ uid });
+  async findByUid(uid: string, queryString?: string): Promise<IUser> {
+    return queryString
+      ? await this.User.findOne({ uid }, queryString)
+      : await this.User.findOne({ uid });
   }
   async findByUids(uids: string[]): Promise<IUser[]> {
     return await this.User.find({ uid: { $in: uids } });
   }
-  async findByUidWithQ(uid: string, queryString: string): Promise<IUser> {
-    return await this.User.findOne({ uid }, queryString);
-  }
-  async findAllWithQ(queryString: string): Promise<IUser[]> {
-    return await this.User.findOne({}, queryString);
+  async findAll(queryString?: string): Promise<IUser[]> {
+    return queryString
+      ? await this.User.find({}, queryString)
+      : await this.User.find();
   }
   async updateUser(uid: string, updateInfo: any): Promise<null> {
     await this.User.findOneAndUpdate(
@@ -25,23 +26,39 @@ export class MongoUserRepository implements UserRepository {
     );
     return null;
   }
+
+  async updateUserById(id: string, updateInfo: any): Promise<null> {
+    await this.User.findOneAndUpdate(
+      { _id: id },
+      { $set: updateInfo },
+      { new: true, upsert: false },
+    );
+    return null;
+  }
+
+  async initMonthScore(): Promise<null> {
+    await this.User.updateMany({}, { $set: { monthScore: 0 } });
+    return null;
+  }
+
   async findByLocation(location: string): Promise<IUser[]> {
     return await this.User.find({ location });
   }
-  async findByUidIsActive(
+
+  async findByIsActive(
     isActive: boolean,
-    uid: string,
-    all: boolean,
+    queryString?: string,
   ): Promise<IUser[]> {
-    return await this.User.find({
-      isActive,
-      ...(all ? {} : { uid }), // 조건에 따라 필터링
-    }).select(
-      'birth avatar comment isActive location name profileImage score uid _id monthScore weekStudyAccumulationMinutes',
-    ); // 필요한 필드만 선택
+    return queryString
+      ? await this.User.find({ isActive }, queryString)
+      : await this.User.find({ isActive });
   }
-  async findByIsActive(isActive: boolean): Promise<IUser[]> {
-    return await this.User.find({ isActive });
+  async findByIsActiveUid(
+    uid: string,
+    isActive: boolean,
+    queryString?: string,
+  ): Promise<IUser[]> {
+    return await this.User.find({ uid, isActive }, queryString);
   }
   async increasePoint(point: number, uid: string): Promise<null> {
     await this.User.findOneAndUpdate(
@@ -66,8 +83,24 @@ export class MongoUserRepository implements UserRepository {
       { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
     );
   }
-  async findAll(): Promise<IUser[]> {
-    return await this.User.find();
+  async setRest(info: any, uid: string, dayDiff: any): Promise<IUser> {
+    await this.User.findOneAndUpdate(
+      { uid }, // 사용자를 uid로 찾음
+      {
+        $set: {
+          'rest.type': info.type,
+          'rest.content': info.content,
+          'rest.startDate': info.startDate,
+          'rest.endDate': info.endDate,
+        },
+        $inc: { 'rest.restCnt': 1, 'rest.cumulativeSum': dayDiff }, // restCnt와 cumulativeSum 증가
+      },
+      {
+        upsert: true, // rest 필드가 없는 경우 생성
+        new: true, // 업데이트된 값을 반환
+      },
+    );
+    return null;
   }
   async updatePreference(
     uid: string,

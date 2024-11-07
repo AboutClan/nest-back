@@ -12,4 +12,5 @@ export interface CollectionRepository {
   ): Promise<any>;
   updateCollection(userId: string, myAlphabets: any): Promise<any>;
   findAll(): Promise<ICollection[]>;
+  findByUserPop(id: string): Promise<ICollection>;
 }

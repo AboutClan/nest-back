@@ -6,11 +6,17 @@ import { ChatSchema } from './entity/chat.entity';
 import { UserModule } from 'src/user/user.module';
 import { FcmAModule } from 'src/fcm/fcm.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
-import { ICHAT_SERVICE } from 'src/utils/di.tokens';
+import { ICHAT_REPOSITORY, ICHAT_SERVICE } from 'src/utils/di.tokens';
+import { MongoChatRepository } from './chat.repository';
 
 const chatServiceProvider: ClassProvider = {
   provide: ICHAT_SERVICE,
   useClass: ChatService,
+};
+
+const chatRepositoryProvider: ClassProvider = {
+  provide: ICHAT_REPOSITORY,
+  useClass: MongoChatRepository,
 };
 
 @Module({
@@ -21,7 +27,7 @@ const chatServiceProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'Chat', schema: ChatSchema }]),
   ],
   controllers: [ChatContoller],
-  providers: [chatServiceProvider],
-  exports: [chatServiceProvider, MongooseModule],
+  providers: [chatServiceProvider, chatRepositoryProvider],
+  exports: [chatServiceProvider, chatRepositoryProvider, MongooseModule],
 })
 export class ChatModule {}
