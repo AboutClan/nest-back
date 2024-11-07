@@ -15,7 +15,7 @@ export interface IDailyCheck {
   updatedAt: Date;
 }
 
-const dailyCheckSchema: Schema<IDailyCheck> = new Schema(
+export const dailyCheckSchema: Schema<IDailyCheck> = new Schema(
   {
     uid: String,
     name: String,
