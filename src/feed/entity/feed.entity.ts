@@ -1,4 +1,4 @@
-import mongoose, { model, Model, Schema } from 'mongoose';
+import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
@@ -44,7 +44,7 @@ export interface subCommentType {
   likeList?: string[];
 }
 
-export interface IFeed {
+export interface IFeed extends Document {
   title: string;
   text: string;
   images: string[];

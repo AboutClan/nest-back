@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { IFeed } from './entity/feed.entity';
+import { commentType, IFeed, subCommentType } from './entity/feed.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { FeedRepository } from './feed.repository.interface';
 import { C_simpleUser } from 'src/constants';
@@ -26,12 +26,7 @@ export class MongoFeedRepository implements FeedRepository {
       .limit(gap);
   }
   async findById(id: string): Promise<IFeed> {
-    return await this.Feed.findById(id)
-      .populate(['writer', 'like', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
+    return await this.Feed.findById(id);
   }
   async findByIdLike(id: string): Promise<IFeed> {
     return await this.Feed.findById(id).populate({
@@ -40,7 +35,6 @@ export class MongoFeedRepository implements FeedRepository {
     });
   }
   async findAll(
-    query: any,
     start: number,
     gap: number,
     isRecent: boolean,
@@ -58,7 +52,7 @@ export class MongoFeedRepository implements FeedRepository {
   async createFeed(feedData: any): Promise<IFeed> {
     return await this.Feed.create(feedData);
   }
-  async createComment(feedId: string, message: string): Promise<IFeed> {
+  async createComment(feedId: string, message: commentType): Promise<IFeed> {
     return await this.Feed.findByIdAndUpdate(
       feedId,
       { $push: { comments: message } },
@@ -105,7 +99,7 @@ export class MongoFeedRepository implements FeedRepository {
   async createSubComment(
     feedId: string,
     commentId: string,
-    message: string,
+    message: subCommentType,
   ): Promise<any> {
     return await this.Feed.updateOne(
       {

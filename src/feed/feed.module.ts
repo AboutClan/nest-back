@@ -4,11 +4,17 @@ import { FeedService } from './feed.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FeedSchema } from './entity/feed.entity';
 import { UserModule } from 'src/user/user.module';
-import { IFEED_SERVICE } from 'src/utils/di.tokens';
+import { IFEED_REPOSITORY, IFEED_SERVICE } from 'src/utils/di.tokens';
+import { MongoFeedRepository } from './feed.repository';
 
 const feedServiceProvider: ClassProvider = {
   provide: IFEED_SERVICE,
   useClass: FeedService,
+};
+
+const feedRepositoryProvider: ClassProvider = {
+  provide: IFEED_REPOSITORY,
+  useClass: MongoFeedRepository,
 };
 
 @Module({
@@ -17,7 +23,7 @@ const feedServiceProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'Feed', schema: FeedSchema }]),
   ],
   controllers: [FeedController],
-  providers: [feedServiceProvider],
-  exports: [feedServiceProvider, MongooseModule],
+  providers: [feedServiceProvider, feedRepositoryProvider],
+  exports: [feedServiceProvider, MongooseModule, feedRepositoryProvider],
 })
 export class FeedModule {}
