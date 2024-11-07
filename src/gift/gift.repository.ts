@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 
 export class MongoGiftRepository implements GiftRepository {
   constructor(
-    @InjectModel('Gift')
+    @InjectModel('GiftModel')
     private readonly Gift: Model<IStoreApplicant>,
   ) {}
   async findAllSort(): Promise<IStoreApplicant[]> {
