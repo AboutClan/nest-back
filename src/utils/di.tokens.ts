@@ -23,4 +23,5 @@ export const IDAILYCHECK_SERVICE = 'IDailyCheckService';
 
 export const IWEBPUSH_REPOSITORY = 'WebpushRepository';
 export const IUSER_REPOSITORY = 'UserRepository';
-export const ICHAT_REPOSITORY = 'UserRepository';
+export const ICHAT_REPOSITORY = 'ChatRepository';
+export const ICOLLECTION_REPOSITORY = 'CollectionRepository';

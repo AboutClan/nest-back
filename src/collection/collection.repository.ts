@@ -2,16 +2,23 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CollectionRepository } from './collection.repository.interface';
 import { Model } from 'mongoose';
 import { ICollection } from './entity/collection.entity';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class MongoCollectionRepository implements CollectionRepository {
   constructor(
-    @InjectModel('Collection')
+    @InjectModel('collection')
     private readonly Collection: Model<ICollection>,
   ) {}
   async findByUser(id: string): Promise<ICollection> {
     return await this.Collection.findOne({
       user: id,
     });
+  }
+  async findByUserPop(id: string): Promise<ICollection> {
+    return await this.Collection.findOne({ user: id })
+      .populate('user')
+      .select('-_id');
   }
   async createCollection(
     collectionData: Partial<ICollection>,
