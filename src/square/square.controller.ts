@@ -13,6 +13,8 @@ import {
   HttpStatus,
   Put,
   Inject,
+  Injectable,
+  PipeTransform,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -22,6 +24,17 @@ import { ISquareService } from './squareService.interface';
 import { ISQUARE_SERVICE } from 'src/utils/di.tokens';
 
 // DTOs for request validation
+
+@Injectable()
+export class ValidationPipe implements PipeTransform {
+  transform(value: any) {
+    return {
+      ...value,
+      pollItems: JSON.parse(value.pollItems),
+      canMultiple: JSON.parse(value.canMultiple),
+    };
+  }
+}
 
 @Controller('square')
 export class SquareController {
@@ -51,7 +64,7 @@ export class SquareController {
   @UseInterceptors(FilesInterceptor('images', 5, { storage: memoryStorage() }))
   async createSquare(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body() createSquareDto: CreateSquareDto,
+    @Body(new ValidationPipe()) createSquareDto: CreateSquareDto,
   ) {
     const buffers: Buffer[] = files ? files.map((file) => file.buffer) : [];
 

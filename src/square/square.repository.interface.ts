@@ -7,7 +7,7 @@ export interface SquareRepository {
     gap: number,
   ): Promise<SecretSquareItem[]>;
   create(squareData: any): Promise<SecretSquareItem>;
-  findByIdAndDelete(quareId: string): Promise<null>;
+  findByIdAndDelete(squareId: string): Promise<null>;
   findByIdAndUpdate(squareId: string, userId: string): Promise<null>;
   findByIdCustom(squareId: string, userId): Promise<SecretSquareItem>;
   updateComment(
@@ -27,7 +27,7 @@ export interface SquareRepository {
   ): Promise<null>;
   deleteSubComment(
     squareId: string,
-    commentId: String,
+    commentId: string,
     subCommentId: string,
   ): Promise<null>;
   updateSubComment(

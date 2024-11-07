@@ -16,11 +16,7 @@ export const CommentZodSchema = z.object({
 });
 
 export const PollItemZodSchema = z.object({
-  _id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
   name: z.string(),
-  users: z.array(
-    z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
-  ),
 });
 
 export const SecretSquareZodSchema = z.object({
