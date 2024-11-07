@@ -37,6 +37,7 @@ import { AdminVoteModule } from './admin/vote/adminVote.module';
 import { AdminManageModule } from './admin/manage/adminManage.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationScheduler } from './schedule/schedule';
+import { DailyCheckModule } from './dailycheck/entity/dailyCheck.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -85,6 +86,7 @@ const corsOptions = {
     BookModule,
     CollectionModule,
     RealtimeModule,
+    DailyCheckModule,
     AdminCounterModule,
     AdminLogModule,
     AdminUserModule,
