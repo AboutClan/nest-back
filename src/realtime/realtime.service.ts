@@ -3,13 +3,11 @@ import { DatabaseError } from '../errors/DatabaseError'; // 에러 처리 클래
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { InjectModel } from '@nestjs/mongoose';
 import {
   IRealtime,
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
-import { Model } from 'mongoose';
 import { IVoteService } from 'src/vote/voteService.interface';
 import {
   ICOLLECTION_SERVICE,

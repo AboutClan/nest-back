@@ -5,11 +5,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RegisteredSchema } from './entity/register.entity';
 import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
-import { IREGISTER_SERVICE } from 'src/utils/di.tokens';
+import { IREGISTER_REPOSITORY, IREGISTER_SERVICE } from 'src/utils/di.tokens';
+import { MongoRegisterRepository } from './register.repository.interface';
 
 const registerServiceProvider: ClassProvider = {
   provide: IREGISTER_SERVICE,
   useClass: RegisterService,
+};
+
+const registerRepositoryProvider: ClassProvider = {
+  provide: IREGISTER_REPOSITORY,
+  useClass: MongoRegisterRepository,
 };
 
 @Module({
@@ -21,7 +27,11 @@ const registerServiceProvider: ClassProvider = {
     ]),
   ],
   controllers: [RegisterController],
-  providers: [registerServiceProvider],
-  exports: [registerServiceProvider, MongooseModule],
+  providers: [registerServiceProvider, registerRepositoryProvider],
+  exports: [
+    registerServiceProvider,
+    MongooseModule,
+    registerRepositoryProvider,
+  ],
 })
 export class RegisterModule {}

@@ -37,3 +37,4 @@ export const INOTICE_REPOSITORY = 'NoticeRepository';
 export const IPLACE_REPOSITORY = 'PlaceRepository';
 export const IPROMOTION_REPOSITORY = 'PromotionRepository';
 export const IREALTIME_REPOSITORY = 'RealtimeRepository';
+export const IREGISTER_REPOSITORY = 'RegisterRepository';
