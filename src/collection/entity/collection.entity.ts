@@ -13,7 +13,7 @@ export const CollectionZodSchema = z.object({
   stamps: z.number(),
 });
 
-export type ICollection = z.infer<typeof CollectionZodSchema>;
+export type ICollection = z.infer<typeof CollectionZodSchema> & Document;
 
 export const CollectionSchema: Schema<ICollection> = new Schema(
   {
