@@ -39,3 +39,4 @@ export const IPROMOTION_REPOSITORY = 'PromotionRepository';
 export const IREALTIME_REPOSITORY = 'RealtimeRepository';
 export const IREGISTER_REPOSITORY = 'RegisterRepository';
 export const IREQUEST_REPOSITORY = 'RequestRepository';
+export const ISQUARE_REPOSITORY = 'SquareRepository';

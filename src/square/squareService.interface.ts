@@ -9,7 +9,7 @@ export interface ISquareService {
 
   createSquare(
     square: Partial<SecretSquareItem> & { buffers: Buffer[] },
-  ): Promise<{ squareId: Types.ObjectId }>;
+  ): Promise<any>;
 
   deleteSquare(squareId: string): Promise<void>;
 

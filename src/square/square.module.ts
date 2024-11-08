@@ -4,11 +4,17 @@ import SquareService from './square.service';
 import ImageService from 'src/imagez/image.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { secretSquareSchema } from './entity/square.entity';
-import { ISQUARE_SERVICE } from 'src/utils/di.tokens';
+import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
+import { MongoSquareRepository } from './square.repository';
 
 const squareServiceProvider: ClassProvider = {
   provide: ISQUARE_SERVICE,
   useClass: SquareService,
+};
+
+const squareRepositoryProvider: ClassProvider = {
+  provide: ISQUARE_REPOSITORY,
+  useClass: MongoSquareRepository,
 };
 
 @Module({
@@ -18,7 +24,7 @@ const squareServiceProvider: ClassProvider = {
     ]),
   ],
   controllers: [SquareController],
-  providers: [squareServiceProvider, ImageService],
-  exports: [squareServiceProvider, MongooseModule],
+  providers: [squareServiceProvider, ImageService, squareRepositoryProvider],
+  exports: [squareServiceProvider, MongooseModule, squareRepositoryProvider],
 })
 export class SquareModule {}

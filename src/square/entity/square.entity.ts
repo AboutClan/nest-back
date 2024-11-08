@@ -1,4 +1,4 @@
-import mongoose, { model, Model, Schema, Types } from 'mongoose';
+import mongoose, { Document, model, Model, Schema, Types } from 'mongoose';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
@@ -101,7 +101,8 @@ export interface subCommentType {
   comment: string;
   likeList?: string[];
 }
-export interface SecretSquareItem {
+export interface SecretSquareItem extends Document {
+  _id: string;
   category: SecretSquareCategory;
   title: string;
   content: string;

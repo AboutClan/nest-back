@@ -17,7 +17,6 @@ export default class RequestService implements IRequestService {
   //todo: 다가져와야하나
   async getRequest() {
     const requestData = await this.requestRepository.findAll();
-    await this.Request.find({}, '-_id');
     return requestData;
   }
 
