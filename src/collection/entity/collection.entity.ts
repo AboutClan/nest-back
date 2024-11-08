@@ -3,20 +3,17 @@ import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 export const CollectionZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([
+    z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+    z.custom<IUser>(),
+  ]),
   type: z.enum(['alphabet']).default('alphabet'),
   collects: z.array(z.string()),
   collectCnt: z.number(),
   stamps: z.number(),
 });
 
-export interface ICollection extends Document {
-  user: string | IUser;
-  type: string;
-  collects: string[];
-  collectCnt: number;
-  stamps: number;
-}
+export type ICollection = z.infer<typeof CollectionZodSchema>;
 
 export const CollectionSchema: Schema<ICollection> = new Schema(
   {
