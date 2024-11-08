@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { ChatRepository } from './chat.repository.interface';
 import { Model } from 'mongoose';
-import { IChat } from './entity/chat.entity';
+import { IChat, IContent } from './entity/chat.entity';
 
 export class MongoChatRepository implements ChatRepository {
   constructor(
@@ -31,5 +31,19 @@ export class MongoChatRepository implements ChatRepository {
   }
   async createChat(chatData: Partial<IChat>): Promise<IChat> {
     return await this.Chat.create(chatData);
+  }
+  async addContentToChat(
+    user1: string,
+    user2: string,
+    content: IContent,
+  ): Promise<null> {
+    await this.Chat.updateOne(
+      {
+        user1,
+        user2,
+      },
+      { $push: { contents: content } },
+    );
+    return null;
   }
 }
