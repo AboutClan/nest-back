@@ -101,7 +101,7 @@ export default class NoticeService implements INoticeService {
     from: string,
     status: string,
   ) {
-    const result = await this.noticeRepository.updateRecentStatus(
+    await this.noticeRepository.updateRecentStatus(
       this.token.uid,
       from,
       type,
