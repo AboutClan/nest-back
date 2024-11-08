@@ -2,15 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import {
-  Chat,
-  ChatZodSchema,
-  ContentZodSchema,
-  IChat,
-} from './entity/chat.entity';
+import { ChatZodSchema, ContentZodSchema, IChat } from './entity/chat.entity';
 import { IUser } from 'src/user/entity/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import dayjs from 'dayjs';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import {
@@ -27,12 +21,13 @@ import { ChatRepository } from './chat.repository.interface';
 export class ChatService implements IChatService {
   private token: JWT;
 
-  //todo: 의존성주입
   constructor(
-    @Inject(IFCM_SERVICE) private fcmServiceInstance: IFcmService,
-    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
+    //repository DI
     @Inject(ICHAT_REPOSITORY)
     private readonly chatRepository: ChatRepository,
+
+    @Inject(IFCM_SERVICE) private fcmServiceInstance: IFcmService,
+    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
@@ -44,42 +39,46 @@ export class ChatService implements IChatService {
     const user2 = this.token.id < userId ? userId : this.token.id;
 
     const chat = await this.chatRepository.findChat(user1, user2);
-
     if (!chat) throw new DatabaseError("Can't find chatting");
+
     const opponent =
       (chat.user1 as IUser).id == this.token.id
         ? (chat.user2 as IUser)
         : (chat.user1 as IUser);
-    return { opponent, contents: chat?.contents };
+
+    const conversationForm = { opponent, contents: chat.contents };
+    return conversationForm;
   }
 
+  //todo: User 제거 가능?
   async getChats() {
     const chats = await this.chatRepository.findChats(this.token.id);
 
+    //채팅 데이터가 생성돼있으면 전부 가져옴
     const chatWithUsers = await Promise.all(
       chats.map(async (chat) => {
         const opponentUid =
           chat.user1 == this.token.id ? chat.user2 : chat.user1;
         const opponent = await this.User.findById(opponentUid);
 
-        return {
+        const chatForm = {
           user: opponent,
           content: chat.contents.length
             ? chat.contents[chat.contents.length - 1]
             : null,
         };
+
+        return chatForm;
       }),
     );
 
-    return chatWithUsers.sort((a, b) => {
-      if (!a.content || !b.content) {
-        return 1;
-      }
-      const dateA = dayjs(a.content.createdAt);
-      const dateB = dayjs(b.content.createdAt);
-      return dateA.isAfter(dateB) ? -1 : 1;
-    });
+    const sortedChat = chatWithUsers.sort((a, b) =>
+      a.content.createdAt > b.content.createdAt ? -1 : 1,
+    );
+
+    return sortedChat;
   }
+
   async getRecentChat() {
     const chat = await this.chatRepository.findRecentChat(this.token.id);
 
@@ -91,6 +90,7 @@ export class ChatService implements IChatService {
   }
 
   async createChat(toUserId: string, message: string) {
+    //user1, user2의 순서 항상 유지
     const user1 = this.token.id > toUserId ? toUserId : this.token.id;
     const user2 = this.token.id < toUserId ? toUserId : this.token.id;
 
@@ -109,24 +109,25 @@ export class ChatService implements IChatService {
     });
 
     if (chat) {
-      await chat.updateOne({ $push: { contents: validatedContent } });
-      await chat.save();
+      await this.chatRepository.addContentToChat(
+        user1,
+        user2,
+        validatedContent,
+      );
     } else {
       await this.chatRepository.createChat(validatedChat);
     }
 
-    const toUser = await this.User.findById(toUserId);
-    if (toUser) {
-      await this.fcmServiceInstance.sendNotificationToX(
-        toUser.uid,
-        '쪽지를 받았어요!',
-        message,
-      );
-      await this.webPushServiceInstance.sendNotificationToX(
-        toUser.uid,
-        '쪽지를 받았어요!',
-        message,
-      );
-    } else throw new DatabaseError('toUserUid is incorrect');
+    //알림 보내기
+    await this.fcmServiceInstance.sendNotificationToX(
+      toUserId,
+      '쪽지를 받았어요!',
+      message,
+    );
+    await this.webPushServiceInstance.sendNotificationToX(
+      toUserId,
+      '쪽지를 받았어요!',
+      message,
+    );
   }
 }

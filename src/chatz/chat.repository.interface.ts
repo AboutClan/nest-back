@@ -1,4 +1,4 @@
-import { IChat } from './entity/chat.entity';
+import { IChat, IContent } from './entity/chat.entity';
 
 export interface ChatRepository {
   find(user1: string, user2: string): Promise<IChat>;
@@ -6,4 +6,9 @@ export interface ChatRepository {
   findChats(userId: string): Promise<IChat[]>;
   findRecentChat(userId: string): Promise<IChat[]>;
   createChat(chatData: Partial<IChat>): Promise<IChat>;
+  addContentToChat(
+    user1: string,
+    user2: string,
+    content: IContent,
+  ): Promise<null>;
 }
