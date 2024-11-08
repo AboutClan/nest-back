@@ -278,4 +278,13 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
   async findAll(): Promise<IGroupStudyData[]> {
     return await this.GroupStudy.find({});
   }
+
+  async getSigningGroup(userId: string): Promise<any> {
+    return await this.GroupStudy.find(
+      {
+        participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
+      },
+      '_id title',
+    );
+  }
 }

@@ -64,4 +64,5 @@ export interface IGroupStudyService {
     subCommentId: string,
   ): Promise<void>;
   belongToParticipateGroupStudy(): Promise<any>;
+  getSigningGroup(): Promise<any>;
 }
