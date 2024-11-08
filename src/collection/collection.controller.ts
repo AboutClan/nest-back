@@ -27,15 +27,8 @@ export class CollectionController {
   //todo: 이게 도대체 뭐냐
   @Patch('alphabet')
   async setCollection() {
-    try {
-      // const result = await this.collectionService?.setCollectionStamp();
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error setting collection',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    // const result = await this.collectionService?.setCollectionStamp();
+    return { status: 'success' };
   }
 
   //todo: route명 수정
