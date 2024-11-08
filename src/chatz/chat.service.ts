@@ -119,15 +119,19 @@ export class ChatService implements IChatService {
     }
 
     //알림 보내기
-    await this.fcmServiceInstance.sendNotificationToX(
-      toUserId,
-      '쪽지를 받았어요!',
-      message,
-    );
-    await this.webPushServiceInstance.sendNotificationToX(
-      toUserId,
-      '쪽지를 받았어요!',
-      message,
-    );
+    //Todo: UID더이상 사용x 모두 userId로 통일
+    const toUser = await this.User.findById(toUserId);
+    if (toUser) {
+      await this.fcmServiceInstance.sendNotificationToX(
+        toUser.uid,
+        '쪽지를 받았어요!',
+        message,
+      );
+      await this.webPushServiceInstance.sendNotificationToX(
+        toUser.uid,
+        '쪽지를 받았어요!',
+        message,
+      );
+    } else throw new DatabaseError('toUserUid is incorrect');
   }
 }
