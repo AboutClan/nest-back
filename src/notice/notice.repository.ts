@@ -29,15 +29,16 @@ export class MongoNoticeRepository implements NoticeRepository {
   async findFriend(uid: string): Promise<INotice[]> {
     return await this.Notice.find({ to: uid, type: 'friend' }, '-_id -__v');
   }
-  async findByToFromType(
+  async updateRecentStatus(
     toUid: string,
     fromUid: string,
     type: string,
-  ): Promise<INotice[]> {
-    return await this.Notice.find({
-      to: toUid,
-      from: fromUid,
-      type,
-    });
+    status: string,
+  ): Promise<INotice> {
+    return await this.Notice.findOneAndUpdate(
+      { to: toUid, from: fromUid, type },
+      { status },
+      { sort: { _id: -1 }, new: true },
+    );
   }
 }

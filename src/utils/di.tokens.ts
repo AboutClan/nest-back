@@ -33,3 +33,4 @@ export const IGATHER_REPOSITORY = 'GatherRepository';
 export const IGIFT_REPOSITORY = 'GiftRepository';
 export const IGROUPSTUDY_REPOSITORY = 'GroupStudyRepository';
 export const ILOG_REPOSITORY = 'LogRepository';
+export const INOTICE_REPOSITORY = 'NoticeRepository';

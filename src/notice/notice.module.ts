@@ -6,11 +6,17 @@ import { noticeSchema } from './entity/notice.entity';
 import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import { FcmAModule } from 'src/fcm/fcm.module';
-import { INOTICE_SERVICE } from 'src/utils/di.tokens';
+import { INOTICE_REPOSITORY, INOTICE_SERVICE } from 'src/utils/di.tokens';
+import { MongoNoticeRepository } from './notice.repository';
 
 const noticeServiceProvider: ClassProvider = {
   provide: INOTICE_SERVICE,
   useClass: NoticeService,
+};
+
+const noticeRepositoryProvider: ClassProvider = {
+  provide: INOTICE_REPOSITORY,
+  useClass: MongoNoticeRepository,
 };
 
 @Module({
@@ -21,7 +27,7 @@ const noticeServiceProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'Notice', schema: noticeSchema }]),
   ],
   controllers: [NoticeController],
-  providers: [noticeServiceProvider],
-  exports: [noticeServiceProvider, MongooseModule],
+  providers: [noticeServiceProvider, noticeRepositoryProvider],
+  exports: [noticeServiceProvider, MongooseModule, noticeRepositoryProvider],
 })
 export class NoticeModule {}

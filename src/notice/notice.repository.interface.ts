@@ -6,5 +6,10 @@ export interface NoticeRepository {
   findLike(uid: string): Promise<INotice[]>;
   findLikeAll(): Promise<INotice[]>;
   findFriend(uid: string): Promise<INotice[]>;
-  findByToFromType(uid: string, from: string, type: string): Promise<INotice[]>;
+  updateRecentStatus(
+    toUid: string,
+    fromUid: string,
+    type: string,
+    status: string,
+  ): Promise<INotice>;
 }
