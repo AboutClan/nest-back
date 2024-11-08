@@ -7,20 +7,23 @@ import { Request } from 'express';
 import { DailyCheckZodSchema, IDailyCheck } from './dailycheck.entity';
 import { Model } from 'mongoose';
 import dayjs from 'dayjs';
+import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
+import { DailyCheckRepository } from './dailyCheck.repository.interface';
 
 export class DailyCheckService implements IDailyCheckService {
   private token: JWT;
   constructor(
-    @InjectModel('DailyCheck') private DailyCheck: Model<IDailyCheck>,
+    @Inject(IDAILYCHECK_REPOSITORY)
+    private readonly dailyCheckRepository: DailyCheckRepository,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
   }
 
   async setDailyCheck() {
-    const findDailyCheck = await this.DailyCheck.findOne({
-      uid: this.token.uid,
-    }).sort({ updatedAt: -1 });
+    const findDailyCheck = await this.dailyCheckRepository.findByUid(
+      this.token.uid,
+    );
 
     if (findDailyCheck?.updatedAt) {
       if (dayjs().isSame(dayjs(findDailyCheck?.updatedAt), 'date')) {
@@ -33,20 +36,17 @@ export class DailyCheckService implements IDailyCheckService {
       name: this.token.name,
     });
 
-    await this.DailyCheck.create(validatedDailyCheck);
+    await this.dailyCheckRepository.createDailyCheck(validatedDailyCheck);
 
     return;
   }
 
   async getLog() {
-    const result = await this.DailyCheck.find(
-      { uid: this.token.uid },
-      '-_id -__v',
-    );
+    const result = await this.dailyCheckRepository.findByUid(this.token.uid);
     return result;
   }
   async getAllLog() {
-    const result = await this.DailyCheck.find({}, '-_id -__v');
+    const result = await this.dailyCheckRepository.findAll();
     return result;
   }
 }

@@ -20,7 +20,7 @@ export class MongoCounterRepository implements CounterRepository {
   async createCounter(counterData: any): Promise<ICounter> {
     return await this.Counter.create(counterData);
   }
-  async increaseByKey(key: string): Promise<any> {
+  async increaseByKey(key: string): Promise<ICounter> {
     return await this.Counter.findOneAndUpdate(
       { key }, // 조건
       { $inc: { seq: 1 } }, // 업데이트 내용

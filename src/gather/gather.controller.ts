@@ -249,7 +249,7 @@ export class GatherController {
   }
 
   @Patch('status')
-  async setStatus(@Body() body: { gatherId: string; status: gatherStatus }) {
+  async setStatus(@Body() body: { gatherId: number; status: gatherStatus }) {
     try {
       await this.gatherService.setStatus(body.gatherId, body.status);
       return { status: 'success' };

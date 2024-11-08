@@ -10,21 +10,26 @@ import { Inject, Injectable } from '@nestjs/common';
 import { C_simpleUser } from 'src/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/entity/user.entity';
-import { ChatService } from 'src/chatz/chat.service';
 import * as logger from '../logger';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { ICHAT_SERVICE, ICOUNTER_SERVICE } from 'src/utils/di.tokens';
+import {
+  ICHAT_SERVICE,
+  ICOUNTER_SERVICE,
+  IGATHER_REPOSITORY,
+} from 'src/utils/di.tokens';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { IChatService } from 'src/chatz/chatService.interface';
 import { IGatherService } from './gatherService.interface';
+import { GatherRepository } from './gather.repository.interface';
 
 @Injectable()
 export class GatherService implements IGatherService {
   private token: JWT;
 
   constructor(
-    @InjectModel('Gather') private Gather: Model<IGatherData>,
+    @Inject(IGATHER_REPOSITORY)
+    private readonly gatherRepository: GatherRepository,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(ICHAT_SERVICE) private chatServiceInstance: IChatService,
     @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
@@ -34,25 +39,12 @@ export class GatherService implements IGatherService {
   }
 
   async getGatherById(gatherId: number) {
-    const gatherData = await this.Gather.findOne({ id: gatherId })
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
-
+    const gatherData = await this.gatherRepository.findByIdPop(gatherId);
     return gatherData;
   }
 
   async getThreeGather() {
-    const gatherData = await this.Gather.find()
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .sort({ id: -1 })
-      .limit(3);
+    const gatherData = await this.gatherRepository.findThree();
 
     return gatherData;
   }
@@ -61,23 +53,7 @@ export class GatherService implements IGatherService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.Gather.find()
-      .sort({ id: -1 })
-      .skip(start)
-      .limit(gap)
-      .select('-_id')
-      .populate([
-        { path: 'user' },
-        { path: 'participants.user' },
-        { path: 'comments.user' },
-        { path: 'waiting.user' },
-        {
-          path: 'comments.subComments.user',
-          select: C_simpleUser,
-        },
-      ]);
-
-    // gatherData = await this.Gather
+    let gatherData = await this.gatherRepository.findAll(start, gap);
 
     return gatherData;
   }
@@ -95,7 +71,7 @@ export class GatherService implements IGatherService {
     };
 
     const gatherData = gatherInfo;
-    const created = await this.Gather.create(gatherData);
+    const created = await this.gatherRepository.createGather(gatherData);
 
     if (!created) throw new DatabaseError('create gather failed');
 
@@ -119,13 +95,12 @@ export class GatherService implements IGatherService {
   }
 
   async updateGather(gather: IGatherData) {
-    const updated = await this.Gather.updateOne({ id: gather.id }, gather);
-    if (!updated.modifiedCount) throw new DatabaseError('update gather failed');
+    const updated = await this.gatherRepository.updateGather(gather.id, gather);
     return;
   }
 
   async participateGather(gatherId: string, phase: string, userId: string) {
-    const gather = await this.Gather.findOne({ id: gatherId });
+    const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
 
     const id = userId ?? this.token.id;
@@ -157,20 +132,9 @@ export class GatherService implements IGatherService {
   }
 
   async deleteParticipate(gatherId: string) {
-    // const gather = await Gather.findOne({ id: gatherId });
-    // if (!gather) throw new Error();
-
-    // gather.participants = gather.participants.filter(
-    //   (participant) => participant.user != this.token.id,
-    // );
-    // await gather.save();
-
-    const gather = await this.Gather.findOneAndUpdate(
-      { id: gatherId },
-      {
-        $pull: { participants: { user: this.token.id } },
-      },
-      { new: true, useFindAndModify: false },
+    const gather = await this.gatherRepository.deleteParticipants(
+      gatherId,
+      this.token.id,
     );
 
     if (!gather) throw new Error('Gather not found');
@@ -193,14 +157,15 @@ export class GatherService implements IGatherService {
     return;
   }
 
-  async setStatus(gatherId: string, status: gatherStatus) {
-    const updated = await this.Gather.updateOne({ id: gatherId }, { status });
-    if (!updated.modifiedCount) throw new DatabaseError('update failed');
+  async setStatus(gatherId: number, status: gatherStatus) {
+    await this.gatherRepository.updateGather(gatherId, {
+      status,
+    });
 
     return;
   }
   async setWaitingPerson(id: string, phase: 'first' | 'second') {
-    const gather = await this.Gather.findOne({ id });
+    const gather = await this.gatherRepository.findById(id);
     if (!gather) throw new Error();
 
     try {
@@ -225,7 +190,7 @@ export class GatherService implements IGatherService {
     status: string,
     text?: string,
   ) {
-    const gather = await this.Gather.findOne({ id });
+    const gather = await this.gatherRepository.findById(id);
     if (!gather) throw new Error();
 
     try {
@@ -262,16 +227,7 @@ export class GatherService implements IGatherService {
       comment: content,
     };
 
-    const updated = await this.Gather.updateOne(
-      {
-        id: gatherId,
-        'comments._id': commentId,
-      },
-      { $push: { 'comments.$.subComments': message } },
-    );
-
-    if (!updated.modifiedCount)
-      throw new DatabaseError('create subcomment failed');
+    await this.gatherRepository.createSubComment(gatherId, commentId, message);
 
     return;
   }
@@ -281,15 +237,12 @@ export class GatherService implements IGatherService {
     commentId: string,
     subCommentId: string,
   ) {
-    const updated = await this.Gather.updateOne(
-      {
-        id: gatherId,
-        'comments._id': commentId,
-      },
-      { $pull: { 'comments.$.subComments': { _id: subCommentId } } },
+    await this.gatherRepository.deleteSubComment(
+      gatherId,
+      commentId,
+      subCommentId,
     );
-    if (!updated.modifiedCount)
-      throw new DatabaseError('delete subcomment failed');
+    return;
   }
 
   async updateSubComment(
@@ -298,77 +251,41 @@ export class GatherService implements IGatherService {
     subCommentId: string,
     comment: string,
   ) {
-    const updated = await this.Gather.updateOne(
-      {
-        id: gatherId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      { $set: { 'comments.$[].subComments.$[sub].comment': comment } },
-      {
-        arrayFilters: [{ 'sub._id': subCommentId }],
-      },
+    await this.gatherRepository.updateSubComment(
+      gatherId,
+      commentId,
+      subCommentId,
+      comment,
     );
-
-    if (!updated.modifiedCount)
-      throw new DatabaseError('update subcomment failed');
 
     return;
   }
 
   //수정필요
   async createComment(gatherId: string, comment: string) {
-    const gather = await this.Gather.findOne({ id: gatherId });
-    if (!gather) throw new Error();
-
-    gather.comments.push({
-      user: this.token.id,
-      comment,
-    });
-
-    await gather.save();
+    await this.gatherRepository.createComment(gatherId, this.token.id, comment);
 
     return;
   }
 
   //수정필요
   async deleteComment(gatherId: string, commentId: string) {
-    const gather = await this.Gather.findOne({ id: gatherId });
-    if (!gather) throw new Error();
-
-    gather.comments = gather.comments.filter(
-      (com: any) => (com._id as string) != commentId,
-    );
-
-    await gather.save();
+    await this.gatherRepository.deleteComment(gatherId, commentId);
 
     return;
   }
 
   //수정필요
   async patchComment(gatherId: string, commentId: string, comment: string) {
-    const gather = await this.Gather.findOne({ id: gatherId });
-    if (!gather) throw new Error();
-
-    gather.comments.forEach(async (com: any) => {
-      if ((com._id as string) == commentId) {
-        com.comment = comment;
-        await gather.save();
-      }
-    });
+    await this.gatherRepository.updateComment(gatherId, commentId, comment);
     return;
   }
 
   async createCommentLike(gatherId: number, commentId: string) {
-    const gather = await this.Gather.findOneAndUpdate(
-      {
-        id: gatherId,
-        'comments._id': commentId,
-      },
-      {
-        $addToSet: { 'comments.$.likeList': this.token.id },
-      },
-      { new: true }, // 업데이트된 도큐먼트를 반환
+    const gather = await this.gatherRepository.createCommentLike(
+      gatherId,
+      commentId,
+      this.token.id,
     );
 
     if (!gather) {
@@ -381,25 +298,11 @@ export class GatherService implements IGatherService {
     commentId: string,
     subCommentId: string,
   ) {
-    const gather = await this.Gather.findOneAndUpdate(
-      {
-        id: gatherId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      {
-        $addToSet: {
-          'comments.$[comment].subComments.$[subComment].likeList':
-            this.token.id,
-        },
-      },
-      {
-        arrayFilters: [
-          { 'comment._id': commentId },
-          { 'subComment._id': subCommentId },
-        ],
-        new: true, // 업데이트된 도큐먼트를 반환
-      },
+    const gather = await this.gatherRepository.createSubCommentLike(
+      gatherId,
+      commentId,
+      subCommentId,
+      this.token.id,
     );
 
     if (!gather) {
@@ -408,7 +311,7 @@ export class GatherService implements IGatherService {
   }
 
   async deleteGather(gatherId: string) {
-    const deleted = await this.Gather.deleteOne({ id: gatherId });
+    const deleted = await this.gatherRepository.deleteById(gatherId);
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
     const user = await this.User.findOneAndUpdate(

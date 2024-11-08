@@ -16,6 +16,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IFeedService } from './feedService.interface';
+import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
+import { FeedRepository } from './feed.repository.interface';
 
 @Injectable()
 export class FeedService implements IFeedService {
@@ -23,7 +25,8 @@ export class FeedService implements IFeedService {
   private imageServiceInstance: ImageService;
 
   constructor(
-    @InjectModel('Feed') private Feed: Model<IFeed>,
+    @Inject(IFEED_REPOSITORY)
+    private readonly feedRepository: FeedRepository,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
@@ -45,15 +48,12 @@ export class FeedService implements IFeedService {
       query.typeId = typeId;
     }
 
-    const feeds = await this.Feed.find(query)
-      .populate(['writer', 'like', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .sort({ createdAt: isRecent ? -1 : 1 })
-      .skip(start)
-      .limit(gap);
+    const feeds = await this.feedRepository.findWithQuery(
+      query,
+      start,
+      gap,
+      isRecent,
+    );
 
     if (isRecent === false) {
       feeds.sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1));
@@ -87,12 +87,8 @@ export class FeedService implements IFeedService {
       throw new ValidationError('invalid mongoDB Id type');
     }
 
-    const feed = await this.Feed.findById(id)
-      .populate(['writer', 'like', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
+    const feed = await this.findFeedById(id);
+
     const myLike = (feed?.like as IUser[])?.find(
       (who) => who.uid === this.token.uid,
     );
@@ -118,10 +114,7 @@ export class FeedService implements IFeedService {
     if (!Types.ObjectId.isValid(id)) {
       throw new ValidationError('invalid mongoDB Id type');
     }
-    const feed = await this.Feed.findById(id).populate({
-      path: 'like',
-      select: 'avatar name profileImage uid _id', // 필요한 필드만 선택
-    });
+    const feed = await this.feedRepository.findByIdLike(id);
 
     return feed?.like as IUser[];
   }
@@ -130,15 +123,7 @@ export class FeedService implements IFeedService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    const feeds = await this.Feed.find()
-      .populate(['writer', 'like', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .sort({ createdAt: isRecent ? -1 : 1 })
-      .skip(start)
-      .limit(gap);
+    const feeds = await this.feedRepository.findAll(start, gap, isRecent);
 
     return feeds?.map((feed) => {
       const myLike = (feed?.like as IUser[])?.find(
@@ -187,7 +172,7 @@ export class FeedService implements IFeedService {
       subCategory,
     });
 
-    await this.Feed.create(validatedFeed);
+    await this.feedRepository.createFeed(validatedFeed);
     return;
   }
   async createComment(feedId: string, content: string) {
@@ -197,11 +182,7 @@ export class FeedService implements IFeedService {
     };
 
     //transaction
-    const feed = await this.Feed.findByIdAndUpdate(
-      feedId,
-      { $push: { comments: message } },
-      { new: true, useFindAndModify: false },
-    );
+    const feed = await this.feedRepository.createComment(feedId, message);
 
     if (!feed) throw new DatabaseError('reate comment failed');
 
@@ -216,11 +197,7 @@ export class FeedService implements IFeedService {
   }
 
   async deleteComment(feedId: string, commentId: string) {
-    const feed = await this.Feed.findByIdAndUpdate(
-      feedId,
-      { $pull: { comments: { _id: commentId } } },
-      { new: true, useFindAndModify: false },
-    );
+    const feed = await this.feedRepository.deleteComment(feedId, commentId);
 
     if (!feed) throw new DatabaseError('delete comment failed');
 
@@ -228,13 +205,10 @@ export class FeedService implements IFeedService {
   }
 
   async updateComment(feedId: string, commentId: string, comment: string) {
-    const result = await this.Feed.findOneAndUpdate(
-      { _id: feedId, 'comments._id': commentId },
-      {
-        $set: {
-          'comments.$.comment': comment,
-        },
-      },
+    const result = await this.feedRepository.updateComment(
+      feedId,
+      comment,
+      comment,
     );
 
     if (!result) throw new DatabaseError('update comment failed');
@@ -243,15 +217,10 @@ export class FeedService implements IFeedService {
   }
 
   async createCommentLike(feedId: string, commentId: string) {
-    const feed = await this.Feed.findOneAndUpdate(
-      {
-        _id: feedId,
-        'comments._id': commentId,
-      },
-      {
-        $addToSet: { 'comments.$.likeList': this.token.id },
-      },
-      { new: true }, // 업데이트된 도큐먼트를 반환
+    const feed = await this.feedRepository.createCommentLike(
+      feedId,
+      commentId,
+      this.token.id,
     );
 
     if (!feed) {
@@ -265,25 +234,11 @@ export class FeedService implements IFeedService {
     commentId: string,
     subCommentId: string,
   ) {
-    const feed = await this.Feed.findOneAndUpdate(
-      {
-        _id: feedId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      {
-        $addToSet: {
-          'comments.$[comment].subComments.$[subComment].likeList':
-            this.token.id,
-        },
-      },
-      {
-        arrayFilters: [
-          { 'comment._id': commentId },
-          { 'subComment._id': subCommentId },
-        ],
-        new: true, // 업데이트된 도큐먼트를 반환
-      },
+    const feed = await this.feedRepository.createSubCommentLike(
+      feedId,
+      commentId,
+      subCommentId,
+      this.token.id,
     );
 
     if (!feed) {
@@ -297,12 +252,10 @@ export class FeedService implements IFeedService {
       comment: content,
     };
 
-    const updated = await this.Feed.updateOne(
-      {
-        _id: feedId,
-        'comments._id': commentId,
-      },
-      { $push: { 'comments.$.subComments': message } },
+    const updated = await this.feedRepository.createSubComment(
+      feedId,
+      commentId,
+      message,
     );
 
     if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
@@ -315,12 +268,10 @@ export class FeedService implements IFeedService {
     commentId: string,
     subCommentId: string,
   ) {
-    const updated = await this.Feed.updateOne(
-      {
-        _id: feedId,
-        'comments._id': commentId,
-      },
-      { $pull: { 'comments.$.subComments': { _id: subCommentId } } },
+    const updated = await this.feedRepository.deleteSubComment(
+      feedId,
+      commentId,
+      subCommentId,
     );
 
     if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
@@ -332,16 +283,11 @@ export class FeedService implements IFeedService {
     subCommentId: string,
     comment: string,
   ) {
-    const updated = await this.Feed.updateOne(
-      {
-        _id: feedId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      { $set: { 'comments.$[].subComments.$[sub].comment': comment } },
-      {
-        arrayFilters: [{ 'sub._id': subCommentId }],
-      },
+    const updated = await this.feedRepository.updateSubComment(
+      feedId,
+      commentId,
+      subCommentId,
+      comment,
     );
 
     if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
@@ -349,7 +295,7 @@ export class FeedService implements IFeedService {
   }
 
   async toggleLike(feedId: string) {
-    const feed = await this.Feed.findById(feedId);
+    const feed = await this.feedRepository.findById(feedId);
 
     const isLikePush: boolean = await feed?.addLike(this.token.id);
 

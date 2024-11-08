@@ -15,11 +15,7 @@ export interface SquareRepository {
     userId: string,
     comment: string,
   ): Promise<null>;
-  deleteComment(
-    userId: string,
-    squareId: string,
-    commentId: string,
-  ): Promise<null>;
+  deleteComment(squareId: string, commentId: string): Promise<null>;
   createSubComment(
     squareId: string,
     commentId: string,
@@ -51,6 +47,8 @@ export interface SquareRepository {
   ): Promise<SecretSquareItem>;
 
   findById(squareId: string): Promise<SecretSquareItem>;
+
+  updateLike(squareId: string, userId: string): Promise<SecretSquareItem>;
 
   deleteLikeSquare(squareId: string, userId: string): Promise<null>;
 }

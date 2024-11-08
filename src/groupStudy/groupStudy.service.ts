@@ -3,21 +3,26 @@ import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
-import { C_simpleUser } from 'src/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser, User } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/entity/user.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
-import { ICOUNTER_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import {
+  ICOUNTER_SERVICE,
+  IGROUPSTUDY_REPOSITORY,
+  IWEBPUSH_SERVICE,
+} from 'src/utils/di.tokens';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { IGroupStudyService } from './groupStudyService.interface';
+import { GroupStudyRepository } from './groupStudy.repository.interface';
 
 export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
   constructor(
-    @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
+    @Inject(IGROUPSTUDY_REPOSITORY)
+    private readonly groupStudyRepository: GroupStudyRepository,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
@@ -37,32 +42,15 @@ export default class GroupStudyService implements IGroupStudyService {
 
     const filterQuery = { status: filter, 'category.main': category };
 
-    groupStudyData = await this.GroupStudy.find(filterQuery)
-      .skip(start)
-      .limit(gap)
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
+    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+      filterQuery,
+      start,
+      gap,
+    );
 
-    return groupStudyData;
+    const shuffledGroups = groupStudyData.sort(() => Math.random() - 0.5);
+
+    return shuffledGroups;
   }
 
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
@@ -72,59 +60,20 @@ export default class GroupStudyService implements IGroupStudyService {
 
     const filterQuery = { status: filter };
 
-    groupStudyData = await this.GroupStudy.find(filterQuery)
-      .skip(start)
-      .limit(gap)
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
+    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+      filterQuery,
+      start,
+      gap,
+    );
 
-    return groupStudyData;
+    const shuffledGroups = groupStudyData.sort(() => Math.random() - 0.5);
+
+    return shuffledGroups;
   }
 
   async getGroupStudyByCategory(category: string) {
-    const groupStudyData = await this.GroupStudy.find({
-      'category.main': category,
-    })
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
+    const groupStudyData =
+      await this.groupStudyRepository.findByCategory(category);
 
     return groupStudyData;
   }
@@ -132,59 +81,15 @@ export default class GroupStudyService implements IGroupStudyService {
   async getGroupStudyById(groupStudyId: string) {
     const groupStudyIdNum = parseInt(groupStudyId);
 
-    const groupStudyData = await this.GroupStudy.findOne({
-      id: groupStudyIdNum,
-    })
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: 'name profileImage uid score avatar comment location',
-      })
-      .select('-_id');
+    const groupStudyData =
+      await this.groupStudyRepository.findByIdWithPop(groupStudyIdNum);
 
     return groupStudyData;
   }
 
   async getUserParticipatingGroupStudy() {
-    const userParticipatingGroupStudy = await this.GroupStudy.find({
-      'participants.user': this.token.id as string,
-    })
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
+    const userParticipatingGroupStudy =
+      await this.groupStudyRepository.findByParticipant(this.token.id);
 
     return userParticipatingGroupStudy;
   }
@@ -193,30 +98,10 @@ export default class GroupStudyService implements IGroupStudyService {
     const gap = 7;
     let start = gap * (cursor || 0);
 
-    const groupStudyData = await this.GroupStudy.find()
-      .skip(start)
-      .limit(gap + 1)
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
+    const groupStudyData = await this.groupStudyRepository.findAllFilter(
+      start,
+      gap,
+    );
 
     return groupStudyData;
   }
@@ -231,16 +116,12 @@ export default class GroupStudyService implements IGroupStudyService {
       comment: content,
     };
 
-    const updated = await this.GroupStudy.updateOne(
-      {
-        id: groupStudyId,
-        'comments._id': commentId,
-      },
-      { $push: { 'comments.$.subComments': message } },
+    await this.groupStudyRepository.createSubComment(
+      groupStudyId,
+      commentId,
+      message,
     );
 
-    if (!updated.modifiedCount)
-      throw new DatabaseError('create subComment failed');
     return;
   }
 
@@ -249,16 +130,13 @@ export default class GroupStudyService implements IGroupStudyService {
     commentId: string,
     subCommentId: string,
   ) {
-    const updated = await this.GroupStudy.updateOne(
-      {
-        id: groupStudyId,
-        'comments._id': commentId,
-      },
-      { $pull: { 'comments.$.subComments': { _id: subCommentId } } },
+    await this.groupStudyRepository.deleteSubComment(
+      groupStudyId,
+      commentId,
+      subCommentId,
     );
 
-    if (!updated.modifiedCount)
-      throw new DatabaseError('delete subComment failed');
+    return;
   }
 
   async updateSubComment(
@@ -267,19 +145,12 @@ export default class GroupStudyService implements IGroupStudyService {
     subCommentId: string,
     comment: string,
   ) {
-    const updated = await this.GroupStudy.updateOne(
-      {
-        id: groupStudyId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      { $set: { 'comments.$[].subComments.$[sub].comment': comment } },
-      {
-        arrayFilters: [{ 'sub._id': subCommentId }],
-      },
+    await this.groupStudyRepository.updateSubComment(
+      groupStudyId,
+      commentId,
+      subCommentId,
+      comment,
     );
-    if (!updated.modifiedCount)
-      throw new DatabaseError('update subComment failed');
     return;
   }
 
@@ -288,7 +159,7 @@ export default class GroupStudyService implements IGroupStudyService {
     const nextId =
       await this.counterServiceInstance.getNextSequence('groupStudyId');
 
-    const groupStudyInfo: IGroupStudyData = {
+    const groupStudyInfo: Partial<IGroupStudyData> = {
       ...data,
       participants: [
         {
@@ -308,7 +179,7 @@ export default class GroupStudyService implements IGroupStudyService {
     const groupStudyData = groupStudyInfo;
 
     try {
-      await this.GroupStudy.create(groupStudyData);
+      await this.groupStudyRepository.createGroupStudy(groupStudyData);
     } catch (err: any) {
       throw new DatabaseError('create groupstury failed');
     }
@@ -316,7 +187,8 @@ export default class GroupStudyService implements IGroupStudyService {
     return;
   }
   async updateGroupStudy(data: IGroupStudyData) {
-    const groupStudy = await this.GroupStudy.findOne({ id: data.id });
+    const groupStudy = await this.groupStudyRepository.findById(data.id + '');
+
     if (!groupStudy) throw new Error();
 
     try {
@@ -326,8 +198,12 @@ export default class GroupStudyService implements IGroupStudyService {
       throw new Error(err);
     }
   }
+
+  //todo: 테스트 필요
+  //todo: 수정도 필요
   async participateGroupStudy(id: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
+
     if (!groupStudy) throw new Error();
 
     if (
@@ -335,22 +211,12 @@ export default class GroupStudyService implements IGroupStudyService {
         (participant) => participant.user == this.token.id,
       )
     ) {
-      groupStudy.participants.push({
-        user: this.token.id,
-        role: 'member',
-        attendCnt: 0,
-      });
-      groupStudy.attendance.thisWeek.push({
-        uid: this.token.uid as string,
-        name: this.token.name as string,
-        attendRecord: [],
-      });
-      groupStudy.attendance.lastWeek.push({
-        uid: this.token.uid as string,
-        name: this.token.name as string,
-        attendRecord: [],
-      });
-      await groupStudy?.save();
+      await this.groupStudyRepository.addParticipantWithAttendance(
+        id,
+        this.token.id,
+        this.token.name,
+        this.token.uid,
+      );
     }
 
     this.webPushServiceInstance.sendNotificationGroupStudy(id);
@@ -358,7 +224,8 @@ export default class GroupStudyService implements IGroupStudyService {
     return;
   }
   async deleteParticipate(id: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
+
     if (!groupStudy) throw new Error();
 
     try {
@@ -380,7 +247,7 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async exileParticipate(id: string, toUid: string, randomId?: number) {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
     try {
@@ -408,15 +275,13 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async getWaitingPerson(id: string) {
-    const data = await this.GroupStudy.findOne({ id })
-      .populate(['waiting.user'])
-      .select('-_id');
+    const data = await this.groupStudyRepository.findByIdWithWaiting(id);
 
     return data;
   }
 
   async setWaitingPerson(id: string, pointType: string, answer?: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
     try {
@@ -437,7 +302,7 @@ export default class GroupStudyService implements IGroupStudyService {
 
   //randomId 중복가능성
   async agreeWaitingPerson(id: string, userId: string, status: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
     try {
@@ -460,14 +325,14 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async getAttendanceGroupStudy(id: string): Promise<any> {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new DatabaseError();
 
     return groupStudy.attendance;
   }
 
   async patchAttendanceWeek(id: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
     const firstDate = dayjs()
@@ -488,7 +353,7 @@ export default class GroupStudyService implements IGroupStudyService {
     type: string,
     weekRecordSub?: string[],
   ) {
-    const groupStudy = await this.GroupStudy.findOne({ id });
+    const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
     try {
@@ -542,7 +407,7 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async createComment(groupStudyId: string, comment: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id: groupStudyId });
+    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
     if (groupStudy?.comments) {
@@ -564,7 +429,7 @@ export default class GroupStudyService implements IGroupStudyService {
 
   //comment방식 바꾸기
   async deleteComment(groupStudyId: string, commentId: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id: groupStudyId });
+    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
     groupStudy.comments = groupStudy.comments.filter(
@@ -575,7 +440,7 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async patchComment(groupStudyId: string, commentId: string, comment: string) {
-    const groupStudy = await this.GroupStudy.findOne({ id: groupStudyId });
+    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
     groupStudy.comments.forEach(async (com: any) => {
@@ -588,15 +453,10 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async createCommentLike(groupStudyId: number, commentId: string) {
-    const feed = await this.GroupStudy.findOneAndUpdate(
-      {
-        id: groupStudyId,
-        'comments._id': commentId,
-      },
-      {
-        $addToSet: { 'comments.$.likeList': this.token.id },
-      },
-      { new: true }, // 업데이트된 도큐먼트를 반환
+    const feed = await this.groupStudyRepository.createCommentLike(
+      groupStudyId,
+      commentId,
+      this.token.id,
     );
 
     if (!feed) {
@@ -609,34 +469,21 @@ export default class GroupStudyService implements IGroupStudyService {
     commentId: string,
     subCommentId: string,
   ) {
-    const groupStudy = await this.GroupStudy.findOneAndUpdate(
-      {
-        id: groupStudyId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      {
-        $addToSet: {
-          'comments.$[comment].subComments.$[subComment].likeList':
-            this.token.id,
-        },
-      },
-      {
-        arrayFilters: [
-          { 'comment._id': commentId },
-          { 'subComment._id': subCommentId },
-        ],
-        new: true, // 업데이트된 도큐먼트를 반환
-      },
+    const groupStudy = await this.groupStudyRepository.createSubCommentLike(
+      groupStudyId,
+      commentId,
+      subCommentId,
+      this.token.id,
     );
 
     if (!groupStudy) {
       throw new DatabaseError('해당 feedId 또는 commentId를 찾을 수 없습니다.');
     }
+    return;
   }
 
   async belongToParticipateGroupStudy() {
-    const groupStudies = await this.GroupStudy.find({});
+    const groupStudies = await this.groupStudyRepository.findAll();
     const allUser = await this.User.find({ isActive: true });
     if (!groupStudies) throw new Error();
 

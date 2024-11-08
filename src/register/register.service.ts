@@ -6,20 +6,21 @@ import { IRegistered, RegisteredZodSchema } from './entity/register.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import { IUser } from 'src/user/entity/user.entity';
-import dbConnect from 'src/conn';
 import * as logger from '../logger';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { IREGISTER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IRegisterService } from './registerService.interface';
+import { RegisterRepository } from './register.repository';
 
 export default class RegisterService implements IRegisterService {
   private token: JWT;
 
   constructor(
-    @InjectModel('Registered') private Registered: Model<IRegistered>,
+    @Inject(IREGISTER_REPOSITORY)
+    private readonly registerRepository: RegisterRepository,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
@@ -64,13 +65,9 @@ export default class RegisterService implements IRegisterService {
       telephone: encodedTel,
     });
 
-    const updated = await this.Registered.findOneAndUpdate(
-      { uid: this.token.uid },
+    const updated = await this.registerRepository.updateByUid(
+      this.token.uid,
       validatedResgisterForm,
-      {
-        upsert: true,
-        new: true,
-      },
     );
 
     if (!updated) throw new DatabaseError('register failed');
@@ -84,7 +81,7 @@ export default class RegisterService implements IRegisterService {
   async approve(uid: string) {
     let userForm;
 
-    const user = await this.Registered.findOne({ uid }, '-_id -__v');
+    const user = await this.registerRepository.findByUid(uid);
     if (!user) throw new ValidationError('wrong uid');
 
     userForm = {
@@ -114,14 +111,17 @@ export default class RegisterService implements IRegisterService {
 
   async deleteRegisterUser(uid: string, session?: any) {
     if (session) {
-      await this.Registered.deleteOne({ uid }).session(session);
+      await this.registerRepository.deleteByUidWithSession(
+        this.token.uid,
+        session,
+      );
     } else {
-      await this.Registered.deleteOne({ uid });
+      await this.registerRepository.deleteByUid(this.token.uid);
     }
   }
 
   async getRegister() {
-    const users = await this.Registered.find({});
+    const users = await this.registerRepository.findAll();
 
     users.forEach(async (user) => {
       user.telephone = await this.decodeByAES256(user.telephone);

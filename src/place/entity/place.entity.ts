@@ -29,8 +29,8 @@ export interface IPlace extends Document {
   branch?: string;
   image?: string;
   coverImage?: string;
-  latitude: number;
-  longitude: number;
+  latitude: string;
+  longitude: string;
   priority?: number;
   _id: string;
   location: string;
@@ -61,11 +61,11 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   coverImage: String,
 
   latitude: {
-    type: Number,
+    type: String,
     required: true,
   },
   longitude: {
-    type: Number,
+    type: String,
     required: true,
   },
   locationDetail: {

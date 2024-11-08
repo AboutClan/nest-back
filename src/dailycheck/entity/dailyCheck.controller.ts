@@ -13,14 +13,14 @@ import { IDAILYCHECK_SERVICE } from 'src/utils/di.tokens';
 import { DailyCheckService } from './dailyCheck.service';
 
 @Injectable()
-@Controller('daily-check')
+@Controller('dailyCheck')
 export class DailyCheckController {
   constructor(
     @Inject(IDAILYCHECK_SERVICE)
     private dailyCheckServiceInstance: DailyCheckService,
   ) {}
 
-  @Get('/')
+  @Get()
   async getLog(
     @Req() req: Request,
     @Res() res: Response,
@@ -34,7 +34,7 @@ export class DailyCheckController {
     }
   }
 
-  @Post('/')
+  @Post()
   async setDailyCheck(
     @Req() req: Request,
     @Res() res: Response,

@@ -12,13 +12,15 @@ import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { ISquareService } from './squareService.interface';
+import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
+import { SquareRepository } from './square.repository.interface';
 
 export default class SquareService implements ISquareService {
   private token: JWT;
 
   constructor(
-    @InjectModel('SecretSquare')
-    private SecretSquare: Model<SecretSquareItem>,
+    @Inject(ISQUARE_REPOSITORY)
+    private readonly squareRepository: SquareRepository,
     private readonly imageServiceInstance: ImageService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
@@ -35,29 +37,11 @@ export default class SquareService implements ISquareService {
     const gap = 12;
     let start = gap * (cursorNum || 0);
 
-    return await this.SecretSquare.find(
-      category === 'all' ? {} : { category },
-      {
-        category: 1,
-        title: 1,
-        content: 1,
-        type: 1,
-        thumbnail: {
-          $cond: {
-            if: { $eq: [{ $size: '$images' }, 0] },
-            then: '',
-            else: { $arrayElemAt: ['$images', 0] },
-          },
-        },
-        viewCount: { $size: '$viewers' },
-        likeCount: { $size: '$like' },
-        commentsCount: { $size: '$comments' },
-        createdAt: 1,
-      },
-    )
-      .sort({ createdAt: 'desc' })
-      .skip(start)
-      .limit(gap);
+    return await this.squareRepository.findSquareByCategory(
+      category,
+      start,
+      gap,
+    );
   }
 
   async createSquare(
@@ -102,68 +86,19 @@ export default class SquareService implements ISquareService {
             images,
           });
 
-    const { _id: squareId } = await this.SecretSquare.create(validatedSquare);
+    const { _id: squareId } =
+      await this.squareRepository.create(validatedSquare);
     return { squareId };
   }
 
   async deleteSquare(squareId: string) {
-    await this.SecretSquare.findByIdAndDelete(squareId);
+    await this.squareRepository.findByIdAndDelete(squareId);
   }
 
   async getSquare(squareId: string) {
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $addToSet: { viewers: this.token.id },
-    });
+    await this.squareRepository.findByIdAndUpdate(squareId, this.token.id);
 
-    const secretSquare = await this.SecretSquare.findById(squareId, {
-      category: 1,
-      title: 1,
-      content: 1,
-      type: 1,
-      author: 1,
-      poll: {
-        $cond: {
-          if: { $eq: ['$type', 'general'] },
-          then: null,
-          else: {
-            pollItems: {
-              $map: {
-                input: '$poll.pollItems',
-                as: 'pollItem',
-                in: {
-                  _id: '$$pollItem._id',
-                  name: '$$pollItem.name',
-                  count: { $size: '$$pollItem.users' },
-                  users: 0,
-                },
-              },
-            },
-            canMultiple: '$poll.canMultiple',
-          },
-        },
-      },
-      isMySquare: { $eq: ['$author', { $toObjectId: this.token.id }] },
-      images: 1,
-      viewCount: { $size: '$viewers' },
-      likeCount: { $size: '$like' },
-      comments: {
-        $map: {
-          input: '$comments',
-          as: 'comment',
-          in: {
-            user: '$$comment.user',
-            comment: '$$comment.comment',
-            createdAt: '$$comment.createdAt',
-            updatedAt: '$$comment.updatedAt',
-            likeList: '$$comment.likeList',
-            _id: '$$comment._id',
-            subComments: '$$comment.subComments',
-          },
-        },
-      },
-      createdAt: 1,
-      updatedAt: 1,
-    });
+    const secretSquare = await this.squareRepository.findById(squareId);
 
     // TODO 404 NOT FOUND
     if (!secretSquare) {
@@ -180,9 +115,7 @@ export default class SquareService implements ISquareService {
     comment: string;
     squareId: string;
   }) {
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $push: { comments: { user: this.token.id, comment } },
-    });
+    await this.squareRepository.updateComment(squareId, this.token.id, comment);
   }
 
   async deleteSquareComment({
@@ -192,9 +125,7 @@ export default class SquareService implements ISquareService {
     squareId: string;
     commentId: string;
   }) {
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $pull: { comments: { _id: commentId } },
-    });
+    await this.squareRepository.deleteComment(squareId, commentId);
   }
 
   async createSubComment(squareId: string, commentId: string, content: string) {
@@ -203,12 +134,10 @@ export default class SquareService implements ISquareService {
         user: this.token.id,
         comment: content,
       };
-      await this.SecretSquare.updateOne(
-        {
-          _id: squareId,
-          'comments._id': commentId,
-        },
-        { $push: { 'comments.$.subComments': message } },
+      await this.squareRepository.createSubComment(
+        squareId,
+        commentId,
+        message,
       );
 
       return;
@@ -223,12 +152,10 @@ export default class SquareService implements ISquareService {
     subCommentId: string,
   ) {
     try {
-      await this.SecretSquare.updateOne(
-        {
-          _id: squareId,
-          'comments._id': commentId,
-        },
-        { $pull: { 'comments.$.subComments': { _id: subCommentId } } },
+      await this.squareRepository.deleteSubComment(
+        squareId,
+        commentId,
+        subCommentId,
       );
     } catch (err: any) {
       throw new Error(err);
@@ -242,16 +169,11 @@ export default class SquareService implements ISquareService {
     comment: string,
   ) {
     try {
-      await this.SecretSquare.updateOne(
-        {
-          id: squareId,
-          'comments._id': commentId,
-          'comments.subComments._id': subCommentId,
-        },
-        { $set: { 'comments.$[].subComments.$[sub].comment': comment } },
-        {
-          arrayFilters: [{ 'sub._id': subCommentId }],
-        },
+      await this.squareRepository.updateSubComment(
+        squareId,
+        commentId,
+        subCommentId,
+        comment,
       );
       return;
     } catch (err: any) {
@@ -261,15 +183,10 @@ export default class SquareService implements ISquareService {
 
   async createCommentLike(squareId: string, commentId: string) {
     try {
-      const feed = await this.SecretSquare.findOneAndUpdate(
-        {
-          _id: squareId,
-          'comments._id': commentId,
-        },
-        {
-          $addToSet: { 'comments.$.likeList': this.token.id },
-        },
-        { new: true }, // 업데이트된 도큐먼트를 반환
+      const feed = await this.squareRepository.createCommentLike(
+        squareId,
+        commentId,
+        this.token.id,
       );
 
       if (!feed) {
@@ -286,25 +203,11 @@ export default class SquareService implements ISquareService {
     subCommentId: string,
   ) {
     try {
-      const square = await this.SecretSquare.findOneAndUpdate(
-        {
-          _id: squareId,
-          'comments._id': commentId,
-          'comments.subComments._id': subCommentId,
-        },
-        {
-          $addToSet: {
-            'comments.$[comment].subComments.$[subComment].likeList':
-              this.token.id,
-          },
-        },
-        {
-          arrayFilters: [
-            { 'comment._id': commentId },
-            { 'subComment._id': subCommentId },
-          ],
-          new: true, // 업데이트된 도큐먼트를 반환
-        },
+      const square = await this.squareRepository.createSubCommentLike(
+        squareId,
+        commentId,
+        subCommentId,
+        this.token.id,
       );
 
       if (!square) {
@@ -321,7 +224,7 @@ export default class SquareService implements ISquareService {
     squareId: string;
     pollItems: string[];
   }) {
-    const secretSquare = await this.SecretSquare.findById(squareId);
+    const secretSquare = await this.squareRepository.findById(squareId);
 
     // TODO 404 NOT FOUND
     if (!secretSquare) {
@@ -353,7 +256,7 @@ export default class SquareService implements ISquareService {
   }
 
   async getCurrentPollItems({ squareId }: { squareId: string }) {
-    const secretSquare = await this.SecretSquare.findById(squareId);
+    const secretSquare = await this.squareRepository.findById(squareId);
 
     // TODO 404 NOT FOUND
     if (!secretSquare) {
@@ -378,34 +281,22 @@ export default class SquareService implements ISquareService {
 
   //todo: 수정가능
   async putLikeSquare({ squareId }: { squareId: string }) {
-    const secretSquare = await this.SecretSquare.findById(squareId);
+    const secretSquare = await this.squareRepository.updateLike(
+      squareId,
+      this.token.id,
+    );
 
-    if (!secretSquare) {
-      throw new Error('not found');
-    }
-
-    // TODO remove type assertion
-    const user = this.token.id as unknown as Types.ObjectId;
-
-    if (secretSquare.like.includes(user)) {
-      throw new Error('already included');
-    }
-
-    secretSquare.like.push(user);
-    await secretSquare.save();
+    return;
   }
 
   async deleteLikeSquare({ squareId }: { squareId: string }) {
-    const user = this.token.id;
-
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $pull: { like: user },
-    });
+    await this.squareRepository.deleteLikeSquare(squareId, this.token.id);
+    return;
   }
 
   //todo: 수정가능
   async getIsLike({ squareId }: { squareId: string }) {
-    const secretSquare = await this.SecretSquare.findById(squareId);
+    const secretSquare = await this.squareRepository.findById(squareId);
 
     if (!secretSquare) {
       throw new Error('not found');

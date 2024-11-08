@@ -1,4 +1,4 @@
-import { IFeed } from './entity/feed.entity';
+import { commentType, IFeed, subCommentType } from './entity/feed.entity';
 
 export interface FeedRepository {
   findWithQuery(
@@ -9,14 +9,9 @@ export interface FeedRepository {
   ): Promise<IFeed[]>;
   findById(id: string): Promise<IFeed>;
   findByIdLike(id: string): Promise<IFeed>;
-  findAll(
-    query: any,
-    start: number,
-    gap: number,
-    isRecent: boolean,
-  ): Promise<IFeed[]>;
+  findAll(start: number, gap: number, isRecent: boolean): Promise<IFeed[]>;
   createFeed(feedData): Promise<IFeed>;
-  createComment(feedId: string, message: string): Promise<IFeed>;
+  createComment(feedId: string, message: commentType): Promise<IFeed>;
   deleteComment(feedId: string, commentId: string): Promise<any>;
   updateComment(
     feedId: string,
@@ -32,7 +27,7 @@ export interface FeedRepository {
   createSubComment(
     feedId: string,
     commentId: string,
-    message: string,
+    message: subCommentType,
   ): Promise<any>;
   deleteSubComment(
     feedId: string,

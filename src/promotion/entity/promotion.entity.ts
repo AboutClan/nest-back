@@ -9,13 +9,13 @@ export const PromotionZodSchema = z.object({
 
 export interface IPromotion {
   name: string;
-  lastDate: Date;
+  lastDate: string;
   uid: string;
 }
 
 export const promotionSchema: Schema<IPromotion> = new Schema({
   name: String,
-  lastDate: Date,
+  lastDate: String,
   uid: String,
 });
 

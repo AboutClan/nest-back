@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { IGroupStudyData } from './entity/groupStudy.entity';
+import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { C_simpleUser } from 'src/constants';
@@ -39,6 +39,34 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       })
       .select('-_id');
   }
+
+  async addParticipantWithAttendance(
+    id: string,
+    userId: string,
+    userName: string,
+    userUid: string,
+  ): Promise<IGroupStudyData> {
+    return await this.GroupStudy.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          participants: { user: userId, role: 'member', attendCnt: 0 },
+          'attendance.thisWeek': {
+            uid: userUid,
+            name: userName,
+            attendRecord: [],
+          },
+          'attendance.lastWeek': {
+            uid: userUid,
+            name: userName,
+            attendRecord: [],
+          },
+        },
+      },
+      { new: true },
+    );
+  }
+
   async findByCategory(category: string): Promise<IGroupStudyData[]> {
     return await this.GroupStudy.find({
       'category.main': category,
@@ -65,7 +93,17 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       })
       .select('-_id');
   }
-  async findById(groupStudyId: unknown): Promise<IGroupStudyData> {
+  async findById(groupStudyId: string): Promise<IGroupStudyData> {
+    return await this.GroupStudy.findOne({ id: groupStudyId });
+  }
+
+  async findByIdWithWaiting(groupStudyId: string): Promise<IGroupStudyData> {
+    return await this.GroupStudy.findOne({ id: groupStudyId })
+      .populate(['waiting.user'])
+      .select('-_id');
+  }
+
+  async findByIdWithPop(groupStudyId: number): Promise<IGroupStudyData> {
     return await this.GroupStudy.findOne({
       id: groupStudyId,
     })
@@ -146,7 +184,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
   async createSubComment(
     groupStudyId: string,
     commentId: string,
-    message: string,
+    message: subCommentType,
   ): Promise<null> {
     await this.GroupStudy.updateOne(
       {
@@ -196,7 +234,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     return await this.GroupStudy.create(groupStudyData);
   }
   async createCommentLike(
-    groupStudyId: string,
+    groupStudyId: number,
     commentId: string,
     userId: string,
   ): Promise<IGroupStudyData> {
@@ -212,7 +250,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     );
   }
   async createSubCommentLike(
-    groupStudyId: string,
+    groupStudyId: number,
     commentId: string,
     subCommentId: string,
     userId: string,

@@ -1,21 +1,36 @@
 import { ClassProvider, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DailyCheckController } from './dailyCheck.controller';
-import { DailyCheck } from './dailycheck.entity';
-import { IDAILYCHECK_SERVICE } from 'src/utils/di.tokens';
+import { DailyCheck, dailyCheckSchema } from './dailycheck.entity';
+import {
+  IDAILYCHECK_REPOSITORY,
+  IDAILYCHECK_SERVICE,
+} from 'src/utils/di.tokens';
 import { DailyCheckService } from './dailyCheck.service';
+import { MongoDailyCheckRepository } from './dailyCheck,repository';
 
 const dailyCheckServiceProvider: ClassProvider = {
   provide: IDAILYCHECK_SERVICE,
   useClass: DailyCheckService,
 };
 
+const dailyCheckRepositoryProvider: ClassProvider = {
+  provide: IDAILYCHECK_REPOSITORY,
+  useClass: MongoDailyCheckRepository,
+};
+
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'DailyCheck', schema: DailyCheck }]),
+    MongooseModule.forFeature([
+      { name: 'DailyCheck', schema: dailyCheckSchema },
+    ]),
   ],
   controllers: [DailyCheckController],
-  providers: [dailyCheckServiceProvider],
-  exports: [dailyCheckServiceProvider, MongooseModule],
+  providers: [dailyCheckServiceProvider, dailyCheckRepositoryProvider],
+  exports: [
+    dailyCheckServiceProvider,
+    MongooseModule,
+    dailyCheckRepositoryProvider,
+  ],
 })
-export class FcmAModule {}
+export class DailyCheckModule {}

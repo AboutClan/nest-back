@@ -1,4 +1,4 @@
-import mongoose, { model, Model, Schema } from 'mongoose';
+import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
@@ -141,7 +141,7 @@ export interface commentType {
   likeList?: string[];
 }
 
-export interface IGroupStudyData {
+export interface IGroupStudyData extends Document {
   title: string;
   category: ICategory;
   challenge?: string;

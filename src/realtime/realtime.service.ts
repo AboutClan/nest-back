@@ -1,32 +1,31 @@
 import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from '../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
-import ImageService from 'src/imagez/image.service';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { InjectModel } from '@nestjs/mongoose';
 import {
   IRealtime,
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
-import { Model } from 'mongoose';
-import { CollectionService } from 'src/collection/collection.service';
 import { IVoteService } from 'src/vote/voteService.interface';
 import {
   ICOLLECTION_SERVICE,
   IIMAGE_SERVICE,
+  IREALTIME_REPOSITORY,
   IVOTE_SERVICE,
 } from 'src/utils/di.tokens';
 import { IImageService } from 'src/imagez/imageService.interface';
 import { ICollectionService } from 'src/collection/collectionService.interface';
 import { IRealtimeService } from './realtimeService';
+import { RealtimeRepository } from './realtime.repository';
 
 export default class RealtimeService implements IRealtimeService {
   private token: JWT;
 
   constructor(
-    @InjectModel('Realtime') private RealtimeModel: Model<IRealtime>,
+    @Inject(IREALTIME_REPOSITORY)
+    private readonly realtimeRepository: RealtimeRepository,
     @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
     @Inject(IVOTE_SERVICE) private voteServiceInstance: IVoteService,
     @Inject(ICOLLECTION_SERVICE)
@@ -44,10 +43,10 @@ export default class RealtimeService implements IRealtimeService {
 
   async getTodayData() {
     const date = this.getToday();
-    const data = await this.RealtimeModel.findOne({ date });
+    const data = await this.realtimeRepository.findByDate(date);
 
     if (!data) {
-      return await this.RealtimeModel.create({ date });
+      return await this.realtimeRepository.createByDate(date);
     }
 
     return data;
@@ -65,16 +64,9 @@ export default class RealtimeService implements IRealtimeService {
 
     this.voteServiceInstance.deleteVote(date);
 
-    const updatedData = await this.RealtimeModel.findOneAndUpdate(
-      { date },
-      {
-        $addToSet: { userList: validatedUserData }, // 중복 방지와 추가 동시에 수행
-        $setOnInsert: { date }, // 문서가 없을 때만 date 필드 설정
-      },
-      {
-        new: true, // 업데이트된 문서를 반환
-        upsert: true, // 문서가 없으면 새로 생성
-      },
+    const updatedData = await this.realtimeRepository.patchUser(
+      date,
+      validatedUserData,
     );
 
     return updatedData;
@@ -104,19 +96,10 @@ export default class RealtimeService implements IRealtimeService {
 
     this.voteServiceInstance.deleteVote(date);
 
-    const updatedData = await this.RealtimeModel.findOneAndUpdate(
-      { date },
-      {
-        $set: {
-          'userList.$[elem].': validatedStudy,
-        },
-        $addToSet: { userList: validatedStudy }, // 중복되지 않는 사용자 추가
-      },
-      {
-        new: true,
-        upsert: true, // 없으면 새로 생성
-        arrayFilters: [{ 'elem.user': this.token.id }], // 배열 필터로 특정 사용자 타겟팅
-      },
+    await this.realtimeRepository.patchAttendance(
+      date,
+      validatedStudy,
+      this.token.id,
     );
 
     const result = this.collectionServiceInstance.setCollectionStamp(
@@ -138,18 +121,10 @@ export default class RealtimeService implements IRealtimeService {
       }
     });
 
-    const updatedRealtime = await this.RealtimeModel.findOneAndUpdate(
-      {
-        date: this.getToday(), // date 필드가 일치하는 문서 찾기
-        'userList.user': this.token.id, // userList 배열 내의 user 필드가 일치하는 문서 찾기
-      },
-      {
-        $set: updateFields,
-      },
-      {
-        arrayFilters: [{ 'elem.user': this.token.id }], // 배열 필터: user 필드가 일치하는 요소만 업데이트
-        new: true, // 업데이트된 문서를 반환
-      },
+    const updatedRealtime = await this.realtimeRepository.patchRealtime(
+      this.token.id,
+      updateFields,
+      this.getToday(),
     );
 
     if (!updatedRealtime) throw new DatabaseError('Failed to update study');

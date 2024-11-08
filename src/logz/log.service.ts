@@ -1,17 +1,16 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { JWT } from 'next-auth/jwt';
-import { ILog, Log } from './entity/log.entity';
-import { Model } from 'mongoose';
-import { RequestContext } from 'src/request-context';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { ILogService } from './logService.interface';
+import { ILOG_REPOSITORY } from 'src/utils/di.tokens';
+import { LogRepository } from './log.repository.interface';
 
 export default class LogService implements ILogService {
   private token: JWT;
   constructor(
-    @InjectModel('Log') private Log: Model<ILog>,
+    @Inject(ILOG_REPOSITORY)
+    private readonly logRepository: LogRepository,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
@@ -32,40 +31,21 @@ export default class LogService implements ILogService {
       currentDate.getMonth() + 1,
       0,
     );
-    const logs = await this.Log.find(
-      {
-        'meta.type': 'score',
-        'meta.uid': this.token.uid,
-        timestamp: {
-          $gte: startOfMonth,
-          $lte: endOfMonth,
-        },
-      },
-      '-_id timestamp message meta',
-    )
-      .sort({ timestamp: -1 })
-      .limit(30);
+    const logs = await this.logRepository.findScoreTimestamp(
+      this.token.uid,
+      startOfMonth,
+      endOfMonth,
+    );
     return logs;
   }
 
   async getLog(type: string) {
-    const logs = await this.Log.find(
-      {
-        'meta.uid': this.token.uid,
-        'meta.type': type,
-      },
-      '-_id timestamp message meta',
-    )
-      .sort({ timestamp: -1 })
-      .limit(30);
+    const logs = await this.logRepository.findByUidType(this.token.uid, type);
     return logs;
   }
 
   async getAllLog(type: string) {
-    const logs = await this.Log.find(
-      { 'meta.type': type },
-      '-_id timestamp message meta',
-    );
+    const logs = await this.logRepository.findAllByType(type);
 
     return logs;
   }

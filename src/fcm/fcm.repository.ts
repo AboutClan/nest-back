@@ -8,6 +8,9 @@ export class MongoFcmRepository implements FcmRepository {
     @InjectModel('FcmToken')
     private readonly FcmToken: Model<IFcmToken>,
   ) {}
+  async createToken(data: any): Promise<IFcmToken> {
+    return await this.FcmToken.create(data);
+  }
   async deleteToken(uid: string, platform: string): Promise<any> {
     return await this.FcmToken.updateOne(
       {

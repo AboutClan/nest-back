@@ -114,11 +114,7 @@ export class MongoSquareRepository implements SquareRepository {
 
     return null;
   }
-  async deleteComment(
-    userId: string,
-    squareId: string,
-    commentId: string,
-  ): Promise<null> {
+  async deleteComment(squareId: string, commentId: string): Promise<null> {
     await this.SecretSquare.findByIdAndUpdate(squareId, {
       $pull: { comments: { _id: commentId } },
     });
@@ -217,6 +213,20 @@ export class MongoSquareRepository implements SquareRepository {
   async findById(squareId: string): Promise<SecretSquareItem> {
     return await this.SecretSquare.findById(squareId);
   }
+
+  async updateLike(
+    squareId: string,
+    userId: string,
+  ): Promise<SecretSquareItem> {
+    return await this.SecretSquare.findByIdAndUpdate(
+      squareId,
+      {
+        $addToSet: { like: userId },
+      },
+      { new: true },
+    );
+  }
+
   async deleteLikeSquare(squareId: string, userId: string): Promise<null> {
     await this.SecretSquare.findByIdAndUpdate(squareId, {
       $pull: { like: userId },
