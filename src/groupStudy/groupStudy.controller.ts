@@ -100,6 +100,11 @@ export class GroupStudyController {
     }
   }
 
+  @Get('mine')
+  async getSigningGroup() {
+    return await this.groupStudyService.getSigningGroup();
+  }
+
   @Post('participate')
   async participateGroupStudy(
     @Body() participateGroupStudyDto: ParticipateGroupStudyDto,

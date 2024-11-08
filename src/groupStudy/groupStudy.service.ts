@@ -53,6 +53,10 @@ export default class GroupStudyService implements IGroupStudyService {
     return shuffledGroups;
   }
 
+  async getSigningGroup() {
+    return await this.groupStudyRepository.getSigningGroup(this.token.id);
+  }
+
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
     let groupStudyData;
     const gap = 7;
