@@ -15,7 +15,7 @@ export class MongoRealtimeRepository implements RealtimeRepository {
   async createByDate(date: Date): Promise<IRealtime> {
     return await this.RealtimeModel.create({ date });
   }
-  async patchUser(date: Date, userData: IRealtimeUser): Promise<IRealtime> {
+  async patchUser(date: Date, userData: any): Promise<IRealtime> {
     return await this.RealtimeModel.findOneAndUpdate(
       { date },
       {
@@ -30,7 +30,7 @@ export class MongoRealtimeRepository implements RealtimeRepository {
   }
   async patchAttendance(
     date: Date,
-    userData: IRealtimeUser,
+    userData: any,
     userId: string,
   ): Promise<null> {
     await this.RealtimeModel.findOneAndUpdate(

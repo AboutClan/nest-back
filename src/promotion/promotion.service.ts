@@ -1,8 +1,6 @@
 import { JWT } from 'next-auth/jwt';
 import dayjs from 'dayjs';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { IPromotion, PromotionZodSchema } from './entity/promotion.entity';
+import { PromotionZodSchema } from './entity/promotion.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
