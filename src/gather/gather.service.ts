@@ -99,8 +99,9 @@ export class GatherService implements IGatherService {
     return;
   }
 
-  async participateGather(gatherId: string, phase: string, userId: string) {
-    const gather = await this.gatherRepository.findById(gatherId);
+  async participateGather(gatherId: number, phase: string, userId: string) {
+    //type 수정필요
+    const gather = await this.gatherRepository.findById(gatherId.toString());
     if (!gather) throw new Error();
 
     const id = userId ?? this.token.id;
