@@ -53,8 +53,28 @@ export default class GroupStudyService implements IGroupStudyService {
     return shuffledGroups;
   }
 
-  async getSigningGroup() {
-    return await this.groupStudyRepository.getSigningGroup(this.token.id);
+  async getSigningGroup(status: string, all: boolean) {
+    if (status) {
+      console.log(1);
+      return await this.groupStudyRepository.getSigningGroupByStatus(
+        this.token.id,
+        status,
+      );
+    } else {
+      if (all) {
+        console.log(2);
+        return await this.groupStudyRepository.getSigningGroup(
+          this.token.id,
+          null,
+        );
+      } else {
+        console.log(3);
+        return await this.groupStudyRepository.getSigningGroup(
+          this.token.id,
+          '_id title',
+        );
+      }
+    }
   }
 
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
