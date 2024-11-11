@@ -46,8 +46,8 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     userName: string,
     userUid: string,
   ): Promise<IGroupStudyData> {
-    return await this.GroupStudy.findByIdAndUpdate(
-      id,
+    return await this.GroupStudy.findOneAndUpdate(
+      { id },
       {
         $push: {
           participants: { user: userId, role: 'member', attendCnt: 0 },
@@ -93,6 +93,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       })
       .select('-_id');
   }
+
   async findById(groupStudyId: string): Promise<IGroupStudyData> {
     return await this.GroupStudy.findOne({ id: groupStudyId });
   }

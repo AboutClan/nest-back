@@ -10,7 +10,7 @@ export class CreateGroupStudyDto {
 export class ParticipateGroupStudyDto {
   @IsNotEmpty({ message: 'id필요' })
   @IsNumber()
-  id: string;
+  id: number;
 }
 
 export class CommentDto {
