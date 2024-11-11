@@ -75,38 +75,42 @@ export default class RealtimeService implements IRealtimeService {
   //todo: 수정 급함
   //test
   async markAttendance(studyData: Partial<IRealtimeUser>, buffers: Buffer[]) {
-    const date = this.getToday();
+    try {
+      const date = this.getToday();
 
-    const validatedStudy = RealtimeUserZodSchema.parse({
-      ...studyData,
-      time: JSON.parse(studyData.time as unknown as string),
-      place: JSON.parse(studyData.place as unknown as string),
-      arrived: new Date(),
-      user: this.token.id,
-    });
+      const validatedStudy = RealtimeUserZodSchema.parse({
+        ...studyData,
+        time: JSON.parse(studyData.time as unknown as string),
+        place: JSON.parse(studyData.place as unknown as string),
+        arrived: new Date(),
+        user: this.token.id,
+      });
 
-    if (buffers.length) {
-      const images = await this.imageServiceInstance.uploadImgCom(
-        'studyAttend',
-        buffers,
+      if (buffers.length) {
+        const images = await this.imageServiceInstance.uploadImgCom(
+          'studyAttend',
+          buffers,
+        );
+
+        studyData.image = images[0];
+      }
+
+      this.voteServiceInstance.deleteVote(date);
+
+      await this.realtimeRepository.patchAttendance(
+        date,
+        validatedStudy,
+        this.token.id,
       );
 
-      studyData.image = images[0];
+      const result = this.collectionServiceInstance.setCollectionStamp(
+        this.token.id,
+      );
+
+      return result;
+    } catch (err) {
+      console.log(err);
     }
-
-    this.voteServiceInstance.deleteVote(date);
-
-    await this.realtimeRepository.patchAttendance(
-      date,
-      validatedStudy,
-      this.token.id,
-    );
-
-    const result = this.collectionServiceInstance.setCollectionStamp(
-      this.token.id,
-    );
-
-    return result;
   }
 
   // 스터디 정보 업데이트
