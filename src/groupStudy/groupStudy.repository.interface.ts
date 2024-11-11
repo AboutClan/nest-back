@@ -49,5 +49,6 @@ export interface GroupStudyRepository {
     userId: string,
   ): Promise<IGroupStudyData>;
   findAll(): Promise<IGroupStudyData[]>;
-  getSigningGroup(uid: string): Promise<any>;
+  getSigningGroup(userId: string, field: string | null): Promise<any>;
+  getSigningGroupByStatus(userId: string, status: string): Promise<any>;
 }

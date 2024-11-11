@@ -101,8 +101,11 @@ export class GroupStudyController {
   }
 
   @Get('mine')
-  async getSigningGroup() {
-    return await this.groupStudyService.getSigningGroup();
+  async getSigningGroup(
+    @Query('status') status?: string,
+    @Query('all') all?: boolean,
+  ) {
+    return await this.groupStudyService.getSigningGroup(status, all);
   }
 
   @Post('participate')

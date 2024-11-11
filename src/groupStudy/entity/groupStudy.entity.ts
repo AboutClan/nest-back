@@ -170,6 +170,7 @@ export interface IGroupStudyData extends Document {
   link?: string;
   isSecret?: boolean;
   waiting: IWaiting[];
+  squareImage?: string;
 }
 
 type UserRole = 'admin' | 'manager' | 'member' | 'outsider';
@@ -423,6 +424,9 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
 
     image: {
+      type: String,
+    },
+    squareImage: {
       type: String,
     },
   },
