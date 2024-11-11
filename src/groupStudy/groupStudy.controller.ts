@@ -111,10 +111,11 @@ export class GroupStudyController {
   ) {
     try {
       await this.groupStudyService.participateGroupStudy(
-        participateGroupStudyDto.id,
+        participateGroupStudyDto.id.toString(),
       );
       return { status: 'success' };
     } catch (err) {
+      console.log(err);
       throw new HttpException(
         'Error participating in group study',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -128,7 +129,7 @@ export class GroupStudyController {
   ) {
     try {
       await this.groupStudyService.deleteParticipate(
-        participateGroupStudyDto.id,
+        participateGroupStudyDto.id.toString(),
       );
       return { status: 'success' };
     } catch (err) {
