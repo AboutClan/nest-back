@@ -225,6 +225,56 @@ export class GroupStudyController {
     }
   }
 
+  @Patch('subComment')
+  async updateSubComment(
+    @Body()
+    body: {
+      groupStudyId: string;
+      commentId: string;
+      subCommentId: string;
+      comment: string;
+    },
+  ) {
+    try {
+      await this.groupStudyService.updateSubComment(
+        body.groupStudyId,
+        body.commentId,
+        body.subCommentId,
+        body.comment,
+      );
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error updating sub-comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Delete('subComment')
+  async DeleteSubComment(
+    @Body()
+    body: {
+      groupStudyId: string;
+      commentId: string;
+      subCommentId: string;
+    },
+  ) {
+    try {
+      await this.groupStudyService.deleteSubComment(
+        body.groupStudyId,
+        body.commentId,
+        body.subCommentId,
+      );
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error updating sub-comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post('subComment')
   async createSubComment(
     @Body()
