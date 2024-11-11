@@ -56,6 +56,7 @@ export class GatherController {
       );
       return { gatherId };
     } catch (err) {
+      console.log(err);
       throw new HttpException(
         'Error creating gather',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -198,6 +199,30 @@ export class GatherController {
     } catch (err) {
       throw new HttpException(
         'Error liking sub-comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('subComment')
+  async createSubComment(
+    @Body()
+    body: {
+      gatherId: string;
+      commentId: string;
+      comment: string;
+    },
+  ) {
+    try {
+      await this.gatherService.createSubComment(
+        body.gatherId,
+        body.commentId,
+        body.comment,
+      );
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error updating sub-comment',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

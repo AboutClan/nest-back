@@ -48,6 +48,7 @@ export class MongoGatherRepository implements GatherRepository {
       ]);
   }
   async createGather(gatherData: Partial<IGatherData>): Promise<IGatherData> {
+    console.log(gatherData);
     return await this.Gather.create(gatherData);
   }
   async updateGather(

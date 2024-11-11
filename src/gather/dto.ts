@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { IGatherData } from './entity/gather.entity';
 
 // DTOs for request validation
@@ -25,7 +25,9 @@ export class SetWaitingPersonDto {
 export class ParticipateGatherDto {
   @IsNotEmpty({ message: 'gatherId필요' })
   @IsNumber()
-  gatherId: string;
-  phase: string;
-  userId: string;
+  gatherId: number;
+  @IsOptional()
+  phase?: string;
+  @IsOptional()
+  userId?: string;
 }

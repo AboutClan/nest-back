@@ -7,7 +7,7 @@ export interface IGatherService {
   createGather(data: Partial<IGatherData>): Promise<void>;
   updateGather(gather: IGatherData): Promise<void>;
   participateGather(
-    gatherId: string,
+    gatherId: number,
     phase: string,
     userId?: string,
   ): Promise<void>;
