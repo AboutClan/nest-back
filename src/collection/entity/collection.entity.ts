@@ -8,9 +8,9 @@ export const CollectionZodSchema = z.object({
     z.custom<IUser>(),
   ]),
   type: z.enum(['alphabet']).default('alphabet'),
-  collects: z.array(z.string()),
-  collectCnt: z.number(),
-  stamps: z.number(),
+  collects: z.array(z.string()).default([]),
+  collectCnt: z.number().default(0),
+  stamps: z.number().default(0),
 });
 
 export type ICollection = z.infer<typeof CollectionZodSchema> & Document;

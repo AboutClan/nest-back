@@ -26,51 +26,38 @@ export class CollectionService implements ICollectionService {
   }
 
   async setCollectionStamp(id: string) {
-    const validatedCollection = CollectionZodSchema.parse({
-      user: id,
-      type: 'alphabet',
-      collects: [],
-      collectCnt: 0,
-      stamps: 0,
-    });
     const currentCollection = await this.collectionRepository.findByUser(id);
     const currentStamps = currentCollection?.stamps ?? 0;
 
-    let updatedStamps = currentStamps;
-    let updatedAlphabet = null;
-
     if (currentStamps < 5) {
       if (!currentCollection) {
+        const validatedCollection = CollectionZodSchema.parse({
+          user: id,
+        });
         // 문서가 없으면 새로 생성
         await this.collectionRepository.createCollection(validatedCollection);
       } else {
         // 문서가 있으면 stamps 증가
         await this.collectionRepository.increateStamp(id);
       }
-
-      updatedStamps++;
     }
 
-    const getRandomAlphabet = () => {
-      const randomIdx = Math.floor(Math.random() * 5);
-      const alphabet = ALPHABET_COLLECTION[randomIdx];
-      return alphabet;
-    };
+    const updatedStamps = currentStamps < 4 ? currentStamps + 1 : 0;
+    const updatedAlphabet =
+      currentStamps === 4
+        ? ALPHABET_COLLECTION[Math.floor(Math.random() * 5)]
+        : null;
+
     // stamps가 5인 경우에만 alphabet을 추가합니다
-    if (currentCollection?.stamps === 4) {
-      const alphabet = getRandomAlphabet();
-      // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
-      await this.collectionRepository.setRandomAlphabet(id, alphabet);
-
-      updatedAlphabet = alphabet;
-      updatedStamps = 0;
-    }
+    // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
+    await this.collectionRepository.setRandomAlphabet(id, updatedAlphabet);
 
     return {
       alphabet: updatedAlphabet, // alphabet을 얻었으면 반환하고, 그렇지 않으면 null
       stamps: updatedStamps, // 현재 stamps에서 1 증가한 값 반환
     };
   }
+
   async changeCollection(
     mine: string,
     opponent: string,
