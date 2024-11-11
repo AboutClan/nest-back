@@ -7,7 +7,7 @@ import { ImageModule } from 'src/imagez/image.module';
 import { VoteModule } from 'src/vote/vote.module';
 import { CollectionModule } from 'src/collection/collection.module';
 import { IREALTIME_REPOSITORY, IREALTIME_SERVICE } from 'src/utils/di.tokens';
-import { MongoRealtimeRepository } from './realtime.repository.interface';
+import { MongoRealtimeRepository } from './realtime.repository';
 
 const realtimeServiceProvider: ClassProvider = {
   provide: IREALTIME_SERVICE,
