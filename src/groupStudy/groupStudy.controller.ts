@@ -222,6 +222,30 @@ export class GroupStudyController {
     }
   }
 
+  @Post('subComment')
+  async createSubComment(
+    @Body()
+    body: {
+      groupStudyId: string;
+      commentId: string;
+      comment: string;
+    },
+  ) {
+    try {
+      await this.groupStudyService.createSubComment(
+        body.groupStudyId,
+        body.commentId,
+        body.comment,
+      );
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error updating sub-comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post('subComment/like')
   async createSubCommentLike(
     @Body('groupStudyId') groupStudyId: number,
