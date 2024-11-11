@@ -18,7 +18,7 @@ import {
 import { IImageService } from 'src/imagez/imageService.interface';
 import { ICollectionService } from 'src/collection/collectionService.interface';
 import { IRealtimeService } from './realtimeService';
-import { RealtimeRepository } from './realtime.repository';
+import { RealtimeRepository } from './realtime.repository.interface';
 
 export default class RealtimeService implements IRealtimeService {
   private token: JWT;
@@ -78,10 +78,11 @@ export default class RealtimeService implements IRealtimeService {
     try {
       const date = this.getToday();
 
+      console.log(studyData);
       const validatedStudy = RealtimeUserZodSchema.parse({
         ...studyData,
-        time: JSON.parse(studyData.time as unknown as string),
-        place: JSON.parse(studyData.place as unknown as string),
+        time: studyData.time,
+        place: studyData.place,
         arrived: new Date(),
         user: this.token.id,
       });
