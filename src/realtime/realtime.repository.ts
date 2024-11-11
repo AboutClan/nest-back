@@ -33,20 +33,30 @@ export class MongoRealtimeRepository implements RealtimeRepository {
     userData: any,
     userId: string,
   ): Promise<null> {
-    await this.RealtimeModel.findOneAndUpdate(
-      { date },
+    const updateResult = await this.RealtimeModel.findOneAndUpdate(
+      { date, 'userList.user': userId },
       {
-        $set: {
-          'userList.$[elem]': userData,
-        },
-        $addToSet: { userList: userData }, // 중복되지 않는 사용자 추가
+        $set: { 'userList.$': userData },
       },
       {
         new: true,
-        upsert: true, // 없으면 새로 생성
-        arrayFilters: [{ 'elem.user': userId }], // 배열 필터로 특정 사용자 타겟팅
       },
     );
+
+    // 두 번째: 사용자가 없는 경우 추가
+    if (!updateResult) {
+      await this.RealtimeModel.findOneAndUpdate(
+        { date },
+        {
+          $addToSet: { userList: userData },
+        },
+        {
+          new: true,
+          upsert: true,
+        },
+      );
+    }
+
     return null;
   }
   async patchRealtime(
