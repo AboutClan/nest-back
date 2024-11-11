@@ -18,7 +18,7 @@ import {
 import { IImageService } from 'src/imagez/imageService.interface';
 import { ICollectionService } from 'src/collection/collectionService.interface';
 import { IRealtimeService } from './realtimeService';
-import { RealtimeRepository } from './realtime.repository';
+import { RealtimeRepository } from './realtime.repository.interface';
 
 export default class RealtimeService implements IRealtimeService {
   private token: JWT;
