@@ -43,13 +43,14 @@ export default class GroupStudyService implements IGroupStudyService {
     );
     groupStudyData = groupStudyData.sort(() => Math.random() - 0.5);
 
+    const getTopGroupStudies = (data, type, limit = 3) =>
+      data
+        .filter((groupStudy) => groupStudy.meetingType === type)
+        .slice(0, limit);
+
     return {
-      online: groupStudyData
-        .filter((groupStudy) => groupStudy.meetingType === 'online')
-        .slice(0, 3),
-      offline: groupStudyData
-        .filter((groupStudy) => groupStudy.meetingType === 'offline')
-        .slice(0, 3),
+      online: getTopGroupStudies(groupStudyData, 'online'),
+      offline: getTopGroupStudies(groupStudyData, 'offline'),
     };
   }
 
