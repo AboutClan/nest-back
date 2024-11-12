@@ -78,7 +78,6 @@ export default class RealtimeService implements IRealtimeService {
     try {
       const date = this.getToday();
 
-      console.log(studyData);
       const validatedStudy = RealtimeUserZodSchema.parse({
         ...studyData,
         time: studyData.time,

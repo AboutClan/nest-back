@@ -59,9 +59,19 @@ export class RealtimeController {
     @Body() markAttendanceDto: any,
   ) {
     try {
+      const parsedPlace = JSON.parse(markAttendanceDto.place);
+      const parsedTime = JSON.parse(markAttendanceDto.time);
+
+      // 필요한 형태로 데이터 가공
+      const parsedData = {
+        ...markAttendanceDto,
+        place: parsedPlace,
+        time: parsedTime,
+      };
+
       const buffers = files ? files.map((file) => file.buffer) : [];
       const updatedStudy = await this.realtimeService.markAttendance(
-        markAttendanceDto,
+        parsedData,
         buffers,
       );
       return res.status(200).json(updatedStudy);
