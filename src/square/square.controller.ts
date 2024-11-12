@@ -64,7 +64,7 @@ export class SquareController {
   @UseInterceptors(FilesInterceptor('images', 5, { storage: memoryStorage() }))
   async createSquare(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body() createSquareDto: any,
+    @Body(new ValidationPipe()) createSquareDto: CreateSquareDto,
   ) {
     const buffers: Buffer[] = files ? files.map((file) => file.buffer) : [];
 
