@@ -1,22 +1,22 @@
-import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
-import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
-import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
-import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/entity/user.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+import { InjectModel } from '@nestjs/mongoose';
+import dayjs from 'dayjs';
 import { Request } from 'express';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
+import { Model } from 'mongoose';
+import { JWT } from 'next-auth/jwt';
+import { ICounterService } from 'src/counter/counterService.interface';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { IUser } from 'src/user/entity/user.entity';
 import {
   ICOUNTER_SERVICE,
   IGROUPSTUDY_REPOSITORY,
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
-import { ICounterService } from 'src/counter/counterService.interface';
-import { IGroupStudyService } from './groupStudyService.interface';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
+import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
+import { IGroupStudyService } from './groupStudyService.interface';
 
 export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
@@ -29,6 +29,28 @@ export default class GroupStudyService implements IGroupStudyService {
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
+  }
+
+  async getGroupStudySnapshot() {
+    let groupStudyData;
+
+    const filterQuery = { status: 'pending' };
+
+    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+      filterQuery,
+      0,
+      Infinity,
+    );
+    groupStudyData = groupStudyData.sort(() => Math.random() - 0.5);
+
+    return {
+      online: groupStudyData
+        .filter((groupStudy) => groupStudy.meetingType === 'online')
+        .slice(0, 3),
+      offline: groupStudyData
+        .filter((groupStudy) => groupStudy.meetingType === 'offline')
+        .slice(0, 3),
+    };
   }
 
   async getGroupStudyByFilterAndCategory(

@@ -1,23 +1,23 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
-  Param,
-  Query,
+  Controller,
+  Delete,
+  Get,
   HttpException,
   HttpStatus,
   Inject,
+  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
-import { GroupStudyStatus } from './entity/groupStudy.entity';
+import { IGROUPSTUDY_SERVICE } from 'src/utils/di.tokens';
 import {
   CommentDto,
   CreateGroupStudyDto,
   ParticipateGroupStudyDto,
 } from './dto';
-import { IGROUPSTUDY_SERVICE } from 'src/utils/di.tokens';
+import { GroupStudyStatus } from './entity/groupStudy.entity';
 import { IGroupStudyService } from './groupStudyService.interface';
 
 @Controller('groupStudy')
@@ -98,6 +98,11 @@ export class GroupStudyController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get('snapshot')
+  async getGroupStudySnapshot() {
+    return await this.groupStudyService.getGroupStudySnapshot();
   }
 
   @Get('mine')

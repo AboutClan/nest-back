@@ -1,8 +1,8 @@
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { C_simpleUser } from 'src/constants';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
-import { InjectModel } from '@nestjs/mongoose';
-import { C_simpleUser } from 'src/constants';
 
 export class MongoGroupStudyInterface implements GroupStudyRepository {
   constructor(

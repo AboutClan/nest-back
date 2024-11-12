@@ -1,6 +1,10 @@
 import { IGroupStudyData } from './entity/groupStudy.entity';
 
 export interface IGroupStudyService {
+  getGroupStudySnapshot(): Promise<{
+    online: IGroupStudyData[];
+    offline: IGroupStudyData[];
+  }>;
   getGroupStudyByFilterAndCategory(
     filter: string,
     category: string,
