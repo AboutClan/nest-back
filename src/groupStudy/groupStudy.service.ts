@@ -201,37 +201,37 @@ export default class GroupStudyService implements IGroupStudyService {
     return;
   }
 
-  //Counter 분리 필요
   async createGroupStudy(data: IGroupStudyData) {
-    const nextId =
-      await this.counterServiceInstance.getNextSequence('groupStudyId');
-
-    const groupStudyInfo: Partial<IGroupStudyData> = {
-      ...data,
-      participants: [
-        {
-          user: data.organizer._id,
-          role: 'admin',
-          attendCnt: 0,
-        },
-      ],
-      attendance: {
-        firstDate: undefined,
-        lastWeek: [],
-        thisWeek: [],
-      },
-      id: nextId as number,
-    };
-
-    const groupStudyData = groupStudyInfo;
-
     try {
-      await this.groupStudyRepository.createGroupStudy(groupStudyData);
-    } catch (err: any) {
-      throw new DatabaseError('create groupstury failed');
-    }
+      const nextId =
+        await this.counterServiceInstance.getNextSequence('groupStudyId');
 
-    return;
+      const groupStudyInfo: Partial<IGroupStudyData> = {
+        ...data,
+        participants: [
+          {
+            user: data.organizer._id,
+            role: 'admin',
+            attendCnt: 0,
+          },
+        ],
+        attendance: {
+          firstDate: undefined,
+          lastWeek: [],
+          thisWeek: [],
+        },
+        id: nextId as number,
+      };
+
+      const groupStudyData = groupStudyInfo;
+
+      console.log(groupStudyData);
+      await this.groupStudyRepository.createGroupStudy(groupStudyData);
+
+      return;
+    } catch (err) {
+      console.log(err);
+    }
   }
   async updateGroupStudy(data: IGroupStudyData) {
     const groupStudy = await this.groupStudyRepository.findById(data.id + '');
