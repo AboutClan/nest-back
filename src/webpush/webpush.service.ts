@@ -9,6 +9,7 @@ import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
 import { INotificationSub } from './entity/notificationsub.entity';
+import { AppError } from 'src/errors/AppError';
 const PushNotifications = require('node-pushnotifications');
 
 @Injectable({ scope: Scope.DEFAULT })
@@ -95,26 +96,31 @@ export class WebPushService implements IWebPushService {
   }
 
   async sendNotificationGroupStudy(groupStudyId: string) {
-    const payload = JSON.stringify({
-      ...this.basePayload,
-      title: '소모임에 누군가 가입했어요!',
-      body: '소모임을 확인해보세요.',
-    });
+    try {
+      const payload = JSON.stringify({
+        ...this.basePayload,
+        title: '소모임에 누군가 가입했어요!',
+        body: '소모임을 확인해보세요.',
+      });
 
-    const groupStudy = await this.GroupStudy.findOne({ groupStudyId }).populate(
-      ['participants.user'],
-    );
+      const groupStudy = await this.GroupStudy.findOne({
+        groupStudyId,
+      }).populate(['participants.user']);
 
-    const memberUids = groupStudy.participants.map(
-      (participant) => (participant.user as IUser).uid,
-    );
-    const memberArray = Array.from(new Set(memberUids));
+      const memberUids = groupStudy.participants?.map(
+        (participant) => (participant.user as IUser).uid,
+      );
+      const memberArray = Array.from(new Set(memberUids));
 
-    const subscriptions = await this.WebpushRepository.findByArray(memberArray);
+      const subscriptions =
+        await this.WebpushRepository.findByArray(memberArray);
 
-    const results = await this.sendParallel(subscriptions, payload);
-    this.logForFailure(results);
-    return;
+      const results = await this.sendParallel(subscriptions, payload);
+      this.logForFailure(results);
+      return;
+    } catch (err) {
+      throw new AppError('error', 500);
+    }
   }
 
   //Todo: and 사용하도록 수정

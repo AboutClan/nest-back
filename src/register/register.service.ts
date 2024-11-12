@@ -57,20 +57,15 @@ export default class RegisterService implements IRegisterService {
     if (encodedTel === telephone) throw new Error('Key not exist');
     if (encodedTel.length == 0) throw new Error('Key not exist');
 
-    let validatedResgisterForm;
-    validatedResgisterForm = RegisteredZodSchema.parse({
-      uid: this.token.uid,
-      profileImage: this.token.picture,
-      ...subRegisterForm,
-      telephone: encodedTel,
-    });
+    // let validatedResgisterForm;
+    // validatedResgisterForm = RegisteredZodSchema.parse({
+    //   uid: this.token.uid,
+    //   profileImage: this.token.picture,
+    //   ...subRegisterForm,
+    //   telephone: encodedTel,
+    // });
 
-    const updated = await this.registerRepository.updateByUid(
-      this.token.uid,
-      validatedResgisterForm,
-    );
-
-    if (!updated) throw new DatabaseError('register failed');
+    await this.registerRepository.updateByUid(this.token.uid, subRegisterForm);
 
     await this.webPushServiceInstance.sendNotificationToManager(
       subRegisterForm.location,
