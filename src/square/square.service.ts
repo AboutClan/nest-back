@@ -47,6 +47,7 @@ export default class SquareService implements ISquareService {
   async createSquare(
     square: Partial<SecretSquareItem> & { buffers: Buffer[] },
   ) {
+    console.log(square);
     const {
       category,
       title,

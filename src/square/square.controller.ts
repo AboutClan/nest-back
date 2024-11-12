@@ -28,11 +28,15 @@ import { ISQUARE_SERVICE } from 'src/utils/di.tokens';
 @Injectable()
 export class ValidationPipe implements PipeTransform {
   transform(value: any) {
-    return {
-      ...value,
-      pollItems: JSON.parse(value.pollItems),
-      canMultiple: JSON.parse(value.canMultiple),
-    };
+    return value.pollItems && value.canMultiple
+      ? {
+          ...value,
+          pollItems: JSON.parse(value.pollItems),
+          canMultiple: JSON.parse(value.canMultiple),
+        }
+      : {
+          ...value,
+        };
   }
 }
 
