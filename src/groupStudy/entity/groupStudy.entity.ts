@@ -171,6 +171,7 @@ export interface IGroupStudyData extends Document {
   isSecret?: boolean;
   waiting: IWaiting[];
   squareImage?: string;
+  meetingType?:"online"|"offline"|"hybrid"
 }
 
 type UserRole = 'admin' | 'manager' | 'member' | 'outsider';
@@ -429,6 +430,12 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     squareImage: {
       type: String,
     },
+    meetingType: {
+       type: String,
+      enum: [
+       "online","offline","hybrid"
+      ],
+    }
   },
   { timestamps: true },
 );
