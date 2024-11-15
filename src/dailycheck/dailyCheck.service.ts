@@ -24,9 +24,6 @@ export class DailyCheckService implements IDailyCheckService {
     );
 
     if (findDailyCheck?.updatedAt) {
-      // if (dayjs().isSame(dayjs(findDailyCheck?.updatedAt), 'date')) {
-      //   return '이미 출석체크를 완료했습니다.';
-      // }
       const today = new Date();
       const updatedAt = findDailyCheck?.updatedAt
         ? new Date(findDailyCheck.updatedAt)

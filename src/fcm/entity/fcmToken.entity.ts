@@ -10,15 +10,8 @@ export const FcmTokenZodSchema = z.object({
   devices: z.array(DeviceSchema),
 });
 
-export interface IFcmToken extends Document {
-  uid: string;
-  devices: IDevice[];
-}
-
-export interface IDevice {
-  platform: string;
-  token: string;
-}
+export type IDevice = z.infer<typeof DeviceSchema>;
+export type IFcmToken = z.infer<typeof FcmTokenZodSchema> & Document;
 
 const deviceSchema: Schema<IDevice> = new Schema({
   platform: {
