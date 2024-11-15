@@ -8,12 +8,7 @@ export const StoreZodSchema = z.object({
   giftId: z.number().optional(),
 });
 
-export interface IStoreApplicant {
-  uid: string;
-  name: string;
-  cnt: number;
-  giftId?: number;
-}
+export type IStoreApplicant = z.infer<typeof StoreZodSchema>;
 
 export const giftSchema: Schema = new Schema(
   {
