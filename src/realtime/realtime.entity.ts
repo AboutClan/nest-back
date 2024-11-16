@@ -7,6 +7,7 @@ const PlaceSchema = z.object({
   longitude: z.number(),
   name: z.string(),
   address: z.string(),
+  _id: z.string().optional(),
 });
 
 const TimeSchema = z.object({
@@ -15,10 +16,10 @@ const TimeSchema = z.object({
 });
 
 export const RealtimeUserZodSchema = z.object({
-  user: z.custom<Schema.Types.ObjectId>(),
+  user: z.union([z.string(), z.custom<IUser>()]),
   place: PlaceSchema,
   arrived: z.date().optional(), // ISO Date String
-  image: z.custom<Buffer[]>().optional(),
+  image: z.union([z.custom<Buffer[]>(), z.string()]).optional(),
   memo: z.string().optional(),
   comment: z.object({ text: z.string() }).optional(),
   status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']).default('solo'),
@@ -31,32 +32,12 @@ export const RealtimeAttZodSchema = z.object({
   status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']),
 });
 
-export interface IPlace {
-  latitude: number;
-  longitude: number;
-  name: string;
-  address: string;
-  _id?: string;
-}
-
-export interface ITime {
-  start: string;
-  end: string;
-}
+export type IPlace = z.infer<typeof PlaceSchema>;
+export type ITime = z.infer<typeof TimeSchema>;
+export type IRealtimeUser = z.infer<typeof RealtimeUserZodSchema>;
 
 export interface IComment {
   text: string;
-}
-
-export interface IRealtimeUser {
-  user?: ObjectId | IUser;
-  place: IPlace;
-  arrived?: Date;
-  image?: string | Buffer[];
-  memo?: string;
-  comment?: IComment;
-  status: 'pending' | 'solo' | 'open' | 'free' | 'cancel';
-  time: ITime;
 }
 
 export interface IRealtime extends Document {
