@@ -34,8 +34,8 @@ const PlaceStatusZodSchema = z.object({
 
 // TimeStartToEnd schema
 const TimeStartToEndZodSchema = z.object({
-  start: z.instanceof(Dayjs).optional(), // Or use dayjs instance check if needed
-  end: z.instanceof(Dayjs).optional(),
+  start: z.custom<Dayjs>().optional(), // Or use dayjs instance check if needed
+  end: z.custom<Dayjs>().optional(),
 });
 
 // Attendance schema
