@@ -76,28 +76,16 @@ export default class GroupStudyService implements IGroupStudyService {
     return shuffledGroups;
   }
 
-  async getSigningGroup(status: string, all: boolean) {
-    if (status) {
-      console.log(1);
-      return await this.groupStudyRepository.getSigningGroupByStatus(
-        this.token.id,
-        status,
-      );
-    } else {
-      if (all) {
-        console.log(2);
-        return await this.groupStudyRepository.getSigningGroup(
-          this.token.id,
-          null,
-        );
-      } else {
-        console.log(3);
-        return await this.groupStudyRepository.getSigningGroup(
-          this.token.id,
-          '_id title',
-        );
-      }
-    }
+  async getUserGroupsTitleByUserId(userId: string) {
+    return await this.groupStudyRepository.getUserGroupsTitleByUserId(userId);
+  }
+
+  async getSigningGroupByStatus(status: string) {
+  
+    return await this.groupStudyRepository.getSigningGroupByStatus(
+      this.token.id,
+      status,
+    );
   }
 
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
@@ -225,7 +213,7 @@ export default class GroupStudyService implements IGroupStudyService {
 
       const groupStudyData = groupStudyInfo;
 
-      console.log(groupStudyData);
+
       await this.groupStudyRepository.createGroupStudy(groupStudyData);
 
       return;
