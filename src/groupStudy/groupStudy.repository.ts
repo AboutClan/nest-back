@@ -287,7 +287,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
         participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
         isSecret: { $ne: true },
       },
-      'title, meetingType',
+      'title meetingType',
     );
   }
   async getSigningGroupByStatus(userId: string, status: string): Promise<any> {
