@@ -81,7 +81,6 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async getSigningGroupByStatus(status: string) {
-  
     return await this.groupStudyRepository.getSigningGroupByStatus(
       this.token.id,
       status,
@@ -213,7 +212,6 @@ export default class GroupStudyService implements IGroupStudyService {
 
       const groupStudyData = groupStudyInfo;
 
-
       await this.groupStudyRepository.createGroupStudy(groupStudyData);
 
       return;
@@ -254,7 +252,7 @@ export default class GroupStudyService implements IGroupStudyService {
       );
     }
 
-    this.webPushServiceInstance.sendNotificationGroupStudy(id);
+    // this.webPushServiceInstance.sendNotificationGroupStudy(id);
 
     return;
   }
