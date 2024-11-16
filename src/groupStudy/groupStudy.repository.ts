@@ -285,6 +285,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       {
         status: 'pending',
         participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
+        isSecret: { $ne: true },
       },
       'title',
     );

@@ -1,29 +1,28 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Inject,
+  Param,
   Patch,
   Post,
-  Body,
-  Param,
   Query,
-  Response,
   UsePipes,
   ValidationPipe,
-  Delete,
-  Inject,
 } from '@nestjs/common';
+import { IUSER_SERVICE } from 'src/utils/di.tokens';
 import {
+  PatchBelongDto,
+  PatchRoleDto,
+  SetFriendDto,
+  SetPreferenceDto,
+  SetPromotionDto,
   UpdateAvatarDto,
   UpdateCommentDto,
   UpdateInstagramDto,
-  PatchRoleDto,
-  SetPreferenceDto,
-  SetPromotionDto,
-  SetFriendDto,
-  PatchBelongDto,
 } from './dto';
 import { IUserService } from './userService.interface';
-import { IUSER_SERVICE } from 'src/utils/di.tokens';
 
 @Controller('user')
 export class UserController {
@@ -149,9 +148,10 @@ export class UserController {
     return voteResult;
   }
 
-  @Get('profile/:uid')
-  async getUserByUid(@Param('uid') uid: string) {
-    const isActive = await this.userService.getUserWithUid(uid);
+  @Get('profile/:userId')
+  async getUserByUid(@Param('userId') userId: string) {
+   
+    const isActive = await this.userService.getUserWithUserId(userId);
     return isActive;
   }
 

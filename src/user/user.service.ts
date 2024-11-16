@@ -1,24 +1,24 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { JWT } from 'next-auth/jwt';
-import * as CryptoJS from 'crypto-js';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { IUser, restType } from './entity/user.entity';
-import dayjs from 'dayjs';
-import { getProfile } from 'src/utils/oAuthUtils';
-import { IVote } from 'src/vote/entity/vote.entity';
-import { IPlace } from 'src/place/entity/place.entity';
-import { IPromotion } from 'src/promotion/entity/promotion.entity';
-import { ILog } from 'src/logz/entity/log.entity';
-import { INotice } from 'src/notice/entity/notice.entity';
-import * as logger from '../logger';
 import { REQUEST } from '@nestjs/core';
+import { InjectModel } from '@nestjs/mongoose';
+import * as CryptoJS from 'crypto-js';
+import dayjs from 'dayjs';
 import { Request } from 'express';
-import { IUserService } from './userService.interface';
+import { Model } from 'mongoose';
+import { JWT } from 'next-auth/jwt';
 import { C_simpleUser } from 'src/constants';
 import { AppError } from 'src/errors/AppError';
+import { ILog } from 'src/logz/entity/log.entity';
+import { INotice } from 'src/notice/entity/notice.entity';
+import { IPlace } from 'src/place/entity/place.entity';
+import { IPromotion } from 'src/promotion/entity/promotion.entity';
 import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
+import { getProfile } from 'src/utils/oAuthUtils';
+import { IVote } from 'src/vote/entity/vote.entity';
+import * as logger from '../logger';
+import { IUser, restType } from './entity/user.entity';
 import { UserRepository } from './user.repository.interface';
+import { IUserService } from './userService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService implements IUserService {
@@ -57,6 +57,14 @@ export class UserService implements IUserService {
 
   async getUserWithUid(uid: string) {
     const result = await this.UserRepository.findByUid(uid);
+
+    if (result && result.telephone)
+      result.telephone = await this.decodeByAES256(result.telephone);
+
+    return result;
+  }
+  async getUserWithUserId(userId: string) {
+    const result = await this.UserRepository.findByUserId(userId);
 
     if (result && result.telephone)
       result.telephone = await this.decodeByAES256(result.telephone);

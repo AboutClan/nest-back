@@ -10,6 +10,9 @@ export class MongoUserRepository implements UserRepository {
       ? await this.User.findOne({ uid }, queryString)
       : await this.User.findOne({ uid });
   }
+  async findByUserId(userId: string): Promise<IUser> {
+    return await this.User.findOne({ _id: userId });
+  }
   async findByUids(uids: string[]): Promise<IUser[]> {
     return await this.User.find({ uid: { $in: uids } });
   }

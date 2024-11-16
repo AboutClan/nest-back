@@ -4,6 +4,7 @@ export interface IUserService {
   decodeByAES256(encodedTel: string): Promise<string>;
   createQueryString(strArr: string[]): string;
   getUserWithUid(uid: string): Promise<IUser | null>;
+  getUserWithUserId(userId: string): Promise<IUser | null>;
   getUsersWithUids(uids: string[]): Promise<IUser[]>;
   getUserInfo(strArr: string[]): Promise<IUser | null>;
   getAllUserInfo(strArr: string[]): Promise<IUser[]>;
