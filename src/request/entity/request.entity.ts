@@ -40,6 +40,27 @@ export const restSchema: Schema<restType> = new Schema(
   { _id: false },
 );
 
+export type RequestCategory =
+  | '건의'
+  | '신고'
+  | '홍보'
+  | '휴식'
+  | '충전'
+  | '탈퇴'
+  | '출석'
+  | '배지'
+  | '불참'
+  | '조모임'
+  | '장소 추가';
+
+export type RequestLocation =
+  | '수원'
+  | '양천'
+  | '안양'
+  | '강남'
+  | '동대문'
+  | '인천';
+
 export const RequestSchema: Schema<IRequestData> = new Schema(
   {
     category: {
