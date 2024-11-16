@@ -17,30 +17,12 @@ export const PlaceZodSchema = z.object({
   locationDetail: z.string().optional(),
   time: z.string().optional(),
   registerDate: z.string().optional(),
-  registrant: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  registrant: z.union([z.string(), z.custom<IUser>()]),
   mapURL: z.string(),
   prefCnt: z.number().optional(),
 });
 
-export interface IPlace extends Document {
-  status: string;
-  fullname: string;
-  brand?: string;
-  branch?: string;
-  image?: string;
-  coverImage?: string;
-  latitude: string;
-  longitude: string;
-  priority?: number;
-  _id: string;
-  location: string;
-  locationDetail?: string;
-  time?: string;
-  registerDate: string;
-  registrant: string | IUser;
-  mapURL: string;
-  prefCnt: number;
-}
+export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
 
 export const PlaceSchema: Schema<IPlace> = new Schema({
   status: {
