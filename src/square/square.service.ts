@@ -1,19 +1,18 @@
-import { Model, type Types } from 'mongoose';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+import { type Types } from 'mongoose';
 import { type JWT } from 'next-auth/jwt/types';
-import { InjectModel } from '@nestjs/mongoose';
+import ImageService from 'src/imagez/image.service';
+import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import {
   SecretSquareCategory,
   SecretSquareItem,
   SecretSquareZodSchema,
   subCommentType,
 } from './entity/square.entity';
-import ImageService from 'src/imagez/image.service';
-import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { ISquareService } from './squareService.interface';
-import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import { SquareRepository } from './square.repository.interface';
+import { ISquareService } from './squareService.interface';
 
 export default class SquareService implements ISquareService {
   private token: JWT;
@@ -47,7 +46,6 @@ export default class SquareService implements ISquareService {
   async createSquare(
     square: Partial<SecretSquareItem> & { buffers: Buffer[] },
   ) {
-    console.log(square);
     const {
       category,
       title,

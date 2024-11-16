@@ -106,11 +106,13 @@ export class GroupStudyController {
   }
 
   @Get('mine')
-  async getSigningGroup(
-    @Query('status') status?: string,
-    @Query('all') all?: boolean,
-  ) {
-    return await this.groupStudyService.getSigningGroup(status, all);
+  async getSigningGroupByStatus(@Query('status') status?: string) {
+    return await this.groupStudyService.getSigningGroupByStatus(status);
+  }
+
+  @Get('profile/:userId')
+  async getUserGroupsTitleByUserId(@Param('userId') userId: string) {
+    return await this.groupStudyService.getUserGroupsTitleByUserId(userId);
   }
 
   @Post('participate')

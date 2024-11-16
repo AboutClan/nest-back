@@ -280,17 +280,18 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     return await this.GroupStudy.find({});
   }
 
-  async getSigningGroup(userId: string, field: string | null): Promise<any> {
+  async getUserGroupsTitleByUserId(userId: string): Promise<any> {
     return await this.GroupStudy.find(
       {
+        status: 'pending',
         participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
       },
-      field,
+      'title',
     );
   }
   async getSigningGroupByStatus(userId: string, status: string): Promise<any> {
     return await this.GroupStudy.find({
-      status,
+      status: status === 'pending' ? 'pending' : { $in: ['pending', 'end'] },
       participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
     });
   }
