@@ -51,6 +51,9 @@ export default class GroupStudyService implements IGroupStudyService {
     return {
       online: getTopGroupStudies(groupStudyData, 'online'),
       offline: getTopGroupStudies(groupStudyData, 'offline'),
+      new: groupStudyData
+        .sort((a, b) => (dayjs(a.createdAt).isBefore(b.createdAt) ? -1 : 1))
+        .slice(0, 3),
     };
   }
 
