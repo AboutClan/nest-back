@@ -4,6 +4,7 @@ export interface IGroupStudyService {
   getGroupStudySnapshot(): Promise<{
     online: IGroupStudyData[];
     offline: IGroupStudyData[];
+    new: IGroupStudyData[];
   }>;
   getGroupStudyByFilterAndCategory(
     filter: string,
