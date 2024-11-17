@@ -14,15 +14,8 @@ const notificationSubZodSchema = z.object({
   uid: z.string(),
 });
 
-export interface INotificationSub extends Document {
-  endpoint: string;
-  keys: KeyType;
-  uid: string;
-}
-export interface KeyType extends Document {
-  p256dh: string;
-  auth: string;
-}
+export type KeyType = z.infer<typeof keyZodSchema>;
+export type INotificationSub = z.infer<typeof notificationSubZodSchema>;
 
 const KeySchema: Schema<KeyType> = new Schema({
   p256dh: {
