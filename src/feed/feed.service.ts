@@ -1,23 +1,21 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { InjectModel } from '@nestjs/mongoose';
+import { Request } from 'express';
 import { Model, Types } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { Inject, Injectable } from '@nestjs/common';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { ValidationError } from 'src/errors/ValidationError';
 import ImageService from 'src/imagez/image.service';
+import { IUser } from 'src/user/entity/user.entity';
+import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
 import {
   commentType,
   FeedZodSchema,
-  IFeed,
   subCommentType,
 } from './entity/feed.entity';
-import { C_simpleUser } from 'src/constants';
-import { IUser } from 'src/user/entity/user.entity';
-import { ValidationError } from 'src/errors/ValidationError';
-import { DatabaseError } from 'src/errors/DatabaseError';
-import { InjectModel } from '@nestjs/mongoose';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { IFeedService } from './feedService.interface';
-import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
 import { FeedRepository } from './feed.repository.interface';
+import { IFeedService } from './feedService.interface';
 
 @Injectable()
 export class FeedService implements IFeedService {
@@ -302,7 +300,7 @@ export class FeedService implements IFeedService {
     const user = await this.User.findOne({ uid: this.token.uid });
     if (!user) return;
     if (isLikePush) user.point += 2;
-    else user.point -= 1;
+    else user.point -= 2;
     await user.save();
     return;
   }

@@ -1,13 +1,13 @@
-import { JWT } from 'next-auth/jwt';
-import dayjs from 'dayjs';
-import { PromotionZodSchema } from './entity/promotion.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+import dayjs from 'dayjs';
 import { Request } from 'express';
-import { IPROMOTION_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
+import { JWT } from 'next-auth/jwt';
 import { IUserService } from 'src/user/userService.interface';
-import { IPromotionService } from './promotionService.interface';
+import { IPROMOTION_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
+import { PromotionZodSchema } from './entity/promotion.entity';
 import { PromotionRepository } from './promotion.repository';
+import { IPromotionService } from './promotionService.interface';
 
 export default class PromotionService implements IPromotionService {
   private token: JWT;
@@ -48,7 +48,7 @@ export default class PromotionService implements IPromotionService {
         }
       } else {
         await this.promotionRepository.createPromotion(validatedPromotion);
-        await this.userServiceInstance.updatePoint(300, '홍보 이벤트 참여');
+        await this.userServiceInstance.updatePoint(100, '홍보 이벤트 참여');
       }
     } catch (err: any) {
       throw new Error(err);

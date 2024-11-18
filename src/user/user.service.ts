@@ -541,12 +541,12 @@ export class UserService implements IUserService {
 
       // result.upsertedCount가 1이면 새로 생성된 경우, 아니면 업데이트된 경우
       if (result.upsertedCount > 0) {
-        await this.updatePoint(300, '홍보 이벤트 참여'); // 새로 생성된 경우
+        await this.updatePoint(100, '홍보 이벤트 참여'); // 새로 생성된 경우
       } else {
         const previousData = await this.Promotion.findOne({ name });
         const dayDiff = dayjs(now).diff(dayjs(previousData?.lastDate), 'day');
         if (dayDiff > 2) {
-          await this.updatePoint(200, '홍보 이벤트 참여'); // 기존 데이터 업데이트
+          await this.updatePoint(100, '홍보 이벤트 참여'); // 기존 데이터 업데이트
         }
       }
     } catch (err: any) {
