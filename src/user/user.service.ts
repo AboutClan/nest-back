@@ -345,12 +345,10 @@ export class UserService implements IUserService {
     );
 
     logger.logger.info(message, {
-      metadata: {
-        type: 'point',
-        sub,
-        uid: this.token.uid,
-        value: point,
-      },
+      type: 'point',
+      sub,
+      uid: this.token.uid,
+      value: point,
     });
     return;
   }
@@ -364,7 +362,10 @@ export class UserService implements IUserService {
     await this.UserRepository.increaseScore(score, this.token.uid);
 
     logger.logger.info(message, {
-      metadata: { type: 'score', sub, uid: this.token.uid, value: score },
+      type: 'score',
+      sub,
+      uid: this.token.uid,
+      value: score,
     });
     return;
   }
@@ -381,10 +382,14 @@ export class UserService implements IUserService {
         user.point += 20;
         await user.save();
         logger.logger.info('동아리 점수 초기화', {
-          metadata: { type: 'score', uid: user.uid, value: 0 },
+          type: 'score',
+          uid: user.uid,
+          value: 0,
         });
         logger.logger.info('동아리 점수 초기화 보상', {
-          metadata: { type: 'point', uid: user.uid, value: 20 },
+          type: 'point',
+          uid: user.uid,
+          value: 20,
         });
       }
     } catch (err: any) {
@@ -398,7 +403,10 @@ export class UserService implements IUserService {
     await this.UserRepository.increaseDeposit(deposit, this.token.uid);
 
     logger.logger.info(message, {
-      metadata: { type: 'deposit', sub, uid: this.token.uid, value: deposit },
+      type: 'deposit',
+      sub,
+      uid: this.token.uid,
+      value: deposit,
     });
     return;
   }

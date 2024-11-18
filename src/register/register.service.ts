@@ -99,7 +99,9 @@ export default class RegisterService implements IRegisterService {
     }
 
     logger.logger.info('가입 보증금', {
-      metadata: { type: 'deposit', uid, value: 3000 },
+      type: 'deposit',
+      uid,
+      value: 3000,
     });
     return;
   }

@@ -171,10 +171,12 @@ export default class AdminVoteService {
         participations?.forEach((participation) => {
           if (
             participation.status === 'dismissed' &&
-            participation.attendences &&
-            participation.attendences.length > 1
+            participation.attendences
           ) {
-            participation.status = 'free';
+            if (participation.attendences.length == 2)
+              participation.status = 'free';
+            else if (participation.attendences.length == 1)
+              participation.status = 'dismissed';
           }
         });
 
