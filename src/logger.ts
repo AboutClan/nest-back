@@ -23,6 +23,7 @@ const logFormat = printf(({ level, message, label, timestamp }: any) => {
 const mongoDBTransport = new winston.transports.MongoDB({
   db: process.env.MONGODB_URI,
   collection: 'logs',
+  metaKey: 'meta',
 });
 
 export const logger = winston.createLogger({
