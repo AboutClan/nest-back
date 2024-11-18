@@ -249,6 +249,13 @@ export class UserController {
     await this.userService.updateScore(body.score, body.message, body.sub);
     return { message: 'Score updated successfully' };
   }
+  @Patch('point')
+  async updateUserPoint(
+    @Body() body: { point: number; message: string; sub: any },
+  ) {
+    await this.userService.updatePoint(body.point, body.message, body.sub);
+    return { message: 'Point updated successfully' };
+  }
 
   @Get('score')
   async getUserScore() {

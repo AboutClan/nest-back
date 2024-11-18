@@ -1,27 +1,26 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
+import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import {
-  gatherStatus,
-  IGatherData,
-  subCommentType,
-} from './entity/gather.entity';
-import { Inject, Injectable } from '@nestjs/common';
-import { C_simpleUser } from 'src/constants';
+import { IChatService } from 'src/chatz/chatService.interface';
+import { ICounterService } from 'src/counter/counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/entity/user.entity';
-import * as logger from '../logger';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 import {
   ICHAT_SERVICE,
   ICOUNTER_SERVICE,
   IGATHER_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { ICounterService } from 'src/counter/counterService.interface';
-import { IChatService } from 'src/chatz/chatService.interface';
-import { IGatherService } from './gatherService.interface';
+import * as logger from '../logger';
+import {
+  gatherStatus,
+  IGatherData,
+  subCommentType,
+} from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
+import { IGatherService } from './gatherService.interface';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -115,7 +114,7 @@ export class GatherService implements IGatherService {
 
     const user = await this.User.findOneAndUpdate(
       { _id: id },
-      { $inc: { score: 5, monthScore: 5 } },
+      { $inc: { score: 5, point: 5, monthScore: 5 } },
       { new: true, useFindAndModify: false },
     );
 
@@ -124,6 +123,13 @@ export class GatherService implements IGatherService {
     logger.logger.info('번개 모임 참여', {
       metadata: {
         type: 'score',
+        uid: user.uid,
+        value: 5,
+      },
+    });
+    logger.logger.info('번개 모임 참여', {
+      metadata: {
+        type: 'point',
         uid: user.uid,
         value: 5,
       },

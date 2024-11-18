@@ -9,6 +9,7 @@ import { ValidationError } from 'src/errors/ValidationError';
 import ImageService from 'src/imagez/image.service';
 import { IUser } from 'src/user/entity/user.entity';
 import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
+import * as logger from '../logger';
 import {
   commentType,
   FeedZodSchema,
@@ -16,7 +17,6 @@ import {
 } from './entity/feed.entity';
 import { FeedRepository } from './feed.repository.interface';
 import { IFeedService } from './feedService.interface';
-
 @Injectable()
 export class FeedService implements IFeedService {
   private token: JWT;
@@ -302,6 +302,13 @@ export class FeedService implements IFeedService {
     if (isLikePush) user.point += 2;
     else user.point -= 2;
     await user.save();
+
+    logger.logger.info(`피드 좋아요 전송 /피드 좋아요 전송 취소`, {
+      type: 'point',
+      uid: this.token.uid,
+      value: 2,
+    });
+
     return;
   }
 }
