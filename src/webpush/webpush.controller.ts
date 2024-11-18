@@ -23,7 +23,11 @@ export class WebPushController {
     @Body('subscription') subscription: createSubDTO,
     @Req() req: Request,
   ): string {
-    this.webPushService.subscribe(subscription, req.decodedToken.uid);
+    this.webPushService.subscribe(
+      subscription,
+      req.decodedToken.uid,
+      req.decodedToken.id,
+    );
     return 'register success';
   }
   @Post('sendNotification')

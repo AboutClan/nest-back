@@ -1,4 +1,5 @@
 import mongoose, { model, Schema, Document, Model } from 'mongoose';
+import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 // KeyType Zod schema
@@ -12,6 +13,7 @@ const notificationSubZodSchema = z.object({
   endpoint: z.string(),
   keys: keyZodSchema,
   uid: z.string(),
+  userId: z.union([z.string(), z.custom<IUser>()]).optional(),
 });
 
 export type KeyType = z.infer<typeof keyZodSchema>;
@@ -31,6 +33,9 @@ export const NotificationSubSchema: Schema<INotificationSub> = new Schema({
   keys: KeySchema,
   uid: {
     type: String,
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
   },
 });
 

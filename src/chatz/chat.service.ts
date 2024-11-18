@@ -110,6 +110,7 @@ export class ChatService implements IChatService {
     };
 
     const validatedContent = ContentZodSchema.parse(contentFill);
+
     const validatedChat = ChatZodSchema.parse({
       user1,
       user2,
@@ -127,18 +128,9 @@ export class ChatService implements IChatService {
     }
 
     //알림 보내기
-    //Todo: UID더이상 사용x 모두 userId로 통일
-    const toUser = await this.UserRepository.findById(toUserId);
-    if (!toUser) throw new DatabaseError('toUserUid is incorrect');
-
     try {
-      await this.fcmServiceInstance.sendNotificationToX(
-        toUser.uid,
-        '쪽지를 받았어요!',
-        message,
-      );
-      await this.webPushServiceInstance.sendNotificationToX(
-        toUser.uid,
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        toUserId,
         '쪽지를 받았어요!',
         message,
       );
