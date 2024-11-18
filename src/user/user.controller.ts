@@ -150,7 +150,6 @@ export class UserController {
 
   @Get('profile/:userId')
   async getUserByUid(@Param('userId') userId: string) {
-   
     const isActive = await this.userService.getUserWithUserId(userId);
     return isActive;
   }
@@ -254,6 +253,11 @@ export class UserController {
   @Get('score')
   async getUserScore() {
     const userScore = await this.userService.getUserInfo(['score']);
+    return userScore;
+  }
+  @Get('point')
+  async getUserPoint() {
+    const userScore = await this.userService.getUserInfo(['point']);
     return userScore;
   }
 
