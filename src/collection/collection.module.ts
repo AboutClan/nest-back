@@ -8,8 +8,10 @@ import { UserModule } from 'src/user/user.module';
 import {
   ICOLLECTION_REPOSITORY,
   ICOLLECTION_SERVICE,
+  IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { MongoCollectionRepository } from './collection.repository';
+import { MongoUserRepository } from 'src/user/user.repository';
 
 const collectionServiceProvider: ClassProvider = {
   provide: ICOLLECTION_SERVICE,
@@ -21,6 +23,11 @@ const collectionRepositoryProvider: ClassProvider = {
   useClass: MongoCollectionRepository,
 };
 
+const userRepositoryProvider: ClassProvider = {
+  provide: IUSER_REPOSITORY,
+  useClass: MongoUserRepository,
+};
+
 @Module({
   imports: [
     forwardRef(() => UserModule),
@@ -30,7 +37,11 @@ const collectionRepositoryProvider: ClassProvider = {
     ]),
   ],
   controllers: [CollectionController],
-  providers: [collectionServiceProvider, collectionRepositoryProvider],
+  providers: [
+    collectionServiceProvider,
+    collectionRepositoryProvider,
+    userRepositoryProvider,
+  ],
   exports: [
     collectionServiceProvider,
     MongooseModule,
