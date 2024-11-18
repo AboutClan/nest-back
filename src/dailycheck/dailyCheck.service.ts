@@ -4,7 +4,6 @@ import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { DailyCheckZodSchema } from './dailycheck.entity';
-import dayjs from 'dayjs';
 import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { DailyCheckRepository } from './dailyCheck.repository.interface';
 
@@ -45,11 +44,9 @@ export class DailyCheckService implements IDailyCheckService {
   }
 
   async getLog() {
-    const result = await this.dailyCheckRepository.findByUid(this.token.uid);
-    return result;
+    return await this.dailyCheckRepository.findByUid(this.token.uid);
   }
   async getAllLog() {
-    const result = await this.dailyCheckRepository.findAll();
-    return result;
+    return await this.dailyCheckRepository.findAll();
   }
 }
