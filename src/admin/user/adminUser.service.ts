@@ -91,7 +91,9 @@ export default class AdminUserService {
     }
 
     logger.logger.info(message, {
-      metadata: { type, uid, value },
+      type,
+      uid,
+      value,
     });
     return;
   }

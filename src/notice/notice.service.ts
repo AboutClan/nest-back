@@ -23,6 +23,11 @@ export default class NoticeService implements INoticeService {
     this.token = this.request.decodedToken;
   }
   async getActiveLog() {
+    logger.logger.info('hello', {
+      type: 'point',
+      value: 2,
+    });
+
     const result = await this.noticeRepository.findActiveLog(this.token.uid);
     return result;
   }
@@ -50,11 +55,9 @@ export default class NoticeService implements INoticeService {
       );
 
       logger.logger.info(message, {
-        metadata: {
-          type: 'point',
-          uid: to,
-          value: 2,
-        },
+        type: 'point',
+        uid: to,
+        value: 2,
       });
     } catch (err: any) {
       throw new Error(err);

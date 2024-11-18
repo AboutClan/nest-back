@@ -84,11 +84,9 @@ export class GatherService implements IGatherService {
     if (!user) throw new DatabaseError('cant find user');
 
     logger.logger.info('번개 모임 개설', {
-      metadata: {
-        type: 'score',
-        uid: user.uid,
-        value: 5,
-      },
+      type: 'score',
+      uid: user.uid,
+      value: 5,
     });
 
     return;
@@ -122,11 +120,9 @@ export class GatherService implements IGatherService {
     if (!user) throw new DatabaseError('cant find user');
 
     logger.logger.info('번개 모임 참여', {
-      metadata: {
-        type: 'score',
-        uid: user.uid,
-        value: 5,
-      },
+      type: 'score',
+      uid: user.uid,
+      value: 5,
     });
 
     return;
@@ -149,11 +145,9 @@ export class GatherService implements IGatherService {
     if (!user) throw new Error('User not found');
 
     logger.logger.info('번개 모임 참여 취소', {
-      metadata: {
-        type: 'score',
-        uid: user.uid,
-        value: -5,
-      },
+      type: 'score',
+      uid: user.uid,
+      value: -5,
     });
     return;
   }
@@ -323,11 +317,9 @@ export class GatherService implements IGatherService {
 
     if (!user) throw new DatabaseError('cant find user');
     logger.logger.info('번개 모임 삭제', {
-      metadata: {
-        type: 'score',
-        uid: user.uid,
-        value: -5,
-      },
+      type: 'score',
+      uid: user.uid,
+      value: -5,
     });
     return;
   }

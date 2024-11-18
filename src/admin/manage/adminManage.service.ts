@@ -102,12 +102,10 @@ export default class AdminManageService {
           throw new Error();
         }
         logger.logger.info('월별 참여 정산', {
-          metadata: {
-            type: 'deposit',
-            sub: null,
-            uid: uid,
-            value: -1000,
-          },
+          type: 'deposit',
+          sub: null,
+          uid: uid,
+          value: -1000,
         });
         user.deposit -= 1000;
         await user.save();
