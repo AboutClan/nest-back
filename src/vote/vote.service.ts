@@ -816,8 +816,8 @@ export class VoteService implements IVoteService {
         this.token.id,
       );
 
-      await this.userServiceInstance.updatePoint(5, '스터디 출석체크');
-      await this.userServiceInstance.updateScore(5, '스터디 출석체크');
+      await this.userServiceInstance.updatePoint(5, '스터디 출석');
+      await this.userServiceInstance.updateScore(5, '스터디 출석');
 
       return result;
     } catch (err) {
