@@ -11,7 +11,9 @@ import { createSubDTO } from './webpush.dto';
 import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { Request } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('webpush')
 @Controller('webpush')
 export class WebPushController {
   constructor(

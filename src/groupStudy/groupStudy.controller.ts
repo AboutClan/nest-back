@@ -19,7 +19,9 @@ import {
 } from './dto';
 import { GroupStudyStatus } from './entity/groupStudy.entity';
 import { IGroupStudyService } from './groupStudyService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('groupstudy')
 @Controller('groupStudy')
 export class GroupStudyController {
   constructor(

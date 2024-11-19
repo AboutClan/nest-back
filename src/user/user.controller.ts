@@ -23,7 +23,9 @@ import {
   UpdateInstagramDto,
 } from './dto';
 import { IUserService } from './userService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(@Inject(IUSER_SERVICE) private userService: IUserService) {}

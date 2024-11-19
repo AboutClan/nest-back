@@ -16,7 +16,9 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { IFEED_SERVICE } from 'src/utils/di.tokens';
 import { IFeedService } from './feedService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('feed')
 @Controller('feed')
 export class FeedController {
   constructor(@Inject(IFEED_SERVICE) private feedService: IFeedService) {}

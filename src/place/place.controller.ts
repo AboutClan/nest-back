@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { IPLACE_SERVICE } from 'src/utils/di.tokens';
 import { IPlaceService } from './placeService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('place')
 @Controller('place')
 export class PlaceController {
   constructor(@Inject(IPLACE_SERVICE) private placeService: IPlaceService) {}

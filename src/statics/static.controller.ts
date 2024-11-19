@@ -8,7 +8,9 @@ import {
 } from '@nestjs/common';
 import { ISTATIC_SERVICE } from 'src/utils/di.tokens';
 import { IStaticService } from './staticService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('static')
 @Controller('static')
 export class StaticController {
   constructor(@Inject(ISTATIC_SERVICE) private staticService: IStaticService) {}

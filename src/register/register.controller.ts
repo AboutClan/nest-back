@@ -11,7 +11,9 @@ import {
 import { ApproveUserDto } from './dto';
 import { IREGISTER_SERVICE } from 'src/utils/di.tokens';
 import { IRegisterService } from './registerService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('register')
 @Controller('register')
 export class RegisterController {
   constructor(

@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { IFCM_SERVICE } from 'src/utils/di.tokens';
 import { IFcmService } from './fcm.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('fcm')
 @Controller('fcm')
 export class FcmController {
   constructor(@Inject(IFCM_SERVICE) private fcmService: IFcmService) {}

@@ -18,8 +18,10 @@ import { Response, NextFunction } from 'express';
 import { memoryStorage } from 'multer';
 import { IREALTIME_SERVICE } from 'src/utils/di.tokens';
 import { IRealtimeService } from './realtimeService';
+import { ApiTags } from '@nestjs/swagger';
 
 @Injectable()
+@ApiTags('realtime')
 @Controller('realtime')
 export class RealtimeController {
   constructor(

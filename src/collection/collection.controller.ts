@@ -11,7 +11,9 @@ import {
 import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
 import { ICollectionService } from './collectionService.interface';
 import { updateCollectionDTO } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('controller')
 @Controller('collection')
 export class CollectionController {
   constructor(

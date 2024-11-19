@@ -15,7 +15,9 @@ import { CreateQuickVoteDTO } from './dto/createQuickVoteDTO.dto';
 import { Request } from 'express';
 import { IVOTE_SERVICE } from 'src/utils/di.tokens';
 import { IVoteService } from './voteService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('vote')
 @Controller('vote')
 export class VoteController {
   constructor(@Inject(IVOTE_SERVICE) private voteService: IVoteService) {}
