@@ -542,6 +542,10 @@ export class VoteService implements IVoteService {
       const { place, subPlace, start, end, memo }: IVoteStudyInfo = studyInfo;
       const vote = await this.getVote(date);
 
+      if (!this.isVoting(date)) {
+        this.userServiceInstance.updatePoint(5, '스터디 투표');
+      }
+
       await this.Realtime.updateOne(
         { date },
         {
@@ -677,6 +681,8 @@ export class VoteService implements IVoteService {
           },
         },
       );
+
+      this.userServiceInstance.updatePoint(-5, '스터디 투표 취소');
 
       return;
     } catch (err) {
