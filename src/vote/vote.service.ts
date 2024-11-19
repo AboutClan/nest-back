@@ -18,8 +18,9 @@ import { Request } from 'express';
 import { IRealtime } from 'src/realtime/realtime.entity';
 import { convertUserToSummary } from 'src/convert';
 import { IVoteService } from './voteService.interface';
-import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
+import { ICOLLECTION_SERVICE, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { ICollectionService } from 'src/collection/collectionService.interface';
+import { IUserService } from 'src/user/userService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VoteService implements IVoteService {
@@ -31,6 +32,8 @@ export class VoteService implements IVoteService {
     @InjectModel('Realtime') private Realtime: Model<IRealtime>,
     @Inject(ICOLLECTION_SERVICE)
     private collectionServiceInstance: ICollectionService,
+    @Inject(IUSER_SERVICE)
+    private userServiceInstance: IUserService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
@@ -772,6 +775,7 @@ export class VoteService implements IVoteService {
         arriveInfo.push(arriveForm);
       });
 
+      await this.userServiceInstance.updatePoint(5, '스터디 출석');
       return arriveInfo;
     } catch (err) {
       throw new Error();
