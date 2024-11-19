@@ -4,7 +4,11 @@ import { FeedService } from './feed.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FeedSchema } from './entity/feed.entity';
 import { UserModule } from 'src/user/user.module';
-import { IFEED_REPOSITORY, IFEED_SERVICE } from 'src/utils/di.tokens';
+import {
+  IFEED_REPOSITORY,
+  IFEED_SERVICE,
+  IUSER_SERVICE,
+} from 'src/utils/di.tokens';
 import { MongoFeedRepository } from './feed.repository';
 
 const feedServiceProvider: ClassProvider = {
