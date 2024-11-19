@@ -11,7 +11,9 @@ import { createSubDTO } from './webpush.dto';
 import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { Request } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('webpush')
 @Controller('webpush')
 export class WebPushController {
   constructor(
@@ -23,7 +25,11 @@ export class WebPushController {
     @Body('subscription') subscription: createSubDTO,
     @Req() req: Request,
   ): string {
-    this.webPushService.subscribe(subscription, req.decodedToken.uid);
+    this.webPushService.subscribe(
+      subscription,
+      req.decodedToken.uid,
+      req.decodedToken.id,
+    );
     return 'register success';
   }
   @Post('sendNotification')

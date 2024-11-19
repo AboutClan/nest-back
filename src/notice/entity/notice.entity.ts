@@ -10,14 +10,7 @@ export const NoticeZodSchema = z.object({
   sub: z.string().nullable().optional(),
 });
 
-export interface INotice {
-  from: string;
-  to: string;
-  type: string;
-  message: string;
-  status?: string;
-  sub?: string;
-}
+export type INotice = z.infer<typeof NoticeZodSchema>;
 
 export const noticeSchema: Schema<INotice> = new Schema(
   {

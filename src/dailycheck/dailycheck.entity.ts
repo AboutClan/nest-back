@@ -8,12 +8,7 @@ export const DailyCheckZodSchema = z.object({
   updatedAt: z.instanceof(Date).optional(),
 });
 
-export interface IDailyCheck {
-  uid: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type IDailyCheck = z.infer<typeof DailyCheckZodSchema>;
 
 export const dailyCheckSchema: Schema<IDailyCheck> = new Schema(
   {

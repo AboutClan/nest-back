@@ -5,6 +5,11 @@ import { UserRepository } from './user.repository.interface';
 
 export class MongoUserRepository implements UserRepository {
   constructor(@InjectModel('User') private readonly User: Model<IUser>) {}
+
+  async findById(userId: string): Promise<IUser> {
+    return await this.User.findById(userId);
+  }
+
   async findByUid(uid: string, queryString?: string): Promise<IUser> {
     return queryString
       ? await this.User.findOne({ uid }, queryString)

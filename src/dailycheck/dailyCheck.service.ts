@@ -1,12 +1,9 @@
 import { JWT } from 'next-auth/jwt';
 import { IDailyCheckService } from './dailyCheck.service.interface';
-import { InjectModel } from '@nestjs/mongoose';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { DailyCheckZodSchema, IDailyCheck } from './dailycheck.entity';
-import { Model } from 'mongoose';
-import dayjs from 'dayjs';
+import { DailyCheckZodSchema } from './dailycheck.entity';
 import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { DailyCheckRepository } from './dailyCheck.repository.interface';
 
@@ -26,7 +23,12 @@ export class DailyCheckService implements IDailyCheckService {
     );
 
     if (findDailyCheck?.updatedAt) {
-      if (dayjs().isSame(dayjs(findDailyCheck?.updatedAt), 'date')) {
+      const today = new Date();
+      const updatedAt = findDailyCheck?.updatedAt
+        ? new Date(findDailyCheck.updatedAt)
+        : null;
+
+      if (updatedAt && today.toDateString() === updatedAt.toDateString()) {
         return '이미 출석체크를 완료했습니다.';
       }
     }
@@ -42,11 +44,9 @@ export class DailyCheckService implements IDailyCheckService {
   }
 
   async getLog() {
-    const result = await this.dailyCheckRepository.findByUid(this.token.uid);
-    return result;
+    return await this.dailyCheckRepository.findByUid(this.token.uid);
   }
   async getAllLog() {
-    const result = await this.dailyCheckRepository.findAll();
-    return result;
+    return await this.dailyCheckRepository.findAll();
   }
 }

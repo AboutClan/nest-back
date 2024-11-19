@@ -6,15 +6,22 @@ import {
   INotificationSub,
   NotificationSub,
 } from './entity/notificationsub.entity';
+import { IUser } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class MongoWebpushRepository implements WebpushRepository {
   constructor(
     @InjectModel('NotificationSub')
     private readonly NotificationSub: Model<INotificationSub>,
+    @InjectModel('User')
+    private readonly User: Model<IUser>,
   ) {}
 
-  async enrollSubscribe(uid: string, subscription: any): Promise<null> {
+  async enrollSubscribe(
+    userId: string,
+    uid: string,
+    subscription: any,
+  ): Promise<null> {
     try {
       if (!subscription || !subscription.endpoint) {
         return;
@@ -25,6 +32,7 @@ export class MongoWebpushRepository implements WebpushRepository {
         {
           ...subscription,
           uid,
+          userId,
         },
         { upsert: true }, // 구독이 없을 경우 새로 생성
       );
@@ -38,7 +46,10 @@ export class MongoWebpushRepository implements WebpushRepository {
     return await this.NotificationSub.find();
   }
   async findByUid(uid: string): Promise<INotificationSub[]> {
-    return this.NotificationSub.find({ uid });
+    return await this.NotificationSub.find({ uid });
+  }
+  async findByUserId(userId: string): Promise<INotificationSub[]> {
+    return await this.NotificationSub.find({ userId });
   }
   async findByArray(targetArr: string[]): Promise<INotificationSub[]> {
     return await this.NotificationSub.find({

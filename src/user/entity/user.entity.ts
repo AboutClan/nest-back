@@ -25,9 +25,13 @@ const avatarZodSchema = z.object({
 
 // preferenceType Zod schema
 const preferenceZodSchema = z.object({
-  place: z.union([z.string(), z.any()]), // Assuming IPlace type should be replaced or handled properly
-  subPlace: z.union([z.array(z.string()), z.array(z.any())]), // Replace z.any() with IPlace if necessary
+  place: z.union([z.string(), z.custom<IPlace>()]), // Assuming IPlace type should be replaced or handled properly
+  subPlace: z.union([z.array(z.string()), z.array(z.custom<IPlace>())]), // Replace z.any() with IPlace if necessary
 });
+
+export type restType = z.infer<typeof restZodSchema>;
+export type avatarType = z.infer<typeof avatarZodSchema>;
+export type preferenceType = z.infer<typeof preferenceZodSchema>;
 
 // IUser Zod schema
 const userZodSchema = z.object({
@@ -43,11 +47,11 @@ const userZodSchema = z.object({
     .string()
     .default(
       'https://user-images.githubusercontent.com/48513798/173180642-8fc5948e-a437-45f3-91d0-3f0098a38195.png',
-    ),
+    )
+    .optional(),
   registerDate: z.string().default(''),
-  isActive: z.boolean().default(false),
+  isActive: z.boolean().default(false).optional(),
   birth: z.string().default(''),
-  isPrivate: z.boolean().default(false),
   role: z
     .enum([
       'noMember',
@@ -59,13 +63,11 @@ const userZodSchema = z.object({
       'resting',
       'enthusiastic',
     ])
-    .default('member'),
+    .default('member')
+    .optional(),
   score: z.number().default(0),
   monthScore: z.number().default(0),
   point: z.number().default(0),
-  comment: z.string().default('안녕하세요! 잘 부탁드립니다~!'),
-  rest: restZodSchema,
-  avatar: avatarZodSchema,
   majors: z.array(z.any()).default([]), // Replace z.any() with appropriate MajorSchema if necessary
   interests: z
     .object({
@@ -74,33 +76,18 @@ const userZodSchema = z.object({
     })
     .default({ first: '', second: '' }), // Assuming InterestSchema
   telephone: z.string().default(''),
+  comment: z.string().default('안녕하세요! 잘 부탁드립니다~!'),
+  rest: restZodSchema,
+  avatar: avatarZodSchema,
   deposit: z.number().default(3000),
   friend: z.array(z.string()).default([]),
   like: z.number().default(0),
-  instagram: z.string().default(''),
+  isPrivate: z.boolean().default(false).optional(),
+  instagram: z.string().default('').optional(),
   studyPreference: preferenceZodSchema.optional(),
   weekStudyTragetHour: z.number().default(0),
   weekStudyAccumulationMinutes: z.number().default(0),
 });
-
-export interface restType {
-  type: string;
-  startDate: Date;
-  endDate: Date;
-  content: string;
-  restCnt: number;
-  cumulativeSum: number;
-}
-
-export interface avatarType {
-  type: number;
-  bg: number;
-}
-
-export interface preferenceType {
-  place: string | IPlace;
-  subPlace: string[] | IPlace[];
-}
 
 export interface IUser extends Document, IRegistered {
   _id: string;

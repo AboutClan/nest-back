@@ -69,8 +69,8 @@ export class WebPushService implements IWebPushService {
   }
 
   //test need
-  async subscribe(subscription: any, uid) {
-    await this.WebpushRepository.enrollSubscribe(uid, subscription);
+  async subscribe(subscription: any, uid, userId: string) {
+    await this.WebpushRepository.enrollSubscribe(userId, uid, subscription);
     return;
   }
 
@@ -88,6 +88,24 @@ export class WebPushService implements IWebPushService {
       body: description || '테스트 알림이에요',
     });
     const subscriptions = await this.WebpushRepository.findByUid(uid);
+    const results = await this.sendParallel(subscriptions, payload);
+
+    this.logForFailure(results);
+
+    return;
+  }
+
+  async sendNotificationToXWithId(
+    userId: string,
+    title?: string,
+    description?: string,
+  ) {
+    const payload = JSON.stringify({
+      ...this.basePayload,
+      title: title || '테스트 알림이에요',
+      body: description || '테스트 알림이에요',
+    });
+    const subscriptions = await this.WebpushRepository.findByUserId(userId);
     const results = await this.sendParallel(subscriptions, payload);
 
     this.logForFailure(results);

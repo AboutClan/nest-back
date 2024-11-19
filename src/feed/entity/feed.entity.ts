@@ -3,13 +3,13 @@ import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 export const SubCommentZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   likeList: z.array(z.string()).nullable().optional(),
 });
 
 export const CommentZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   subComments: z.array(SubCommentZodSchema).optional(),
   likeList: z.array(z.string()).nullable().optional(),
@@ -19,45 +19,21 @@ export const FeedZodSchema = z.object({
   title: z.string(),
   text: z.string(),
   images: z.array(z.string()).optional(),
-  writer: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  writer: z.union([z.string(), z.custom<IUser>()]),
   type: z.string(),
   typeId: z.string(),
   isAnonymous: z.boolean().default(false),
-  like: z
-    .array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'))
-    .optional(),
+  like: z.union([z.array(z.string()), z.array(z.custom<IUser>())]).optional(),
   comments: z.array(CommentZodSchema).optional(),
   createdAt: z.string().optional(),
   subCategory: z.string().optional(),
 });
 
-export interface commentType {
-  user: string | IUser;
-  comment: string;
-  subComments?: subCommentType[];
-  likeList?: string[];
-}
-
-export interface subCommentType {
-  user: string | IUser;
-  comment: string;
-  likeList?: string[];
-}
-
-export interface IFeed extends Document {
-  title: string;
-  text: string;
-  images: string[];
-  writer: string | IUser;
-  type: string;
-  typeId: string;
-  isAnonymous?: boolean;
-  like: string[] | IUser[];
-  comments: commentType[];
-  createdAt: string;
+export type commentType = z.infer<typeof CommentZodSchema>;
+export type subCommentType = z.infer<typeof SubCommentZodSchema>;
+export type IFeed = z.infer<typeof FeedZodSchema> & {
   addLike(userId: string): Promise<boolean>;
-  subCategory: string;
-}
+} & Document;
 
 export const subCommentSchema: Schema<subCommentType> = new Schema(
   {

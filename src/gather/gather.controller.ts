@@ -19,7 +19,9 @@ import {
 import { gatherStatus } from './entity/gather.entity';
 import { IGATHER_SERVICE } from 'src/utils/di.tokens';
 import { IGatherService } from './gatherService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('gather')
 @Controller('gather')
 export class GatherController {
   constructor(@Inject(IGATHER_SERVICE) private gatherService: IGatherService) {}

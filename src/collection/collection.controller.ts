@@ -10,7 +10,10 @@ import {
 } from '@nestjs/common';
 import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
 import { ICollectionService } from './collectionService.interface';
+import { updateCollectionDTO } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('controller')
 @Controller('collection')
 export class CollectionController {
   constructor(
@@ -19,85 +22,39 @@ export class CollectionController {
 
   @Get('alphabet')
   async getCollection() {
-    try {
-      const user = await this.collectionService.getCollection();
-      return user;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching collection',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const user = await this.collectionService.getCollection();
+    return user;
   }
 
   //todo: 이게 도대체 뭐냐
   @Patch('alphabet')
   async setCollection() {
-    try {
-      // const result = await this.collectionService?.setCollectionStamp();
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error setting collection',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    // const result = await this.collectionService?.setCollectionStamp();
+    return { status: 'success' };
   }
 
+  //todo: route명 수정
   @Patch('alphabet/change')
-  async changeCollection(
-    @Body('mine') mine: string,
-    @Body('opponent') opponent: string,
-    @Body('myId') myId: string,
-    @Body('toUid') toUid: string,
-  ) {
-    try {
-      const result = await this.collectionService.changeCollection(
-        mine,
-        opponent,
-        myId,
-        toUid,
-      );
-      if (result) {
-        throw new HttpException(result, HttpStatus.BAD_REQUEST);
-      }
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error changing collection',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+  async changeCollection(@Body() updateCollectionDTO: updateCollectionDTO) {
+    const { mine, opponent, myId, toUid } = updateCollectionDTO;
+    await this.collectionService.changeCollection(mine, opponent, myId, toUid);
+    return { status: 'success' };
   }
 
   @Post('alphabet/completed')
   async setCollectionCompleted() {
-    try {
-      const result = await this.collectionService.setCollectionCompleted();
+    const result = await this.collectionService.setCollectionCompleted();
 
-      //todo: Error 타입 수정
-      if (result === 'not completed') {
-        throw new HttpException('Not completed', HttpStatus.BAD_REQUEST);
-      }
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error setting collection as completed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    //todo: Error 타입 수정
+    if (result === 'not completed') {
+      throw new HttpException('Not completed', HttpStatus.BAD_REQUEST);
     }
+    return { status: 'success' };
   }
 
   @Get('alphabet/all')
   async getCollectionAll() {
-    try {
-      const users = await this.collectionService.getCollectionAll();
-      return users;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching all collections',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const users = await this.collectionService.getCollectionAll();
+    return users;
   }
 }

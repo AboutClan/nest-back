@@ -1,6 +1,7 @@
 import { IUser } from './entity/user.entity';
 
 export interface UserRepository {
+  findById(userId: string): Promise<IUser>;
   findByUid(uid: string, queryString?: string): Promise<IUser>;
   findByUserId(userId: string): Promise<IUser>;
   findByUids(uids: string[]): Promise<IUser[]>;

@@ -7,7 +7,9 @@ import {
 } from '@nestjs/common';
 import { ILOG_SERVICE } from 'src/utils/di.tokens';
 import { ILogService } from './logService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('log')
 @Controller('log')
 export class LogController {
   constructor(@Inject(ILOG_SERVICE) private logService: ILogService) {}

@@ -1,15 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
-import { Model, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import ImageService from 'src/imagez/image.service';
 import { IUser } from 'src/user/entity/user.entity';
-import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
-import * as logger from '../logger';
+import { IFEED_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import {
   commentType,
   FeedZodSchema,
@@ -17,6 +15,8 @@ import {
 } from './entity/feed.entity';
 import { FeedRepository } from './feed.repository.interface';
 import { IFeedService } from './feedService.interface';
+import { IUserService } from 'src/user/userService.interface';
+
 @Injectable()
 export class FeedService implements IFeedService {
   private token: JWT;
@@ -25,8 +25,8 @@ export class FeedService implements IFeedService {
   constructor(
     @Inject(IFEED_REPOSITORY)
     private readonly feedRepository: FeedRepository,
-    @InjectModel('User') private User: Model<IUser>,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
+    @Inject(IUSER_SERVICE) private readonly userService: IUserService,
   ) {
     this.token = this.request.decodedToken;
     this.imageServiceInstance = new ImageService();
@@ -181,15 +181,7 @@ export class FeedService implements IFeedService {
 
     //transaction
     const feed = await this.feedRepository.createComment(feedId, message);
-
     if (!feed) throw new DatabaseError('reate comment failed');
-
-    const user = await this.User.findOneAndUpdate(
-      { uid: this.token.uid },
-      { $inc: { point: 2 } },
-      { new: true, useFindAndModify: false },
-    );
-    if (!user) throw new DatabaseError('update score failed');
 
     return;
   }
@@ -297,18 +289,11 @@ export class FeedService implements IFeedService {
 
     const isLikePush: boolean = await feed?.addLike(this.token.id);
 
-    const user = await this.User.findOne({ uid: this.token.uid });
-    if (!user) return;
-    if (isLikePush) user.point += 2;
-    else user.point -= 2;
-    await user.save();
-
-    logger.logger.info(`피드 좋아요 전송 /피드 좋아요 전송 취소`, {
-      type: 'point',
-      uid: this.token.uid,
-      value: 2,
-    });
-
+    if (isLikePush) {
+      await this.userService.updatePoint(2, '피드 좋아요');
+    } else {
+      await this.userService.updatePoint(-2, '피드 좋아요 취소');
+    }
     return;
   }
 }

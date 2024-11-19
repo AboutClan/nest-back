@@ -17,8 +17,10 @@ import {
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { INoticeService } from './noticeService.interface';
 import { IFcmService } from 'src/fcm/fcm.interface';
+import { ApiTags } from '@nestjs/swagger';
 
 //todo: Notice 전반적인 수정 필요해보임
+@ApiTags('notice')
 @Controller('notice')
 export class NoticeController {
   constructor(
