@@ -22,6 +22,21 @@ export class SetWaitingPersonDto {
   phase: 'first' | 'second';
 }
 
+export class HandleWaitingPersonDto {
+  @IsNotEmpty({ message: 'id필요' })
+  @IsString()
+  id: string;
+
+  @IsString()
+  userId: string;
+
+  @IsString()
+  status: string;
+
+  @IsString()
+  text: string;
+}
+
 export class ParticipateGatherDto {
   @IsNotEmpty({ message: 'gatherId필요' })
   @IsNumber()
