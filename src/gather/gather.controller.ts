@@ -13,6 +13,7 @@ import {
 import {
   CreateGatherDto,
   DeleteGatherDto,
+  HandleWaitingPersonDto,
   ParticipateGatherDto,
   SetWaitingPersonDto,
 } from './dto';
@@ -101,6 +102,22 @@ export class GatherController {
         setWaitingPersonDto.id,
         setWaitingPersonDto.phase,
       );
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error setting waiting person',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('waiting/status')
+  async handleWaitingPerson(
+    @Body() handleWaitingPersonDto: HandleWaitingPersonDto,
+  ) {
+    const { id, userId, status, text } = handleWaitingPersonDto;
+    try {
+      await this.gatherService.handleWaitingPerson(id, userId, status, text);
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(
