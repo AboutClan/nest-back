@@ -775,7 +775,6 @@ export class VoteService implements IVoteService {
         arriveInfo.push(arriveForm);
       });
 
-      await this.userServiceInstance.updatePoint(5, '스터디 출석');
       return arriveInfo;
     } catch (err) {
       throw new Error();
@@ -816,6 +815,9 @@ export class VoteService implements IVoteService {
       const result = this.collectionServiceInstance.setCollectionStamp(
         this.token.id,
       );
+
+      await this.userServiceInstance.updatePoint(5, '스터디 출석체크');
+      await this.userServiceInstance.updateScore(5, '스터디 출석체크');
 
       return result;
     } catch (err) {
