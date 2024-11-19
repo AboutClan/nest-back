@@ -4,14 +4,16 @@ import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { DailyCheckZodSchema } from './dailycheck.entity';
-import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
+import { IDAILYCHECK_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { DailyCheckRepository } from './dailyCheck.repository.interface';
+import { IUserService } from 'src/user/userService.interface';
 
 export class DailyCheckService implements IDailyCheckService {
   private token: JWT;
   constructor(
     @Inject(IDAILYCHECK_REPOSITORY)
     private readonly dailyCheckRepository: DailyCheckRepository,
+    @Inject(IUSER_SERVICE) private readonly userService: IUserService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
@@ -40,6 +42,7 @@ export class DailyCheckService implements IDailyCheckService {
 
     await this.dailyCheckRepository.createDailyCheck(validatedDailyCheck);
 
+    await this.userService.updatePoint(2, '일일 출석');
     return;
   }
 
