@@ -12,6 +12,7 @@ export const InterestZodSchema = z.object({
 export const RegisteredZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
+  location: z.string(),
   mbti: z.string().optional(),
   gender: z.string(),
   profileImage: z.string().optional(),
@@ -22,37 +23,16 @@ export const RegisteredZodSchema = z.object({
   telephone: z.string(),
 });
 
-export interface IMajor {
-  department: string;
-  detail: string;
-}
-
-export interface IInterest {
-  first: string;
-  second: string;
-}
-
-export interface IRegistered extends Document {
-  uid: string;
-  name: string;
-  location: string;
-  mbti?: string;
-  gender: string;
-  profileImage: string;
-  birth: string;
-  comment: string;
-
-  majors: IMajor[];
-  interests: IInterest;
-  telephone: string;
-}
+export type IMajor = z.infer<typeof MajorZodSchema>;
+export type IInterest = z.infer<typeof InterestZodSchema>;
+export type IRegistered = z.infer<typeof RegisteredZodSchema> & Document;
 
 export const InterestSchema: Schema<IInterest> = new Schema(
   {
     first: String,
     second: String,
   },
-  { _id: false, timestamps: true, strict: false },
+  { _id: false, timestamps: false, strict: false },
 );
 
 export const MajorSchema: Schema<IMajor> = new Schema(
@@ -60,7 +40,7 @@ export const MajorSchema: Schema<IMajor> = new Schema(
     department: String,
     detail: String,
   },
-  { _id: false, timestamps: true, strict: false },
+  { _id: false, timestamps: false, strict: false },
 );
 
 export const RegisteredSchema: Schema<IRegistered> = new Schema(
@@ -112,10 +92,6 @@ export const RegisteredSchema: Schema<IRegistered> = new Schema(
   },
   { timestamps: true },
 );
-
-InterestSchema.set('timestamps', false);
-MajorSchema.set('timestamps', false);
-RegisteredSchema.set('timestamps', true);
 
 export const Registered =
   (mongoose.models.REgistered as Model<IRegistered, {}, {}, {}>) ||

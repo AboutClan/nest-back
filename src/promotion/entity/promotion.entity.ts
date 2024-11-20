@@ -7,11 +7,7 @@ export const PromotionZodSchema = z.object({
   uid: z.string(),
 });
 
-export interface IPromotion {
-  name: string;
-  lastDate: string;
-  uid: string;
-}
+export type IPromotion = z.infer<typeof PromotionZodSchema>;
 
 export const promotionSchema: Schema<IPromotion> = new Schema({
   name: String,

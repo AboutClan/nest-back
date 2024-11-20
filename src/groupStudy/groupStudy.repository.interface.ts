@@ -1,3 +1,4 @@
+import { UpdateWriteOpResult } from 'mongoose';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 
 export interface GroupStudyRepository {
@@ -51,4 +52,6 @@ export interface GroupStudyRepository {
   findAll(): Promise<IGroupStudyData[]>;
   getUserGroupsTitleByUserId(userId: string): Promise<string[]>;
   getSigningGroupByStatus(userId: string, status: string): Promise<any>;
+  weekAttendance(groupId: string, id: string): Promise<UpdateWriteOpResult>;
+  initWeekAttendance(): Promise<void>;
 }

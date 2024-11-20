@@ -26,15 +26,7 @@ export interface restType {
   start: Dayjs;
   end: Dayjs;
 }
-
-export interface IRequestData {
-  category: string;
-  title?: string;
-  location: string;
-  writer: string;
-  content: string;
-  rest?: restType;
-}
+export type IRequestData = z.infer<typeof RequestZodSchema>;
 
 export const restSchema: Schema<restType> = new Schema(
   {

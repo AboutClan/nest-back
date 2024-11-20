@@ -19,7 +19,9 @@ import {
 } from './dto';
 import { GroupStudyStatus } from './entity/groupStudy.entity';
 import { IGroupStudyService } from './groupStudyService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('groupstudy')
 @Controller('groupStudy')
 export class GroupStudyController {
   constructor(
@@ -428,6 +430,19 @@ export class GroupStudyController {
   ) {
     try {
       await this.groupStudyService.agreeWaitingPerson(id, userId, status);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException('Error agreeing waiting person', 500);
+    }
+  }
+
+  @Post('weekAttend')
+  async weekAttend(
+    @Body('groupId') groupId: string,
+    @Body('userId') userId: string,
+  ) {
+    try {
+      await this.groupStudyService.weekAttend(groupId, userId);
       return { status: 'success' };
     } catch (err) {
       throw new HttpException('Error agreeing waiting person', 500);

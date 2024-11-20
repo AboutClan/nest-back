@@ -11,7 +11,9 @@ import {
 import { SetGiftDto } from './dto';
 import { IGIFT_SERVICE } from 'src/utils/di.tokens';
 import { IGiftService } from './giftService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('gift')
 @Controller('gift')
 export class GiftController {
   constructor(@Inject(IGIFT_SERVICE) private giftService: IGiftService) {}

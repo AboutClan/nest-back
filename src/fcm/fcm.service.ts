@@ -1,7 +1,5 @@
 import admin from 'firebase-admin';
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { FcmTokenZodSchema, IFcmToken } from './entity/fcmToken.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { AppError } from 'src/errors/AppError';

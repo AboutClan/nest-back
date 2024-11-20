@@ -1,6 +1,7 @@
 import { IUser } from './entity/user.entity';
 
 export interface UserRepository {
+  findById(userId: string): Promise<IUser>;
   findByUid(uid: string, queryString?: string): Promise<IUser>;
   findByUserId(userId: string): Promise<IUser>;
   findByUids(uids: string[]): Promise<IUser[]>;
@@ -16,6 +17,7 @@ export interface UserRepository {
     queryString?: string,
   ): Promise<IUser[]>;
   increasePoint(point: number, uid: string): Promise<null>;
+  increasePointWithUserId(point: number, userId: string): Promise<null>;
   increaseScore(score: number, uid: string): Promise<null>;
   increaseDeposit(deposit: number, uid: string): Promise<null>;
   updatePreference(uid: string, place: any, subPlace: any[]): Promise<null>;

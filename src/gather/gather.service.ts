@@ -12,6 +12,7 @@ import {
   ICHAT_SERVICE,
   ICOUNTER_SERVICE,
   IGATHER_REPOSITORY,
+  IUSER_SERVICE,
 } from 'src/utils/di.tokens';
 import * as logger from '../logger';
 import {
@@ -21,6 +22,7 @@ import {
 } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
+import { IUserService } from 'src/user/userService.interface';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -29,7 +31,8 @@ export class GatherService implements IGatherService {
   constructor(
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: GatherRepository,
-    @InjectModel('User') private User: Model<IUser>,
+    @Inject(IUSER_SERVICE)
+    private readonly userServiceInstance: IUserService,
     @Inject(ICHAT_SERVICE) private chatServiceInstance: IChatService,
     @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
@@ -74,19 +77,7 @@ export class GatherService implements IGatherService {
 
     if (!created) throw new DatabaseError('create gather failed');
 
-    const user = await this.User.findOneAndUpdate(
-      { _id: this.token.id },
-      { $inc: { score: 5, monthScore: 5 } },
-      { new: true, useFindAndModify: false },
-    );
-
-    if (!user) throw new DatabaseError('cant find user');
-
-    logger.logger.info('번개 모임 개설', {
-      type: 'score',
-      uid: user.uid,
-      value: 5,
-    });
+    await this.userServiceInstance.updateScore(5, '번개 모임 개설');
 
     return;
   }
@@ -110,26 +101,8 @@ export class GatherService implements IGatherService {
       await gather?.save();
     }
 
-    const user = await this.User.findOneAndUpdate(
-      { _id: id },
-      { $inc: { score: 5, point: 5, monthScore: 5 } },
-      { new: true, useFindAndModify: false },
-    );
-
-    if (!user) throw new DatabaseError('cant find user');
-
-    logger.logger.info('번개 모임 참여', {
-      type: 'score',
-      uid: user.uid,
-      value: 5,
-    });
-    logger.logger.info('번개 모임 참여', {
-      metadata: {
-        type: 'point',
-        uid: user.uid,
-        value: 5,
-      },
-    });
+    await this.userServiceInstance.updateScore(5, '번개 모임 개설');
+    await this.userServiceInstance.updatePoint(5, '번개 모임 참여');
 
     return;
   }
@@ -142,19 +115,7 @@ export class GatherService implements IGatherService {
 
     if (!gather) throw new Error('Gather not found');
 
-    const user = await this.User.findOneAndUpdate(
-      { _id: this.token.id },
-      { $inc: { score: -5 } },
-      { new: true, useFindAndModify: false },
-    );
-
-    if (!user) throw new Error('User not found');
-
-    logger.logger.info('번개 모임 참여 취소', {
-      type: 'score',
-      uid: user.uid,
-      value: -5,
-    });
+    await this.userServiceInstance.updateScore(-5, '번개 모임 참여 취소');
     return;
   }
 
@@ -315,18 +276,7 @@ export class GatherService implements IGatherService {
     const deleted = await this.gatherRepository.deleteById(gatherId);
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
-    const user = await this.User.findOneAndUpdate(
-      { _id: this.token.id },
-      { $inc: { score: -5, monthScore: -5 } },
-      { new: true, useFindAndModify: false },
-    );
-
-    if (!user) throw new DatabaseError('cant find user');
-    logger.logger.info('번개 모임 삭제', {
-      type: 'score',
-      uid: user.uid,
-      value: -5,
-    });
+    await this.userServiceInstance.updateScore(-5, '번개 모임 삭제');
     return;
   }
 }

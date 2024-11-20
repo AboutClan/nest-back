@@ -1,11 +1,11 @@
-export class AppError extends Error {
+import { HttpException } from '@nestjs/common';
+
+export class AppError extends HttpException {
   public readonly statusCode: number;
-  public readonly isOperational: boolean;
 
   constructor(message: string, statusCode: number) {
-    super(message);
+    super(message, statusCode);
     this.statusCode = statusCode;
-    this.isOperational = true;
 
     Error.captureStackTrace(this, this.constructor);
   }

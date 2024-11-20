@@ -37,7 +37,7 @@ import { AdminVoteModule } from './admin/vote/adminVote.module';
 import { AdminManageModule } from './admin/manage/adminManage.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationScheduler } from './schedule/schedule';
-import { DailyCheckModule } from './dailycheck/entity/dailyCheck.module';
+import { DailyCheckModule } from './dailycheck/dailyCheck.module';
 
 const allowedOrigins = [
   'http://localhost:3000',

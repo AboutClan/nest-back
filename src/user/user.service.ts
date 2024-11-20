@@ -339,10 +339,24 @@ export class UserService implements IUserService {
   }
 
   async updatePoint(point: number, message: string, sub?: string) {
-    const updatedUser = await this.UserRepository.increasePoint(
-      point,
-      this.token.uid,
-    );
+    await this.UserRepository.increasePoint(point, this.token.uid);
+
+    logger.logger.info(message, {
+      type: 'point',
+      sub,
+      uid: this.token.uid,
+      value: point,
+    });
+    return;
+  }
+
+  async updatePointWithUserId(
+    userId: string,
+    point: number,
+    message: string,
+    sub?: string,
+  ) {
+    await this.UserRepository.increasePointWithUserId(point, userId);
 
     logger.logger.info(message, {
       type: 'point',

@@ -11,8 +11,10 @@ import {
 import { Request, Response, NextFunction } from 'express';
 import { IDAILYCHECK_SERVICE } from 'src/utils/di.tokens';
 import { DailyCheckService } from './dailyCheck.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @Injectable()
+@ApiTags('dailyCheck')
 @Controller('dailyCheck')
 export class DailyCheckController {
   constructor(

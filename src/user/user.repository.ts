@@ -5,6 +5,11 @@ import { UserRepository } from './user.repository.interface';
 
 export class MongoUserRepository implements UserRepository {
   constructor(@InjectModel('User') private readonly User: Model<IUser>) {}
+
+  async findById(userId: string): Promise<IUser> {
+    return await this.User.findById(userId);
+  }
+
   async findByUid(uid: string, queryString?: string): Promise<IUser> {
     return queryString
       ? await this.User.findOne({ uid }, queryString)
@@ -66,6 +71,15 @@ export class MongoUserRepository implements UserRepository {
   async increasePoint(point: number, uid: string): Promise<null> {
     await this.User.findOneAndUpdate(
       { uid }, // 검색 조건
+      { $inc: { point: point } }, // point 필드 값을 증가
+      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+    );
+
+    return null;
+  }
+  async increasePointWithUserId(point: number, userId: string): Promise<null> {
+    await this.User.findOneAndUpdate(
+      { _id: userId }, // 검색 조건
       { $inc: { point: point } }, // point 필드 값을 증가
       { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
     );

@@ -8,6 +8,7 @@ import { VoteModule } from 'src/vote/vote.module';
 import { CollectionModule } from 'src/collection/collection.module';
 import { IREALTIME_REPOSITORY, IREALTIME_SERVICE } from 'src/utils/di.tokens';
 import { MongoRealtimeRepository } from './realtime.repository';
+import { UserModule } from 'src/user/user.module';
 
 const realtimeServiceProvider: ClassProvider = {
   provide: IREALTIME_SERVICE,
@@ -24,6 +25,7 @@ const realtimeRepositoryProvider: ClassProvider = {
     forwardRef(() => VoteModule),
     CollectionModule,
     MongooseModule.forFeature([{ name: 'Realtime', schema: RealtimeSchema }]),
+    forwardRef(() => UserModule),
   ],
   controllers: [RealtimeController],
   providers: [realtimeServiceProvider, realtimeRepositoryProvider],

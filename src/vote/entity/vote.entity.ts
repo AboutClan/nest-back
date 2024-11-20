@@ -10,14 +10,6 @@ import { IPlace } from 'src/place/entity/place.entity';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
-export interface IVoteStudyInfo {
-  place?: string;
-  subPlace?: string[];
-  start: Dayjs;
-  end: Dayjs;
-  memo?: string;
-}
-
 const TimeStartToEndHMZodSchema = z.object({
   start: z
     .object({
@@ -42,8 +34,8 @@ const PlaceStatusZodSchema = z.object({
 
 // TimeStartToEnd schema
 const TimeStartToEndZodSchema = z.object({
-  start: z.instanceof(Date).optional(), // Or use dayjs instance check if needed
-  end: z.instanceof(Date).optional(),
+  start: z.custom<Dayjs>().optional(), // Or use dayjs instance check if needed
+  end: z.custom<Dayjs>().optional(),
 });
 
 // Attendance schema
@@ -56,6 +48,9 @@ const AttendanceZodSchema = z.object({
   confirmed: z.boolean(),
   memo: z.string().optional(),
   imageUrl: z.string(),
+  comment: z.object({
+    text: z.string(),
+  }),
 });
 
 // Absence schema
@@ -85,54 +80,23 @@ const VoteZodSchema = z.object({
   participations: z.array(ParticipationZodSchema),
 });
 
-export interface ITimeStartToEndHM {
-  start?: {
-    hour?: number;
-    minutes?: number;
-  };
-  end?: {
-    hour?: number;
-    minutes?: number;
-  };
+export interface IVoteStudyInfo {
+  place?: string;
+  subPlace?: string[];
+  start: Dayjs;
+  end: Dayjs;
+  memo?: string;
 }
-
-export interface IPlaceStatus {
-  status?: 'pending' | 'waiting_confirm' | 'open' | 'dismissed' | 'free';
-}
-
-export interface IParticipation extends IPlaceStatus, ITimeStartToEndHM {
-  place?: IPlace;
-  attendences?: IAttendance[];
-  absences?: IAbsence[];
-  startTime?: Date;
-  endTime?: Date;
-}
-
-export interface ITimeStartToEnd {
-  start?: Dayjs;
-  end?: Dayjs;
-}
-
-export interface IVote extends Document {
-  date: Date;
-  participations: IParticipation[];
-}
-
+export type ITimeStartToEndHM = z.infer<typeof TimeStartToEndHMZodSchema>;
+export type IPlaceStatus = z.infer<typeof PlaceStatusZodSchema>;
+export type ITimeStartToEnd = z.infer<typeof TimeStartToEndZodSchema>;
+export type IAttendance = z.infer<typeof AttendanceZodSchema>;
 export interface IComment {
   text: string;
 }
-
-export interface IAttendance {
-  user: string | IUser;
-  time: ITimeStartToEnd;
-  created: Date;
-  arrived?: Date;
-  firstChoice: boolean;
-  confirmed: boolean;
-  memo?: string;
-  imageUrl: string;
-  comment?: IComment;
-}
+export type IAbsence = z.infer<typeof AbsenceZodSchema>;
+export type IParticipation = z.infer<typeof ParticipationZodSchema>;
+export type IVote = z.infer<typeof VoteZodSchema> & Document;
 
 const CommentSchema: Schema<IComment> = new Schema(
   {
@@ -143,12 +107,6 @@ const CommentSchema: Schema<IComment> = new Schema(
   },
   { _id: false, timestamps: true },
 );
-
-export interface IAbsence {
-  user: string | IUser;
-  noShow: boolean;
-  message: string;
-}
 
 const ParticipantTimeSchema: Schema<ITimeStartToEnd> = new Schema(
   {

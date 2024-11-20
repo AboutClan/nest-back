@@ -13,7 +13,7 @@ const categoryZodSchema = z.object({
 
 // subCommentType Zod schema
 const subCommentZodSchema = z.object({
-  user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
+  user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   likeList: z.array(z.string()).optional().default([]),
 });
@@ -26,15 +26,15 @@ const memberCntZodSchema = z.object({
 
 // participantsType Zod schema
 const participantsZodSchema = z.object({
-  user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
+  user: z.union([z.string(), z.custom<IUser>()]),
   randomId: z.number().optional(),
   role: userRoleZodSchema,
   attendCnt: z.number(),
+  weekAttendance: z.boolean().default(false),
 });
-
 // IWaiting Zod schema
 const waitingZodSchema = z.object({
-  user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
+  user: z.union([z.string(), z.custom<IUser>()]), // IUser type should be handled appropriately
   answer: z.string().optional(),
   pointType: z.string(),
 });
@@ -58,8 +58,8 @@ const weekRecordZodSchema = z.object({
 // IAttendance Zod schema
 const attendanceZodSchema = z.object({
   firstDate: z.string().optional(),
-  lastWeek: z.array(weekRecordZodSchema),
-  thisWeek: z.array(weekRecordZodSchema),
+  lastWeek: z.array(weekRecordZodSchema).default([]),
+  thisWeek: z.array(weekRecordZodSchema).default([]),
 });
 
 // IGroupStudyData Zod schema
@@ -79,7 +79,7 @@ const groupStudyZodSchema = z.object({
   status: z.enum(['end', 'pending']),
   participants: z.array(participantsZodSchema),
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
-  comments: z.array(commentZodSchema),
+  comments: z.array(commentZodSchema).optional(),
   id: z.number(),
   location: z.enum([
     '수원',
@@ -102,92 +102,22 @@ const groupStudyZodSchema = z.object({
   link: z.string().optional(),
   isSecret: z.boolean().optional(),
   waiting: z.array(waitingZodSchema).optional().default([]),
+  squareImage: z.string().optional(),
+  meetingType: z.enum(['online', 'offline', 'hybrid']).optional(),
 });
 
 export type GroupStudyStatus = 'end' | 'pending';
-
-interface ICategory {
-  main: string;
-  sub: string;
-}
-export interface subCommentType {
-  user: string | IUser;
-  comment: string;
-  likeList?: string[];
-}
-
-export interface memberCntType {
-  min: number;
-  max: number;
-}
-
-export interface participantsType {
-  user: string | IUser;
-  randomId?: number;
-  role: UserRole;
-  attendCnt: number;
-}
-
-interface IWaiting {
-  user: string | IUser;
-  answer?: string;
-  pointType: string;
-}
-
-export interface commentType {
-  user: string | IUser;
-  comment: string;
-  subComments?: subCommentType[];
-  likeList?: string[];
-}
-
-export interface IGroupStudyData extends Document {
-  title: string;
-  category: ICategory;
-  challenge?: string;
-  rules: string[];
-  content: string;
-  period: string;
-  guide: string;
-  gender: boolean;
-  age: number[];
-  organizer: IUser;
-  memberCnt: memberCntType;
-  password?: string;
-  status: GroupStudyStatus;
-  participants: participantsType[];
-  user: string | IUser;
-  comments: commentType[];
-  id: number;
-  location: string;
-  image?: string;
-  isFree: boolean;
-  feeText?: string;
-  fee?: number;
-  questionText?: string;
-  hashTag: string;
-  attendance: IAttendance;
-  link?: string;
-  isSecret?: boolean;
-  waiting: IWaiting[];
-  squareImage?: string;
-  meetingType?:"online"|"offline"|"hybrid"
-}
+export type ICategory = z.infer<typeof categoryZodSchema>;
+export type subCommentType = z.infer<typeof subCommentZodSchema>;
+export type memberCntType = z.infer<typeof memberCntZodSchema>;
+export type participantsType = z.infer<typeof participantsZodSchema>;
+export type IWaiting = z.infer<typeof waitingZodSchema>;
+export type commentType = z.infer<typeof commentZodSchema>;
+export type IAttendance = z.infer<typeof attendanceZodSchema>;
+export type IWeekRecord = z.infer<typeof weekRecordZodSchema>;
+export type IGroupStudyData = z.infer<typeof groupStudyZodSchema> & Document;
 
 type UserRole = 'admin' | 'manager' | 'member' | 'outsider';
-
-interface IAttendance {
-  firstDate?: string;
-  lastWeek: IWeekRecord[];
-  thisWeek: IWeekRecord[];
-}
-
-interface IWeekRecord {
-  uid: string;
-  name: string;
-  attendRecord: string[];
-  attendRecordSub?: string[];
-}
 
 export const weekSchema: Schema<IWeekRecord> = new Schema(
   {
@@ -259,6 +189,10 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
     randomId: {
       type: Number,
+    },
+    weekAttendance: {
+      type: Boolean,
+      default: false,
     },
   },
   { _id: false },
@@ -431,11 +365,9 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
       type: String,
     },
     meetingType: {
-       type: String,
-      enum: [
-       "online","offline","hybrid"
-      ],
-    }
+      type: String,
+      enum: ['online', 'offline', 'hybrid'],
+    },
   },
   { timestamps: true },
 );

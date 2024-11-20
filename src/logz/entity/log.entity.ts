@@ -5,7 +5,7 @@ const MetaZodSchema = z.object({
   type: z.string(),
   uid: z.number(),
   value: z.number(),
-  sub: z.string().nullable(),
+  sub: z.string().nullable().optional(),
 });
 
 const LogZodSchema = z.object({
@@ -15,12 +15,7 @@ const LogZodSchema = z.object({
   meta: MetaZodSchema,
 });
 
-export interface ILog {
-  timeStamp: Date;
-  level: string;
-  message: string;
-  meta: { type: string; uid: number; value: number; sub?: string };
-}
+export type ILog = z.infer<typeof LogZodSchema>;
 
 const metaSchema = new Schema({
   type: String,

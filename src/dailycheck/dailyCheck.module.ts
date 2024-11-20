@@ -8,6 +8,7 @@ import {
 } from 'src/utils/di.tokens';
 import { DailyCheckService } from './dailyCheck.service';
 import { MongoDailyCheckRepository } from './dailyCheck,repository';
+import { UserModule } from 'src/user/user.module';
 
 const dailyCheckServiceProvider: ClassProvider = {
   provide: IDAILYCHECK_SERVICE,
@@ -24,6 +25,7 @@ const dailyCheckRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: 'DailyCheck', schema: dailyCheckSchema },
     ]),
+    UserModule,
   ],
   controllers: [DailyCheckController],
   providers: [dailyCheckServiceProvider, dailyCheckRepositoryProvider],

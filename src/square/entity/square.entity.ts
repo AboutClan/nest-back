@@ -3,23 +3,26 @@ import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
 export const SubCommentZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
-  likeList: z.array(z.string()),
+  likeList: z.array(z.string()).default([]).optional(),
 });
 
 export const CommentZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   subComments: z.array(SubCommentZodSchema).optional(),
   likeList: z.array(z.string()).optional(),
 });
 
 export const PollItemZodSchema = z.object({
+  _id: z.custom<Types.ObjectId>().optional(),
   name: z.string(),
+  users: z.array(z.custom<Types.ObjectId>()).optional(),
 });
 
 export const SecretSquareZodSchema = z.object({
+  _id: z.string().optional(),
   category: z.enum(['일상', '고민', '정보', '같이해요']),
   title: z.string(),
   content: z.string(),
@@ -31,26 +34,20 @@ export const SecretSquareZodSchema = z.object({
     })
     .optional(),
   images: z.array(z.string()).optional(),
-  author: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
-  viewers: z
-    .array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'))
-    .optional(),
-  like: z
-    .array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'))
-    .optional(),
+  author: z.custom<Types.ObjectId>(),
+  viewers: z.array(z.custom<Types.ObjectId>()).optional(),
+  like: z.array(z.custom<Types.ObjectId>()).optional(),
   comments: z.array(CommentZodSchema).optional(),
 });
+
+export type subCommentType = z.infer<typeof SubCommentZodSchema>;
+export type Comment = z.infer<typeof CommentZodSchema>;
+export type PollItem = z.infer<typeof PollItemZodSchema>;
+export type SecretSquareItem = z.infer<typeof SecretSquareZodSchema> & Document;
 
 export type SecretSquareCategory = '일상' | '고민' | '정보' | '같이해요';
 
 export type SecretSquareType = 'general' | 'poll';
-
-interface Comment {
-  user: Types.ObjectId;
-  comment: string;
-  subComments?: subCommentType[];
-  likeList?: string[];
-}
 
 export const subCommentSchema: Schema<subCommentType> = new Schema(
   {
@@ -95,34 +92,6 @@ export const commentSchema = new Schema<Comment>(
     timestamps: true,
   },
 );
-
-export interface subCommentType {
-  user: string | IUser;
-  comment: string;
-  likeList?: string[];
-}
-export interface SecretSquareItem extends Document {
-  _id: string;
-  category: SecretSquareCategory;
-  title: string;
-  content: string;
-  type: SecretSquareType;
-  poll: {
-    pollItems: PollItem[];
-    canMultiple: boolean;
-  };
-  images: string[];
-  author: Types.ObjectId;
-  viewers: Types.ObjectId[];
-  like: Types.ObjectId[];
-  comments: Comment[];
-}
-
-export interface PollItem {
-  _id: Types.ObjectId;
-  name: string;
-  users: Types.ObjectId[];
-}
 
 const pollItemSchema = new Schema<PollItem>({
   name: {

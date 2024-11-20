@@ -5,20 +5,21 @@ import { z } from 'zod';
 export type gatherStatus = 'pending' | 'open' | 'close' | 'end';
 
 export const TimeZodSchema = z.object({
-  hours: z.number().nullable(),
-  minutes: z.number().nullable(),
+  hours: z.number().nullable().optional(),
+  minutes: z.number().nullable().optional(),
 });
 export const WaitingZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   phase: z.string(),
 });
 export const TitleZodSchema = z.object({
   title: z.string(),
   subtitle: z.string().nullable().optional(),
 });
+
 export const LocationZodSchema = z.object({
   main: z.string(),
-  sub: z.string().nullable(),
+  sub: z.string().optional(),
 });
 export const MemberCntZodSchema = z.object({
   min: z.number(),
@@ -30,21 +31,21 @@ export const GathersZodSchema = z.object({
 });
 
 export const ParticipantsZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   phase: z.string(),
 });
 
 export const SubCommentZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   likeList: z.array(z.string()).nullable().optional(),
 });
 
 export const CommentZodSchema = z.object({
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   subComments: z.array(SubCommentZodSchema).optional(),
-  likeList: z.array(z.string()).nullable(),
+  likeList: z.array(z.string()).nullable().optional(),
 });
 
 export const GatherZodSchema = z.object({
@@ -54,95 +55,34 @@ export const GatherZodSchema = z.object({
   content: z.string(),
   location: LocationZodSchema,
   memberCnt: MemberCntZodSchema,
-  age: z.array(z.number()).nullable(),
-  preCnt: z.number().nullable(),
+  age: z.array(z.number()).nullable().optional(),
+  preCnt: z.number().nullable().optional(),
   genderCondition: z.boolean(),
-  password: z.string().nullable(),
+  password: z.string().nullable().optional(),
   status: z.enum(['pending', 'open', 'close', 'end']).default('pending'),
   participants: z.array(ParticipantsZodSchema),
-  user: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ObjectId'),
+  user: z.union([z.string(), z.custom<IUser>()]),
   comments: z.array(CommentZodSchema),
   id: z.number(),
   date: z.string(),
-  place: z.string().nullable(),
-  isAdminOpen: z.boolean().nullable(),
-  image: z.string().nullable(),
-  kakaoUrl: z.string().nullable(),
-  waiting: z.array(WaitingZodSchema),
-  isApprovalRequired: z.boolean().nullable(),
+  place: z.string().nullable().optional(),
+  isAdminOpen: z.boolean().nullable().optional(),
+  image: z.string().nullable().optional(),
+  kakaoUrl: z.string().nullable().optional(),
+  waiting: z.array(WaitingZodSchema).default([]),
+  isApprovalRequired: z.boolean().nullable().optional(),
 });
 
-export interface ITime {
-  hours?: number;
-  minutes?: number;
-}
-
-interface IWaiting {
-  user: string | IUser;
-  phase: string;
-}
-
-export interface TitleType {
-  title: string;
-  subtitle?: string;
-}
-export interface LocationType {
-  main: string;
-  sub?: string;
-}
-
-export interface memberCntType {
-  min: number;
-  max: number;
-}
-
-export interface GatherType {
-  text: string;
-  time: ITime;
-}
-
-export interface participantsType {
-  user: string | IUser;
-  phase: string;
-}
-
-export interface subCommentType {
-  user: string | IUser;
-  comment: string;
-  likeList?: string[];
-}
-
-export interface commentType {
-  user: string | IUser;
-  comment: string;
-  subComments?: subCommentType[];
-  likeList?: string[];
-}
-
-export interface IGatherData extends Document {
-  title: string;
-  type: TitleType;
-  gatherList: GatherType[];
-  content: string;
-  location: LocationType;
-  memberCnt: memberCntType;
-  age?: number[];
-  preCnt?: number;
-  genderCondition: boolean;
-  password?: string;
-  status: gatherStatus;
-  participants: participantsType[];
-  user: string | IUser;
-  comments: commentType[];
-  id: number;
-  date: string;
-  place?: string;
-  isAdminOpen?: boolean;
-  image?: string;
-  kakaoUrl?: string;
-  waiting: IWaiting[];
-  isApprovalRequired?: boolean;
-}
+export type ITime = z.infer<typeof TimeZodSchema>;
+export type IWaiting = z.infer<typeof WaitingZodSchema>;
+export type TitleType = z.infer<typeof TitleZodSchema>;
+export type LocationType = z.infer<typeof LocationZodSchema>;
+export type memberCntType = z.infer<typeof MemberCntZodSchema>;
+export type GatherType = z.infer<typeof GathersZodSchema>;
+export type participantsType = z.infer<typeof ParticipantsZodSchema>;
+export type subCommentType = z.infer<typeof SubCommentZodSchema>;
+export type commentType = z.infer<typeof CommentZodSchema>;
+export type IGatherData = z.infer<typeof GatherZodSchema> & Document;
 
 export const typeSchema: Schema<TitleType> = new Schema(
   {

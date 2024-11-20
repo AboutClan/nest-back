@@ -5,10 +5,13 @@ import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import AdminVoteService from 'src/admin/vote/adminVote.service';
 import { IFcmService } from 'src/fcm/fcm.interface';
-import { FcmService } from 'src/fcm/fcm.service';
+import { IGroupStudyService } from 'src/groupStudy/groupStudyService.interface';
 import { IUser } from 'src/user/entity/user.entity';
-import { IFCM_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
-import { WebPushService } from 'src/webpush/webpush.service';
+import {
+  IFCM_SERVICE,
+  IGROUPSTUDY_SERVICE,
+  IWEBPUSH_SERVICE,
+} from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 
 @Injectable()
@@ -20,6 +23,7 @@ export class NotificationScheduler {
     // private readonly fcmService: FcmService,
     @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
     @Inject(IFCM_SERVICE) private fcmService: IFcmService,
+    @Inject(IGROUPSTUDY_SERVICE) private groupstudyService: IGroupStudyService,
     private readonly adminVoteService: AdminVoteService,
     @InjectModel('User') private readonly User: Model<IUser>,
   ) {}
@@ -77,6 +81,18 @@ export class NotificationScheduler {
       await this.User.updateMany({}, { weekStudyTragetHour: 0 });
       await this.User.updateMany({}, { weekStudyAccumulationMinutes: 0 });
       console.log('target hour init success');
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  @Cron('0 0 0 * * 1', {
+    // 매주 월요일 0시 0분
+    timeZone: 'Asia/Seoul',
+  })
+  async initGroupstudyAttend() {
+    try {
+      await this.groupstudyService.initWeekAttend();
     } catch (err: any) {
       throw new Error(err);
     }

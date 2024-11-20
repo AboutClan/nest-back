@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { IPROMOTION_SERVICE } from 'src/utils/di.tokens';
 import { IPromotionService } from './promotionService.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('promotion')
 @Controller('promotion')
 export class PromotionController {
   constructor(
