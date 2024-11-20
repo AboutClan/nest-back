@@ -8,6 +8,7 @@ import { JWT } from 'next-auth/jwt';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/entity/user.entity';
+import { IUserService } from 'src/user/userService.interface';
 import {
   ICOUNTER_SERVICE,
   IGROUPSTUDY_REPOSITORY,
@@ -18,7 +19,6 @@ import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { IGroupStudyService } from './groupStudyService.interface';
-import { IUserService } from 'src/user/userService.interface';
 
 export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
@@ -51,8 +51,8 @@ export default class GroupStudyService implements IGroupStudyService {
       data
         .filter((groupStudy) =>
           type === 'waiting'
-            ? groupStudy.participant.length <= 1
-            : groupStudy.participant.length > 1 &&
+            ? groupStudy.participants.length <= 1
+            : groupStudy.participants.length > 1 &&
               groupStudy.meetingType === type,
         )
         .slice(0, limit);
@@ -63,6 +63,7 @@ export default class GroupStudyService implements IGroupStudyService {
       waiting: getTopGroupStudies(groupStudyData, 'waiting'),
       new: groupStudyData
         .sort((a, b) => (dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1))
+        .filter((group) => group.participants.length > 1)
         .slice(0, 3),
     };
   }
