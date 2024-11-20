@@ -5,6 +5,7 @@ export interface IGroupStudyService {
     online: IGroupStudyData[];
     offline: IGroupStudyData[];
     new: IGroupStudyData[];
+    waiting: IGroupStudyData[];
   }>;
   getGroupStudyByFilterAndCategory(
     filter: string,
