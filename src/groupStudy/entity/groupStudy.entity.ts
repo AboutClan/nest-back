@@ -30,6 +30,7 @@ const participantsZodSchema = z.object({
   randomId: z.number().optional(),
   role: userRoleZodSchema,
   attendCnt: z.number(),
+  weekAttendance: z.boolean().default(false),
 });
 // IWaiting Zod schema
 const waitingZodSchema = z.object({
@@ -188,6 +189,10 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
     randomId: {
       type: Number,
+    },
+    weekAttendance: {
+      type: Boolean,
+      default: false,
     },
   },
   { _id: false },

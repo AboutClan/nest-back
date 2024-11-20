@@ -435,4 +435,17 @@ export class GroupStudyController {
       throw new HttpException('Error agreeing waiting person', 500);
     }
   }
+
+  @Post('weekAttend')
+  async weekAttend(
+    @Body('groupId') groupId: string,
+    @Body('userId') userId: string,
+  ) {
+    try {
+      await this.groupStudyService.weekAttend(groupId, userId);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException('Error agreeing waiting person', 500);
+    }
+  }
 }

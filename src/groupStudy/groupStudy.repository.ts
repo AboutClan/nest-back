@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, UpdateWriteOpResult } from 'mongoose';
 import { C_simpleUser } from 'src/constants';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
@@ -298,5 +298,32 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       path: 'participants.user', // participants 배열 내부의 user 필드를 populate
       select: 'name profileImage uid score avatar comment', // 필요한 필드만 선택
     });
+  }
+
+  async weekAttendance(
+    groupId: string,
+    id: string,
+  ): Promise<UpdateWriteOpResult> {
+    return await this.GroupStudy.updateOne(
+      {
+        _id: groupId,
+        'participants.user': id,
+        'participants.weekAttendance': { $ne: true },
+      },
+      {
+        'participants.$.weekAttendance': true,
+        $inc: { 'participants.$.attendCnt': 1 },
+      },
+    );
+  }
+
+  async initWeekAttendance(): Promise<void> {
+    await this.GroupStudy.updateMany(
+      {},
+      {
+        'participants.$[].weekAttendance': false,
+      },
+    );
+    return;
   }
 }

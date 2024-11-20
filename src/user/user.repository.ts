@@ -77,6 +77,15 @@ export class MongoUserRepository implements UserRepository {
 
     return null;
   }
+  async increasePointWithUserId(point: number, userId: string): Promise<null> {
+    await this.User.findOneAndUpdate(
+      { _id: userId }, // 검색 조건
+      { $inc: { point: point } }, // point 필드 값을 증가
+      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+    );
+
+    return null;
+  }
   async increaseScore(score: number, uid: string): Promise<null> {
     return await this.User.findOneAndUpdate(
       { uid }, // 검색 조건

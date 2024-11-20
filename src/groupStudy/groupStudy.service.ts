@@ -11,18 +11,22 @@ import { IUser } from 'src/user/entity/user.entity';
 import {
   ICOUNTER_SERVICE,
   IGROUPSTUDY_REPOSITORY,
+  IUSER_SERVICE,
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { IGroupStudyService } from './groupStudyService.interface';
+import { IUserService } from 'src/user/userService.interface';
 
 export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
   constructor(
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
+    @Inject(IUSER_SERVICE)
+    private readonly userServiceInstance: IUserService,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
@@ -585,5 +589,27 @@ export default class GroupStudyService implements IGroupStudyService {
     } catch (err) {
       throw new Error();
     }
+  }
+
+  async weekAttend(groupId: string, userId: string) {
+    const result = await this.groupStudyRepository.weekAttendance(
+      groupId,
+      userId,
+    );
+
+    console.log(result.modifiedCount);
+    if (result.modifiedCount) {
+      await this.userServiceInstance.updatePointWithUserId(
+        userId,
+        2,
+        '소모임 주간 출석',
+      );
+    }
+    return;
+  }
+
+  async initWeekAttend() {
+    await this.groupStudyRepository.initWeekAttendance();
+    return;
   }
 }
