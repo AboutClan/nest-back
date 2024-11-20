@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { GatherRepository } from './gather.repository.interface';
 import { Model } from 'mongoose';
-import { IGatherData, subCommentType } from './entity/gather.entity';
 import { C_simpleUser } from 'src/constants';
+import { IGatherData, subCommentType } from './entity/gather.entity';
+import { GatherRepository } from './gather.repository.interface';
 
 export class MongoGatherRepository implements GatherRepository {
   constructor(
@@ -48,7 +48,6 @@ export class MongoGatherRepository implements GatherRepository {
       ]);
   }
   async createGather(gatherData: Partial<IGatherData>): Promise<IGatherData> {
-
     return await this.Gather.create(gatherData);
   }
   async updateGather(
@@ -58,7 +57,7 @@ export class MongoGatherRepository implements GatherRepository {
     await this.Gather.updateOne({ id: gatherId }, gatherData);
     return null;
   }
-  async deleteParticipants(gatherId: string, userId: string): Promise<null> {
+  async deleteParticipants(gatherId: number, userId: string): Promise<null> {
     await this.Gather.findOneAndUpdate(
       { id: gatherId },
       {

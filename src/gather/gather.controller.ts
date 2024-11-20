@@ -1,15 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Patch,
   Body,
-  Query,
+  Controller,
+  Delete,
+  Get,
   HttpException,
   HttpStatus,
   Inject,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { IGATHER_SERVICE } from 'src/utils/di.tokens';
 import {
   CreateGatherDto,
   DeleteGatherDto,
@@ -18,9 +20,7 @@ import {
   SetWaitingPersonDto,
 } from './dto';
 import { gatherStatus } from './entity/gather.entity';
-import { IGATHER_SERVICE } from 'src/utils/di.tokens';
 import { IGatherService } from './gatherService.interface';
-import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('gather')
 @Controller('gather')
@@ -139,6 +139,19 @@ export class GatherController {
     } catch (err) {
       throw new HttpException(
         'Error participating in gather',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Delete('participate')
+  async deleteParticipate(@Body() body: { gatherId: number }) {
+    try {
+    
+      await this.gatherService.deleteParticipate(body.gatherId);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error deleting comment',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

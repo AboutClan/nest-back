@@ -1,20 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
-import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { IChatService } from 'src/chatz/chatService.interface';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUserService } from 'src/user/userService.interface';
 import {
   ICHAT_SERVICE,
   ICOUNTER_SERVICE,
   IGATHER_REPOSITORY,
   IUSER_SERVICE,
 } from 'src/utils/di.tokens';
-import * as logger from '../logger';
 import {
   gatherStatus,
   IGatherData,
@@ -22,7 +19,6 @@ import {
 } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
-import { IUserService } from 'src/user/userService.interface';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -107,13 +103,8 @@ export class GatherService implements IGatherService {
     return;
   }
 
-  async deleteParticipate(gatherId: string) {
-    const gather = await this.gatherRepository.deleteParticipants(
-      gatherId,
-      this.token.id,
-    );
-
-    if (!gather) throw new Error('Gather not found');
+  async deleteParticipate(gatherId: number) {
+    await this.gatherRepository.deleteParticipants(gatherId, this.token.id);
 
     await this.userServiceInstance.updateScore(-5, '번개 모임 참여 취소');
     return;

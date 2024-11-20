@@ -10,7 +10,7 @@ export interface GatherRepository {
     gatherId: number,
     gatherData: Partial<IGatherData>,
   ): Promise<null>;
-  deleteParticipants(gatherId: string, userId: string): Promise<null>;
+  deleteParticipants(gatherId: number, userId: string): Promise<null>;
   createSubComment(
     gatherId: string,
     commentId: string,

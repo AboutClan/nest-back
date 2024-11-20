@@ -11,7 +11,7 @@ export interface IGatherService {
     phase: string,
     userId?: string,
   ): Promise<void>;
-  deleteParticipate(gatherId: string): Promise<void>;
+  deleteParticipate(gatherId: number): Promise<void>;
   setStatus(gatherId: number, status: gatherStatus): Promise<void>;
   setWaitingPerson(id: string, phase: 'first' | 'second'): Promise<void>;
   handleWaitingPerson(
