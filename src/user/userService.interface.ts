@@ -21,6 +21,12 @@ export interface IUserService {
   getVoteRate(startDay: string, endDay: string): Promise<any>;
   patchProfile(): Promise<any>;
   updatePoint(point: number, message: string, sub?: string): Promise<void>;
+  updatePointWithUserId(
+    uid: string,
+    point: number,
+    message: string,
+    sub?: string,
+  );
   initMonthScore(): Promise<void>;
   updateScore(score: number, message: string, sub?: string): Promise<void>;
   updateUserAllScore(): Promise<void>;

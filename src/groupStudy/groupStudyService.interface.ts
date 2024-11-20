@@ -71,4 +71,6 @@ export interface IGroupStudyService {
   belongToParticipateGroupStudy(): Promise<any>;
   getSigningGroupByStatus(status: string): Promise<any>;
   getUserGroupsTitleByUserId(userId: string): Promise<string[]>;
+  weekAttend(groupId: string, userId: string);
+  initWeekAttend();
 }
