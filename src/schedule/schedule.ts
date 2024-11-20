@@ -5,10 +5,12 @@ import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import AdminVoteService from 'src/admin/vote/adminVote.service';
 import { IFcmService } from 'src/fcm/fcm.interface';
+import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import { IGroupStudyService } from 'src/groupStudy/groupStudyService.interface';
 import { IUser } from 'src/user/entity/user.entity';
 import {
   IFCM_SERVICE,
+  IGROUPSTUDY_REPOSITORY,
   IGROUPSTUDY_SERVICE,
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
@@ -23,7 +25,8 @@ export class NotificationScheduler {
     // private readonly fcmService: FcmService,
     @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
     @Inject(IFCM_SERVICE) private fcmService: IFcmService,
-    @Inject(IGROUPSTUDY_SERVICE) private groupstudyService: IGroupStudyService,
+    @Inject(IGROUPSTUDY_REPOSITORY)
+    private groupstudyRepository: GroupStudyRepository,
     private readonly adminVoteService: AdminVoteService,
     @InjectModel('User') private readonly User: Model<IUser>,
   ) {}
@@ -92,7 +95,7 @@ export class NotificationScheduler {
   })
   async initGroupstudyAttend() {
     try {
-      await this.groupstudyService.initWeekAttend();
+      await this.groupstudyRepository.initWeekAttendance();
     } catch (err: any) {
       throw new Error(err);
     }
