@@ -48,7 +48,7 @@ export default class PromotionService implements IPromotionService {
         }
       } else {
         await this.promotionRepository.createPromotion(validatedPromotion);
-        await this.userServiceInstance.updatePoint(100, '홍보 이벤트 참여');
+        await this.userServiceInstance.updatePoint(200, '홍보 이벤트 참여');
       }
     } catch (err: any) {
       throw new Error(err);

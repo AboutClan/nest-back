@@ -1,14 +1,13 @@
-import { JWT } from 'next-auth/jwt';
-import { UserFilterType } from './adminUser.controller';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { IUser } from 'src/user/entity/user.entity';
-import { DatabaseError } from 'src/errors/DatabaseError';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
-import { convertUserToSummary } from 'src/convert';
+import { Model } from 'mongoose';
+import { JWT } from 'next-auth/jwt';
 import { C_simpleUser } from 'src/constants';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { IUser } from 'src/user/entity/user.entity';
+import { UserFilterType } from './adminUser.controller';
 
 const logger = require('../../logger');
 
