@@ -59,7 +59,18 @@ export type RequestLocation =
   | '안양'
   | '강남'
   | '동대문'
-  | '인천';
+  | '인천'
+  | '마포'
+  | '성남'
+  | '성동'
+  | '고양'
+  | '중구'
+  | '송파'
+  | '구로'
+  | '동작'
+  | '강북'
+  | '부천'
+  | '시흥';
 
 export const RequestSchema: Schema<IRequestData> = new Schema(
   {
@@ -93,7 +104,25 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
     },
     location: {
       type: String,
-      enum: ['수원', '양천', '안양', '강남', '동대문', '인천'],
+      enum: [
+        '수원',
+        '양천',
+        '안양',
+        '강남',
+        '동대문',
+        '인천',
+        '마포',
+        '성남',
+        '성동',
+        '고양',
+        '중구',
+        '송파',
+        '구로',
+        '동작',
+        '강북',
+        '부천',
+        '시흥',
+      ],
       default: '수원',
     },
   },
