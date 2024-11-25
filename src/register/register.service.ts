@@ -65,7 +65,10 @@ export default class RegisterService implements IRegisterService {
     //   telephone: encodedTel,
     // });
 
-    await this.registerRepository.updateByUid(this.token.uid, subRegisterForm);
+    await this.registerRepository.updateByUid(this.token.uid, {
+      ...subRegisterForm,
+      telephone: encodedTel,
+    });
 
     await this.webPushServiceInstance.sendNotificationToManager(
       subRegisterForm.location,
