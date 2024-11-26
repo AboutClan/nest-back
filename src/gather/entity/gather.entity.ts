@@ -298,6 +298,7 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
         '부천',
         '시흥',
         '전체',
+        '기타',
       ],
     },
     isAdminOpen: {

@@ -101,6 +101,7 @@ const groupStudyZodSchema = z.object({
     '부천',
     '시흥',
     '전체',
+    '기타',
   ]),
   image: z.string().optional(),
   isFree: z.boolean(),
@@ -373,6 +374,7 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
         '강북',
         '부천',
         '시흥',
+        '기타',
       ],
     },
 

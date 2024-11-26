@@ -59,7 +59,7 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   priority: Number,
   location: {
     type: String,
-    enum: ['수원', '양천', '강남', '동대문', '안양', '인천', '전체'],
+    enum: ['수원', '양천', '강남', '기타', '동대문', '안양', '인천', '전체'],
     default: '수원',
   },
   registerDate: {

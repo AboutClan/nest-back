@@ -56,6 +56,7 @@ const userZodSchema = z.object({
       '강북',
       '부천',
       '시흥',
+      '기타',
     ])
     .default('수원'),
   mbti: z.string().default(''),
@@ -208,6 +209,7 @@ export const UserSchema: Schema<IUser> = new Schema({
       '강북',
       '부천',
       '시흥',
+      '기타',
     ],
     default: '수원',
   },

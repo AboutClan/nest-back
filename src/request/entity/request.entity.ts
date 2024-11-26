@@ -70,7 +70,8 @@ export type RequestLocation =
   | '동작'
   | '강북'
   | '부천'
-  | '시흥';
+  | '시흥'
+  | '기타';
 
 export const RequestSchema: Schema<IRequestData> = new Schema(
   {
@@ -122,6 +123,7 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
         '강북',
         '부천',
         '시흥',
+        '기타',
       ],
       default: '수원',
     },
