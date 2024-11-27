@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { LOCATION_LIST } from 'src/constants';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
@@ -59,7 +60,7 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   priority: Number,
   location: {
     type: String,
-    enum: ['수원', '양천', '강남', '기타', '동대문', '안양', '인천', '전체'],
+    enum: LOCATION_LIST,
     default: '수원',
   },
   registerDate: {

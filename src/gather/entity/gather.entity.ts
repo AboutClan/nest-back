@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { LOCATION_LIST } from 'src/constants';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
@@ -279,27 +280,7 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     place: {
       type: String,
-      enum: [
-        '수원',
-        '양천',
-        '안양',
-        '강남',
-        '동대문',
-        '인천',
-        '마포',
-        '성남',
-        '성동',
-        '고양',
-        '중구',
-        '송파',
-        '구로',
-        '동작',
-        '강북',
-        '부천',
-        '시흥',
-        '전체',
-        '기타',
-      ],
+      enum: LOCATION_LIST,
     },
     isAdminOpen: {
       type: Boolean,
