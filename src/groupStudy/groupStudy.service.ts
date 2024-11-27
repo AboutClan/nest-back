@@ -254,7 +254,8 @@ export default class GroupStudyService implements IGroupStudyService {
     if (!groupStudy) throw new Error();
 
     try {
-      Object.assign(groupStudy, data);
+      const { organizer, ...updatedData } = data;
+      Object.assign(groupStudy, updatedData);
       await groupStudy.save();
     } catch (err: any) {
       throw new Error(err);
