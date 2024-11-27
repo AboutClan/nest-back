@@ -111,12 +111,9 @@ export default class RegisterService implements IRegisterService {
 
   async deleteRegisterUser(uid: string, session?: any) {
     if (session) {
-      await this.registerRepository.deleteByUidWithSession(
-        this.token.uid,
-        session,
-      );
+      await this.registerRepository.deleteByUidWithSession(uid, session);
     } else {
-      await this.registerRepository.deleteByUid(this.token.uid);
+      await this.registerRepository.deleteByUid(uid);
     }
   }
 
