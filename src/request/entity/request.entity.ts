@@ -1,5 +1,6 @@
 import { Dayjs, isDayjs } from 'dayjs';
 import mongoose, { model, Model, Schema } from 'mongoose';
+import { LOCATION_LIST } from 'src/constants';
 import { z } from 'zod';
 
 const dayjsSchema = z.custom<Dayjs>((value) => isDayjs(value), {
@@ -53,25 +54,7 @@ export type RequestCategory =
   | '조모임'
   | '장소 추가';
 
-export type RequestLocation =
-  | '수원'
-  | '양천'
-  | '안양'
-  | '강남'
-  | '동대문'
-  | '인천'
-  | '마포'
-  | '성남'
-  | '성동'
-  | '고양'
-  | '중구'
-  | '송파'
-  | '구로'
-  | '동작'
-  | '강북'
-  | '부천'
-  | '시흥'
-  | '기타';
+export type RequestLocation = (typeof LOCATION_LIST)[number];
 
 export const RequestSchema: Schema<IRequestData> = new Schema(
   {
@@ -105,26 +88,7 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
     },
     location: {
       type: String,
-      enum: [
-        '수원',
-        '양천',
-        '안양',
-        '강남',
-        '동대문',
-        '인천',
-        '마포',
-        '성남',
-        '성동',
-        '고양',
-        '중구',
-        '송파',
-        '구로',
-        '동작',
-        '강북',
-        '부천',
-        '시흥',
-        '기타',
-      ],
+      enum: LOCATION_LIST,
       default: '수원',
     },
   },

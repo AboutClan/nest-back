@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { LOCATION_LIST } from 'src/constants';
 import { IPlace } from 'src/place/entity/place.entity';
 import {
   InterestSchema,
@@ -37,28 +38,7 @@ export type preferenceType = z.infer<typeof preferenceZodSchema>;
 const userZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
-  location: z
-    .enum([
-      '수원',
-      '양천',
-      '안양',
-      '강남',
-      '동대문',
-      '인천',
-      '마포',
-      '성남',
-      '성동',
-      '고양',
-      '중구',
-      '송파',
-      '구로',
-      '동작',
-      '강북',
-      '부천',
-      '시흥',
-      '기타',
-    ])
-    .default('수원'),
+  location: z.enum(LOCATION_LIST).default('수원'),
   mbti: z.string().default(''),
   gender: z.string().default(''),
   belong: z.string().optional(),
@@ -191,26 +171,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   location: {
     type: String,
-    enum: [
-      '수원',
-      '양천',
-      '안양',
-      '강남',
-      '동대문',
-      '인천',
-      '마포',
-      '성남',
-      '성동',
-      '고양',
-      '중구',
-      '송파',
-      '구로',
-      '동작',
-      '강북',
-      '부천',
-      '시흥',
-      '기타',
-    ],
+    enum: LOCATION_LIST,
     default: '수원',
   },
   mbti: {

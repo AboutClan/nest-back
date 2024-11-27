@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { LOCATION_LIST } from 'src/constants';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 
@@ -81,28 +82,7 @@ const groupStudyZodSchema = z.object({
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
   comments: z.array(commentZodSchema).optional(),
   id: z.number(),
-  location: z.enum([
-    ,
-    '수원',
-    '양천',
-    '안양',
-    '강남',
-    '동대문',
-    '인천',
-    '마포',
-    '성남',
-    '성동',
-    '고양',
-    '중구',
-    '송파',
-    '구로',
-    '동작',
-    '강북',
-    '부천',
-    '시흥',
-    '전체',
-    '기타',
-  ]),
+  location: z.enum(LOCATION_LIST),
   image: z.string().optional(),
   isFree: z.boolean(),
   feeText: z.string().optional(),
@@ -356,26 +336,7 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     location: {
       type: String,
-      enum: [
-        '수원',
-        '양천',
-        '안양',
-        '강남',
-        '동대문',
-        '인천',
-        '마포',
-        '성남',
-        '성동',
-        '고양',
-        '중구',
-        '송파',
-        '구로',
-        '동작',
-        '강북',
-        '부천',
-        '시흥',
-        '기타',
-      ],
+      enum: LOCATION_LIST,
     },
 
     image: {
