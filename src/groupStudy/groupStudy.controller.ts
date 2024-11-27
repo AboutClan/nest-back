@@ -102,6 +102,11 @@ export class GroupStudyController {
     }
   }
 
+  @Get('study')
+  async getGroupStudyOnlyStudy() {
+    return await this.groupStudyService.getGroupStudyOnlyStudy();
+  }
+
   @Get('snapshot')
   async getGroupStudySnapshot() {
     return await this.groupStudyService.getGroupStudySnapshot();

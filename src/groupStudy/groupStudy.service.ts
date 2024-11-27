@@ -35,6 +35,21 @@ export default class GroupStudyService implements IGroupStudyService {
     this.token = this.request.decodedToken;
   }
 
+  async getGroupStudyOnlyStudy() {
+    let groupStudyData;
+
+    const filterQuery = { status: 'study' };
+
+    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+      filterQuery,
+      0,
+      Infinity,
+    );
+
+    return {
+      study: groupStudyData,
+    };
+  }
   async getGroupStudySnapshot() {
     let groupStudyData;
 

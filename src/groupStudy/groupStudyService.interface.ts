@@ -1,6 +1,7 @@
 import { IGroupStudyData } from './entity/groupStudy.entity';
 
 export interface IGroupStudyService {
+  getGroupStudyOnlyStudy(): Promise<{ study: IGroupStudyData[] }>;
   getGroupStudySnapshot(): Promise<{
     online: IGroupStudyData[];
     offline: IGroupStudyData[];

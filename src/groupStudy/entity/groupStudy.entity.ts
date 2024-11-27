@@ -76,7 +76,7 @@ const groupStudyZodSchema = z.object({
   organizer: z.any(), // IUser type should be handled appropriately
   memberCnt: memberCntZodSchema,
   password: z.string().optional(),
-  status: z.enum(['end', 'pending']),
+  status: z.enum(['end', 'pending', 'study']),
   participants: z.array(participantsZodSchema),
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
   comments: z.array(commentZodSchema).optional(),
@@ -337,7 +337,7 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'open', 'close', 'end', 'gathering'],
+      enum: ['pending', 'open', 'close', 'end', 'gathering', 'study'],
       default: 'pending',
       required: true,
     },
