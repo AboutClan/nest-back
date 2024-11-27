@@ -114,6 +114,7 @@ export default class RegisterService implements IRegisterService {
       await this.registerRepository.deleteByUidWithSession(uid, session);
     } else {
       await this.registerRepository.deleteByUid(uid);
+      await this.User.deleteOne({ uid });
     }
   }
 
