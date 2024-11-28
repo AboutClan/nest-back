@@ -60,7 +60,7 @@ export class RegisterController {
   @Delete('approval')
   async deleteUser(@Body() approveUserDto: ApproveUserDto) {
     try {
-      await this.registerService.deleteRegisterUser(approveUserDto.uid, null);
+      await this.registerService.deleteRegisterUser(approveUserDto.uid, false);
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(

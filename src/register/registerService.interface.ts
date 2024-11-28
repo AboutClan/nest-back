@@ -7,6 +7,6 @@ export interface IRegisterService {
     subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>,
   ): Promise<void>;
   approve(uid: string): Promise<void>;
-  deleteRegisterUser(uid: string, session?: any): Promise<void>;
+  deleteRegisterUser(uid: string, approve: boolean): Promise<void>;
   getRegister(): Promise<IRegistered[]>;
 }

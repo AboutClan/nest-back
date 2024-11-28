@@ -96,7 +96,7 @@ export default class RegisterService implements IRegisterService {
         new: true,
       });
 
-      await this.deleteRegisterUser(uid);
+      await this.deleteRegisterUser(uid, true);
     } catch (err: any) {
       throw new Error(err);
     }
@@ -109,13 +109,9 @@ export default class RegisterService implements IRegisterService {
     return;
   }
 
-  async deleteRegisterUser(uid: string, session?: any) {
-    if (session) {
-      await this.registerRepository.deleteByUidWithSession(uid, session);
-    } else {
-      await this.registerRepository.deleteByUid(uid);
-      await this.User.deleteOne({ uid });
-    }
+  async deleteRegisterUser(uid: string, approve: boolean) {
+    await this.User.deleteOne({ uid });
+    if (!approve) await this.registerRepository.deleteByUid(uid);
   }
 
   async getRegister() {
