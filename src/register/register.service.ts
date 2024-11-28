@@ -1,19 +1,18 @@
-import * as CryptoJS from 'crypto-js';
-import { JWT } from 'next-auth/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { IRegistered, RegisteredZodSchema } from './entity/register.entity';
-import { DatabaseError } from 'src/errors/DatabaseError';
-import { ValidationError } from 'src/errors/ValidationError';
-import { IUser } from 'src/user/entity/user.entity';
-import * as logger from '../logger';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+import { InjectModel } from '@nestjs/mongoose';
+import * as CryptoJS from 'crypto-js';
 import { Request } from 'express';
+import { Model } from 'mongoose';
+import { JWT } from 'next-auth/jwt';
+import { ValidationError } from 'src/errors/ValidationError';
+import { IUser } from 'src/user/entity/user.entity';
 import { IREGISTER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
-import { IRegisterService } from './registerService.interface';
+import * as logger from '../logger';
+import { IRegistered } from './entity/register.entity';
 import { RegisterRepository } from './register.repository';
+import { IRegisterService } from './registerService.interface';
 
 export default class RegisterService implements IRegisterService {
   private token: JWT;
@@ -91,7 +90,7 @@ export default class RegisterService implements IRegisterService {
     };
 
     try {
-      await this.User.findOneAndUpdate({ uid }, userForm, {
+      const A = await this.User.findOneAndUpdate({ uid }, userForm, {
         upsert: true,
         new: true,
       });
@@ -110,8 +109,10 @@ export default class RegisterService implements IRegisterService {
   }
 
   async deleteRegisterUser(uid: string, approve: boolean) {
-    await this.User.deleteOne({ uid });
-    if (!approve) await this.registerRepository.deleteByUid(uid);
+    if (!approve) {
+      await this.User.deleteOne({ uid });
+    }
+    await this.registerRepository.deleteByUid(uid);
   }
 
   async getRegister() {
