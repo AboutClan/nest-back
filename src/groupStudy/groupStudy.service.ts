@@ -53,7 +53,7 @@ export default class GroupStudyService implements IGroupStudyService {
   async getGroupStudySnapshot() {
     let groupStudyData;
 
-    const filterQuery = { status: 'pending' };
+    const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
     groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
       filterQuery,
@@ -62,24 +62,33 @@ export default class GroupStudyService implements IGroupStudyService {
     );
     groupStudyData = groupStudyData.sort(() => Math.random() - 0.5);
 
-    const getTopGroupStudies = (data, type, limit = 3) =>
+    const filterGroupStudies = (data, type, status) => {
+      return data
+        .filter((groupStudy) => {
+          const statusMatches = !status || groupStudy.status === status;
+          const typeMatches =
+            !type ||
+            (type === 'study'
+              ? groupStudy.category.main === '시험기간'
+              : groupStudy.category.main !== '시험기간' &&
+                groupStudy.meetingType === type);
+          return statusMatches && typeMatches;
+        })
+        .slice(0, 3);
+    };
+
+    const getNewestGroupStudies = (data) =>
       data
-        .filter((groupStudy) =>
-          type === 'waiting'
-            ? groupStudy.participants.length <= 1
-            : groupStudy.participants.length > 1 &&
-              groupStudy.meetingType === type,
-        )
-        .slice(0, limit);
+        .filter((group) => group.participants.length > 1)
+        .sort((a, b) => (dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1))
+        .slice(0, 3);
 
     return {
-      online: getTopGroupStudies(groupStudyData, 'online'),
-      offline: getTopGroupStudies(groupStudyData, 'offline'),
-      waiting: getTopGroupStudies(groupStudyData, 'waiting'),
-      new: groupStudyData
-        .sort((a, b) => (dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1))
-        .filter((group) => group.participants.length > 1)
-        .slice(0, 3),
+      online: filterGroupStudies(groupStudyData, 'online', 'pending'),
+      offline: filterGroupStudies(groupStudyData, 'offline', 'pending'),
+      waiting: filterGroupStudies(groupStudyData, null, 'planned'),
+      study: filterGroupStudies(groupStudyData, 'study', null),
+      new: getNewestGroupStudies(groupStudyData),
     };
   }
 

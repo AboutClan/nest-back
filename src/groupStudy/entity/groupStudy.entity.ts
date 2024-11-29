@@ -77,7 +77,7 @@ const groupStudyZodSchema = z.object({
   organizer: z.any(), // IUser type should be handled appropriately
   memberCnt: memberCntZodSchema,
   password: z.string().optional(),
-  status: z.enum(['end', 'pending', 'study']),
+  status: z.enum(['end', 'pending', 'planned']),
   participants: z.array(participantsZodSchema),
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
   comments: z.array(commentZodSchema).optional(),
