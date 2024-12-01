@@ -635,6 +635,17 @@ export class UserService implements IUserService {
     return logs;
   }
 
+  async patchLocationDetail(text: string, lat: string, lon: string) {
+    await this.UserRepository.patchLocationDetail(
+      this.token.uid,
+      text,
+      lat,
+      lon,
+    );
+
+    return;
+  }
+
   async test() {
     const targetDate = new Date('2024-06-01T00:00:00Z');
 

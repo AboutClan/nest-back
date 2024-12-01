@@ -47,4 +47,5 @@ export interface IUserService {
   getAllLog(type: string): Promise<any>;
   test(): Promise<void>;
   patchStudyTargetHour(hour: number): Promise<void>;
+  patchLocationDetail(text: string, lat: string, lon: string);
 }

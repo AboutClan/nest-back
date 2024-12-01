@@ -25,4 +25,5 @@ export interface UserRepository {
   deleteFriend(uid: string, toUid: string): Promise<null>;
   updateFriend(uid: string, toUid: string): Promise<null>;
   updateBelong(uid: string, belong: string): Promise<null>;
+  patchLocationDetail(uid: string, text: string, lat: string, lon: string);
 }

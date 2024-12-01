@@ -344,4 +344,14 @@ export class UserController {
     await this.userService?.patchStudyTargetHour(hour);
     return;
   }
+
+  @Patch('locationDetail')
+  async patchLocationDetail(
+    @Body('text') text,
+    @Body('lat') lat,
+    @Body('text') lon,
+  ) {
+    await this.userService?.patchLocationDetail(text, lat, lon);
+    return;
+  }
 }
