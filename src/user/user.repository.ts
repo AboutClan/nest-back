@@ -86,6 +86,16 @@ export class MongoUserRepository implements UserRepository {
 
     return null;
   }
+
+  async patchLocationDetail(
+    uid: string,
+    text: string,
+    lat: string,
+    lon: string,
+  ) {
+    await this.User.updateOne({ uid }, { locationDetail: { text, lat, lon } });
+  }
+
   async increaseScore(score: number, uid: string): Promise<null> {
     return await this.User.findOneAndUpdate(
       { uid }, // 검색 조건
