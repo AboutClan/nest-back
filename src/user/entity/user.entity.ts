@@ -24,6 +24,12 @@ const avatarZodSchema = z.object({
   bg: z.number().default(1),
 });
 
+const locationDetailZodSchema = z.object({
+  text: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+});
+
 // preferenceType Zod schema
 const preferenceZodSchema = z.object({
   place: z.union([z.string(), z.custom<IPlace>()]), // Assuming IPlace type should be replaced or handled properly
@@ -33,6 +39,7 @@ const preferenceZodSchema = z.object({
 export type restType = z.infer<typeof restZodSchema>;
 export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
+export type locationDetailType = z.infer<typeof locationDetailZodSchema>;
 
 // IUser Zod schema
 const userZodSchema = z.object({
@@ -74,6 +81,11 @@ const userZodSchema = z.object({
       second: z.string().optional(),
     })
     .default({ first: '', second: '' }), // Assuming InterestSchema
+  locationDetailSchema: z.object({
+    text: z.string(),
+    lat: z.number(),
+    lon: z.number(),
+  }),
   telephone: z.string().default(''),
   comment: z.string().default('안녕하세요! 잘 부탁드립니다~!'),
   rest: restZodSchema,
@@ -129,6 +141,19 @@ export const restSchema: Schema<restType> = new Schema(
 );
 
 export const avatarSchema: Schema<avatarType> = new Schema(
+  {
+    type: {
+      type: Schema.Types.Number,
+      default: 1,
+    },
+    bg: {
+      type: Schema.Types.Number,
+      default: 1,
+    },
+  },
+  { timestamps: false, _id: false },
+);
+export const locationDetailSchema: Schema<avatarType> = new Schema(
   {
     type: {
       type: Schema.Types.Number,
@@ -269,6 +294,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   studyPreference: {
     type: preferenceSchema,
   },
+  locationDetail: { type: locationDetailSchema },
   weekStudyTragetHour: { type: Number, default: 0 },
   weekStudyAccumulationMinutes: { type: Number, default: 0 },
 });

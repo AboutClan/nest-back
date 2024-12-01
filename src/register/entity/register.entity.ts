@@ -1,4 +1,8 @@
-import mongoose, { model, Schema, Model, Document } from 'mongoose';
+import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import {
+  locationSchema,
+  LocationZodSchema,
+} from 'src/gather/entity/gather.entity';
 import { z } from 'zod';
 
 export const MajorZodSchema = z.object({
@@ -21,6 +25,7 @@ export const RegisteredZodSchema = z.object({
   majors: z.array(MajorZodSchema).default([]),
   interests: InterestZodSchema.optional(),
   telephone: z.string(),
+  locationDetail: LocationZodSchema.optional(),
 });
 
 export type IMajor = z.infer<typeof MajorZodSchema>;
@@ -87,6 +92,10 @@ export const RegisteredSchema: Schema<IRegistered> = new Schema(
     },
     birth: {
       type: String,
+      required: true,
+    },
+    locationDetail: {
+      type: locationSchema,
       required: true,
     },
   },
