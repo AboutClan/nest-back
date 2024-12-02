@@ -153,16 +153,12 @@ export const avatarSchema: Schema<avatarType> = new Schema(
   },
   { timestamps: false, _id: false },
 );
-export const locationDetailSchema: Schema<avatarType> = new Schema(
+
+export const locationDetailSchema: Schema<locationDetailType> = new Schema(
   {
-    type: {
-      type: Schema.Types.Number,
-      default: 1,
-    },
-    bg: {
-      type: Schema.Types.Number,
-      default: 1,
-    },
+    text: String,
+    lat: Number,
+    lon: Number,
   },
   { timestamps: false, _id: false },
 );
