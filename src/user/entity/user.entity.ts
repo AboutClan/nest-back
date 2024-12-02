@@ -2,6 +2,7 @@ import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/constants';
 import { IPlace } from 'src/place/entity/place.entity';
 import {
+  ILocationDetail,
   InterestSchema,
   IRegistered,
   MajorSchema,
@@ -24,12 +25,6 @@ const avatarZodSchema = z.object({
   bg: z.number().default(1),
 });
 
-const locationDetailZodSchema = z.object({
-  text: z.string(),
-  lat: z.number(),
-  lon: z.number(),
-});
-
 // preferenceType Zod schema
 const preferenceZodSchema = z.object({
   place: z.union([z.string(), z.custom<IPlace>()]), // Assuming IPlace type should be replaced or handled properly
@@ -39,7 +34,6 @@ const preferenceZodSchema = z.object({
 export type restType = z.infer<typeof restZodSchema>;
 export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
-export type locationDetailType = z.infer<typeof locationDetailZodSchema>;
 
 // IUser Zod schema
 const userZodSchema = z.object({
@@ -154,7 +148,7 @@ export const avatarSchema: Schema<avatarType> = new Schema(
   { timestamps: false, _id: false },
 );
 
-export const locationDetailSchema: Schema<locationDetailType> = new Schema(
+export const locationDetailSchema: Schema<ILocationDetail> = new Schema(
   {
     text: String,
     lat: Number,

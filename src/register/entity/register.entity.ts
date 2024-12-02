@@ -1,9 +1,12 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import {
-  locationSchema,
-  LocationZodSchema,
-} from 'src/gather/entity/gather.entity';
+import { locationSchema } from 'src/gather/entity/gather.entity';
 import { z } from 'zod';
+
+export const locationDetailZodSchema = z.object({
+  text: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+});
 
 export const MajorZodSchema = z.object({
   department: z.string(),
@@ -25,12 +28,14 @@ export const RegisteredZodSchema = z.object({
   majors: z.array(MajorZodSchema).default([]),
   interests: InterestZodSchema.optional(),
   telephone: z.string(),
-  locationDetail: LocationZodSchema.optional(),
+  locationDetail: locationDetailZodSchema.optional(),
 });
 
 export type IMajor = z.infer<typeof MajorZodSchema>;
 export type IInterest = z.infer<typeof InterestZodSchema>;
 export type IRegistered = z.infer<typeof RegisteredZodSchema> & Document;
+export type ILocationDetail = z.infer<typeof locationDetailZodSchema> &
+  Document;
 
 export const InterestSchema: Schema<IInterest> = new Schema(
   {
@@ -46,6 +51,15 @@ export const MajorSchema: Schema<IMajor> = new Schema(
     detail: String,
   },
   { _id: false, timestamps: false, strict: false },
+);
+
+export const locationDetailSchema: Schema<ILocationDetail> = new Schema(
+  {
+    text: String,
+    lat: Number,
+    lon: Number,
+  },
+  { timestamps: false, _id: false },
 );
 
 export const RegisteredSchema: Schema<IRegistered> = new Schema(
@@ -95,7 +109,7 @@ export const RegisteredSchema: Schema<IRegistered> = new Schema(
       required: true,
     },
     locationDetail: {
-      type: locationSchema,
+      type: locationDetailSchema,
       required: true,
     },
   },
