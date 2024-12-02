@@ -66,6 +66,7 @@ export default class RegisterService implements IRegisterService {
 
     await this.registerRepository.updateByUid(this.token.uid, {
       ...subRegisterForm,
+      role: 'waiting',
       telephone: encodedTel,
     });
 
