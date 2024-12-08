@@ -119,8 +119,8 @@ export class MongoGatherRepository implements GatherRepository {
     userId: string,
     message: string,
   ): Promise<null> {
-    await this.Gather.findByIdAndUpdate(
-      gatherId,
+    await this.Gather.findOneAndUpdate(
+      { id: gatherId },
       {
         $push: {
           comments: {
@@ -131,11 +131,12 @@ export class MongoGatherRepository implements GatherRepository {
       },
       { new: true }, // 업데이트 후 변경된 문서를 반환 (선택 사항)
     );
+
     return null;
   }
   async deleteComment(gatherId: string, commentId: string): Promise<null> {
     await this.Gather.findOneAndUpdate(
-      { _id: gatherId },
+      { id: gatherId },
       { $pull: { comments: { _id: commentId } } },
     );
     return null;
