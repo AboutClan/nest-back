@@ -27,7 +27,7 @@ export class MongoGatherRepository implements GatherRepository {
         path: 'comments.subComments.user',
         select: C_simpleUser,
       })
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .limit(3);
   }
   async findAll(start: number, gap: number): Promise<IGatherData[]> {
