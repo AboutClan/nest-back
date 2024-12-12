@@ -29,6 +29,19 @@ export class NoticeController {
     @Inject(IFCM_SERVICE) private fcmService: IFcmService,
   ) {}
 
+  @Get()
+  async findActiveLog() {
+    try {
+      const result = await this.noticeService.findActiveLog();
+      return result;
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching active log',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   //todo: 이름 무슨의미?
   @Get('score')
   async getActiveLog() {

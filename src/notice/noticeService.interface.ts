@@ -1,4 +1,5 @@
 export interface INoticeService {
+  findActiveLog(): Promise<any>;
   getActiveLog(): Promise<any>;
   deleteLike(to: string): Promise<void>;
   setLike(to: string, message: string): Promise<void>;

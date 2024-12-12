@@ -1,16 +1,16 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
-import { INotice, NoticeZodSchema } from './entity/notice.entity';
-import { IUser } from 'src/user/entity/user.entity';
-import { DatabaseError } from 'src/errors/DatabaseError';
-import * as logger from '../logger';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
-import { INoticeService } from './noticeService.interface';
+import { Model } from 'mongoose';
+import { JWT } from 'next-auth/jwt';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { IUser } from 'src/user/entity/user.entity';
 import { INOTICE_REPOSITORY } from 'src/utils/di.tokens';
+import * as logger from '../logger';
+import { NoticeZodSchema } from './entity/notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
+import { INoticeService } from './noticeService.interface';
 
 export default class NoticeService implements INoticeService {
   private token: JWT;
@@ -21,6 +21,10 @@ export default class NoticeService implements INoticeService {
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
+  }
+  async findActiveLog() {
+    const result = await this.noticeRepository.findActiveLog(this.token.uid);
+    return result;
   }
   async getActiveLog() {
     logger.logger.info('hello', {

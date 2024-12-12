@@ -68,9 +68,9 @@ export default class GroupStudyService implements IGroupStudyService {
           const statusMatches = !status || groupStudy.status === status;
           const typeMatches =
             !type ||
-            (type === 'study'
-              ? groupStudy.category.main === '시험기간'
-              : groupStudy.category.main !== '시험기간' &&
+            (type === 'contents'
+              ? groupStudy.category.main === '콘텐츠'
+              : groupStudy.category.main !== '콘텐츠' &&
                 groupStudy.meetingType === type);
           return statusMatches && typeMatches;
         })
@@ -87,7 +87,7 @@ export default class GroupStudyService implements IGroupStudyService {
       online: filterGroupStudies(groupStudyData, 'online', 'pending'),
       offline: filterGroupStudies(groupStudyData, 'offline', 'pending'),
       waiting: filterGroupStudies(groupStudyData, null, 'planned'),
-      study: filterGroupStudies(groupStudyData, 'study', null),
+      contents: filterGroupStudies(groupStudyData, 'contents', null),
       new: getNewestGroupStudies(groupStudyData),
     };
   }
@@ -130,7 +130,7 @@ export default class GroupStudyService implements IGroupStudyService {
     const gap = 7;
     let start = gap * (cursor || 0);
 
-    const filterQuery = { status: filter };
+    const filterQuery = { status: filter, 'category.main': { $ne: '콘텐츠' } };
 
     groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
       filterQuery,
