@@ -6,12 +6,14 @@ export interface IUserSummary {
   avatar: avatarType;
   name: string;
   profileImage: string;
+  score: number;
 }
 
 export const convertUserToSummary = (user: IUser): IUserSummary => {
-  const { avatar, name, profileImage, uid, _id } = user;
+  const { avatar, name, profileImage, uid, _id, score } = user;
   return {
     avatar,
+    score,
     name,
     profileImage,
     _id,

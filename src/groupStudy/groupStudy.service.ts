@@ -66,12 +66,7 @@ export default class GroupStudyService implements IGroupStudyService {
       return data
         .filter((groupStudy) => {
           const statusMatches = !status || groupStudy.status === status;
-          const typeMatches =
-            !type ||
-            (type === 'contents'
-              ? groupStudy.category.main === '콘텐츠'
-              : groupStudy.category.main !== '콘텐츠' &&
-                groupStudy.meetingType === type);
+          const typeMatches = !type || groupStudy.category.main === type;
           return statusMatches && typeMatches;
         })
         .slice(0, 3);
@@ -79,16 +74,21 @@ export default class GroupStudyService implements IGroupStudyService {
 
     const getNewestGroupStudies = (data) =>
       data
-        .filter((group) => group.participants.length > 1)
+        .filter(
+          (group) =>
+            group.participants.length > 1 &&
+            group.category.main !== '시험 준비 스터디',
+        )
         .sort((a, b) => (dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1))
         .slice(0, 3);
 
     return {
-      online: filterGroupStudies(groupStudyData, 'online', 'pending'),
-      offline: filterGroupStudies(groupStudyData, 'offline', 'pending'),
-      waiting: filterGroupStudies(groupStudyData, null, 'planned'),
-      contents: filterGroupStudies(groupStudyData, 'contents', null),
+      hobby: filterGroupStudies(groupStudyData, '취미', 'pending'),
+      development: filterGroupStudies(groupStudyData, '자기계발', 'pending'),
+      study: filterGroupStudies(groupStudyData, '지속 성장 스터디', 'pending'),
+      exam: filterGroupStudies(groupStudyData, '시험 준비 스터디', 'pending'),
       new: getNewestGroupStudies(groupStudyData),
+      waiting: filterGroupStudies(groupStudyData, null, 'planned'),
     };
   }
 

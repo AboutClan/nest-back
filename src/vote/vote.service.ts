@@ -1,26 +1,26 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { InjectModel } from '@nestjs/mongoose';
+import dayjs, { Dayjs } from 'dayjs';
+import { Request } from 'express';
+import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
+import { ICollectionService } from 'src/collection/collectionService.interface';
+import { convertUserToSummary } from 'src/convert';
+import { IPlace } from 'src/place/entity/place.entity';
+import { IRealtime } from 'src/realtime/realtime.entity';
+import { IUser } from 'src/user/entity/user.entity';
+import { IUserService } from 'src/user/userService.interface';
+import { strToDate } from 'src/utils/dateUtils';
+import { ICOLLECTION_SERVICE, IUSER_SERVICE } from 'src/utils/di.tokens';
 import {
   IAttendance,
   IParticipation,
   IVote,
   IVoteStudyInfo,
 } from './entity/vote.entity';
-import dayjs, { Dayjs } from 'dayjs';
 import { now } from './util';
-import { IUser } from 'src/user/entity/user.entity';
-import { IPlace } from 'src/place/entity/place.entity';
-import { strToDate } from 'src/utils/dateUtils';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { IRealtime } from 'src/realtime/realtime.entity';
-import { convertUserToSummary } from 'src/convert';
 import { IVoteService } from './voteService.interface';
-import { ICOLLECTION_SERVICE, IUSER_SERVICE } from 'src/utils/di.tokens';
-import { ICollectionService } from 'src/collection/collectionService.interface';
-import { IUserService } from 'src/user/userService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VoteService implements IVoteService {
@@ -202,8 +202,8 @@ export class VoteService implements IVoteService {
   async getFilteredVoteOne(date: any) {
     try {
       const vote: IVote = await this.getVote(date);
-
       const myInfo = await this.User.findOne({ uid: this.token.uid });
+     
       const users = await this.User.find({
         location: this.token.location,
         weekStudyAccumulationMinutes: { $gt: 0 },

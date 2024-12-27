@@ -3,8 +3,10 @@ import { IGroupStudyData } from './entity/groupStudy.entity';
 export interface IGroupStudyService {
   getGroupStudyOnlyStudy(): Promise<{ study: IGroupStudyData[] }>;
   getGroupStudySnapshot(): Promise<{
-    online: IGroupStudyData[];
-    offline: IGroupStudyData[];
+    hobby: IGroupStudyData[];
+    development: IGroupStudyData[];
+    exam: IGroupStudyData[];
+    study: IGroupStudyData[];
     new: IGroupStudyData[];
     waiting: IGroupStudyData[];
   }>;

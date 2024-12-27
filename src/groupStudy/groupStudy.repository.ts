@@ -294,6 +294,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     return await this.GroupStudy.find({
       status: status === 'pending' ? 'pending' : { $in: ['pending', 'end'] },
       participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
+      'category.main': { $ne: '콘텐츠' },
     }).populate({
       path: 'participants.user', // participants 배열 내부의 user 필드를 populate
       select: 'name profileImage uid score avatar comment', // 필요한 필드만 선택

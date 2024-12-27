@@ -159,7 +159,7 @@ export class GatherController {
   @Post('comment')
   async createComment(@Body() body: { id: string; comment: string }) {
     try {
-      console.log(123);
+    
       await this.gatherService.createComment(body.id, body.comment);
       return { status: 'success' };
     } catch (err) {
