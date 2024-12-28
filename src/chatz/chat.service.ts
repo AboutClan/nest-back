@@ -102,7 +102,6 @@ export class ChatService implements IChatService {
     const user2 = this.token.id < toUserId ? toUserId : this.token.id;
 
     const chat = await this.chatRepository.find(user1, user2);
-    if (!chat) throw new DatabaseError('no chat');
 
     const contentFill = {
       content: message,
