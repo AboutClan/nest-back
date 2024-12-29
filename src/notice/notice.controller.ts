@@ -139,16 +139,16 @@ export class NoticeController {
   ) {
     try {
       await this.noticeService.requestNotice('friend', toUid, message);
-      await this.webPushService.sendNotificationToX(
-        toUid,
-        '친구 요청을 받았어요!',
-        `님이 친구 요청을 보냈어요!`,
-      );
-      await this.fcmService.sendNotificationToX(
-        toUid,
-        '친구 요청을 받았어요!',
-        `님이 친구 요청을 보냈어요!`,
-      );
+      // await this.webPushService.sendNotificationToX(
+      //   toUid,
+      //   '친구 요청을 받았어요!',
+      //   `님이 친구 요청을 보냈어요!`,
+      // );
+      // await this.fcmService.sendNotificationToX(
+      //   toUid,
+      //   '친구 요청을 받았어요!',
+      //   `님이 친구 요청을 보냈어요!`,
+      // );
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(
