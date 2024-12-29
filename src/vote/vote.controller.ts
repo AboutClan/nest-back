@@ -9,7 +9,7 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { CreateVoteDTO } from './dto/createVoteDTO.dto';
+import { CreateNewVoteDTO, CreateVoteDTO } from './dto/createVoteDTO.dto';
 import { UpdateVoteDTO } from './dto/updateVoteDTO.dto';
 import { CreateQuickVoteDTO } from './dto/createQuickVoteDTO.dto';
 import { Request } from 'express';
@@ -76,6 +76,24 @@ export class VoteController {
       start,
       end,
       memo,
+    });
+
+    return 'success';
+  }
+
+  @Post(':date/new')
+  async setNewVote(
+    @Req() req: Request,
+    @Body() createNewVoteDTO: CreateNewVoteDTO,
+  ): Promise<any> {
+    const { latitude, longitude, start, end } = createNewVoteDTO;
+    const { date } = req;
+
+    await this.voteService.setNewVote(date, {
+      latitude,
+      longitude,
+      start,
+      end,
     });
 
     return 'success';

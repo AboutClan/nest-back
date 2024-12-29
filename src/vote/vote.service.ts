@@ -203,7 +203,7 @@ export class VoteService implements IVoteService {
     try {
       const vote: IVote = await this.getVote(date);
       const myInfo = await this.User.findOne({ uid: this.token.uid });
-     
+
       const users = await this.User.find({
         location: this.token.location,
         weekStudyAccumulationMinutes: { $gt: 0 },
