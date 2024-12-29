@@ -8,8 +8,8 @@ export class CreateNewVoteDTO {
   longitude: string;
 
   @IsString()
-  start: Dayjs;
+  start: string;
 
   @IsString()
-  end: Dayjs;
+  end: string;
 }

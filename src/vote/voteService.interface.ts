@@ -15,7 +15,6 @@ export interface IVoteService {
   ): Promise<any>;
   getFilteredVoteByDate(date: any, location: string): Promise<any>;
   setVote(date: any, studyInfo: IVoteStudyInfo): Promise<void>;
-  setNewVote(date: any, studyInfo: IVoteStudyInfo): Promise<void>;
   patchComment(date: any, comment: string): Promise<void>;
   patchVote(date: any, start: any, end: any): Promise<IVote | null>;
   deleteVote(date: any): Promise<void>;

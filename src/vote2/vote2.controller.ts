@@ -1,10 +1,12 @@
 import { Body, Controller, Inject, Post, Req } from '@nestjs/common';
 import { CreateNewVoteDTO } from './vote2.dto';
 import { Request } from 'express';
+import { IVOTE2_SERVICE } from 'src/utils/di.tokens';
+import { IVote2Service } from './vote2.service.interface';
 
 @Controller('vote2')
 export class Vote2Controller {
-  constructor(@Inject(IVOTE_SERVICE2) private voteService2: IVoteService2) {}
+  constructor(@Inject(IVOTE2_SERVICE) private voteService2: IVote2Service) {}
 
   @Post(':date')
   async setVote(

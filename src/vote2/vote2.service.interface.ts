@@ -1,3 +1,5 @@
+import { CreateNewVoteDTO } from './vote2.dto';
+
 export interface IVote2Service {
-  setVote();
+  setVote(date: Date, createVote: CreateNewVoteDTO);
 }

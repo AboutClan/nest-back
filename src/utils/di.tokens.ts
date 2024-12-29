@@ -1,5 +1,6 @@
 export const IWEBPUSH_SERVICE = 'IWebpushService';
 export const IVOTE_SERVICE = 'IVoteService';
+export const IVOTE2_SERVICE = 'IVote2Service';
 export const IUSER_SERVICE = 'IUserService';
 export const ISTATIC_SERVICE = 'IStaticService';
 export const ISQUARE_SERVICE = 'ISquareService';
@@ -40,3 +41,5 @@ export const IREALTIME_REPOSITORY = 'RealtimeRepository';
 export const IREGISTER_REPOSITORY = 'RegisterRepository';
 export const IREQUEST_REPOSITORY = 'RequestRepository';
 export const ISQUARE_REPOSITORY = 'SquareRepository';
+export const IVOTE_REPOSITORY = 'VoteRepository';
+export const IVOTE2_REPOSITORY = 'Vote2Repository';
