@@ -109,42 +109,47 @@ export class Vote2Service implements IVote2Service {
     const voteResults: IResult[] = [];
 
     formedClusters.forEach((cluster, i) => {
+      let centerLat = 0;
+      let centerLon = 0;
+
       cluster.forEach((data) => {
-        const userLat = data.latitude;
-        const userLon = data.longitude;
+        centerLat += parseFloat(data.latitude);
+        centerLon += parseFloat(data.longitude);
+      });
 
-        let minDist = Infinity; // 가장 작은 거리를 저장
-        let closestPlaceIndex = -1; // 가장 가까운 장소의 인덱스를 저장
+      centerLat /= cluster.length;
+      centerLon /= cluster.length;
 
-        places.forEach((place, j) => {
-          const placeLat = place.latitude;
-          const placeLon = place.longitude;
+      let minDist = Infinity; // 가장 작은 거리를 저장
+      let closestPlaceIndex = -1; // 가장 가까운 장소의 인덱스를 저장
 
-          const dist = this.haversineDistance(
-            userLat,
-            userLon,
-            placeLat,
-            placeLon,
-          );
+      places.forEach((place, j) => {
+        const placeLat = place.latitude;
+        const placeLon = place.longitude;
 
-          if (dist < minDist) {
-            minDist = dist; // 최소 거리 갱신
-            closestPlaceIndex = j; // 최소 거리 장소의 인덱스 저장
-          }
-        });
-
-        console.log(minDist);
-        const memberList = cluster.map(
-          (clusterData) => clusterData.userId as string,
+        const dist = this.haversineDistance(
+          centerLat,
+          centerLon,
+          placeLat,
+          placeLon,
         );
 
-        const voteResult: IResult = {
-          placeId: places[closestPlaceIndex]._id,
-          members: memberList,
-        };
-
-        voteResults.push(voteResult);
+        if (dist < minDist) {
+          minDist = dist; // 최소 거리 갱신
+          closestPlaceIndex = j; // 최소 거리 장소의 인덱스 저장
+        }
       });
+
+      const memberList = cluster.map(
+        (clusterData) => clusterData.userId as string,
+      );
+
+      const voteResult: IResult = {
+        placeId: places[closestPlaceIndex]._id,
+        members: memberList,
+      };
+
+      voteResults.push(voteResult);
     });
 
     return voteResults;
