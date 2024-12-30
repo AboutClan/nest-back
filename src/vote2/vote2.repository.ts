@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { IParticipation, IVote2 } from './vote2.entity';
+import { IParticipation, IResult, IVote2 } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import { Model } from 'mongoose';
 
@@ -10,7 +10,7 @@ export class Vote2Repository implements IVote2Repository {
   ) {}
 
   async findParticipationsByDate(date: Date) {
-    return await this.Vote2.find({ date }).select('participations');
+    return (await this.Vote2.findOne({ date })).participations;
   }
 
   async setVote(date: Date, userVoteData: IParticipation) {
@@ -32,5 +32,14 @@ export class Vote2Repository implements IVote2Repository {
         { upsert: true },
       );
     }
+  }
+
+  async setVoteResult(date: Date, result: IResult[]) {
+    await this.Vote2.updateOne(
+      { date },
+      {
+        $set: { results: result },
+      },
+    );
   }
 }

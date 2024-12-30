@@ -7,16 +7,16 @@ export interface IVote2 {
 }
 
 export interface IParticipation {
-  userId: String;
-  latitude: String;
-  longitude: String;
-  start?: String;
-  end?: String;
+  userId: string | String;
+  latitude: string;
+  longitude: string;
+  start?: string;
+  end?: string;
 }
 
-interface IResult {
-  placeId: String;
-  members: String[];
+export interface IResult {
+  placeId: string | String;
+  members: string[];
 }
 
 export const ParticipationSchema: Schema<IParticipation> = new Schema({
@@ -41,13 +41,13 @@ export const ResultSchema: Schema<IResult> = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Place',
   },
-  members: [String],
+  members: [Schema.Types.ObjectId],
 });
 
 export const Vote2Schema: Schema<IVote2> = new Schema({
   date: Date,
-  participations: ParticipationSchema,
-  results: ResultSchema,
+  participations: [ParticipationSchema],
+  results: [ResultSchema],
 });
 
 export const Vote2 =
