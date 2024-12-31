@@ -13,3 +13,8 @@ export class CreateNewVoteDTO {
   @IsString()
   end: string;
 }
+
+export class CreateArriveDTO {
+  @IsString()
+  memo: string;
+}

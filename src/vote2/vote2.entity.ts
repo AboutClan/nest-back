@@ -14,39 +14,68 @@ export interface IParticipation {
   end?: string;
 }
 
-export interface IResult {
-  placeId: string | String;
-  members: string[];
+export interface IMember {
+  userId: string | String;
+  arrived?: Date;
+  memo?: string;
+  img?: string;
 }
 
-export const ParticipationSchema: Schema<IParticipation> = new Schema({
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  },
-  latitude: String,
-  longitude: String,
-  start: {
-    type: String,
-    required: false,
-  },
-  end: {
-    type: String,
-    required: false,
-  },
-});
+export interface IResult {
+  placeId: string | String;
+  members: IMember[];
+}
 
-export const ResultSchema: Schema<IResult> = new Schema({
-  placeId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Place',
+export const MemberSchema: Schema<IMember> = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    arrived: Date,
+    memo: String,
+    img: String,
   },
-  members: [Schema.Types.ObjectId],
-});
+  { _id: false },
+);
+
+export const ParticipationSchema: Schema<IParticipation> = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    latitude: String,
+    longitude: String,
+    start: {
+      type: String,
+      required: false,
+    },
+    end: {
+      type: String,
+      required: false,
+    },
+  },
+  { _id: false },
+);
+
+export const ResultSchema: Schema<IResult> = new Schema(
+  {
+    placeId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Place',
+    },
+    members: [MemberSchema],
+  },
+  { _id: false },
+);
 
 export const Vote2Schema: Schema<IVote2> = new Schema({
   date: Date,
-  participations: [ParticipationSchema],
+  participations: {
+    type: [ParticipationSchema],
+    default: [],
+  },
   results: [ResultSchema],
 });
 

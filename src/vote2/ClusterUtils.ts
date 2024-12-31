@@ -98,9 +98,9 @@ export class ClusterUtils {
         }
       });
 
-      const memberList = cluster.map(
-        (clusterData) => clusterData.userId as string,
-      );
+      const memberList = cluster.map((clusterData) => {
+        return { userId: clusterData.userId as string };
+      });
 
       const voteResult: IResult = {
         placeId: places[closestPlaceIndex]._id,

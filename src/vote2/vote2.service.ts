@@ -38,6 +38,10 @@ export class Vote2Service implements IVote2Service {
     this.Vote2Repository.setVote(date, userVoteData);
   }
 
+  async deleteVote(date: Date) {
+    await this.Vote2Repository.deleteVote(date, this.token.id);
+  }
+
   async setResult(date: Date) {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
@@ -83,5 +87,16 @@ export class Vote2Service implements IVote2Service {
     );
 
     await this.Vote2Repository.setVoteResult(date, voteResults);
+  }
+
+  async setArrive(date: Date, memo: string) {
+    const arriveData = {
+      memo,
+      arrived: new Date(),
+    };
+    await this.Vote2Repository.setArrive(date, this.token.id, arriveData);
+  }
+  patchArrive(date: Date) {
+    throw new Error('Method not implemented.');
   }
 }

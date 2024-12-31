@@ -9,6 +9,26 @@ export class Vote2Repository implements IVote2Repository {
     private readonly Vote2: Model<IVote2>,
   ) {}
 
+  async setArrive(date: Date, userId: string, arriveData) {
+    await this.Vote2.updateOne(
+      { date, 'results.members.userId': userId },
+      {
+        $set: {
+          'results.$[resultElem].members.$[memberElem]': {
+            userId,
+            ...arriveData,
+          },
+        },
+      },
+      {
+        arrayFilters: [
+          { 'memberElem.userId': userId },
+          { 'resultElem.members.userId': userId },
+        ],
+      },
+    );
+  }
+
   async findParticipationsByDate(date: Date) {
     return (await this.Vote2.findOne({ date })).participations;
   }
@@ -32,6 +52,17 @@ export class Vote2Repository implements IVote2Repository {
         { upsert: true },
       );
     }
+  }
+
+  async deleteVote(date: Date, userId: string) {
+    await this.Vote2.updateOne(
+      { date },
+      {
+        $pull: {
+          participations: { userId },
+        },
+      },
+    );
   }
 
   async setVoteResult(date: Date, result: IResult[]) {
