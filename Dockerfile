@@ -4,6 +4,7 @@ FROM node:20.9.0 AS builder
 # 2. Set working directory inside the container
 WORKDIR /app
 
+#test
 # 3. Copy package.json and package-lock.json
 COPY package*.json ./
 
