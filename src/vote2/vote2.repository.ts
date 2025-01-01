@@ -10,6 +10,7 @@ export class Vote2Repository implements IVote2Repository {
   ) {}
 
   async setArrive(date: Date, userId: string, arriveData) {
+    console.log('');
     await this.Vote2.updateOne(
       { date, 'results.members.userId': userId },
       {
