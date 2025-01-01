@@ -3,13 +3,13 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin beming.dkr.ecr.ap-northeast-2.amazonaws.com
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about
   build:
     commands:
       - echo Building the Docker image...
       - docker build -t nest-app .
-      - docker tag my-app:latest beming.dkr.ecr.ap-northeast-2.amazonaws.com/my-app:latest
+      - docker tag my-app:latest 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about/my-app:latest
   post_build:
     commands:
       - echo Pushing the Docker image to ECR...
-      - docker push beming.dkr.ecr.ap-northeast-2.amazonaws.com/my-app:latest
+      - docker push 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about/my-app:latest
