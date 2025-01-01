@@ -8,8 +8,8 @@ phases:
     commands:
       - echo Building the Docker image...
       - docker build -t nest-app .
-      - docker tag nest-app 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about/nest-app
+      - docker tag nest-app 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about
   post_build:
     commands:
       - echo Pushing the Docker image to ECR...
-      - docker push 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about/nest-app
+      - docker push 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about
