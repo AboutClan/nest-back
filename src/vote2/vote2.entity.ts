@@ -19,6 +19,8 @@ export interface IMember {
   arrived?: Date;
   memo?: string;
   img?: string;
+  start?: string;
+  end?: string;
 }
 
 export interface IResult {
@@ -32,6 +34,8 @@ export const MemberSchema: Schema<IMember> = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    start: String,
+    end: String,
     arrived: Date,
     memo: String,
     img: String,

@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { CreateNewVoteDTO } from './vote2.dto';
+import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IVote2Service } from './vote2.service.interface';
 import { REQUEST } from '@nestjs/core';
 import { JWT } from 'next-auth/jwt';
@@ -96,7 +96,18 @@ export class Vote2Service implements IVote2Service {
     };
     await this.Vote2Repository.setArrive(date, this.token.id, arriveData);
   }
+
   patchArrive(date: Date) {
     throw new Error('Method not implemented.');
+  }
+
+  async setParticipate(date: Date, createParticipate: CreateParticipateDTO) {
+    const { placeId, start, end } = createParticipate;
+
+    await this.Vote2Repository.setParticipate(date, placeId, {
+      start,
+      end,
+      userId: this.token.id,
+    });
   }
 }

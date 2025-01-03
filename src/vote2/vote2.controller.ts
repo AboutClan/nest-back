@@ -8,7 +8,11 @@ import {
   Post,
   Req,
 } from '@nestjs/common';
-import { CreateArriveDTO, CreateNewVoteDTO } from './vote2.dto';
+import {
+  CreateArriveDTO,
+  CreateNewVoteDTO,
+  CreateParticipateDTO,
+} from './vote2.dto';
 import { Request } from 'express';
 import { IVOTE2_SERVICE } from 'src/utils/di.tokens';
 import { IVote2Service } from './vote2.service.interface';
@@ -44,6 +48,23 @@ export class Vote2Controller {
       longitude,
       start,
       end,
+    });
+
+    return 'success';
+  }
+
+  @Post(':date/participate')
+  async setAttend(
+    @Req() req: Request,
+    @Body() createParticipateDTO: CreateParticipateDTO,
+  ): Promise<any> {
+    const { start, end, placeId } = createParticipateDTO;
+    const { date } = req;
+
+    await this.voteService2.setParticipate(date, {
+      start,
+      end,
+      placeId,
     });
 
     return 'success';
