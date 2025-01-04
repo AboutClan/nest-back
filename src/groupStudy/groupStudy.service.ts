@@ -65,8 +65,25 @@ export default class GroupStudyService implements IGroupStudyService {
     const filterGroupStudies = (data, type, status) => {
       return data
         .filter((groupStudy) => {
-          const statusMatches = !status || groupStudy.status === status;
           const typeMatches = !type || groupStudy.category.main === type;
+
+          const statusMatches = (() => {
+            if (!status) return true;
+            if (status === 'planned') {
+              return (
+                groupStudy.status === 'pending' &&
+                groupStudy.participants.length <= 2
+              );
+            }
+            if (status === 'pending') {
+              return (
+                groupStudy.status === 'pending' &&
+                groupStudy.participants.length > 2
+              );
+            }
+            return groupStudy.status === status;
+          })();
+
           return statusMatches && typeMatches;
         })
         .slice(0, 3);
@@ -101,7 +118,10 @@ export default class GroupStudyService implements IGroupStudyService {
     const gap = 8;
     let start = gap * (cursor || 0);
 
-    const filterQuery = { status: filter, 'category.main': category };
+    const filterQuery = {
+      status: filter,
+      'category.main': category,
+    };
 
     groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
       filterQuery,
@@ -127,10 +147,21 @@ export default class GroupStudyService implements IGroupStudyService {
 
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
     let groupStudyData;
-    const gap = 7;
+    const gap = 8;
     let start = gap * (cursor || 0);
 
-    const filterQuery = { status: filter, 'category.main': { $ne: '콘텐츠' } };
+    const filterQuery = {
+      status: filter === 'planned' ? 'pending' : filter,
+
+      ...((filter === 'planned' || filter === 'pending') && {
+        $expr: {
+          [filter === 'planned' ? '$lte' : '$gt']: [
+            { $size: '$participants' },
+            2,
+          ],
+        },
+      }), // 배열 길이 조건 추가
+    };
 
     groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
       filterQuery,

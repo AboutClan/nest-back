@@ -11,6 +11,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { IGROUPSTUDY_SERVICE } from 'src/utils/di.tokens';
 import {
   CommentDto,
@@ -19,7 +20,6 @@ import {
 } from './dto';
 import { GroupStudyStatus } from './entity/groupStudy.entity';
 import { IGroupStudyService } from './groupStudyService.interface';
-import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('groupstudy')
 @Controller('groupStudy')
@@ -39,7 +39,7 @@ export class GroupStudyController {
     try {
       const cursorNum = cursor ? parseInt(cursor) : 0;
       let groupStudyData;
-
+      console.log(1234);
       if (groupStudyId) {
         groupStudyData =
           await this.groupStudyService.getGroupStudyById(groupStudyId);
