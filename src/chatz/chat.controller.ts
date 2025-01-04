@@ -21,7 +21,7 @@ export class ChatContoller {
   @Post()
   async createChat(@Body() createChatDTO: CreateChatDTO) {
     const { toUid, message } = createChatDTO;
-    console.log(toUid);
+    
     await this.chatService.createChat(toUid, message);
     return { status: 'success' };
   }

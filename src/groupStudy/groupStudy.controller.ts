@@ -39,7 +39,7 @@ export class GroupStudyController {
     try {
       const cursorNum = cursor ? parseInt(cursor) : 0;
       let groupStudyData;
-      console.log(1234);
+    
       if (groupStudyId) {
         groupStudyData =
           await this.groupStudyService.getGroupStudyById(groupStudyId);
