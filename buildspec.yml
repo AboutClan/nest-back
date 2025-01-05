@@ -7,7 +7,22 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t nest-app .
+      - >
+        docker build --build-arg
+        MONGODB_URI=$MONGODB_URI
+        cryptoKey=$cryptoKey
+        PAPERTRAIL_API_TOKEN=$PAPERTRAIL_API_TOKEN
+        AWS_KEY=$AWS_KEY
+        AWS_ACCESS_KEY=$AWS_ACCESS_KEY
+        PUBLIC_KEY=$PUBLIC_KEY
+        PRIVATE_KEY=$PRIVATE_KEY
+        FCM_INFO=$FCM_INFO
+        NEW_RELIC_APP_NAME=$NEW_RELIC_APP_NAME
+        NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY
+        NEW_RELIC_LOG=$NEW_RELIC_LOG
+        NEW_RELIC_NO_CONFIG_FILE=$NEW_RELIC_NO_CONFIG_FILE
+        NEW_RELIC_ENABLED=$NEW_RELIC_ENABLED
+        -t nest-app .
       - docker tag nest-app 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about
   post_build:
     commands:
