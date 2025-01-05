@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { IParticipation, IResult, IVote2 } from './vote2.entity';
+import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import { Model } from 'mongoose';
 
@@ -70,6 +70,20 @@ export class Vote2Repository implements IVote2Repository {
       { date },
       {
         $set: { results: result },
+      },
+    );
+  }
+
+  async setParticipate(date: Date, placeId, participateData: Partial<IMember>) {
+    const { userId } = participateData;
+    await this.Vote2.updateOne(
+      {
+        date,
+        'results.placeId': placeId,
+        'results.members.userId': { $ne: userId },
+      }, // userId가 존재하지 않을 경우만 업데이트 },
+      {
+        $push: { 'results.$.members': participateData },
       },
     );
   }
