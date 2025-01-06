@@ -32,7 +32,7 @@ export class MongoGatherRepository implements GatherRepository {
   }
   async findAll(start: number, gap: number): Promise<IGatherData[]> {
     return await this.Gather.find()
-      .sort({ id: -1 })
+      .sort({ date: -1 })
       .skip(start)
       .limit(gap)
       .select('-_id')
