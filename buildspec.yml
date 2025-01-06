@@ -3,7 +3,7 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about
   build:
     commands:
       - echo Building the Docker image...
@@ -22,11 +22,11 @@ phases:
         --build-arg NEW_RELIC_NO_CONFIG_FILE=$NEW_RELIC_NO_CONFIG_FILE
         --build-arg NEW_RELIC_ENABLED=$NEW_RELIC_ENABLED
         -t nest-app .
-      - docker tag nest-app 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about
+      - docker tag nest-app 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about
   post_build:
     commands:
       - echo Pushing the Docker image to ECR...
-      - docker push 835080864477.dkr.ecr.ap-northeast-2.amazonaws.com/beming/about
+      - docker push 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about
 artifacts:
   files:
     - appspec.yml
