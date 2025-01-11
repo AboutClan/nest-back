@@ -16,6 +16,7 @@ async function bootstrap() {
       'http://localhost:3001',
       'https://about-aboutclub20s-projects.vercel.app',
       'https://studyabout.herokuapp.com',
+      'https://about-front.kro.kr',
     ], // 허용하고자 하는 URL 목록을 배열로 작성
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
