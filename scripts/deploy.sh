@@ -1,6 +1,20 @@
 #!/bin/bash
 cd /home/ubuntu/app
 aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about
+
+-e MONGODB_URI=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.MONGODB_URI')
+-e cryptoKey=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.cryptoKey')
+-e PAPERTRAIL_API_TOKEN=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.cryptoKey')
+-e AWS_KEY=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.AWS_KEY')
+-e AWS_ACCESS_KEY=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.AWS_ACCESS_KEY')
+-e PUBLIC_KEY=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.PUBLIC_KEY')
+-e PRIVATE_KEY=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.PRIVATE_KEY')
+-e NEW_RELIC_APP_NAME=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.NEW_RELIC_APP_NAME')
+-e NEW_RELIC_LICENSE_KEY=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.NEW_RELIC_LICENSE_KEY')
+-e NEW_RELIC_LOG=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.NEW_RELIC_LOG')
+-e NEW_RELIC_NO_CONFIG_FILE=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.NEW_RELIC_NO_CONFIG_FILE')
+-e NEW_RELIC_ENABLED=$(aws secretsmanager get-secret-value --secret-id myapp/secrets --query SecretString --output text | jq -r '.NEW_RELIC_ENABLED')
+
 docker pull 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about:latest
 docker stop nest-app || true
 docker rm nest-app || true
