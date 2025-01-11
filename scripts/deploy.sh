@@ -18,7 +18,7 @@ NEW_RELIC_ENABLED=$(aws secretsmanager get-secret-value --secret-id about/backen
 docker pull 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about:latest
 docker stop nest-app || true
 docker rm nest-app || true
-docker run -d --name my-app \
+docker run -d --name nest-app \
     -e MONGODB_URI="$MONGODB_URI" \
     -e cryptoKey="$cryptoKey" \
     -e PAPERTRAIL_API_TOKEN="$PAPERTRAIL_API_TOKEN" \
