@@ -32,7 +32,7 @@ COPY --from=builder /app/node_modules ./node_modules
 ENV NODE_ENV=production
     
 # 11. Expose the port
-EXPOSE 3000
+EXPOSE 3001
 
 # 12. Start the Nest.js app
 CMD ["node", "dist/main"]
