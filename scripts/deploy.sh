@@ -4,4 +4,4 @@ aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS
 docker pull 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about:latest
 docker stop nest-app || true
 docker rm nest-app || true
-docker run -d --name my-app -p 80:3001 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about:latest
+docker run -d --name my-app -p 3001:3001 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about:latest
