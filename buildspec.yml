@@ -7,21 +7,7 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - >
-        docker build
-        --build-arg MONGODB_URI=$MONGODB_URI
-        --build-arg cryptoKey=$cryptoKey
-        --build-arg PAPERTRAIL_API_TOKEN=$PAPERTRAIL_API_TOKEN
-        --build-arg AWS_KEY=$AWS_KEY
-        --build-arg AWS_ACCESS_KEY=$AWS_ACCESS_KEY
-        --build-arg PUBLIC_KEY=$PUBLIC_KEY
-        --build-arg PRIVATE_KEY=$PRIVATE_KEY
-        --build-arg NEW_RELIC_APP_NAME=$NEW_RELIC_APP_NAME
-        --build-arg NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY
-        --build-arg NEW_RELIC_LOG=$NEW_RELIC_LOG
-        --build-arg NEW_RELIC_NO_CONFIG_FILE=$NEW_RELIC_NO_CONFIG_FILE
-        --build-arg NEW_RELIC_ENABLED=$NEW_RELIC_ENABLED
-        -t nest-app .
+      - docker build -t nest-app .
       - docker tag nest-app 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about
   post_build:
     commands:
