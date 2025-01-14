@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { C_simpleUser } from 'src/constants';
+import { C_simpleUser } from 'src/Constants/constants';
 import { AppError } from 'src/errors/AppError';
 import { ILog } from 'src/logz/entity/log.entity';
 import { INotice } from 'src/notice/entity/notice.entity';

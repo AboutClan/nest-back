@@ -1,6 +1,6 @@
 import { Dayjs, isDayjs } from 'dayjs';
 import mongoose, { model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/constants';
+import { LOCATION_LIST } from 'src/Constants/constants';
 import { z } from 'zod';
 
 const dayjsSchema = z.custom<Dayjs>((value) => isDayjs(value), {

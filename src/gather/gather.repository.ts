@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { C_simpleUser } from 'src/constants';
+import { C_simpleUser } from 'src/Constants/constants';
 import { IGatherData, subCommentType } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 
