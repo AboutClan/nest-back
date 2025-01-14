@@ -35,7 +35,7 @@ export default class GroupStudyService implements IGroupStudyService {
   ) {
     this.token = this.request.decodedToken;
   }
-
+  //갱신
   async getGroupStudyOnlyStudy() {
     let groupStudyData;
 
