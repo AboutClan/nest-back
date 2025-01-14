@@ -73,7 +73,10 @@ export class GatherService implements IGatherService {
 
     if (!created) throw new DatabaseError('create gather failed');
 
-    await this.userServiceInstance.updateScore(5, '번개 모임 개설');
+    await this.userServiceInstance.updateScore(
+      CREATE_GATHER_SCORE,
+      '번개 모임 개설',
+    );
 
     return;
   }
@@ -97,7 +100,10 @@ export class GatherService implements IGatherService {
       await gather?.save();
     }
 
-    await this.userServiceInstance.updateScore(5, '번개 모임 개설');
+    await this.userServiceInstance.updateScore(
+      PARTICIPATE_GATHER_SCORE,
+      '번개 모임 참여',
+    );
     await this.userServiceInstance.updatePoint(5, '번개 모임 참여');
 
     return;
@@ -106,7 +112,10 @@ export class GatherService implements IGatherService {
   async deleteParticipate(gatherId: number) {
     await this.gatherRepository.deleteParticipants(gatherId, this.token.id);
 
-    await this.userServiceInstance.updateScore(-5, '번개 모임 참여 취소');
+    await this.userServiceInstance.updateScore(
+      CANCEL_GAHTER_SCORE,
+      '번개 모임 참여 취소',
+    );
     return;
   }
 
@@ -267,7 +276,10 @@ export class GatherService implements IGatherService {
     const deleted = await this.gatherRepository.deleteById(gatherId);
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
-    await this.userServiceInstance.updateScore(-5, '번개 모임 삭제');
+    await this.userServiceInstance.updateScore(
+      REMOVE_GAHTER_SCORE,
+      '번개 모임 삭제',
+    );
     return;
   }
 }

@@ -823,7 +823,10 @@ export class VoteService implements IVoteService {
       );
 
       await this.userServiceInstance.updatePoint(5, '스터디 출석');
-      await this.userServiceInstance.updateScore(5, '스터디 출석');
+      await this.userServiceInstance.updateScore(
+        ATTEND_STUDY_SCORE,
+        '스터디 출석',
+      );
 
       return result;
     } catch (err) {
