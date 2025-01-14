@@ -19,6 +19,7 @@ import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { IGroupStudyService } from './groupStudyService.interface';
+import { GROUP_WEEKLY_PARTICIPATE_POINT } from 'src/Constants/point';
 
 export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
@@ -664,7 +665,7 @@ export default class GroupStudyService implements IGroupStudyService {
     if (result.modifiedCount) {
       await this.userServiceInstance.updatePointWithUserId(
         userId,
-        2,
+        GROUP_WEEKLY_PARTICIPATE_POINT,
         '소모임 주간 출석',
       );
     }

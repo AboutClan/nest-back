@@ -16,6 +16,7 @@ import {
 import { FeedRepository } from './feed.repository.interface';
 import { IFeedService } from './feedService.interface';
 import { IUserService } from 'src/user/userService.interface';
+import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
 
 @Injectable()
 export class FeedService implements IFeedService {
@@ -290,9 +291,12 @@ export class FeedService implements IFeedService {
     const isLikePush: boolean = await feed?.addLike(this.token.id);
 
     if (isLikePush) {
-      await this.userService.updatePoint(2, '피드 좋아요');
+      await this.userService.updatePoint(FEED_LIKE_POINT, '피드 좋아요');
     } else {
-      await this.userService.updatePoint(-2, '피드 좋아요 취소');
+      await this.userService.updatePoint(
+        CANCEL_FEED_LIKE_POINT,
+        '피드 좋아요 취소',
+      );
     }
     return;
   }

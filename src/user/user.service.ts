@@ -19,6 +19,7 @@ import * as logger from '../logger';
 import { IUser, restType } from './entity/user.entity';
 import { UserRepository } from './user.repository.interface';
 import { IUserService } from './userService.interface';
+import { PROMOTION_EVENT_POINT } from 'src/Constants/point';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService implements IUserService {
@@ -563,12 +564,12 @@ export class UserService implements IUserService {
 
       // result.upsertedCount가 1이면 새로 생성된 경우, 아니면 업데이트된 경우
       if (result.upsertedCount > 0) {
-        await this.updatePoint(100, '홍보 이벤트 참여'); // 새로 생성된 경우
+        await this.updatePoint(PROMOTION_EVENT_POINT, '홍보 이벤트 참여'); // 새로 생성된 경우
       } else {
         const previousData = await this.Promotion.findOne({ name });
         const dayDiff = dayjs(now).diff(dayjs(previousData?.lastDate), 'day');
         if (dayDiff > 2) {
-          await this.updatePoint(100, '홍보 이벤트 참여'); // 기존 데이터 업데이트
+          await this.updatePoint(PROMOTION_EVENT_POINT, '홍보 이벤트 참여'); // 기존 데이터 업데이트
         }
       }
     } catch (err: any) {

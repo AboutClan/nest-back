@@ -22,6 +22,7 @@ import {
 import { now } from './util';
 import { IVoteService } from './voteService.interface';
 import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
+import { CANCEL_VOTE_POINT, VOTE_POINT } from 'src/Constants/point';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VoteService implements IVoteService {
@@ -544,7 +545,7 @@ export class VoteService implements IVoteService {
       const vote = await this.getVote(date);
 
       if (!this.isVoting(date)) {
-        this.userServiceInstance.updatePoint(5, '스터디 투표');
+        this.userServiceInstance.updatePoint(VOTE_POINT, '스터디 투표');
       }
 
       await this.Realtime.updateOne(
@@ -683,7 +684,10 @@ export class VoteService implements IVoteService {
         },
       );
 
-      this.userServiceInstance.updatePoint(-5, '스터디 투표 취소');
+      this.userServiceInstance.updatePoint(
+        CANCEL_VOTE_POINT,
+        '스터디 투표 취소',
+      );
 
       return;
     } catch (err) {
@@ -823,7 +827,10 @@ export class VoteService implements IVoteService {
         this.token.id,
       );
 
-      await this.userServiceInstance.updatePoint(5, '스터디 출석');
+      await this.userServiceInstance.updatePoint(
+        ATTEND_STUDY_POINT,
+        '스터디 출석',
+      );
       await this.userServiceInstance.updateScore(
         ATTEND_STUDY_SCORE,
         '스터디 출석',

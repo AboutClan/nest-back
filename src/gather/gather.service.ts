@@ -25,6 +25,7 @@ import {
   PARTICIPATE_GATHER_SCORE,
   REMOVE_GAHTER_SCORE,
 } from 'src/Constants/score';
+import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -110,7 +111,10 @@ export class GatherService implements IGatherService {
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',
     );
-    await this.userServiceInstance.updatePoint(5, '번개 모임 참여');
+    await this.userServiceInstance.updatePoint(
+      PARTICIPATE_GATHER_POINT,
+      '번개 모임 참여',
+    );
 
     return;
   }
