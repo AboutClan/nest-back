@@ -54,4 +54,5 @@ export interface GroupStudyRepository {
   getSigningGroupByStatus(userId: string, status: string): Promise<any>;
   weekAttendance(groupId: string, id: string): Promise<UpdateWriteOpResult>;
   initWeekAttendance(): Promise<void>;
+  findEnthMembers();
 }

@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { C_simpleUser } from 'src/constants';
+import { C_simpleUser } from 'src/Constants/constants';
 import { IGatherData, subCommentType } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 
@@ -9,6 +9,67 @@ export class MongoGatherRepository implements GatherRepository {
     @InjectModel('Gather')
     private readonly Gather: Model<IGatherData>,
   ) {}
+  async getEnthMembers() {
+    try {
+      const startOfMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1,
+      ).toISOString();
+      const endOfMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() + 1,
+        0,
+      ).toISOString();
+
+      const result = await this.Gather.aggregate([
+        {
+          $match: {
+            date: {
+              $gte: startOfMonth,
+              $lte: endOfMonth,
+            },
+          },
+        },
+        { $unwind: '$participants' },
+        {
+          $group: {
+            _id: '$participants.user',
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $match: {
+            count: { $gte: 3 },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userDetails',
+          },
+        },
+        {
+          $unwind: '$userDetails', // userDetails 배열을 펼침
+        },
+        {
+          $project: {
+            _id: 1,
+            count: 1,
+            uid: '$userDetails.uid', // userDetails.uid를 바로 꺼냄
+            name: '$userDetails.name', // userDetails.name을 바로 꺼냄
+          },
+        },
+      ]);
+
+      console.log('Users with 3 or more participations this month:', result);
+      return result;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
   async findById(gatherId: string): Promise<IGatherData> {
     return await this.Gather.findOne({ id: gatherId });
   }

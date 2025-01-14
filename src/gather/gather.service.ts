@@ -19,6 +19,13 @@ import {
 } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
+import {
+  CANCEL_GAHTER_SCORE,
+  CREATE_GATHER_SCORE,
+  PARTICIPATE_GATHER_SCORE,
+  REMOVE_GAHTER_SCORE,
+} from 'src/Constants/score';
+import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -34,6 +41,9 @@ export class GatherService implements IGatherService {
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
+  }
+  async getEnthMembers() {
+    return await this.gatherRepository.getEnthMembers();
   }
 
   async getGatherById(gatherId: number) {
@@ -73,7 +83,10 @@ export class GatherService implements IGatherService {
 
     if (!created) throw new DatabaseError('create gather failed');
 
-    await this.userServiceInstance.updateScore(5, '번개 모임 개설');
+    await this.userServiceInstance.updateScore(
+      CREATE_GATHER_SCORE,
+      '번개 모임 개설',
+    );
 
     return;
   }
@@ -97,8 +110,14 @@ export class GatherService implements IGatherService {
       await gather?.save();
     }
 
-    await this.userServiceInstance.updateScore(5, '번개 모임 개설');
-    await this.userServiceInstance.updatePoint(5, '번개 모임 참여');
+    await this.userServiceInstance.updateScore(
+      PARTICIPATE_GATHER_SCORE,
+      '번개 모임 참여',
+    );
+    await this.userServiceInstance.updatePoint(
+      PARTICIPATE_GATHER_POINT,
+      '번개 모임 참여',
+    );
 
     return;
   }
@@ -106,7 +125,10 @@ export class GatherService implements IGatherService {
   async deleteParticipate(gatherId: number) {
     await this.gatherRepository.deleteParticipants(gatherId, this.token.id);
 
-    await this.userServiceInstance.updateScore(-5, '번개 모임 참여 취소');
+    await this.userServiceInstance.updateScore(
+      CANCEL_GAHTER_SCORE,
+      '번개 모임 참여 취소',
+    );
     return;
   }
 
@@ -267,7 +289,10 @@ export class GatherService implements IGatherService {
     const deleted = await this.gatherRepository.deleteById(gatherId);
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
-    await this.userServiceInstance.updateScore(-5, '번개 모임 삭제');
+    await this.userServiceInstance.updateScore(
+      REMOVE_GAHTER_SCORE,
+      '번개 모임 삭제',
+    );
     return;
   }
 }

@@ -50,4 +50,5 @@ export interface GatherRepository {
     userId: string,
   ): Promise<null>;
   deleteById(gatherId: string): Promise<any>;
+  getEnthMembers();
 }

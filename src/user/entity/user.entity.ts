@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/constants';
+import { LOCATION_LIST } from 'src/Constants/constants';
 import { IPlace } from 'src/place/entity/place.entity';
 import {
   ILocationDetail,

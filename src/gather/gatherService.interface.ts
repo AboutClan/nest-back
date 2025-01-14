@@ -50,4 +50,5 @@ export interface IGatherService {
     subCommentId: string,
   ): Promise<void>;
   deleteGather(gatherId: string): Promise<void>;
+  getEnthMembers();
 }

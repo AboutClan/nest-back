@@ -77,4 +77,5 @@ export interface IGroupStudyService {
   getUserGroupsTitleByUserId(userId: string): Promise<string[]>;
   weekAttend(groupId: string, userId: string);
   initWeekAttend();
+  getEnthMembers();
 }

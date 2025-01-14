@@ -21,6 +21,7 @@ import { ICollectionService } from 'src/collection/collectionService.interface';
 import { IRealtimeService } from './realtimeService';
 import { RealtimeRepository } from './realtime.repository.interface';
 import { IUserService } from 'src/user/userService.interface';
+import { ATTEND_STUDY_POINT } from 'src/Constants/point';
 
 export default class RealtimeService implements IRealtimeService {
   private token: JWT;
@@ -110,7 +111,10 @@ export default class RealtimeService implements IRealtimeService {
         this.token.id,
       );
 
-      await this.userServiceInstance.updatePoint(5, '스터디 출석');
+      await this.userServiceInstance.updatePoint(
+        ATTEND_STUDY_POINT,
+        '스터디 출석',
+      );
       return result;
     } catch (err) {
       console.log(err);

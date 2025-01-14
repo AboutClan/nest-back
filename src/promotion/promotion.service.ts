@@ -8,6 +8,10 @@ import { IPROMOTION_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from './entity/promotion.entity';
 import { PromotionRepository } from './promotion.repository';
 import { IPromotionService } from './promotionService.interface';
+import {
+  PROMOTION_EVENT_DOUBLE_POINT,
+  PROMOTION_EVENT_POINT,
+} from 'src/Constants/point';
 
 export default class PromotionService implements IPromotionService {
   private token: JWT;
@@ -44,11 +48,17 @@ export default class PromotionService implements IPromotionService {
             validatedPromotion,
           );
 
-          await this.userServiceInstance.updatePoint(100, '홍보 이벤트 참여');
+          await this.userServiceInstance.updatePoint(
+            PROMOTION_EVENT_POINT,
+            '홍보 이벤트 참여',
+          );
         }
       } else {
         await this.promotionRepository.createPromotion(validatedPromotion);
-        await this.userServiceInstance.updatePoint(200, '홍보 이벤트 참여');
+        await this.userServiceInstance.updatePoint(
+          PROMOTION_EVENT_DOUBLE_POINT,
+          '홍보 이벤트 참여',
+        );
       }
     } catch (err: any) {
       throw new Error(err);

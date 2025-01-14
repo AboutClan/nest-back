@@ -159,7 +159,6 @@ export class GatherController {
   @Post('comment')
   async createComment(@Body() body: { id: string; comment: string }) {
     try {
-    
       await this.gatherService.createComment(body.id, body.comment);
       return { status: 'success' };
     } catch (err) {
@@ -310,6 +309,18 @@ export class GatherController {
     try {
       await this.gatherService.setStatus(body.gatherId, body.status);
       return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error setting status',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('enthMembers')
+  async getEnthMembers() {
+    try {
+      return await this.gatherService.getEnthMembers();
     } catch (err) {
       throw new HttpException(
         'Error setting status',

@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/constants';
+import { LOCATION_LIST } from 'src/Constants/constants';
 import { IUser } from 'src/user/entity/user.entity';
 import { z } from 'zod';
 

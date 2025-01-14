@@ -7,6 +7,7 @@ import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import { IREGISTER_REPOSITORY, IREGISTER_SERVICE } from 'src/utils/di.tokens';
 import { MongoRegisterRepository } from './register.repository.interface';
+import { AccountModule } from 'src/account/account.module';
 
 const registerServiceProvider: ClassProvider = {
   provide: IREGISTER_SERVICE,
@@ -25,6 +26,7 @@ const registerRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: 'Registered', schema: RegisteredSchema },
     ]),
+    AccountModule,
   ],
   controllers: [RegisterController],
   providers: [registerServiceProvider, registerRepositoryProvider],

@@ -7,6 +7,7 @@ import { DailyCheckZodSchema } from './dailycheck.entity';
 import { IDAILYCHECK_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { DailyCheckRepository } from './dailyCheck.repository.interface';
 import { IUserService } from 'src/user/userService.interface';
+import { DAILY_ATTEND_POINT } from 'src/Constants/point';
 
 export class DailyCheckService implements IDailyCheckService {
   private token: JWT;
@@ -42,7 +43,7 @@ export class DailyCheckService implements IDailyCheckService {
 
     await this.dailyCheckRepository.createDailyCheck(validatedDailyCheck);
 
-    await this.userService.updatePoint(2, '일일 출석');
+    await this.userService.updatePoint(DAILY_ATTEND_POINT, '일일 출석');
     return;
   }
 

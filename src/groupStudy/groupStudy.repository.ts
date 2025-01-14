@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
-import { C_simpleUser } from 'src/constants';
+import { C_simpleUser } from 'src/Constants/constants';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 
@@ -326,5 +326,47 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       },
     );
     return;
+  }
+  async findEnthMembers() {
+    try {
+      // Aggregation Pipeline
+      const result = await this.GroupStudy.aggregate([
+        { $unwind: '$participants' }, // Unwind the participants array
+        {
+          $group: {
+            _id: '$participants.user', // Group by user ID
+            count: { $sum: 1 }, // Count occurrences
+          },
+        },
+        {
+          $match: {
+            count: { $gte: 3 }, // Find users with 3 or more occurrences
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userDetails',
+          },
+        },
+        {
+          $unwind: '$userDetails', // userDetails 배열을 펼침
+        },
+        {
+          $project: {
+            _id: 1,
+            count: 1,
+            uid: '$userDetails.uid', // userDetails.uid를 바로 꺼냄
+            name: '$userDetails.name', // userDetails.name을 바로 꺼냄
+          },
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
