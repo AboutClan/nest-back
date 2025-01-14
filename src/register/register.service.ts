@@ -13,6 +13,7 @@ import * as logger from '../logger';
 import { IRegistered } from './entity/register.entity';
 import { RegisterRepository } from './register.repository';
 import { IRegisterService } from './registerService.interface';
+import { IAccount } from 'src/account/entity/account.entity';
 
 export default class RegisterService implements IRegisterService {
   private token: JWT;
@@ -21,6 +22,7 @@ export default class RegisterService implements IRegisterService {
     @Inject(IREGISTER_REPOSITORY)
     private readonly registerRepository: RegisterRepository,
     @InjectModel('User') private User: Model<IUser>,
+    @InjectModel('Account') private Account: Model<IAccount>,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
@@ -114,6 +116,7 @@ export default class RegisterService implements IRegisterService {
       await this.User.deleteOne({ uid });
     }
     await this.registerRepository.deleteByUid(uid);
+    await this.Account.deleteOne({ providerAccountId: uid });
   }
 
   async getRegister() {
