@@ -327,4 +327,27 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     );
     return;
   }
+  async findEnthMembers() {
+    try {
+      // Aggregation Pipeline
+      const result = await this.GroupStudy.aggregate([
+        { $unwind: '$participants' }, // Unwind the participants array
+        {
+          $group: {
+            _id: '$participants.user', // Group by user ID
+            count: { $sum: 1 }, // Count occurrences
+          },
+        },
+        {
+          $match: {
+            count: { $gte: 3 }, // Find users with 3 or more occurrences
+          },
+        },
+      ]);
+
+      console.log('Users with 3 or more participations:', result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }

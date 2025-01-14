@@ -39,7 +39,7 @@ export class GroupStudyController {
     try {
       const cursorNum = cursor ? parseInt(cursor) : 0;
       let groupStudyData;
-    
+
       if (groupStudyId) {
         groupStudyData =
           await this.groupStudyService.getGroupStudyById(groupStudyId);
@@ -448,6 +448,16 @@ export class GroupStudyController {
   ) {
     try {
       await this.groupStudyService.weekAttend(groupId, userId);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException('Error agreeing waiting person', 500);
+    }
+  }
+
+  @Get('enthMembers')
+  async getEnthMember() {
+    try {
+      await this.groupStudyService.getEnthMembers();
       return { status: 'success' };
     } catch (err) {
       throw new HttpException('Error agreeing waiting person', 500);

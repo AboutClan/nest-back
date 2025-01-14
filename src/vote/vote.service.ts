@@ -22,7 +22,11 @@ import {
 import { now } from './util';
 import { IVoteService } from './voteService.interface';
 import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
-import { CANCEL_VOTE_POINT, VOTE_POINT } from 'src/Constants/point';
+import {
+  ATTEND_STUDY_POINT,
+  CANCEL_VOTE_POINT,
+  VOTE_POINT,
+} from 'src/Constants/point';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VoteService implements IVoteService {
