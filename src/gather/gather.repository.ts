@@ -9,6 +9,55 @@ export class MongoGatherRepository implements GatherRepository {
     @InjectModel('Gather')
     private readonly Gather: Model<IGatherData>,
   ) {}
+  async getEnthMembers() {
+    try {
+      const startOfMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1,
+      ).toISOString();
+      const endOfMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() + 1,
+        0,
+      ).toISOString();
+
+      const result = await this.Gather.aggregate([
+        {
+          $match: {
+            date: {
+              $gte: startOfMonth,
+              $lte: endOfMonth,
+            },
+          },
+        },
+        { $unwind: '$participants' },
+        {
+          $group: {
+            _id: '$participants.user',
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $match: {
+            count: { $gte: 3 },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userDetails',
+          },
+        },
+      ]);
+
+      console.log('Users with 3 or more participations this month:', result);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
   async findById(gatherId: string): Promise<IGatherData> {
     return await this.Gather.findOne({ id: gatherId });
   }

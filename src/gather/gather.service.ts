@@ -42,8 +42,9 @@ export class GatherService implements IGatherService {
   ) {
     this.token = this.request.decodedToken;
   }
-  getEnthMembers() {
-    throw new Error('Method not implemented.');
+  async getEnthMembers() {
+    await this.gatherRepository.getEnthMembers();
+    return;
   }
 
   async getGatherById(gatherId: number) {
