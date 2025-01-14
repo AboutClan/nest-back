@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
+import { GROUP_WEEKLY_PARTICIPATE_POINT } from 'src/Constants/point';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/entity/user.entity';
@@ -19,7 +20,6 @@ import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { IGroupStudyService } from './groupStudyService.interface';
-import { GROUP_WEEKLY_PARTICIPATE_POINT } from 'src/Constants/point';
 
 export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
@@ -87,25 +87,14 @@ export default class GroupStudyService implements IGroupStudyService {
 
           return statusMatches && typeMatches;
         })
-        .slice(0, 3);
+        .slice(0, type === '취미' ? 6 : 3);
     };
-
-    const getNewestGroupStudies = (data) =>
-      data
-        .filter(
-          (group) =>
-            group.participants.length > 1 &&
-            group.category.main !== '시험 준비 스터디',
-        )
-        .sort((a, b) => (dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1))
-        .slice(0, 3);
 
     return {
       hobby: filterGroupStudies(groupStudyData, '취미', 'pending'),
       development: filterGroupStudies(groupStudyData, '자기계발', 'pending'),
-      study: filterGroupStudies(groupStudyData, '지속 성장 스터디', 'pending'),
+      study: filterGroupStudies(groupStudyData, '성장 스터디', 'pending'),
       exam: filterGroupStudies(groupStudyData, '시험 준비 스터디', 'pending'),
-      new: getNewestGroupStudies(groupStudyData),
       waiting: filterGroupStudies(groupStudyData, null, 'planned'),
     };
   }

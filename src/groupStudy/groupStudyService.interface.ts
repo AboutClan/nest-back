@@ -7,7 +7,6 @@ export interface IGroupStudyService {
     development: IGroupStudyData[];
     exam: IGroupStudyData[];
     study: IGroupStudyData[];
-    new: IGroupStudyData[];
     waiting: IGroupStudyData[];
   }>;
   getGroupStudyByFilterAndCategory(
