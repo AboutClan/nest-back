@@ -43,8 +43,7 @@ export class GatherService implements IGatherService {
     this.token = this.request.decodedToken;
   }
   async getEnthMembers() {
-    await this.gatherRepository.getEnthMembers();
-    return;
+    return await this.gatherRepository.getEnthMembers();
   }
 
   async getGatherById(gatherId: number) {

@@ -320,8 +320,7 @@ export class GatherController {
   @Get('enthMembers')
   async getEnthMembers() {
     try {
-      await this.gatherService.getEnthMembers();
-      return { status: 'success' };
+      return await this.gatherService.getEnthMembers();
     } catch (err) {
       throw new HttpException(
         'Error setting status',

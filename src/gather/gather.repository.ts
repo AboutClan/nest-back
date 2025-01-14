@@ -51,9 +51,21 @@ export class MongoGatherRepository implements GatherRepository {
             as: 'userDetails',
           },
         },
+        {
+          $unwind: '$userDetails', // userDetails 배열을 펼침
+        },
+        {
+          $project: {
+            _id: 1,
+            count: 1,
+            uid: '$userDetails.uid', // userDetails.uid를 바로 꺼냄
+            name: '$userDetails.name', // userDetails.name을 바로 꺼냄
+          },
+        },
       ]);
 
       console.log('Users with 3 or more participations this month:', result);
+      return result;
     } catch (error) {
       console.error('Error:', error);
     }

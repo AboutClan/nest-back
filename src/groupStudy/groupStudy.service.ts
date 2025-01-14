@@ -678,7 +678,6 @@ export default class GroupStudyService implements IGroupStudyService {
   }
 
   async getEnthMembers() {
-    await this.groupStudyRepository.findEnthMembers();
-    throw new Error('Method not implemented.');
+    return await this.groupStudyRepository.findEnthMembers();
   }
 }

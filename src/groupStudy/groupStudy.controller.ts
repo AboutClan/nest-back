@@ -457,8 +457,7 @@ export class GroupStudyController {
   @Get('enthMembers')
   async getEnthMember() {
     try {
-      await this.groupStudyService.getEnthMembers();
-      return { status: 'success' };
+      return await this.groupStudyService.getEnthMembers();
     } catch (err) {
       throw new HttpException('Error agreeing waiting person', 500);
     }
