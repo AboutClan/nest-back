@@ -21,6 +21,7 @@ import {
 } from './entity/vote.entity';
 import { now } from './util';
 import { IVoteService } from './voteService.interface';
+import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VoteService implements IVoteService {

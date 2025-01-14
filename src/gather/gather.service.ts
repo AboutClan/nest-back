@@ -19,6 +19,12 @@ import {
 } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
+import {
+  CANCEL_GAHTER_SCORE,
+  CREATE_GATHER_SCORE,
+  PARTICIPATE_GATHER_SCORE,
+  REMOVE_GAHTER_SCORE,
+} from 'src/Constants/score';
 
 @Injectable()
 export class GatherService implements IGatherService {
