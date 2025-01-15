@@ -172,4 +172,56 @@ export class MongoUserRepository implements UserRepository {
 
     return null;
   }
+
+  async updateGatherTicket(uid: string, value: number) {
+    await this.User.findOneAndUpdate(
+      {
+        uid,
+      },
+      {
+        $inc: { 'ticket.gatherTicket': value },
+      },
+      { new: true, upsert: false },
+    );
+    return null;
+  }
+  async updateGroupOnlineTicket(uid: string, value: number) {
+    await this.User.findOneAndUpdate(
+      {
+        uid,
+      },
+      {
+        $inc: { 'ticket.groupOnlineTicket': value },
+      },
+      { new: true, upsert: false },
+    );
+    return null;
+  }
+  async updateGroupOfflineTicket(uid: string, value: number) {
+    await this.User.findOneAndUpdate(
+      {
+        uid,
+      },
+      {
+        $inc: { 'ticket.groupOfflineTicket': value },
+      },
+      { new: true, upsert: false },
+    );
+    return null;
+  }
+
+  async resetGatherTicket(uid: string) {
+    await this.User.findOneAndUpdate(
+      {
+        uid,
+      },
+      {
+        $set: { 'ticket.gatherTicket': 4 },
+      },
+      { new: true, upsert: false },
+    );
+  }
+  async getTicketInfo(userId: string) {
+    return this.User.findOne({ _id: userId }, 'ticket');
+  }
 }

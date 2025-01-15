@@ -354,4 +354,9 @@ export class UserController {
     await this.userService?.patchLocationDetail(text, lat, lon);
     return;
   }
+
+  @Get('test')
+  async test() {
+    return await this.userService.test();
+  }
 }

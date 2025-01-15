@@ -647,18 +647,46 @@ export class UserService implements IUserService {
     return;
   }
 
-  async test() {
-    const targetDate = new Date('2024-06-01T00:00:00Z');
+  async updateAddTicket(type: 'gather' | 'groupOnline' | 'groupOffline') {
+    switch (type) {
+      case 'gather':
+        await this.UserRepository.updateGatherTicket(this.token.uid, 1);
+        break;
+      case 'groupOffline':
+        await this.UserRepository.updateGroupOfflineTicket(this.token.uid, 1);
+        break;
+      case 'groupOnline':
+        await this.UserRepository.updateGroupOnlineTicket(this.token.uid, 1);
+        break;
+      default:
+        break;
+    }
+  }
+  async updateReduceTicket(type: 'gather' | 'groupOnline' | 'groupOffline') {
+    switch (type) {
+      case 'gather':
+        await this.UserRepository.updateGatherTicket(this.token.uid, -1);
+        break;
+      case 'groupOffline':
+        await this.UserRepository.updateGroupOfflineTicket(this.token.uid, -1);
+        break;
+      case 'groupOnline':
+        await this.UserRepository.updateGroupOnlineTicket(this.token.uid, -1);
+        break;
+      default:
+        break;
+    }
+  }
 
-    const users = await this.UserRepository.findAll();
-    users.forEach(async (user) => {
-      const registerDate = new Date(user.registerDate); // 문자열을 Date 객체로 변환
-      if (
-        registerDate < targetDate &&
-        !['manager', 'privileged'].includes(user.role as string)
-      ) {
-        await this.UserRepository.updateUserById(user._id, { isActive: false });
-      }
-    });
+  async resetGatherTicket() {
+    await this.UserRepository.resetGatherTicket(this.token.uid);
+  }
+
+  async getTicketInfo(userId: string) {
+    await this.UserRepository.getTicketInfo(userId);
+  }
+
+  async test() {
+    return await this.UserRepository.getTicketInfo(this.token.uid);
   }
 }
