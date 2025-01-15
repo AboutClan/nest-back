@@ -4,7 +4,6 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import AdminVoteService from 'src/admin/vote/adminVote.service';
-import { IFcmService } from 'src/fcm/fcm.interface';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import { IGroupStudyService } from 'src/groupStudy/groupStudyService.interface';
 import { IUser } from 'src/user/entity/user.entity';
@@ -24,7 +23,6 @@ export class NotificationScheduler {
     // private readonly webPushService: WebPushService,
     // private readonly fcmService: FcmService,
     @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
-    @Inject(IFCM_SERVICE) private fcmService: IFcmService,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
     private readonly adminVoteService: AdminVoteService,
@@ -36,10 +34,6 @@ export class NotificationScheduler {
   async sendNotification() {
     try {
       await this.webPushService.sendNotificationAllUser();
-      await this.fcmService.sendNotificationAllUser(
-        '스터디 투표',
-        '스터디 마감이 얼마 남지 않았어요. 지금 신청하세요!',
-      );
       this.logger.log('Notifications sent successfully to all users.');
     } catch (error) {
       this.logger.error('Error sending notifications:', error);
@@ -55,7 +49,6 @@ export class NotificationScheduler {
       const date = dayjs().format('YYYY-MM-DD');
       await this.adminVoteService.confirm(date);
       await this.webPushService.sendNotificationVoteResult();
-      await this.fcmService.sendNotificationVoteResult();
       this.logger.log('Vote result notifications sent successfully.');
     } catch (error) {
       this.logger.error('Error sending vote result notifications:', error);

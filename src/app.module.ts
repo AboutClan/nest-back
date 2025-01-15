@@ -21,7 +21,6 @@ import { ImageModule } from './imagez/image.module';
 import { GroupStudyModule } from './groupStudy/groupStudy.module';
 import { GiftModule } from './gift/gift.module';
 import { GatherModule } from './gather/gather.module';
-import { FcmAModule } from './fcm/fcm.module';
 import { ChatModule } from './chatz/chat.module';
 import { BookModule } from './book/book.module';
 import { FeedModule } from './feed/feed.module';
@@ -82,7 +81,6 @@ const corsOptions = {
     GiftModule,
     GatherModule,
     FeedModule,
-    FcmAModule,
     ChatModule,
     BookModule,
     CollectionModule,
