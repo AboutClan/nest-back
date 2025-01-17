@@ -684,7 +684,15 @@ export class UserService implements IUserService {
     await this.UserRepository.addbadge(this.token.uid, badgeIdx);
   }
   async selectBadge(badgeIdx: number) {
-    await this.UserRepository.selectbadge(this.token.uid, badgeIdx);
+    const badgeList: any[] = await this.UserRepository.getBadgeList(
+      this.token.uid,
+    );
+
+    if (badgeList.includes(badgeIdx)) {
+      await this.UserRepository.selectbadge(this.token.uid, badgeIdx);
+    } else {
+      throw new Error('no badge');
+    }
   }
 
   async updateProfileImg(img: Express.Multer.File) {

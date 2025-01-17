@@ -237,4 +237,8 @@ export class MongoUserRepository implements UserRepository {
       { $set: { 'badge.badgeIdx': badgeIdx } },
     );
   }
+
+  async getBadgeList(uid: string) {
+    return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
+  }
 }

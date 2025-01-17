@@ -33,4 +33,5 @@ export interface UserRepository {
   getTicketInfo(userId: string);
   addbadge(uid: string, badgeIdx: number);
   selectbadge(uid: string, badgeIdx: number);
+  getBadgeList(uid: string);
 }
