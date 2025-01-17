@@ -224,4 +224,17 @@ export class MongoUserRepository implements UserRepository {
   async getTicketInfo(userId: string) {
     return this.User.findOne({ _id: userId }, 'ticket');
   }
+  async addbadge(uid: string, badgeIdx: number) {
+    await this.User.findOneAndUpdate(
+      { uid },
+      { $addToSet: { 'badge.badgeList': badgeIdx } },
+    );
+  }
+
+  async selectbadge(uid: string, badgeIdx: number) {
+    await this.User.findOneAndUpdate(
+      { uid },
+      { $set: { 'badge.badgeIdx': badgeIdx } },
+    );
+  }
 }

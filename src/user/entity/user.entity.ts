@@ -37,10 +37,18 @@ const ticketZodSchema = z.object({
   groupStudyOfflineTicket: z.number().default(2),
 });
 
+const badgeZodSchema = z
+  .object({
+    badgeIdx: z.number(),
+    badgeList: z.array(z.number()),
+  })
+  .optional();
+
 export type restType = z.infer<typeof restZodSchema>;
 export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
 export type ticketType = z.infer<typeof ticketZodSchema>;
+export type badgeType = z.infer<typeof badgeZodSchema>;
 
 // IUser Zod schema
 const userZodSchema = z.object({
@@ -100,6 +108,7 @@ const userZodSchema = z.object({
   weekStudyTragetHour: z.number().default(0),
   weekStudyAccumulationMinutes: z.number().default(0),
   ticket: ticketZodSchema,
+  badge: badgeZodSchema,
 });
 
 export interface IUser extends Document, IRegistered {
@@ -123,6 +132,7 @@ export interface IUser extends Document, IRegistered {
   weekStudyTragetHour: number;
   weekStudyAccumulationMinutes: number;
   ticket: ticketType;
+  badge: badgeType;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -201,6 +211,17 @@ export const ticketSchema: Schema<ticketType> = new Schema(
   },
   {
     _id: false,
+  },
+);
+
+export const badgeSchema: Schema<badgeType> = new Schema(
+  {
+    badgeIdx: Number,
+    badgeList: [Number],
+  },
+  {
+    _id: false,
+    timestamps: false,
   },
 );
 
@@ -317,6 +338,10 @@ export const UserSchema: Schema<IUser> = new Schema({
   weekStudyTragetHour: { type: Number, default: 0 },
   weekStudyAccumulationMinutes: { type: Number, default: 0 },
   ticket: { type: ticketSchema },
+  badge: {
+    type: badgeSchema,
+    required: false,
+  },
 });
 
 export const User =

@@ -31,4 +31,6 @@ export interface UserRepository {
   updateGroupOfflineTicket(uid: string, value: number);
   resetGatherTicket(uid: string);
   getTicketInfo(userId: string);
+  addbadge(uid: string, badgeIdx: number);
+  selectbadge(uid: string, badgeIdx: number);
 }

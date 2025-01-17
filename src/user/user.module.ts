@@ -10,6 +10,7 @@ import { IUSER_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { MongoUserRepository } from './user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './entity/user.entity';
+import { ImageModule } from 'src/imagez/image.module';
 
 const userServiceProvider: ClassProvider = {
   provide: IUSER_SERVICE,
@@ -29,6 +30,7 @@ const userRepositoryProvider: ClassProvider = {
     forwardRef(() => PromotionModule),
     LogModule,
     forwardRef(() => NoticeModule),
+    ImageModule,
   ],
   controllers: [UserController],
   providers: [userServiceProvider, userRepositoryProvider],
