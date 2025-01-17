@@ -704,6 +704,6 @@ export class UserService implements IUserService {
   }
 
   async test() {
-    return await this.UserRepository.getTicketInfo(this.token.uid);
+    await this.UserRepository.findById(this.token.id);
   }
 }

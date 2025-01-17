@@ -372,4 +372,9 @@ export class UserController {
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async updateProfileImg(@UploadedFile() file: Express.Multer.File) {}
+
+  @Get('test')
+  async test() {
+    await this.userService.test();
+  }
 }
