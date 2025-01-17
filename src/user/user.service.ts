@@ -12,7 +12,7 @@ import { ILog } from 'src/logz/entity/log.entity';
 import { INotice } from 'src/notice/entity/notice.entity';
 import { IPlace } from 'src/place/entity/place.entity';
 import { IPromotion } from 'src/promotion/entity/promotion.entity';
-import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
+import { IIMAGE_SERVICE, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/entity/vote.entity';
 import * as logger from '../logger';
@@ -20,6 +20,7 @@ import { IUser, restType } from './entity/user.entity';
 import { UserRepository } from './user.repository.interface';
 import { IUserService } from './userService.interface';
 import { PROMOTION_EVENT_POINT } from 'src/Constants/point';
+import { IImageService } from 'src/imagez/imageService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService implements IUserService {
@@ -32,6 +33,7 @@ export class UserService implements IUserService {
     @InjectModel('Promotion') private Promotion: Model<IPromotion>,
     @InjectModel('Log') private Log: Model<ILog>,
     @InjectModel('Notice') private Notice: Model<INotice>,
+    @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
@@ -647,18 +649,61 @@ export class UserService implements IUserService {
     return;
   }
 
-  async test() {
-    const targetDate = new Date('2024-06-01T00:00:00Z');
+  async updateAddTicket(type: 'gather' | 'groupOnline' | 'groupOffline') {
+    switch (type) {
+      case 'gather':
+        await this.UserRepository.updateGatherTicket(this.token.uid, 1);
+        break;
+      case 'groupOffline':
+        await this.UserRepository.updateGroupOfflineTicket(this.token.uid, 1);
+        break;
+      case 'groupOnline':
+        await this.UserRepository.updateGroupOnlineTicket(this.token.uid, 1);
+        break;
+      default:
+        break;
+    }
+  }
+  async updateReduceTicket(type: 'gather' | 'groupOnline' | 'groupOffline') {
+    switch (type) {
+      case 'gather':
+        await this.UserRepository.updateGatherTicket(this.token.uid, -1);
+        break;
+      case 'groupOffline':
+        await this.UserRepository.updateGroupOfflineTicket(this.token.uid, -1);
+        break;
+      case 'groupOnline':
+        await this.UserRepository.updateGroupOnlineTicket(this.token.uid, -1);
+        break;
+      default:
+        break;
+    }
+  }
 
-    const users = await this.UserRepository.findAll();
-    users.forEach(async (user) => {
-      const registerDate = new Date(user.registerDate); // 문자열을 Date 객체로 변환
-      if (
-        registerDate < targetDate &&
-        !['manager', 'privileged'].includes(user.role as string)
-      ) {
-        await this.UserRepository.updateUserById(user._id, { isActive: false });
-      }
-    });
+  async addBadge(badgeIdx: number) {
+    await this.UserRepository.addbadge(this.token.uid, badgeIdx);
+  }
+  async selectBadge(badgeIdx: number) {
+    await this.UserRepository.selectbadge(this.token.uid, badgeIdx);
+  }
+
+  async updateProfileImg(img: Express.Multer.File) {
+    const profileImgUrl = await this.imageServiceInstance.uploadSingleImage(
+      'profile',
+      img.buffer,
+    );
+    this.updateUser({ profileImage: profileImgUrl });
+  }
+
+  async resetGatherTicket() {
+    await this.UserRepository.resetGatherTicket(this.token.uid);
+  }
+
+  async getTicketInfo(userId: string) {
+    await this.UserRepository.getTicketInfo(userId);
+  }
+
+  async test() {
+    await this.UserRepository.findById(this.token.id);
   }
 }

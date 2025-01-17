@@ -7,12 +7,10 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import {
   ICHAT_REPOSITORY,
-  IFCM_SERVICE,
   IUSER_REPOSITORY,
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
-import { IFcmService } from 'src/fcm/fcm.interface';
 import { IChatService } from './chatService.interface';
 import { ChatRepository } from './chat.repository.interface';
 import { UserRepository } from 'src/user/user.repository.interface';
@@ -25,7 +23,6 @@ export class ChatService implements IChatService {
     //repository DI
     @Inject(ICHAT_REPOSITORY)
     private readonly chatRepository: ChatRepository,
-    @Inject(IFCM_SERVICE) private fcmServiceInstance: IFcmService,
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,

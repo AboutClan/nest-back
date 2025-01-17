@@ -16,7 +16,6 @@ import {
 } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { INoticeService } from './noticeService.interface';
-import { IFcmService } from 'src/fcm/fcm.interface';
 import { ApiTags } from '@nestjs/swagger';
 
 //todo: Notice 전반적인 수정 필요해보임
@@ -26,7 +25,6 @@ export class NoticeController {
   constructor(
     @Inject(INOTICE_SERVICE) private noticeService: INoticeService,
     @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
-    @Inject(IFCM_SERVICE) private fcmService: IFcmService,
   ) {}
 
   @Get()

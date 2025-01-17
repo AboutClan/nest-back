@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,6 +26,8 @@ import {
 } from './dto';
 import { IUserService } from './userService.interface';
 import { ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @ApiTags('user')
 @Controller('user')
@@ -353,5 +357,24 @@ export class UserController {
   ) {
     await this.userService?.patchLocationDetail(text, lat, lon);
     return;
+  }
+
+  @Post('badgeList')
+  async addBadgeList(@Body('badgeIdx') badgeIdx) {
+    await this.userService.addBadge(badgeIdx);
+    return;
+  }
+  @Post('badge')
+  async selectBadge(@Body('badgeIdx') badgeIdx) {
+    await this.userService.selectBadge(badgeIdx);
+    return;
+  }
+  @Post()
+  @UseInterceptors(FileInterceptor('image'))
+  async updateProfileImg(@UploadedFile() file: Express.Multer.File) {}
+
+  @Get('test')
+  async test() {
+    await this.userService.test();
   }
 }

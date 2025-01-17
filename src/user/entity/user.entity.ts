@@ -31,9 +31,24 @@ const preferenceZodSchema = z.object({
   subPlace: z.union([z.array(z.string()), z.array(z.custom<IPlace>())]), // Replace z.any() with IPlace if necessary
 });
 
+const ticketZodSchema = z.object({
+  gatherTicket: z.number().default(4),
+  groupStudyOnlineTicket: z.number().default(2),
+  groupStudyOfflineTicket: z.number().default(2),
+});
+
+const badgeZodSchema = z
+  .object({
+    badgeIdx: z.number(),
+    badgeList: z.array(z.number()),
+  })
+  .optional();
+
 export type restType = z.infer<typeof restZodSchema>;
 export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
+export type ticketType = z.infer<typeof ticketZodSchema>;
+export type badgeType = z.infer<typeof badgeZodSchema>;
 
 // IUser Zod schema
 const userZodSchema = z.object({
@@ -92,6 +107,8 @@ const userZodSchema = z.object({
   studyPreference: preferenceZodSchema.optional(),
   weekStudyTragetHour: z.number().default(0),
   weekStudyAccumulationMinutes: z.number().default(0),
+  ticket: ticketZodSchema,
+  badge: badgeZodSchema,
 });
 
 export interface IUser extends Document, IRegistered {
@@ -114,6 +131,8 @@ export interface IUser extends Document, IRegistered {
   instagram?: string;
   weekStudyTragetHour: number;
   weekStudyAccumulationMinutes: number;
+  ticket: ticketType;
+  badge: badgeType;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -168,6 +187,37 @@ export const preferenceSchema: Schema<preferenceType> = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Place',
     },
+  },
+  {
+    _id: false,
+    timestamps: false,
+  },
+);
+
+export const ticketSchema: Schema<ticketType> = new Schema(
+  {
+    gatherTicket: {
+      type: Number,
+      default: 4,
+    },
+    groupStudyOnlineTicket: {
+      type: Number,
+      default: 2,
+    },
+    groupStudyOfflineTicket: {
+      type: Number,
+      default: 2,
+    },
+  },
+  {
+    _id: false,
+  },
+);
+
+export const badgeSchema: Schema<badgeType> = new Schema(
+  {
+    badgeIdx: Number,
+    badgeList: [Number],
   },
   {
     _id: false,
@@ -287,6 +337,11 @@ export const UserSchema: Schema<IUser> = new Schema({
   locationDetail: { type: locationDetailSchema },
   weekStudyTragetHour: { type: Number, default: 0 },
   weekStudyAccumulationMinutes: { type: Number, default: 0 },
+  ticket: { type: ticketSchema },
+  badge: {
+    type: badgeSchema,
+    required: false,
+  },
 });
 
 export const User =

@@ -48,4 +48,11 @@ export interface IUserService {
   test(): Promise<void>;
   patchStudyTargetHour(hour: number): Promise<void>;
   patchLocationDetail(text: string, lat: string, lon: string);
+  resetGatherTicket();
+  updateAddTicket(type: 'gather' | 'groupOnline' | 'groupOffline');
+  updateReduceTicket(type: 'gather' | 'groupOnline' | 'groupOffline');
+  getTicketInfo(userId: string);
+  addBadge(badgeIdx: number);
+  selectBadge(badgeIdx: number);
+  updateProfileImg(img: Express.Multer.File);
 }

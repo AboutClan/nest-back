@@ -4,7 +4,6 @@ import { ChatService } from './chat.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ChatSchema } from './entity/chat.entity';
 import { UserModule } from 'src/user/user.module';
-import { FcmAModule } from 'src/fcm/fcm.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import {
   ICHAT_REPOSITORY,
@@ -32,7 +31,6 @@ const userRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     UserModule,
-    FcmAModule,
     WebPushModule,
     MongooseModule.forFeature([{ name: 'Chat', schema: ChatSchema }]),
   ],
