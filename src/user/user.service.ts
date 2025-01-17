@@ -649,7 +649,6 @@ export class UserService implements IUserService {
     return;
   }
 
-<<<<<<< HEAD
   async updateAddTicket(type: 'gather' | 'groupOnline' | 'groupOffline') {
     switch (type) {
       case 'gather':
@@ -680,7 +679,7 @@ export class UserService implements IUserService {
         break;
     }
   }
-=======
+
   async addBadge(badgeIdx: number) {
     await this.UserRepository.addbadge(this.token.uid, badgeIdx);
   }
@@ -695,10 +694,6 @@ export class UserService implements IUserService {
     );
     this.updateUser({ profileImage: profileImgUrl });
   }
-
-  async test() {
-    const targetDate = new Date('2024-06-01T00:00:00Z');
->>>>>>> b0d4cf5 (Add profile update logic)
 
   async resetGatherTicket() {
     await this.UserRepository.resetGatherTicket(this.token.uid);
