@@ -49,8 +49,14 @@ export interface IUserService {
   patchStudyTargetHour(hour: number): Promise<void>;
   patchLocationDetail(text: string, lat: string, lon: string);
   resetGatherTicket();
-  updateAddTicket(type: 'gather' | 'groupOnline' | 'groupOffline');
-  updateReduceTicket(type: 'gather' | 'groupOnline' | 'groupOffline');
+  updateAddTicket(
+    type: 'gather' | 'groupOnline' | 'groupOffline',
+    userId: string,
+  );
+  updateReduceTicket(
+    type: 'gather' | 'groupOnline' | 'groupOffline',
+    userId: string,
+  );
   getTicketInfo(userId: string);
   addBadge(badgeIdx: number);
   selectBadge(badgeIdx: number);

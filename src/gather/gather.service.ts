@@ -130,7 +130,7 @@ export class GatherService implements IGatherService {
       '번개 모임 참여 취소',
     );
 
-    await this.userServiceInstance.updateAddTicket('gather');
+    await this.userServiceInstance.updateAddTicket('gather', this.token.id);
     return;
   }
 
@@ -179,7 +179,7 @@ export class GatherService implements IGatherService {
           message = '모임 신청 승인이 불가합니다. 티켓 부족.';
         } else {
           await this.gatherRepository.agreeParticipate(id, userId);
-          await this.userServiceInstance.updateReduceTicket('gather');
+          await this.userServiceInstance.updateReduceTicket('gather', userId);
           message = '모임 신청이 승인되었습니다.';
         }
       }
