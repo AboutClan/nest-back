@@ -649,31 +649,37 @@ export class UserService implements IUserService {
     return;
   }
 
-  async updateAddTicket(type: 'gather' | 'groupOnline' | 'groupOffline') {
+  async updateAddTicket(
+    type: 'gather' | 'groupOnline' | 'groupOffline',
+    userId: string,
+  ) {
     switch (type) {
       case 'gather':
-        await this.UserRepository.updateGatherTicket(this.token.uid, 1);
+        await this.UserRepository.updateGatherTicket(userId, 1);
         break;
       case 'groupOffline':
-        await this.UserRepository.updateGroupOfflineTicket(this.token.uid, 1);
+        await this.UserRepository.updateGroupOfflineTicket(userId, 1);
         break;
       case 'groupOnline':
-        await this.UserRepository.updateGroupOnlineTicket(this.token.uid, 1);
+        await this.UserRepository.updateGroupOnlineTicket(userId, 1);
         break;
       default:
         break;
     }
   }
-  async updateReduceTicket(type: 'gather' | 'groupOnline' | 'groupOffline') {
+  async updateReduceTicket(
+    type: 'gather' | 'groupOnline' | 'groupOffline',
+    userId: string,
+  ) {
     switch (type) {
       case 'gather':
-        await this.UserRepository.updateGatherTicket(this.token.uid, -1);
+        await this.UserRepository.updateGatherTicket(userId, -1);
         break;
       case 'groupOffline':
-        await this.UserRepository.updateGroupOfflineTicket(this.token.uid, -1);
+        await this.UserRepository.updateGroupOfflineTicket(userId, -1);
         break;
       case 'groupOnline':
-        await this.UserRepository.updateGroupOnlineTicket(this.token.uid, -1);
+        await this.UserRepository.updateGroupOnlineTicket(userId, -1);
         break;
       default:
         break;

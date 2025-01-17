@@ -173,10 +173,10 @@ export class MongoUserRepository implements UserRepository {
     return null;
   }
 
-  async updateGatherTicket(uid: string, value: number) {
+  async updateGatherTicket(userId: string, value: number) {
     await this.User.findOneAndUpdate(
       {
-        uid,
+        _id: userId,
       },
       {
         $inc: { 'ticket.gatherTicket': value },
@@ -185,10 +185,10 @@ export class MongoUserRepository implements UserRepository {
     );
     return null;
   }
-  async updateGroupOnlineTicket(uid: string, value: number) {
+  async updateGroupOnlineTicket(userId: string, value: number) {
     await this.User.findOneAndUpdate(
       {
-        uid,
+        _id: userId,
       },
       {
         $inc: { 'ticket.groupOnlineTicket': value },
@@ -197,10 +197,10 @@ export class MongoUserRepository implements UserRepository {
     );
     return null;
   }
-  async updateGroupOfflineTicket(uid: string, value: number) {
+  async updateGroupOfflineTicket(userId: string, value: number) {
     await this.User.findOneAndUpdate(
       {
-        uid,
+        _id: userId,
       },
       {
         $inc: { 'ticket.groupOfflineTicket': value },

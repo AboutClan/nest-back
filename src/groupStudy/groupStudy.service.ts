@@ -411,6 +411,19 @@ export default class GroupStudyService implements IGroupStudyService {
         });
       }
 
+      if (status === 'agree') {
+        const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
+        if (groupStudy.meetingType == 'offline') {
+          if (ticketInfo.groupStudyOfflineTicket <= 0)
+            throw new Error('no ticket');
+          this.userServiceInstance.updateReduceTicket('groupOffline', userId);
+        } else {
+          if (ticketInfo.groupStudyOnlineTicket <= 0)
+            throw new Error('no ticket');
+          this.userServiceInstance.updateReduceTicket('groupOnline', userId);
+        }
+      }
+
       await groupStudy?.save();
     } catch (err) {
       throw new Error();
