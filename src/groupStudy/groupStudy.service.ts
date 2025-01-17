@@ -312,6 +312,25 @@ export default class GroupStudyService implements IGroupStudyService {
       );
     }
 
+    const ticketInfo = await this.userServiceInstance.getTicketInfo(
+      this.token.id,
+    );
+    if (groupStudy.meetingType == 'offline') {
+      if (ticketInfo.groupStudyOfflineTicket <= 0) throw new Error('no ticket');
+      console.log(1);
+      await this.userServiceInstance.updateReduceTicket(
+        'groupOffline',
+        this.token.id,
+      );
+    } else {
+      if (ticketInfo.groupStudyOnlineTicket <= 0) throw new Error('no ticket');
+      console.log(1);
+      await this.userServiceInstance.updateReduceTicket(
+        'groupOnline',
+        this.token.id,
+      );
+    }
+
     // this.webPushServiceInstance.sendNotificationGroupStudy(id);
 
     return;
@@ -343,6 +362,7 @@ export default class GroupStudyService implements IGroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
+    console.log(toUid);
     try {
       if (!randomId) {
         groupStudy.participants = groupStudy.participants.filter(
@@ -361,6 +381,12 @@ export default class GroupStudyService implements IGroupStudyService {
         );
       }
       await groupStudy.save();
+
+      if (groupStudy.meetingType == 'offline') {
+        await this.userServiceInstance.updateAddTicket('groupOffline', toUid);
+      } else {
+        await this.userServiceInstance.updateAddTicket('groupOnline', toUid);
+      }
     } catch (err) {
       throw new Error();
     }

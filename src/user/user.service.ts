@@ -714,7 +714,7 @@ export class UserService implements IUserService {
   }
 
   async getTicketInfo(userId: string) {
-    await this.UserRepository.getTicketInfo(userId);
+    return await this.UserRepository.getTicketInfo(userId);
   }
 
   async test() {
