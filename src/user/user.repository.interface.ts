@@ -26,4 +26,9 @@ export interface UserRepository {
   updateFriend(uid: string, toUid: string): Promise<null>;
   updateBelong(uid: string, belong: string): Promise<null>;
   patchLocationDetail(uid: string, text: string, lat: string, lon: string);
+  updateGatherTicket(uid: string, value: number);
+  updateGroupOnlineTicket(uid: string, value: number);
+  updateGroupOfflineTicket(uid: string, value: number);
+  resetGatherTicket(uid: string);
+  getTicketInfo(userId: string);
 }

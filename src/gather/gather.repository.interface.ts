@@ -51,4 +51,6 @@ export interface GatherRepository {
   ): Promise<null>;
   deleteById(gatherId: string): Promise<any>;
   getEnthMembers();
+  deleteWaiting(gatherId: string, userId: string);
+  agreeParticipate(gatherId: string, userId: string);
 }

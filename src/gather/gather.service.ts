@@ -129,6 +129,8 @@ export class GatherService implements IGatherService {
       CANCEL_GAHTER_SCORE,
       '번개 모임 참여 취소',
     );
+
+    await this.userServiceInstance.updateAddTicket('gather');
     return;
   }
 
@@ -159,36 +161,28 @@ export class GatherService implements IGatherService {
     }
   }
 
+  //가입신청 승인 or 거절
   async handleWaitingPerson(
     id: string,
     userId: string,
     status: string,
     text?: string,
   ) {
-    const gather = await this.gatherRepository.findById(id);
-    if (!gather) throw new Error();
-
     try {
-      gather.waiting = gather.waiting.filter(
-        (who) => who.user.toString() !== userId,
-      );
+      let message = `모임 신청이 거절되었습니다. ${text}`;
+
+      await this.gatherRepository.deleteWaiting(id, userId);
+      const userTicket = await this.userServiceInstance.getTicketInfo(id);
+
       if (status === 'agree') {
-        gather.participants.push({
-          user: userId,
-          phase: 'first',
-        });
+        if (userTicket.gatherTicket <= 0) {
+          message = '모임 신청 승인이 불가합니다. 티켓 부족.';
+        } else {
+          await this.gatherRepository.agreeParticipate(id, userId);
+          await this.userServiceInstance.updateReduceTicket('gather');
+          message = '모임 신청이 승인되었습니다.';
+        }
       }
-
-      gather.waiting = gather.waiting.filter(
-        (participant) => participant.user !== userId,
-      );
-
-      await gather?.save();
-
-      const message =
-        status === 'agree'
-          ? '모임 신청이 승인되었습니다.'
-          : `모임 신청이 거절되었습니다. ${text}`;
 
       await this.chatServiceInstance.createChat(userId, message);
     } catch (err) {
