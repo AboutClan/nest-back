@@ -9,11 +9,7 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import {
-  IFCM_SERVICE,
-  INOTICE_SERVICE,
-  IWEBPUSH_SERVICE,
-} from 'src/utils/di.tokens';
+import { INOTICE_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { INoticeService } from './noticeService.interface';
 import { ApiTags } from '@nestjs/swagger';
