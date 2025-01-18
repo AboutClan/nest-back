@@ -10,7 +10,7 @@ import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
 import { INotificationSub } from './entity/notificationsub.entity';
 import { AppError } from 'src/errors/AppError';
-const PushNotifications = require('node-pushnotifications');
+import PushNotifications from 'node-pushnotifications';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class WebPushService implements IWebPushService {
@@ -55,7 +55,7 @@ export class WebPushService implements IWebPushService {
       icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
 
       data: {
-        url: 'https://studyabout.herokuapp.com/',
+        url: 'https://study-about.club/',
         notificationType: 'studyReminder',
       },
       tag: 'unique_tag_for_this_notification',
@@ -236,28 +236,27 @@ export class WebPushService implements IWebPushService {
     subscriptions: INotificationSub[],
     payload: any,
   ): Promise<any> => {
-    // const limit = 10; // 병렬로 실행할 작업의 최대 개수
-    // const results: any[] = [];
+    const limit = 10; // 병렬로 실행할 작업의 최대 개수
+    const results: any[] = [];
 
-    // // subscriptions 배열을 limit 크기만큼씩 잘라서 실행
-    // for (let i = 0; i < subscriptions.length; i += limit) {
-    //   const batch = subscriptions.slice(i, i + limit); // 현재 batch만큼 가져오기
-    //   const batchPromises = batch.map(async (subscription) => {
-    //     const push = new PushNotifications(this.settings);
-    //     try {
-    //       await push.send(subscription, payload);
-    //       return { status: 'fulfilled' };
-    //     } catch (error) {
-    //       return { status: 'rejected', reason: error };
-    //     }
-    //   });
+    // subscriptions 배열을 limit 크기만큼씩 잘라서 실행
+    for (let i = 0; i < subscriptions.length; i += limit) {
+      const batch = subscriptions.slice(i, i + limit); // 현재 batch만큼 가져오기
+      const batchPromises = batch.map(async (subscription) => {
+        const push = new PushNotifications(this.settings);
+        try {
+          await push.send(subscription as any, payload);
+          return { status: 'fulfilled' };
+        } catch (error) {
+          return { status: 'rejected', reason: error };
+        }
+      });
 
-    //   // batch의 Promise가 모두 완료될 때까지 대기
-    //   const batchResults = await Promise.allSettled(batchPromises);
-    //   results.push(...batchResults);
-    // }
+      // batch의 Promise가 모두 완료될 때까지 대기
+      const batchResults = await Promise.allSettled(batchPromises);
+      results.push(...batchResults);
+    }
 
-    // return results;
-    return [];
+    return results;
   };
 }

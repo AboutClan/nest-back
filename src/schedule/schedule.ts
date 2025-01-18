@@ -5,14 +5,8 @@ import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import AdminVoteService from 'src/admin/vote/adminVote.service';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
-import { IGroupStudyService } from 'src/groupStudy/groupStudyService.interface';
 import { IUser } from 'src/user/entity/user.entity';
-import {
-  IFCM_SERVICE,
-  IGROUPSTUDY_REPOSITORY,
-  IGROUPSTUDY_SERVICE,
-  IWEBPUSH_SERVICE,
-} from 'src/utils/di.tokens';
+import { IGROUPSTUDY_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 
 @Injectable()
@@ -20,26 +14,24 @@ export class NotificationScheduler {
   private readonly logger = new Logger(NotificationScheduler.name);
 
   constructor(
-    // private readonly webPushService: WebPushService,
-    // private readonly fcmService: FcmService,
     @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
     private readonly adminVoteService: AdminVoteService,
     @InjectModel('User') private readonly User: Model<IUser>,
   ) {}
-  @Cron('0 18 * * 2,3,5,6', {
-    timeZone: 'Asia/Seoul',
-  })
-  async sendNotification() {
-    try {
-      await this.webPushService.sendNotificationAllUser();
-      this.logger.log('Notifications sent successfully to all users.');
-    } catch (error) {
-      this.logger.error('Error sending notifications:', error);
-      throw new Error(error);
-    }
-  }
+  // @Cron('0 18 * * 2,3,5,6', {
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async sendNotification() {
+  //   try {
+  //     await this.webPushService.sendNotificationAllUser();
+  //     this.logger.log('Notifications sent successfully to all users.');
+  //   } catch (error) {
+  //     this.logger.error('Error sending notifications:', error);
+  //     throw new Error(error);
+  //   }
+  // }
 
   @Cron(CronExpression.EVERY_DAY_AT_9AM, {
     timeZone: 'Asia/Seoul',
