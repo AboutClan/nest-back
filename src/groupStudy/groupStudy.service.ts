@@ -312,26 +312,29 @@ export default class GroupStudyService implements IGroupStudyService {
       );
     }
 
+    //ticket 차감 로직
     const ticketInfo = await this.userServiceInstance.getTicketInfo(
       this.token.id,
     );
     if (groupStudy.meetingType == 'offline') {
       if (ticketInfo.groupStudyOfflineTicket <= 0) throw new Error('no ticket');
-      console.log(1);
       await this.userServiceInstance.updateReduceTicket(
         'groupOffline',
         this.token.id,
       );
     } else {
       if (ticketInfo.groupStudyOnlineTicket <= 0) throw new Error('no ticket');
-      console.log(1);
       await this.userServiceInstance.updateReduceTicket(
         'groupOnline',
         this.token.id,
       );
     }
 
-    // this.webPushServiceInstance.sendNotificationGroupStudy(id);
+    await this.webPushServiceInstance.sendNotificationToXWithId(
+      groupStudy.organizer,
+      '누군가 소모임에 가입했어요',
+      '접속하여 확인하세요!',
+    );
 
     return;
   }
@@ -361,8 +364,6 @@ export default class GroupStudyService implements IGroupStudyService {
   async exileParticipate(id: string, toUid: string, randomId?: number) {
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
-
-    console.log(toUid);
     try {
       if (!randomId) {
         groupStudy.participants = groupStudy.participants.filter(
@@ -414,6 +415,12 @@ export default class GroupStudyService implements IGroupStudyService {
         groupStudy.waiting = [user];
       }
       await groupStudy?.save();
+
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        groupStudy.organizer,
+        '누군가 소모임에 가입했어요',
+        '접속하여 확인하세요!',
+      );
     } catch (err) {
       throw new Error();
     }
@@ -437,6 +444,7 @@ export default class GroupStudyService implements IGroupStudyService {
         });
       }
 
+      //ticket 소모 로직
       if (status === 'agree') {
         const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
         if (groupStudy.meetingType == 'offline') {
@@ -451,6 +459,12 @@ export default class GroupStudyService implements IGroupStudyService {
       }
 
       await groupStudy?.save();
+
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        userId,
+        '소모임 가입이 승인되었어요.',
+        '접속하여 확인하세요!',
+      );
     } catch (err) {
       throw new Error();
     }
