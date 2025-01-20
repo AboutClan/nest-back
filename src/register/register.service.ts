@@ -126,6 +126,23 @@ export default class RegisterService implements IRegisterService {
       user.telephone = await this.decodeByAES256(user.telephone);
     });
 
+    // const a = await this.Account.aggregate([
+    //   {
+    //     $group: {
+    //       _id: '$providerAccountId',
+    //       count: { $sum: 1 },
+    //       docs: { $push: '$$ROOT' }, // 중복된 문서들을 저장
+    //     },
+    //   },
+    //   {
+    //     $match: {
+    //       count: { $gt: 1 }, // 2개 이상 존재하는 경우
+    //     },
+    //   },
+    // ]);
+
+    // console.log(a);
+
     return users;
   }
 }

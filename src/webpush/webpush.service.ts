@@ -1,4 +1,10 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Scope,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IUser } from 'src/user/entity/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -82,17 +88,21 @@ export class WebPushService implements IWebPushService {
   }
 
   async sendNotificationToX(uid: string, title?: string, description?: string) {
-    const payload = JSON.stringify({
-      ...this.basePayload,
-      title: title || '테스트 알림이에요',
-      body: description || '테스트 알림이에요',
-    });
-    const subscriptions = await this.WebpushRepository.findByUid(uid);
-    const results = await this.sendParallel(subscriptions, payload);
+    try {
+      const payload = JSON.stringify({
+        ...this.basePayload,
+        title: title || '테스트 알림이에요',
+        body: description || '테스트 알림이에요',
+      });
+      const subscriptions = await this.WebpushRepository.findByUid(uid);
+      const results = await this.sendParallel(subscriptions, payload);
 
-    this.logForFailure(results);
+      this.logForFailure(results);
 
-    return;
+      return;
+    } catch (err: any) {
+      throw new Error('noti failed');
+    }
   }
 
   async sendNotificationToXWithId(
@@ -100,17 +110,24 @@ export class WebPushService implements IWebPushService {
     title?: string,
     description?: string,
   ) {
-    const payload = JSON.stringify({
-      ...this.basePayload,
-      title: title || '테스트 알림이에요',
-      body: description || '테스트 알림이에요',
-    });
-    const subscriptions = await this.WebpushRepository.findByUserId(userId);
-    const results = await this.sendParallel(subscriptions, payload);
+    try {
+      const payload = JSON.stringify({
+        ...this.basePayload,
+        title: title || '테스트 알림이에요',
+        body: description || '테스트 알림이에요',
+      });
+      const subscriptions = await this.WebpushRepository.findByUserId(userId);
+      const results = await this.sendParallel(subscriptions, payload);
 
-    this.logForFailure(results);
+      this.logForFailure(results);
 
-    return;
+      return;
+    } catch (err: any) {
+      throw new HttpException(
+        'Error deleting comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async sendNotificationGroupStudy(groupStudyId: string) {
@@ -137,7 +154,10 @@ export class WebPushService implements IWebPushService {
       this.logForFailure(results);
       return;
     } catch (err) {
-      throw new AppError('error', 500);
+      throw new HttpException(
+        'Error deleting comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
