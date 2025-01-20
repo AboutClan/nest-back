@@ -11,6 +11,7 @@ import {
   ICOUNTER_SERVICE,
   IGATHER_REPOSITORY,
   IUSER_SERVICE,
+  IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
 import {
   gatherStatus,
@@ -26,6 +27,7 @@ import {
   REMOVE_GAHTER_SCORE,
 } from 'src/Constants/score';
 import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -39,6 +41,7 @@ export class GatherService implements IGatherService {
     @Inject(ICHAT_SERVICE) private chatServiceInstance: IChatService,
     @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
+    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
   ) {
     this.token = this.request.decodedToken;
   }
@@ -118,6 +121,12 @@ export class GatherService implements IGatherService {
       PARTICIPATE_GATHER_POINT,
       '번개 모임 참여',
     );
+    if (gather.user)
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        gather?.user as string,
+        '누군가 모임에 가입했어요',
+        '접속하여 확인하세요!',
+      );
 
     return;
   }
@@ -156,6 +165,13 @@ export class GatherService implements IGatherService {
         gather.waiting = [user];
       }
       await gather?.save();
+
+      if (gather.user)
+        await this.webPushServiceInstance.sendNotificationToXWithId(
+          gather?.user as string,
+          '누군가 모임에 가입했어요',
+          '접속하여 확인하세요!',
+        );
     } catch (err) {
       throw new Error();
     }
@@ -178,12 +194,17 @@ export class GatherService implements IGatherService {
         if (userTicket.gatherTicket <= 0) {
           message = '모임 신청 승인이 불가합니다. 티켓 부족.';
         } else {
+          message = '모임 신청이 승인되었습니다.';
           await this.gatherRepository.agreeParticipate(id, userId);
           await this.userServiceInstance.updateReduceTicket('gather', userId);
-          message = '모임 신청이 승인되었습니다.';
         }
       }
 
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        userId,
+        message,
+        '접속하여 확인하세요!',
+      );
       await this.chatServiceInstance.createChat(userId, message);
     } catch (err) {
       throw new Error();
