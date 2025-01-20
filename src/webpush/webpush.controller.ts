@@ -12,6 +12,7 @@ import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
+import { AppError } from 'src/errors/AppError';
 
 @ApiTags('webpush')
 @Controller('webpush')
@@ -41,6 +42,17 @@ export class WebPushController {
   sendNotificationToX(@Param() param: { uid: string }): string {
     const { uid } = param;
     this.webPushService.sendNotificationToX(uid);
+    return 'Notification sent';
+  }
+
+  @Post('notification/:id')
+  async sendNotificationToXWithId(
+    @Param() param: { id: string },
+    @Body('title') title: string,
+    @Body('description') description: string,
+  ) {
+    const { id } = param;
+    await this.webPushService.sendNotificationToXWithId(id, title, description);
     return 'Notification sent';
   }
 }
