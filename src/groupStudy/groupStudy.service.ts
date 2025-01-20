@@ -266,6 +266,7 @@ export default class GroupStudyService implements IGroupStudyService {
           lastWeek: [],
           thisWeek: [],
         },
+        organizer: this.token.id,
         id: nextId as number,
       };
 
