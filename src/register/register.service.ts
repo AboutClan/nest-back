@@ -114,9 +114,9 @@ export default class RegisterService implements IRegisterService {
   async deleteRegisterUser(uid: string, approve: boolean) {
     if (!approve) {
       await this.User.deleteOne({ uid });
+      await this.Account.deleteOne({ providerAccountId: uid });
     }
     await this.registerRepository.deleteByUid(uid);
-    await this.Account.deleteOne({ providerAccountId: uid });
   }
 
   async getRegister() {
