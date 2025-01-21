@@ -13,11 +13,10 @@ const paymentRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
-    PaymentService,
     MongooseModule.forFeature([{ name: 'payment', schema: paymentSchema }]),
   ],
   controllers: [PaymentController],
-  providers: [paymentRepositoryProvider],
+  providers: [PaymentService, paymentRepositoryProvider],
   exports: [],
 })
 export class PaymentModule {}
