@@ -15,7 +15,7 @@ export class PaymentService {
   ) {
     this.token = this.request.decodedToken;
     this.portone = PortOne.PortOneClient({
-      secret: process.env.PORTONE_API_SECRET,
+      secret: process.env.PORTONE_SECRET,
     });
   }
 
