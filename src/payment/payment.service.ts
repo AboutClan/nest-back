@@ -8,16 +8,15 @@ import * as PortOne from '@portone/server-sdk';
 @Injectable()
 export class PaymentService {
   private token: JWT;
-  private portone: PortOne.PortOneClient;
+  // private portone: PortOne.PortOneClient;
 
   constructor(
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    console.log(process.env.PORTONE_SECRET, process.env.PORTONE_WEBHOOK_SECRET);
     this.token = this.request.decodedToken;
-    this.portone = PortOne.PortOneClient({
-      secret: process.env.PORTONE_SECRET,
-    });
+    // this.portone = PortOne.PortOneClient({
+    //   secret: process.env.PORTONE_SECRET,
+    // });
   }
 
   async complete(paymentId: string, order: string) {
