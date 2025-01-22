@@ -13,6 +13,7 @@ export class PaymentService {
   constructor(
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
+    console.log(process.env.PORTONE_SECRET, process.env.PORTONE_WEBHOOK_SECRET);
     this.token = this.request.decodedToken;
     this.portone = PortOne.PortOneClient({
       secret: process.env.PORTONE_SECRET,
