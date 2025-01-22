@@ -53,6 +53,7 @@ export class PaymentService {
   }
 
   async webhook(body: any, headers: Record<string, string>) {
+    console.log(body, headers);
     try {
       try {
         const webhook = await PortOne.Webhook.verify(
@@ -66,9 +67,11 @@ export class PaymentService {
         }
       } catch (err) {
         console.log(err);
+        throw new AppError('webhook failed', 400);
       }
     } catch (err) {
       console.log(err);
+      throw new AppError('webhook failed', 400);
     }
   }
 }
