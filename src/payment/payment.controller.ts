@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Headers, Inject, Post } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 
 @Controller('payment')
@@ -12,5 +12,10 @@ export class PaymentController {
   ) {
     await this.paymentService.complete(paymentId, order);
     return 'success';
+  }
+
+  @Post('portone-webhook')
+  async webhook(@Body() body: any, @Headers() headers: Record<string, string>) {
+    await this.paymentService.webhook(body, headers);
   }
 }
