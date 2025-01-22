@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import helmet from 'helmet';
@@ -113,6 +118,9 @@ export class AppModule implements NestModule {
         compression(),
         // cors(corsOptions),
         TokenValidatorMiddleware,
+      )
+      .exclude(
+        { path: 'payment/portone-webhook', method: RequestMethod.POST }, // 특정 경로 제외
       )
       .forRoutes('*');
   }
