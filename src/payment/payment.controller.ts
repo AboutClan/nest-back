@@ -16,6 +16,10 @@ export class PaymentController {
 
   @Post('portone-webhook')
   async webhook(@Body() body: any, @Headers() headers: Record<string, string>) {
-    await this.paymentService.webhook(body, headers);
+    try {
+      await this.paymentService.webhook(body, headers);
+    } catch (err: any) {
+      console.log(err);
+    }
   }
 }
