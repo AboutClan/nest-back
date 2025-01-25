@@ -53,6 +53,7 @@ export class PaymentService {
   }
 
   async webhook(body: any, headers: Record<string, string>) {
+    console.log(body.toString(), headers);
     try {
       try {
         const webhook = await PortOne.Webhook.verify(
