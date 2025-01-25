@@ -53,7 +53,6 @@ export class PaymentService {
   }
 
   async webhook(body: any, headers: Record<string, string>) {
-    console.log(body.toString(), headers);
     try {
       try {
         const webhook = await PortOne.Webhook.verify(
@@ -62,6 +61,7 @@ export class PaymentService {
           headers,
         );
 
+        console.log('mingwan', webhook);
         if (!PortOne.Webhook.isUnrecognizedWebhook(webhook)) {
         }
       } catch (err) {
