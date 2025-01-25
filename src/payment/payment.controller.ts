@@ -1,4 +1,12 @@
-import { Body, Controller, Headers, Inject, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  Inject,
+  Post,
+  RawBodyRequest,
+  Req,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { Public } from 'src/decorator/Public';
 
@@ -19,10 +27,10 @@ export class PaymentController {
   @Post('portone-webhook')
   async webhook(
     @Headers() headers: Record<string, string>,
-    @Req() req: Request,
+    @Req() req: RawBodyRequest<Request>,
   ) {
     try {
-      await this.paymentService.webhook(req.body, headers);
+      await this.paymentService.webhook(req.rawBody, headers);
     } catch (err: any) {
       console.log(err);
     }
