@@ -55,14 +55,12 @@ export class PaymentService {
   async webhook(body: any, headers: Record<string, string>) {
     try {
       try {
-        console.log(1);
         const webhook = await PortOne.Webhook.verify(
           process.env.PORTONE_WEBHOOK_SECRET,
-          body,
+          body.toString(),
           headers,
         );
 
-        console.log('hihi', webhook.type);
         if (!PortOne.Webhook.isUnrecognizedWebhook(webhook)) {
         }
       } catch (err) {
