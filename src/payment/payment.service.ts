@@ -4,6 +4,8 @@ import { Request } from 'express';
 import { JWT } from 'next-auth/jwt';
 import { AppError } from 'src/errors/AppError';
 import * as PortOne from '@portone/server-sdk';
+import { IPAYMENT_REPOSITORY } from 'src/utils/di.tokens';
+import { PaymentRepository } from './payment.repository';
 
 @Injectable()
 export class PaymentService {
@@ -11,6 +13,8 @@ export class PaymentService {
   // private portone: PortOne.PortOneClient;
 
   constructor(
+    @Inject(IPAYMENT_REPOSITORY)
+    private readonly paymentRepository: PaymentRepository,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;
@@ -36,12 +40,22 @@ export class PaymentService {
           `paymentResponse: ${await paymentResponse.json()}`,
           500,
         );
+
       const payment = await paymentResponse.json();
 
       // 2. 고객사 내부 주문 데이터의 가격과 실제 지불된 금액을 비교합니다.
       //   const orderData = await OrderService.getOrderData(order);
       if (1000 === payment.amount.total) {
-        if (payment.status === 'PAID') console.log('success');
+        switch (payment.status) {
+          case 'PAID':
+            await this.paymentRepository.createPayment({
+              paymentId,
+              amount: payment.amount.total,
+            });
+            break;
+          default:
+            break;
+        }
       } else {
         throw new AppError('Payment failed', 400);
         // 결제 금액이 불일치하여 위/변조 시도가 의심됩니다.
@@ -61,7 +75,6 @@ export class PaymentService {
           headers,
         );
 
-        console.log('mingwan', webhook);
         if (!PortOne.Webhook.isUnrecognizedWebhook(webhook)) {
         }
       } catch (err) {
