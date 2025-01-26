@@ -76,6 +76,8 @@ export class PaymentService {
           headers,
         );
 
+        console.log('hey', webhook);
+
         if (!PortOne.Webhook.isUnrecognizedWebhook(webhook)) {
           const paymentInfo = await this.paymentRepository.findByPaymentId(
             webhook.data.paymentId,
