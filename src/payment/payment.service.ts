@@ -6,6 +6,7 @@ import { AppError } from 'src/errors/AppError';
 import * as PortOne from '@portone/server-sdk';
 import { IPAYMENT_REPOSITORY } from 'src/utils/di.tokens';
 import { PaymentRepository } from './payment.repository';
+import { DatabaseError } from 'src/errors/DatabaseError';
 
 @Injectable()
 export class PaymentService {
@@ -69,13 +70,17 @@ export class PaymentService {
   async webhook(body: any, headers: Record<string, string>) {
     try {
       try {
-        const webhook = await PortOne.Webhook.verify(
+        const webhook: any = await PortOne.Webhook.verify(
           process.env.PORTONE_WEBHOOK_SECRET,
           body.toString(),
           headers,
         );
 
         if (!PortOne.Webhook.isUnrecognizedWebhook(webhook)) {
+          const paymentInfo = await this.paymentRepository.findByPaymentId(
+            webhook.data.paymentId,
+          );
+          if (!paymentInfo) throw new DatabaseError("can't find Payment");
         }
       } catch (err) {
         console.log(err);
@@ -87,3 +92,13 @@ export class PaymentService {
     }
   }
 }
+
+// mingwan {
+//   type: 'Transaction.Paid',
+//   timestamp: '2025-01-25T08:32:39.043767878Z',
+//   data: {
+//     transactionId: '01949c97-7483-3f81-6628-6fdac81fe76b',
+//     paymentId: 'payment-ecb5f745-06ab-4db2-b9a9-8b6a4f62f58c',
+//     storeId: 'store-171c3102-3bde-452a-b06e-2ac955bec56e'
+//   }
+// }

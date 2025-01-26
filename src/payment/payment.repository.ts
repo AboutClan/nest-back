@@ -15,4 +15,8 @@ export class PaymentRepository implements PaymentRepositoryInterface {
     await this.Payment.create(paymentInfo);
     return null;
   }
+
+  async findByPaymentId(paymentId: string) {
+    return await this.Payment.findOne({ paymentId });
+  }
 }
