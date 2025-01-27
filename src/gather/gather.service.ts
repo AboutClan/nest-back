@@ -3,6 +3,13 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { JWT } from 'next-auth/jwt';
 import { IChatService } from 'src/chatz/chatService.interface';
+import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
+import {
+  CANCEL_GAHTER_SCORE,
+  CREATE_GATHER_SCORE,
+  PARTICIPATE_GATHER_SCORE,
+  REMOVE_GAHTER_SCORE,
+} from 'src/Constants/score';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUserService } from 'src/user/userService.interface';
@@ -19,13 +26,6 @@ import {
 } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
-import {
-  CANCEL_GAHTER_SCORE,
-  CREATE_GATHER_SCORE,
-  PARTICIPATE_GATHER_SCORE,
-  REMOVE_GAHTER_SCORE,
-} from 'src/Constants/score';
-import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -169,22 +169,19 @@ export class GatherService implements IGatherService {
     text?: string,
   ) {
     try {
+      console.log('test');
       let message = `모임 신청이 거절되었습니다. ${text}`;
 
       await this.gatherRepository.deleteWaiting(id, userId);
-      const userTicket = await this.userServiceInstance.getTicketInfo(id);
-
+      // const userTicket = await this.userServiceInstance.getTicketInfo(id);
+      console.log(2);
       if (status === 'agree') {
-        if (userTicket.gatherTicket <= 0) {
-          message = '모임 신청 승인이 불가합니다. 티켓 부족.';
-        } else {
-          await this.gatherRepository.agreeParticipate(id, userId);
-          await this.userServiceInstance.updateReduceTicket('gather');
-          message = '모임 신청이 승인되었습니다.';
-        }
+        await this.gatherRepository.agreeParticipate(id, userId);
+        // await this.userServiceInstance.updateReduceTicket('gather');
+        message = '모임 신청이 승인되었습니다.';
       }
 
-      await this.chatServiceInstance.createChat(userId, message);
+      // await this.chatServiceInstance.createChat(userId, message);
     } catch (err) {
       throw new Error();
     }

@@ -263,15 +263,16 @@ export class MongoGatherRepository implements GatherRepository {
   }
 
   async deleteWaiting(gatherId: string, userId: string) {
+    console.log(gatherId, userId);
     await this.Gather.findOneAndUpdate(
-      { _id: gatherId },
+      { id: gatherId },
       { $pull: { waiting: { user: userId } } },
       { new: true },
     );
   }
   async agreeParticipate(gatherId: string, userId: string) {
     await this.Gather.findOneAndUpdate(
-      { _id: gatherId },
+      { id: gatherId },
       {
         $push: {
           participants: {

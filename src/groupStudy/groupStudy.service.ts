@@ -14,13 +14,13 @@ import {
   ICOUNTER_SERVICE,
   IGROUPSTUDY_REPOSITORY,
   IUSER_SERVICE,
-  IWEBPUSH_SERVICE,
+  IWEBPUSH_SERVICE
 } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { IGroupStudyService } from './groupStudyService.interface';
-
+//test
 export default class GroupStudyService implements IGroupStudyService {
   private token: JWT;
   constructor(
