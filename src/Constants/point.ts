@@ -3,7 +3,7 @@ export const DAILY_ATTEND_POINT = 2;
 //피드 좋아요
 export const FEED_LIKE_POINT = 2;
 //피드 좋아요 취소
-export const CANCEL_FEED_LIKE_POINT = 2;
+export const CANCEL_FEED_LIKE_POINT = -2;
 //번개 모임 참여
 export const PARTICIPATE_GATHER_POINT = 5;
 //소모임 주간 출석
@@ -16,5 +16,5 @@ export const PROMOTION_EVENT_DOUBLE_POINT = 100;
 export const ATTEND_STUDY_POINT = 5;
 //스터디 투표
 export const VOTE_POINT = 5;
-//스터디 투표
-export const CANCEL_VOTE_POINT = 5;
+//스터디 투표 취소
+export const CANCEL_VOTE_POINT = -5;

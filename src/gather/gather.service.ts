@@ -18,7 +18,9 @@ import {
   ICOUNTER_SERVICE,
   IGATHER_REPOSITORY,
   IUSER_SERVICE,
+  IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
+import { IWebPushService } from 'src/webpush/webpushService.interface';
 import {
   gatherStatus,
   IGatherData,
@@ -39,6 +41,7 @@ export class GatherService implements IGatherService {
     @Inject(ICHAT_SERVICE) private chatServiceInstance: IChatService,
     @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
+    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
   ) {
     this.token = this.request.decodedToken;
   }
@@ -118,6 +121,12 @@ export class GatherService implements IGatherService {
       PARTICIPATE_GATHER_POINT,
       '번개 모임 참여',
     );
+    if (gather.user)
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        gather?.user as string,
+        '누군가 모임에 가입했어요',
+        '접속하여 확인하세요!',
+      );
 
     return;
   }
@@ -130,7 +139,7 @@ export class GatherService implements IGatherService {
       '번개 모임 참여 취소',
     );
 
-    await this.userServiceInstance.updateAddTicket('gather');
+    await this.userServiceInstance.updateAddTicket('gather', this.token.id);
     return;
   }
 
@@ -156,6 +165,13 @@ export class GatherService implements IGatherService {
         gather.waiting = [user];
       }
       await gather?.save();
+
+      if (gather.user)
+        await this.webPushServiceInstance.sendNotificationToXWithId(
+          gather?.user as string,
+          '누군가 모임에 가입했어요',
+          '접속하여 확인하세요!',
+        );
     } catch (err) {
       throw new Error();
     }

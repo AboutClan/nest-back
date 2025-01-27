@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import helmet from 'helmet';
@@ -38,6 +43,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationScheduler } from './schedule/schedule';
 import { DailyCheckModule } from './dailycheck/dailyCheck.module';
 import { Vote2Module } from './vote2/vote2.module';
+import { PaymentModule } from './payment/payment.module';
+import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -92,6 +99,7 @@ const corsOptions = {
     AdminVoteModule,
     AdminManageModule,
     Vote2Module,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [
@@ -105,10 +113,14 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
+        // LoggingMiddleware,
         helmet(),
         compression(),
         // cors(corsOptions),
         TokenValidatorMiddleware,
+      )
+      .exclude(
+        { path: 'payment/portone-webhook', method: RequestMethod.POST }, // 특정 경로 제외
       )
       .forRoutes('*');
   }

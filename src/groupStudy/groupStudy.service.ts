@@ -266,6 +266,7 @@ export default class GroupStudyService implements IGroupStudyService {
           lastWeek: [],
           thisWeek: [],
         },
+        organizer: this.token.id,
         id: nextId as number,
       };
 
@@ -312,7 +313,29 @@ export default class GroupStudyService implements IGroupStudyService {
       );
     }
 
-    // this.webPushServiceInstance.sendNotificationGroupStudy(id);
+    //ticket 차감 로직
+    const ticketInfo = await this.userServiceInstance.getTicketInfo(
+      this.token.id,
+    );
+    if (groupStudy.meetingType == 'offline') {
+      if (ticketInfo.groupStudyOfflineTicket <= 0) throw new Error('no ticket');
+      await this.userServiceInstance.updateReduceTicket(
+        'groupOffline',
+        this.token.id,
+      );
+    } else {
+      if (ticketInfo.groupStudyOnlineTicket <= 0) throw new Error('no ticket');
+      await this.userServiceInstance.updateReduceTicket(
+        'groupOnline',
+        this.token.id,
+      );
+    }
+
+    await this.webPushServiceInstance.sendNotificationToXWithId(
+      groupStudy.organizer,
+      '누군가 소모임에 가입했어요',
+      '접속하여 확인하세요!',
+    );
 
     return;
   }
@@ -342,7 +365,6 @@ export default class GroupStudyService implements IGroupStudyService {
   async exileParticipate(id: string, toUid: string, randomId?: number) {
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
-
     try {
       if (!randomId) {
         groupStudy.participants = groupStudy.participants.filter(
@@ -361,6 +383,12 @@ export default class GroupStudyService implements IGroupStudyService {
         );
       }
       await groupStudy.save();
+
+      if (groupStudy.meetingType == 'offline') {
+        await this.userServiceInstance.updateAddTicket('groupOffline', toUid);
+      } else {
+        await this.userServiceInstance.updateAddTicket('groupOnline', toUid);
+      }
     } catch (err) {
       throw new Error();
     }
@@ -388,6 +416,12 @@ export default class GroupStudyService implements IGroupStudyService {
         groupStudy.waiting = [user];
       }
       await groupStudy?.save();
+
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        groupStudy.organizer,
+        '누군가 소모임에 가입했어요',
+        '접속하여 확인하세요!',
+      );
     } catch (err) {
       throw new Error();
     }
@@ -411,7 +445,27 @@ export default class GroupStudyService implements IGroupStudyService {
         });
       }
 
+      //ticket 소모 로직
+      if (status === 'agree') {
+        const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
+        if (groupStudy.meetingType == 'offline') {
+          if (ticketInfo.groupStudyOfflineTicket <= 0)
+            throw new Error('no ticket');
+          this.userServiceInstance.updateReduceTicket('groupOffline', userId);
+        } else {
+          if (ticketInfo.groupStudyOnlineTicket <= 0)
+            throw new Error('no ticket');
+          this.userServiceInstance.updateReduceTicket('groupOnline', userId);
+        }
+      }
+
       await groupStudy?.save();
+
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        userId,
+        '소모임 가입이 승인되었어요.',
+        '접속하여 확인하세요!',
+      );
     } catch (err) {
       throw new Error();
     }

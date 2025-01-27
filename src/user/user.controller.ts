@@ -369,7 +369,7 @@ export class UserController {
     await this.userService.selectBadge(badgeIdx);
     return;
   }
-  @Post()
+  @Post('profileImg')
   @UseInterceptors(FileInterceptor('image'))
   async updateProfileImg(@UploadedFile() file: Express.Multer.File) {}
 

@@ -114,9 +114,9 @@ export default class RegisterService implements IRegisterService {
   async deleteRegisterUser(uid: string, approve: boolean) {
     if (!approve) {
       await this.User.deleteOne({ uid });
+      await this.Account.deleteOne({ providerAccountId: uid });
     }
     await this.registerRepository.deleteByUid(uid);
-    await this.Account.deleteOne({ providerAccountId: uid });
   }
 
   async getRegister() {
@@ -125,6 +125,23 @@ export default class RegisterService implements IRegisterService {
     users.forEach(async (user) => {
       user.telephone = await this.decodeByAES256(user.telephone);
     });
+
+    // const a = await this.Account.aggregate([
+    //   {
+    //     $group: {
+    //       _id: '$providerAccountId',
+    //       count: { $sum: 1 },
+    //       docs: { $push: '$$ROOT' }, // 중복된 문서들을 저장
+    //     },
+    //   },
+    //   {
+    //     $match: {
+    //       count: { $gt: 1 }, // 2개 이상 존재하는 경우
+    //     },
+    //   },
+    // ]);
+
+    // console.log(a);
 
     return users;
   }
