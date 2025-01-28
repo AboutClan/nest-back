@@ -14,7 +14,7 @@ import {
   ICOUNTER_SERVICE,
   IGROUPSTUDY_REPOSITORY,
   IUSER_SERVICE,
-  IWEBPUSH_SERVICE
+  IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
@@ -94,7 +94,7 @@ export default class GroupStudyService implements IGroupStudyService {
       hobby: filterGroupStudies(groupStudyData, '취미', 'pending'),
       development: filterGroupStudies(groupStudyData, '자기계발', 'pending'),
       study: filterGroupStudies(groupStudyData, '성장 스터디', 'pending'),
-      exam: filterGroupStudies(groupStudyData, '시험 준비 스터디', 'pending'),
+      exam: filterGroupStudies(groupStudyData, '시험 스터디', 'pending'),
       waiting: filterGroupStudies(groupStudyData, null, 'planned'),
     };
   }
