@@ -8,7 +8,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/entity/user.entity';
 import { INOTICE_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from '../logger';
-import { NoticeZodSchema } from './entity/notice.entity';
+import { INotice, NoticeZodSchema } from './entity/notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
 import { INoticeService } from './noticeService.interface';
 
@@ -22,6 +22,11 @@ export default class NoticeService implements INoticeService {
   ) {
     this.token = this.request.decodedToken;
   }
+
+  async createNotice(noticeData: Partial<INotice>) {
+    await this.noticeRepository.createNotice(noticeData);
+  }
+
   async findActiveLog() {
     const result = await this.noticeRepository.findActiveLog(this.token.uid);
     return result;

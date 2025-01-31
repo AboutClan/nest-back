@@ -8,10 +8,9 @@ import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { AppError } from 'src/errors/AppError';
 import { ILog } from 'src/logz/entity/log.entity';
-import { INotice } from 'src/notice/entity/notice.entity';
-import { IPromotion } from 'src/promotion/entity/promotion.entity';
 import {
   IIMAGE_SERVICE,
+  INOTICE_SERVICE,
   IPLACE_SERVICE,
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
@@ -24,6 +23,7 @@ import { IUserService } from './userService.interface';
 import { IImageService } from 'src/imagez/imageService.interface';
 import { C_simpleUser } from 'src/Constants/constants';
 import { IPlaceService } from 'src/place/placeService.interface';
+import { INoticeService } from 'src/notice/noticeService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService implements IUserService {
@@ -33,7 +33,7 @@ export class UserService implements IUserService {
     private readonly UserRepository: UserRepository,
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel('Log') private Log: Model<ILog>,
-    @InjectModel('Notice') private Notice: Model<INotice>,
+    @Inject(INOTICE_SERVICE) private noticeService: INoticeService,
     @Inject(IPLACE_SERVICE) private placeService: IPlaceService,
     @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
@@ -534,7 +534,7 @@ export class UserService implements IUserService {
   async setFriend(toUid: string) {
     await this.UserRepository.updateFriend(this.token.uid, toUid);
 
-    await this.Notice.create({
+    await this.noticeService.createNotice({
       from: this.token.uid,
       to: toUid,
       message: `${this.token.name}님과 친구가 되었습니다.`,
