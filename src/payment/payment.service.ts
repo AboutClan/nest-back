@@ -69,24 +69,23 @@ export class PaymentService {
 
   async webhook(body: any, headers: Record<string, string>) {
     try {
-      try {
-        const webhook: any = await PortOne.Webhook.verify(
-          process.env.PORTONE_WEBHOOK_SECRET,
-          body.toString(),
-          headers,
+      const webhook: any = await PortOne.Webhook.verify(
+        process.env.PORTONE_WEBHOOK_SECRET,
+        body.toString(),
+        headers,
+      );
+
+      console.log('hey', webhook);
+
+      if (!PortOne.Webhook.isUnrecognizedWebhook(webhook)) {
+        const paymentInfo = await this.paymentRepository.findByPaymentId(
+          webhook.data.paymentId,
         );
+        if (!paymentInfo) throw new DatabaseError("can't find Payment");
 
-        console.log('hey', webhook);
-
-        if (!PortOne.Webhook.isUnrecognizedWebhook(webhook)) {
-          const paymentInfo = await this.paymentRepository.findByPaymentId(
-            webhook.data.paymentId,
-          );
-          if (!paymentInfo) throw new DatabaseError("can't find Payment");
+        if (paymentInfo.amount == webhook) {
+          console.log('success');
         }
-      } catch (err) {
-        console.log(err);
-        throw new AppError('webhook failed', 400);
       }
     } catch (err) {
       console.log(err);

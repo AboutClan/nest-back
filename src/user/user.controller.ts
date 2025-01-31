@@ -201,19 +201,6 @@ export class UserController {
     return result;
   }
 
-  @Post('promotion')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async setPromotion(@Body() setPromotionDto: SetPromotionDto) {
-    await this.userService.setPromotion(setPromotionDto.name);
-    return { message: 'Promotion set successfully' };
-  }
-
-  @Get('promotion')
-  async getPromotion() {
-    const promotionData = await this.userService.getPromotion();
-    return promotionData;
-  }
-
   @Get('friend')
   async getFriend() {
     const friend = await this.userService.getUserInfo(['friend']);

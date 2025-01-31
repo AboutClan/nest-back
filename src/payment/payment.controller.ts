@@ -29,10 +29,6 @@ export class PaymentController {
     @Headers() headers: Record<string, string>,
     @Req() req: RawBodyRequest<Request>,
   ) {
-    try {
-      await this.paymentService.webhook(req.rawBody, headers);
-    } catch (err: any) {
-      console.log(err);
-    }
+    await this.paymentService.webhook(req.rawBody, headers);
   }
 }

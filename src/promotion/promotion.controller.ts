@@ -35,7 +35,7 @@ export class PromotionController {
   async setPromotion(@Body('name') name: string) {
     try {
       await this.promotionService.setPromotion(name);
-      return { status: 'success' };
+      return { message: 'Promotion set successfully' };
     } catch (err) {
       throw new HttpException(
         'Error setting promotion',

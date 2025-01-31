@@ -18,4 +18,14 @@ export class MongoPlaceReposotory implements PlaceRepository {
     await this.Place.updateOne({ _id: placeId }, { status });
     return null;
   }
+  async updatePrefCnt(placeId: string, num: number) {
+    await this.Place.updateOne(
+      { _id: placeId },
+      {
+        $inc: { prefCnt: num },
+      },
+    );
+
+    return null;
+  }
 }

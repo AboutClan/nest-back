@@ -27,7 +27,6 @@ const userRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     forwardRef(() => VoteModule),
     PlaceModule,
-    forwardRef(() => PromotionModule),
     LogModule,
     forwardRef(() => NoticeModule),
     ImageModule,

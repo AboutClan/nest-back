@@ -6,21 +6,24 @@ import dayjs from 'dayjs';
 import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { C_simpleUser } from 'src/Constants/constants';
 import { AppError } from 'src/errors/AppError';
 import { ILog } from 'src/logz/entity/log.entity';
 import { INotice } from 'src/notice/entity/notice.entity';
-import { IPlace } from 'src/place/entity/place.entity';
 import { IPromotion } from 'src/promotion/entity/promotion.entity';
-import { IIMAGE_SERVICE, IUSER_REPOSITORY } from 'src/utils/di.tokens';
+import {
+  IIMAGE_SERVICE,
+  IPLACE_SERVICE,
+  IUSER_REPOSITORY,
+} from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/entity/vote.entity';
 import * as logger from '../logger';
 import { IUser, restType } from './entity/user.entity';
 import { UserRepository } from './user.repository.interface';
 import { IUserService } from './userService.interface';
-import { PROMOTION_EVENT_POINT } from 'src/Constants/point';
 import { IImageService } from 'src/imagez/imageService.interface';
+import { C_simpleUser } from 'src/Constants/constants';
+import { IPlaceService } from 'src/place/placeService.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService implements IUserService {
@@ -29,10 +32,9 @@ export class UserService implements IUserService {
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
     @InjectModel('Vote') private Vote: Model<IVote>,
-    @InjectModel('Place') private Place: Model<IPlace>,
-    @InjectModel('Promotion') private Promotion: Model<IPromotion>,
     @InjectModel('Log') private Log: Model<ILog>,
     @InjectModel('Notice') private Notice: Model<INotice>,
+    @Inject(IPLACE_SERVICE) private placeService: IPlaceService,
     @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
@@ -437,9 +439,9 @@ export class UserService implements IUserService {
 
       // 기존 main preference 감소
       if (user?.studyPreference?.place) {
-        await this.Place.updateOne(
-          { _id: user.studyPreference.place, prefCnt: { $gt: 0 } },
-          { $inc: { prefCnt: -1 } },
+        await this.placeService.updatePrefCnt(
+          user.studyPreference.place as string,
+          -1,
         );
       }
 
@@ -447,21 +449,18 @@ export class UserService implements IUserService {
       if (user?.studyPreference?.subPlace?.length) {
         await Promise.all(
           user.studyPreference.subPlace.map((placeId) =>
-            this.Place.updateOne(
-              { _id: placeId, prefCnt: { $gt: 0 } },
-              { $inc: { prefCnt: -1 } },
-            ),
+            this.placeService.updatePrefCnt(placeId, -1),
           ),
         );
       }
 
       await Promise.all([
-        await this.UserRepository.updateUser(this.token.uid, {
+        this.UserRepository.updateUser(this.token.uid, {
           studyPreference: { place, subPlace },
         }),
-        this.Place.updateOne({ _id: place }, { $inc: { prefCnt: 1 } }),
+        this.placeService.updatePrefCnt(place, 1),
         ...subPlace.map((placeId) =>
-          this.Place.updateOne({ _id: placeId }, { $inc: { prefCnt: 1 } }),
+          this.placeService.updatePrefCnt(placeId, 1),
         ),
       ]);
     } catch (err: any) {
@@ -544,39 +543,6 @@ export class UserService implements IUserService {
     });
 
     return null;
-  }
-
-  async getPromotion() {
-    const promotionData = await this.Promotion.find({}, '-_id -__v');
-    return promotionData;
-  }
-
-  async setPromotion(name: string) {
-    try {
-      const now = dayjs().format('YYYY-MM-DD');
-
-      // Promotion 컬렉션에서 name에 해당하는 데이터를 업데이트하고, 없으면 새로 생성
-      const result = await this.Promotion.updateOne(
-        { name },
-        {
-          $set: { uid: this.token.uid, lastDate: now },
-        },
-        { upsert: true, new: true },
-      );
-
-      // result.upsertedCount가 1이면 새로 생성된 경우, 아니면 업데이트된 경우
-      if (result.upsertedCount > 0) {
-        await this.updatePoint(PROMOTION_EVENT_POINT, '홍보 이벤트 참여'); // 새로 생성된 경우
-      } else {
-        const previousData = await this.Promotion.findOne({ name });
-        const dayDiff = dayjs(now).diff(dayjs(previousData?.lastDate), 'day');
-        if (dayDiff > 2) {
-          await this.updatePoint(PROMOTION_EVENT_POINT, '홍보 이벤트 참여'); // 기존 데이터 업데이트
-        }
-      }
-    } catch (err: any) {
-      throw new Error(err);
-    }
   }
 
   async patchBelong(uid: string, belong: string) {
