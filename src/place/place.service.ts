@@ -86,4 +86,9 @@ export default class PlaceService implements IPlaceService {
 
     return;
   }
+
+  async updatePrefCnt(placeId: string, num: number) {
+    await this.updatePrefCnt(placeId, num);
+    return;
+  }
 }

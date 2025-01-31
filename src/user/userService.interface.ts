@@ -39,8 +39,6 @@ export interface IUserService {
   ): Promise<IUser>;
   deleteFriend(toUid: string): Promise<null>;
   setFriend(toUid: string): Promise<null>;
-  getPromotion(): Promise<any>;
-  setPromotion(name: string): Promise<void>;
   patchBelong(uid: string, belong: string): Promise<IUser>;
   getMonthScoreLog(): Promise<any>;
   getLog(type: string): Promise<any>;

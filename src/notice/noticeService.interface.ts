@@ -1,3 +1,5 @@
+import { INotice } from './entity/notice.entity';
+
 export interface INoticeService {
   findActiveLog(): Promise<any>;
   getActiveLog(): Promise<any>;
@@ -17,4 +19,5 @@ export interface INoticeService {
     from: string,
     status: string,
   ): Promise<string | void>;
+  createNotice(noticeData: Partial<INotice>);
 }
