@@ -284,4 +284,28 @@ export class MongoGatherRepository implements GatherRepository {
       { new: true },
     );
   }
+
+  async updateNotOpened(current: Date) {
+    await this.Gather.updateMany(
+      {
+        $and: [
+          { status: { $eq: 'pending' } },
+          { date: { $lt: current.toISOString() } },
+        ],
+      },
+      [
+        {
+          $set: {
+            status: {
+              $cond: {
+                if: { $lt: [{ $size: '$participants' }, '$memberCnt.min'] },
+                then: 'close',
+                else: 'open',
+              },
+            },
+          },
+        },
+      ],
+    );
+  }
 }
