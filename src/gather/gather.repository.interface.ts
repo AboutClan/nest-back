@@ -1,3 +1,4 @@
+import { UpdateWriteOpResult } from 'mongoose';
 import { IGatherData, subCommentType } from './entity/gather.entity';
 
 export interface GatherRepository {
@@ -53,4 +54,5 @@ export interface GatherRepository {
   getEnthMembers();
   deleteWaiting(gatherId: string, userId: string);
   agreeParticipate(gatherId: string, userId: string);
+  updateNotOpened(current: Date);
 }

@@ -4,9 +4,16 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import AdminVoteService from 'src/admin/vote/adminVote.service';
+import { GatherRepository } from 'src/gather/gather.repository.interface';
+import { IGatherService } from 'src/gather/gatherService.interface';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/user/entity/user.entity';
-import { IGROUPSTUDY_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import {
+  IGATHER_REPOSITORY,
+  IGATHER_SERVICE,
+  IGROUPSTUDY_REPOSITORY,
+  IWEBPUSH_SERVICE,
+} from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
 
 @Injectable()
@@ -15,6 +22,7 @@ export class NotificationScheduler {
 
   constructor(
     @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
+    @Inject(IGATHER_REPOSITORY) private gatherRepository: GatherRepository,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
     private readonly adminVoteService: AdminVoteService,
@@ -33,6 +41,7 @@ export class NotificationScheduler {
   //   }
   // }
 
+  //투표 결과 알림
   @Cron(CronExpression.EVERY_DAY_AT_9AM, {
     timeZone: 'Asia/Seoul',
   })
@@ -48,6 +57,7 @@ export class NotificationScheduler {
     }
   }
 
+  //매달 score 초기화
   @Cron('0 0 1 * *', {
     timeZone: 'Asia/Seoul',
   })
@@ -61,6 +71,7 @@ export class NotificationScheduler {
     }
   }
 
+  //매주 targetHour 삭제
   @Cron('0 0 0 * * 1', {
     timeZone: 'Asia/Seoul',
   })
@@ -74,6 +85,7 @@ export class NotificationScheduler {
     }
   }
 
+  //매주 groupStudy 초기화
   @Cron('0 0 0 * * 1', {
     // 매주 월요일 0시 0분
     timeZone: 'Asia/Seoul',
@@ -81,6 +93,20 @@ export class NotificationScheduler {
   async initGroupstudyAttend() {
     try {
       await this.groupstudyRepository.initWeekAttendance();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  //매시간 groupstudy 상태 변경
+
+  @Cron(CronExpression.EVERY_6_HOURS, {
+    timeZone: 'Asia/Seoul',
+  })
+  async updateGroupStudyStatus() {
+    try {
+      const current = new Date();
+      await this.gatherRepository.updateNotOpened(current);
     } catch (err: any) {
       throw new Error(err);
     }
