@@ -29,7 +29,6 @@ export interface IUserService {
   );
   initMonthScore(): Promise<void>;
   updateScore(score: number, message: string, sub?: string): Promise<void>;
-  updateUserAllScore(): Promise<void>;
   updateDeposit(deposit: number, message: string, sub?: string): Promise<void>;
   setPreference(place: any, subPlace: any[]): Promise<void>;
   getPreference(): Promise<IUser | null>;
@@ -43,7 +42,7 @@ export interface IUserService {
   getMonthScoreLog(): Promise<any>;
   getLog(type: string): Promise<any>;
   getAllLog(type: string): Promise<any>;
-  test(): Promise<void>;
+  test();
   patchStudyTargetHour(hour: number): Promise<void>;
   patchLocationDetail(text: string, lat: string, lon: string);
   resetGatherTicket();

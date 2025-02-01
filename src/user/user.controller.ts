@@ -314,12 +314,6 @@ export class UserController {
     return userScores;
   }
 
-  @Patch('score/all')
-  async updateAllUserScores() {
-    await this.userService.updateUserAllScore();
-    return { message: 'All user scores updated successfully' };
-  }
-
   @Get('deposit/all')
   async getAllUserDeposits() {
     const userDeposits = await this.userService.getAllUserInfo([
@@ -362,6 +356,6 @@ export class UserController {
 
   @Get('test')
   async test() {
-    await this.userService.test();
+    return await this.userService.test();
   }
 }
