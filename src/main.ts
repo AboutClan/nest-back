@@ -2,11 +2,19 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WinstonModule } from 'nest-winston';
+import winston from 'winston';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bodyParser: true,
     rawBody: true,
+    logger: WinstonModule.createLogger({
+      transports: [
+        new winston.transports.Console({ format: winston.format.json() }),
+      ],
+    }),
   });
 
   //Error Handling
