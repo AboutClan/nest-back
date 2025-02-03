@@ -389,35 +389,6 @@ export class UserService implements IUserService {
     return;
   }
 
-  //todo: mongoose사용
-  async updateUserAllScore() {
-    try {
-      const users = await this.UserRepository.findAll();
-      if (!users) throw new Error();
-
-      for (const user of users) {
-        if (!user?.score) continue;
-        user.score = 0;
-        user.point += 20;
-        await user.save();
-        logger.logger.info('동아리 점수 초기화', {
-          type: 'score',
-          uid: user.uid,
-          value: 0,
-        });
-        logger.logger.info('동아리 점수 초기화 보상', {
-          type: 'point',
-          uid: user.uid,
-          value: 20,
-        });
-      }
-    } catch (err: any) {
-      throw new Error(err);
-    }
-
-    return;
-  }
-
   async updateDeposit(deposit: number, message: string, sub?: string) {
     await this.UserRepository.increaseDeposit(deposit, this.token.uid);
 
@@ -566,6 +537,7 @@ export class UserService implements IUserService {
       currentDate.getMonth() + 1,
       0,
     );
+
     const logs = await this.Log.find(
       {
         'meta.type': 'score',
@@ -633,6 +605,7 @@ export class UserService implements IUserService {
         break;
     }
   }
+
   async updateReduceTicket(
     type: 'gather' | 'groupOnline' | 'groupOffline',
     userId: string,
@@ -655,6 +628,7 @@ export class UserService implements IUserService {
   async addBadge(badgeIdx: number) {
     await this.UserRepository.addbadge(this.token.uid, badgeIdx);
   }
+
   async selectBadge(badgeIdx: number) {
     const badgeList: any[] = await this.UserRepository.getBadgeList(
       this.token.uid,
@@ -662,6 +636,7 @@ export class UserService implements IUserService {
 
     if (badgeList.includes(badgeIdx)) {
       await this.UserRepository.selectbadge(this.token.uid, badgeIdx);
+      return null;
     } else {
       throw new Error('no badge');
     }
@@ -684,6 +659,25 @@ export class UserService implements IUserService {
   }
 
   async test() {
-    await this.UserRepository.findById(this.token.id);
+    const logs = await this.Log.find({
+      $and: [
+        { 'meta.value': { $lte: -100 } },
+        {
+          $or: [
+            { message: { $regex: '스터디 가입', $options: 'i' } },
+            { message: { $regex: '동아리 가입', $options: 'i' } },
+          ],
+        },
+      ],
+    });
+
+    const cleanedData = logs.map((log) => {
+      return {
+        uid: log.meta.uid,
+        point: log.meta.value,
+      };
+    });
+
+    console.log(cleanedData);
   }
 }

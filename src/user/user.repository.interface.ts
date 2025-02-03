@@ -6,7 +6,7 @@ export interface UserRepository {
   findByUserId(userId: string): Promise<IUser>;
   findByUids(uids: string[]): Promise<IUser[]>;
   findAll(queryString?: string): Promise<IUser[]>;
-  updateUser(uid: string, updateInfo): Promise<null>;
+  updateUser(uid: string, updateInfo);
   updateUserById(id: string, updateInfo: any): Promise<null>;
   initMonthScore(): Promise<null>;
   findByLocation(location: string): Promise<IUser[]>;
