@@ -596,10 +596,10 @@ export class UserService implements IUserService {
         await this.UserRepository.updateGatherTicket(userId, 1);
         break;
       case 'groupOffline':
-        await this.UserRepository.updateGroupOfflineTicket(userId, 1);
+        await this.UserRepository.updateGroupStudyTicket(userId, 2);
         break;
       case 'groupOnline':
-        await this.UserRepository.updateGroupOnlineTicket(userId, 1);
+        await this.UserRepository.updateGroupStudyTicket(userId, 1);
         break;
       default:
         break;
@@ -615,10 +615,10 @@ export class UserService implements IUserService {
         await this.UserRepository.updateGatherTicket(userId, -1);
         break;
       case 'groupOffline':
-        await this.UserRepository.updateGroupOfflineTicket(userId, -1);
+        await this.UserRepository.updateGroupStudyTicket(userId, -2);
         break;
       case 'groupOnline':
-        await this.UserRepository.updateGroupOnlineTicket(userId, -1);
+        await this.UserRepository.updateGroupStudyTicket(userId, -1);
         break;
       default:
         break;

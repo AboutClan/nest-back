@@ -185,12 +185,10 @@ export class GatherService implements IGatherService {
     text?: string,
   ) {
     try {
-      console.log('test');
       let message = `모임 신청이 거절되었습니다. ${text}`;
 
       await this.gatherRepository.deleteWaiting(id, userId);
       // const userTicket = await this.userServiceInstance.getTicketInfo(id);
-      console.log(2);
       if (status === 'agree') {
         await this.gatherRepository.agreeParticipate(id, userId);
         // await this.userServiceInstance.updateReduceTicket('gather');

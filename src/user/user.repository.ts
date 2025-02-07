@@ -185,27 +185,13 @@ export class MongoUserRepository implements UserRepository {
     );
     return null;
   }
-  async updateGroupOnlineTicket(userId: string, value: number) {
-    console.log(3);
-    console.log(userId);
+  async updateGroupStudyTicket(userId: string, value: number) {
     await this.User.findOneAndUpdate(
       {
         _id: userId,
       },
       {
-        $inc: { 'ticket.groupStudyOnlineTicket': value },
-      },
-      { new: true, upsert: false },
-    );
-    return null;
-  }
-  async updateGroupOfflineTicket(userId: string, value: number) {
-    await this.User.findOneAndUpdate(
-      {
-        _id: userId,
-      },
-      {
-        $inc: { 'ticket.groupStudyOfflineTicket': value },
+        $inc: { 'ticket.groupStudyTicket': value },
       },
       { new: true, upsert: false },
     );
