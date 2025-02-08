@@ -71,6 +71,26 @@ export class GroupStudyController {
     }
   }
 
+  @Get('status')
+  async getStatusGroupStudy(
+    @Query('status') status?: string,
+    @Query('cursor') cursor?: string,
+  ) {
+    try {
+      const cursorNum = cursor ? parseInt(cursor) : 0;
+
+      return await this.groupStudyService.getStatusGroupStudy(
+        cursorNum,
+        status,
+      );
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching group study data',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   //todo: groupStudy 조정 필요
   @Post()
   async createGroupStudy(@Body() createGroupStudyDto: CreateGroupStudyDto) {

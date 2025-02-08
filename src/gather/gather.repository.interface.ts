@@ -54,5 +54,12 @@ export interface GatherRepository {
   getEnthMembers();
   deleteWaiting(gatherId: string, userId: string);
   updateNotOpened(current: Date);
+  findMyStatusGather(
+    userId: string,
+    status: string,
+    start: number,
+    gap: number,
+  );
+  findMyGather(userId: string, start: number, gap: number);
   participate(gatherId: number, userId: string, phase: string);
 }

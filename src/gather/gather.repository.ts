@@ -310,4 +310,38 @@ export class MongoGatherRepository implements GatherRepository {
       },
     );
   }
+
+  async findMyStatusGather(
+    userId: string,
+    status: string,
+    start: number,
+    gap: number,
+  ) {
+    const result = await this.Gather.find({
+      $and: [
+        {
+          participants: {
+            $elemMatch: { user: userId },
+          },
+        },
+        status == 'open' ? { status: 'open' } : { status: { $ne: 'open' } },
+      ],
+    })
+      .skip(start)
+      .limit(gap)
+      .select('-_id');
+
+    return result;
+  }
+
+  async findMyGather(userId: string, start: number, gap: number) {
+    const result = await this.Gather.find({
+      user: userId,
+    })
+      .skip(start)
+      .limit(gap)
+      .select('-_id');
+
+    return result;
+  }
 }

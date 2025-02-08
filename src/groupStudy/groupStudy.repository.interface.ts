@@ -55,4 +55,11 @@ export interface GroupStudyRepository {
   weekAttendance(groupId: string, id: string): Promise<UpdateWriteOpResult>;
   initWeekAttendance(): Promise<void>;
   findEnthMembers();
+  findMyStatusGroupStudy(
+    groupStudyId: string,
+    status: string,
+    start: number,
+    gap: number,
+  );
+  findMyGroupStudy(groupStudyId: string, start: number, gap: number);
 }
