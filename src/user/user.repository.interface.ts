@@ -27,8 +27,7 @@ export interface UserRepository {
   updateBelong(uid: string, belong: string): Promise<null>;
   patchLocationDetail(uid: string, text: string, lat: string, lon: string);
   updateGatherTicket(uid: string, value: number);
-  updateGroupOnlineTicket(uid: string, value: number);
-  updateGroupOfflineTicket(uid: string, value: number);
+  updateGroupStudyTicket(uid: string, value: number);
   resetGatherTicket(uid: string);
   getTicketInfo(userId: string);
   addbadge(uid: string, badgeIdx: number);

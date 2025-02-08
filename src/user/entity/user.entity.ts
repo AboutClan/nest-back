@@ -33,8 +33,7 @@ const preferenceZodSchema = z.object({
 
 const ticketZodSchema = z.object({
   gatherTicket: z.number().default(4),
-  groupStudyOnlineTicket: z.number().default(2),
-  groupStudyOfflineTicket: z.number().default(2),
+  groupStudyTicket: z.number().default(4),
 });
 
 const badgeZodSchema = z
@@ -200,13 +199,9 @@ export const ticketSchema: Schema<ticketType> = new Schema(
       type: Number,
       default: 4,
     },
-    groupStudyOnlineTicket: {
+    groupStudyTicket: {
       type: Number,
-      default: 2,
-    },
-    groupStudyOfflineTicket: {
-      type: Number,
-      default: 2,
+      default: 4,
     },
   },
   {

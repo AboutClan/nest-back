@@ -28,6 +28,7 @@ import {
 } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
+import { AppError } from 'src/errors/AppError';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -105,13 +106,8 @@ export class GatherService implements IGatherService {
     if (!gather) throw new Error();
 
     const id = userId ?? this.token.id;
-    if (!gather.participants.some((participant) => participant.user == id)) {
-      gather.participants.push({
-        user: id,
-        phase,
-      });
-      await gather?.save();
-    }
+
+    await this.gatherRepository.participate(gatherId, userId, phase);
 
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
@@ -121,6 +117,7 @@ export class GatherService implements IGatherService {
       PARTICIPATE_GATHER_POINT,
       '번개 모임 참여',
     );
+
     if (gather.user)
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
@@ -185,15 +182,17 @@ export class GatherService implements IGatherService {
     text?: string,
   ) {
     try {
-      console.log('test');
       let message = `모임 신청이 거절되었습니다. ${text}`;
 
       await this.gatherRepository.deleteWaiting(id, userId);
-      // const userTicket = await this.userServiceInstance.getTicketInfo(id);
-      console.log(2);
+      const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
+
+      if (ticket.gatherTicket <= 0) {
+        throw new AppError('ticket이 부족합니다.', 500);
+      }
       if (status === 'agree') {
-        await this.gatherRepository.agreeParticipate(id, userId);
-        // await this.userServiceInstance.updateReduceTicket('gather');
+        await this.gatherRepository.participate(parseInt(id), userId, 'first');
+        await this.userServiceInstance.updateReduceTicket('gather', userId);
         message = '모임 신청이 승인되었습니다.';
       }
 

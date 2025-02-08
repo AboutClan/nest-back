@@ -317,19 +317,13 @@ export default class GroupStudyService implements IGroupStudyService {
     const ticketInfo = await this.userServiceInstance.getTicketInfo(
       this.token.id,
     );
-    if (groupStudy.meetingType == 'offline') {
-      if (ticketInfo.groupStudyOfflineTicket <= 0) throw new Error('no ticket');
-      await this.userServiceInstance.updateReduceTicket(
-        'groupOffline',
-        this.token.id,
-      );
-    } else {
-      if (ticketInfo.groupStudyOnlineTicket <= 0) throw new Error('no ticket');
-      await this.userServiceInstance.updateReduceTicket(
-        'groupOnline',
-        this.token.id,
-      );
-    }
+
+    if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
+
+    await this.userServiceInstance.updateReduceTicket(
+      'groupOffline',
+      this.token.id,
+    );
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
@@ -383,12 +377,6 @@ export default class GroupStudyService implements IGroupStudyService {
         );
       }
       await groupStudy.save();
-
-      if (groupStudy.meetingType == 'offline') {
-        await this.userServiceInstance.updateAddTicket('groupOffline', toUid);
-      } else {
-        await this.userServiceInstance.updateAddTicket('groupOnline', toUid);
-      }
     } catch (err) {
       throw new Error();
     }
@@ -449,7 +437,7 @@ export default class GroupStudyService implements IGroupStudyService {
       if (status === 'agree') {
         const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
         if (groupStudy.meetingType == 'offline') {
-          if (ticketInfo.groupStudyOfflineTicket <= 0)
+          if (ticketInfo.groupStudyOfflineTicket <= 1)
             throw new Error('no ticket');
           this.userServiceInstance.updateReduceTicket('groupOffline', userId);
         } else {
