@@ -51,6 +51,23 @@ export class GatherController {
     }
   }
 
+  @Get('status')
+  async getStatusGather(
+    @Query('cursor') cursor?: string,
+    @Query('status') status?: string,
+  ) {
+    const cursorNum = cursor ? parseInt(cursor) : null;
+
+    try {
+      return await this.gatherService.getStatusGather(status, cursorNum);
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching gather data',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post()
   async createGather(@Body() createGatherDto: CreateGatherDto) {
     try {

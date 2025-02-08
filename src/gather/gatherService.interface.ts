@@ -51,4 +51,5 @@ export interface IGatherService {
   ): Promise<void>;
   deleteGather(gatherId: string): Promise<void>;
   getEnthMembers();
+  getStatusGather(status: string, cursor: number);
 }

@@ -70,6 +70,60 @@ export class GatherService implements IGatherService {
     return gatherData;
   }
 
+  async getStatusGather(status: string, cursor: number) {
+    switch (status) {
+      case '참여중':
+        return this.getMyOpenGather(cursor);
+      case '종료':
+        return this.getMyFinishGather(cursor);
+      case '내가개설':
+        return this.getMyGather(cursor);
+      default:
+        break;
+    }
+  }
+
+  async getMyOpenGather(cursor: number | null) {
+    const gap = 12;
+    let start = gap * (cursor || 0);
+
+    let gatherData = await this.gatherRepository.findMyStatusGather(
+      this.token.id,
+      'open',
+      start,
+      gap,
+    );
+
+    return gatherData;
+  }
+
+  async getMyFinishGather(cursor: number | null) {
+    const gap = 12;
+    let start = gap * (cursor || 0);
+
+    let gatherData = await this.gatherRepository.findMyStatusGather(
+      this.token.id,
+      'finish',
+      start,
+      gap,
+    );
+
+    return gatherData;
+  }
+
+  async getMyGather(cursor: number | null) {
+    const gap = 12;
+    let start = gap * (cursor || 0);
+
+    let gatherData = await this.gatherRepository.findMyGather(
+      this.token.id,
+      start,
+      gap,
+    );
+
+    return gatherData;
+  }
+
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
   async createGather(data: Partial<IGatherData>) {
