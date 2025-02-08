@@ -263,24 +263,9 @@ export class MongoGatherRepository implements GatherRepository {
   }
 
   async deleteWaiting(gatherId: string, userId: string) {
-    console.log(gatherId, userId);
     await this.Gather.findOneAndUpdate(
       { id: gatherId },
       { $pull: { waiting: { user: userId } } },
-      { new: true },
-    );
-  }
-  async agreeParticipate(gatherId: string, userId: string) {
-    await this.Gather.findOneAndUpdate(
-      { id: gatherId },
-      {
-        $push: {
-          participants: {
-            user: userId,
-            phase: 'first',
-          },
-        },
-      },
       { new: true },
     );
   }
@@ -306,6 +291,23 @@ export class MongoGatherRepository implements GatherRepository {
           },
         },
       ],
+    );
+  }
+
+  async participate(gatherId: number, userId: string, phase: string) {
+    await this.Gather.updateOne(
+      {
+        id: gatherId,
+        'participants.user': { $ne: userId },
+      },
+      {
+        $push: {
+          participants: {
+            user: userId,
+            phase,
+          },
+        },
+      },
     );
   }
 }

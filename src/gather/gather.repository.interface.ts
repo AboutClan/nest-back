@@ -53,6 +53,6 @@ export interface GatherRepository {
   deleteById(gatherId: string): Promise<any>;
   getEnthMembers();
   deleteWaiting(gatherId: string, userId: string);
-  agreeParticipate(gatherId: string, userId: string);
   updateNotOpened(current: Date);
+  participate(gatherId: number, userId: string, phase: string);
 }
