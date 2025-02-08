@@ -35,6 +35,60 @@ export default class GroupStudyService implements IGroupStudyService {
   ) {
     this.token = this.request.decodedToken;
   }
+  async getStatusGroupStudy(cursor: number, status: string) {
+    switch (status) {
+      case '참여중':
+        return this.getMyOpenGroupStudy(cursor);
+      case '종료':
+        return this.getMyFinishGroupStudy(cursor);
+      case '내가개설':
+        return this.getMyGroupStudy(cursor);
+      default:
+        break;
+    }
+  }
+
+  async getMyOpenGroupStudy(cursor: number | null) {
+    const gap = 12;
+    let start = gap * (cursor || 0);
+
+    let gatherData = await this.groupStudyRepository.findMyStatusGroupStudy(
+      this.token.id,
+      'open',
+      start,
+      gap,
+    );
+
+    return gatherData;
+  }
+
+  async getMyFinishGroupStudy(cursor: number | null) {
+    const gap = 12;
+    let start = gap * (cursor || 0);
+
+    let gatherData = await this.groupStudyRepository.findMyStatusGroupStudy(
+      this.token.id,
+      'finish',
+      start,
+      gap,
+    );
+
+    return gatherData;
+  }
+
+  async getMyGroupStudy(cursor: number | null) {
+    const gap = 12;
+    let start = gap * (cursor || 0);
+
+    let gatherData = await this.groupStudyRepository.findMyGroupStudy(
+      this.token.id,
+      start,
+      gap,
+    );
+
+    return gatherData;
+  }
+
   //갱신
   async getGroupStudyOnlyStudy() {
     let groupStudyData;

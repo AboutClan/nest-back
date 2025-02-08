@@ -369,4 +369,39 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       console.error(error);
     }
   }
+
+  async findMyStatusGroupStudy(
+    userId: string,
+    status: string,
+    start: number,
+    gap: number,
+  ) {
+    const result = await this.GroupStudy.find({
+      $and: [
+        {
+          participants: {
+            $elemMatch: { user: userId },
+          },
+        },
+        status == 'open'
+          ? { status: 'pending' }
+          : { status: { $ne: 'pending' } },
+      ],
+    })
+      .skip(start)
+      .limit(gap)
+      .select('-_id');
+
+    return result;
+  }
+  async findMyGroupStudy(userId: string, start: number, gap: number) {
+    const result = await this.GroupStudy.find({
+      organizer: userId,
+    })
+      .skip(start)
+      .limit(gap)
+      .select('-_id');
+
+    return result;
+  }
 }

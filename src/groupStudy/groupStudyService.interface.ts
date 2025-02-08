@@ -1,6 +1,7 @@
 import { IGroupStudyData } from './entity/groupStudy.entity';
 
 export interface IGroupStudyService {
+  getStatusGroupStudy(cursor: number, status: string);
   getGroupStudyOnlyStudy(): Promise<{ study: IGroupStudyData[] }>;
   getGroupStudySnapshot(): Promise<{
     hobby: IGroupStudyData[];
