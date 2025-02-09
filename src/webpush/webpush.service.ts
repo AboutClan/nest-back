@@ -67,7 +67,7 @@ export class WebPushService implements IWebPushService {
       requireInteraction: true,
       silent: false,
       renotify: true,
-      timestamp: Date.now(),
+      timestamp: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
       vibrate: [100, 50, 100],
       priority: 'high',
     };
