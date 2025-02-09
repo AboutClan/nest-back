@@ -11,6 +11,7 @@ import {
   REMOVE_GAHTER_SCORE,
 } from 'src/Constants/score';
 import { ICounterService } from 'src/counter/counterService.interface';
+import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUserService } from 'src/user/userService.interface';
 import {
@@ -28,7 +29,6 @@ import {
 } from './entity/gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
-import { AppError } from 'src/errors/AppError';
 
 @Injectable()
 export class GatherService implements IGatherService {
@@ -72,11 +72,11 @@ export class GatherService implements IGatherService {
 
   async getStatusGather(status: string, cursor: number) {
     switch (status) {
-      case '참여중':
+      case 'isParticipating':
         return this.getMyOpenGather(cursor);
-      case '종료':
+      case 'isEnded':
         return this.getMyFinishGather(cursor);
-      case '내가개설':
+      case 'isOwner':
         return this.getMyGather(cursor);
       default:
         break;

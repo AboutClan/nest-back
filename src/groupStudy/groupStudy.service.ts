@@ -37,11 +37,11 @@ export default class GroupStudyService implements IGroupStudyService {
   }
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
-      case '참여중':
+      case 'isParticipating':
         return this.getMyOpenGroupStudy(cursor);
-      case '종료':
+      case 'isEnded':
         return this.getMyFinishGroupStudy(cursor);
-      case '내가개설':
+      case 'isOwner':
         return this.getMyGroupStudy(cursor);
       default:
         break;
