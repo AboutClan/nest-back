@@ -283,7 +283,12 @@ export class MongoGatherRepository implements GatherRepository {
           $set: {
             status: {
               $cond: {
-                if: { $lt: [{ $size: '$participants' }, '$memberCnt.min'] },
+                if: {
+                  $lt: [
+                    { $add: [{ $size: '$participants' }, 1] },
+                    '$memberCnt.min',
+                  ],
+                },
                 then: 'close',
                 else: 'open',
               },
