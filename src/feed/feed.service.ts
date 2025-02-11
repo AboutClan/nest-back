@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Types } from 'mongoose';
@@ -7,7 +7,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import ImageService from 'src/imagez/image.service';
 import { IUser } from 'src/user/user.entity';
-import { IFEED_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
+import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
 import { commentType, FeedZodSchema, subCommentType } from './feed.entity';
 import { FeedRepository } from './feed.repository.interface';
 import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
@@ -80,8 +80,8 @@ export class FeedService {
     if (!Types.ObjectId.isValid(id)) {
       throw new ValidationError('invalid mongoDB Id type');
     }
-
     const feed = await this.findFeedById(id);
+    if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 
     const myLike = (feed?.like as IUser[])?.find(
       (who) => who.uid === this.token.uid,
@@ -109,6 +109,7 @@ export class FeedService {
       throw new ValidationError('invalid mongoDB Id type');
     }
     const feed = await this.feedRepository.findByIdLike(id);
+    if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 
     return feed?.like as IUser[];
   }
@@ -175,41 +176,28 @@ export class FeedService {
       comment: content,
     };
 
-    //transaction
-    const feed = await this.feedRepository.createComment(feedId, message);
-    if (!feed) throw new DatabaseError('reate comment failed');
-
+    const newComment = await this.feedRepository.createComment(feedId, message);
+    if (!newComment) throw new DatabaseError('create comment failed');
     return;
   }
 
   async deleteComment(feedId: string, commentId: string) {
-    const feed = await this.feedRepository.deleteComment(feedId, commentId);
-
-    if (!feed) throw new DatabaseError('delete comment failed');
-
+    await this.feedRepository.deleteComment(feedId, commentId);
     return;
   }
 
   async updateComment(feedId: string, commentId: string, comment: string) {
-    const result = await this.feedRepository.updateComment(
-      feedId,
-      comment,
-      comment,
-    );
-
-    if (!result) throw new DatabaseError('update comment failed');
-
-    return result;
+    await this.feedRepository.updateComment(feedId, commentId, comment);
+    return;
   }
 
   async createCommentLike(feedId: string, commentId: string) {
-    const feed = await this.feedRepository.createCommentLike(
+    const newComment = await this.feedRepository.createCommentLike(
       feedId,
       commentId,
       this.token.id,
     );
-
-    if (!feed) {
+    if (!newComment) {
       throw new DatabaseError('create comment like failed');
     }
     return;

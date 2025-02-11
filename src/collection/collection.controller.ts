@@ -24,13 +24,6 @@ export class CollectionController {
     return user;
   }
 
-  //todo: 이게 도대체 뭐냐
-  @Patch('alphabet')
-  async setCollection() {
-    // const result = await this.collectionService?.setCollectionStamp();
-    return { status: 'success' };
-  }
-
   //todo: route명 수정
   @Patch('alphabet/change')
   async changeCollection(@Body() updateCollectionDTO: updateCollectionDTO) {
@@ -41,12 +34,7 @@ export class CollectionController {
 
   @Post('alphabet/completed')
   async setCollectionCompleted() {
-    const result = await this.collectionService.setCollectionCompleted();
-
-    //todo: Error 타입 수정
-    if (result === 'not completed') {
-      throw new HttpException('Not completed', HttpStatus.BAD_REQUEST);
-    }
+    await this.collectionService.setCollectionCompleted();
     return { status: 'success' };
   }
 
