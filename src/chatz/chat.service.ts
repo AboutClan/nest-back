@@ -1,7 +1,7 @@
 import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
-import { ChatZodSchema, ContentZodSchema } from './entity/chat.entity';
-import { IUser } from 'src/user/entity/user.entity';
+
+import { IUser } from 'src/user/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
@@ -10,20 +10,20 @@ import {
   IUSER_REPOSITORY,
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
-import { IChatService } from './chatService.interface';
 import { ChatRepository } from './chat.repository.interface';
 import { UserRepository } from 'src/user/user.repository.interface';
+import { ChatZodSchema, ContentZodSchema } from './chat.entity';
+import { WebPushService } from 'src/webpush/webpush.service';
 
 @Injectable()
-export class ChatService implements IChatService {
+export class ChatService {
   private token: JWT;
 
   constructor(
     //repository DI
     @Inject(ICHAT_REPOSITORY)
     private readonly chatRepository: ChatRepository,
-    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
+    private readonly webPushServiceInstance: WebPushService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입

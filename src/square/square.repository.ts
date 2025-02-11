@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { SecretSquareItem } from './entity/square.entity';
+import { SecretSquareItem } from './square.entity';
 import { Model } from 'mongoose';
 import { SquareRepository } from './square.repository.interface';
 

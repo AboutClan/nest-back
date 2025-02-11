@@ -5,41 +5,37 @@ import dayjs, { Dayjs } from 'dayjs';
 import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { ICollectionService } from 'src/collection/collectionService.interface';
 import { convertUserToSummary } from 'src/convert';
-import { IPlace } from 'src/place/entity/place.entity';
+import { IPlace } from 'src/place/place.entity';
 import { IRealtime } from 'src/realtime/realtime.entity';
-import { IUser } from 'src/user/entity/user.entity';
-import { IUserService } from 'src/user/userService.interface';
+import { IUser } from 'src/user/user.entity';
 import { strToDate } from 'src/utils/dateUtils';
-import { ICOLLECTION_SERVICE, IUSER_SERVICE } from 'src/utils/di.tokens';
 import {
   IAttendance,
   IParticipation,
   IVote,
   IVoteStudyInfo,
-} from './entity/vote.entity';
+} from './vote.entity';
 import { now } from './util';
-import { IVoteService } from './voteService.interface';
 import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import {
   ATTEND_STUDY_POINT,
   CANCEL_VOTE_POINT,
   VOTE_POINT,
 } from 'src/Constants/point';
+import { CollectionService } from 'src/collection/collection.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable({ scope: Scope.REQUEST })
-export class VoteService implements IVoteService {
+export class VoteService {
   private token: JWT;
   constructor(
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Place') private Place: Model<IPlace>,
     @InjectModel('Realtime') private Realtime: Model<IRealtime>,
-    @Inject(ICOLLECTION_SERVICE)
-    private collectionServiceInstance: ICollectionService,
-    @Inject(IUSER_SERVICE)
-    private userServiceInstance: IUserService,
+    private readonly collectionServiceInstance: CollectionService,
+    private userServiceInstance: UserService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

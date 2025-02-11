@@ -8,11 +8,6 @@ import { Vote2Schema } from './vote2.entity';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { PlaceModule } from 'src/place/place.module';
 
-const vote2ServiceProvider: ClassProvider = {
-  provide: IVOTE2_SERVICE,
-  useClass: Vote2Service,
-};
-
 const vote2RepositoryProvider: ClassProvider = {
   provide: IVOTE2_REPOSITORY,
   useClass: Vote2Repository,
@@ -25,8 +20,8 @@ const vote2RepositoryProvider: ClassProvider = {
   ],
 
   controllers: [Vote2Controller],
-  providers: [vote2ServiceProvider, vote2RepositoryProvider],
-  exports: [vote2ServiceProvider, vote2RepositoryProvider, MongooseModule],
+  providers: [Vote2Service, vote2RepositoryProvider],
+  exports: [Vote2Service, vote2RepositoryProvider, MongooseModule],
 })
 export class Vote2Module {
   configure(consumer: MiddlewareConsumer) {

@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { ICounter } from './entity/counter.entity';
+import { ICounter } from './counter.entity';
 import { Model } from 'mongoose';
 import { CounterRepository } from './counter.repository.interface';
 

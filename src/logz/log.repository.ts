@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { LogRepository } from './log.repository.interface';
-import { ILog } from './entity/log.entity';
+import { ILog } from './log.entity';
 import { Model } from 'mongoose';
 
 export class MongoLogRepository implements LogRepository {

@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { locationSchema } from 'src/gather/entity/gather.entity';
+import { locationSchema } from 'src/gather/gather.entity';
 import { z } from 'zod';
 
 export const locationDetailZodSchema = z.object({

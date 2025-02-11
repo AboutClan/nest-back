@@ -7,12 +7,7 @@ import { VoteModule } from 'src/vote/vote.module';
 import { IWEBPUSH_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { MongoWebpushRepository } from './webpush.repository';
 import { MongooseModule } from '@nestjs/mongoose';
-import { NotificationSubSchema } from './entity/notificationsub.entity';
-
-const webPushServiceProvider: ClassProvider = {
-  provide: IWEBPUSH_SERVICE,
-  useClass: WebPushService,
-};
+import { NotificationSubSchema } from './notificationsub.entity';
 const webPushRepositoryProvider: ClassProvider = {
   provide: IWEBPUSH_REPOSITORY,
   useClass: MongoWebpushRepository,
@@ -28,8 +23,8 @@ const webPushRepositoryProvider: ClassProvider = {
     ]),
   ], // Mongoose 모델 등록],
   controllers: [WebPushController],
-  providers: [webPushServiceProvider, webPushRepositoryProvider],
-  exports: [webPushServiceProvider, webPushRepositoryProvider],
+  providers: [WebPushService, webPushRepositoryProvider],
+  exports: [WebPushService, webPushRepositoryProvider],
 })
 export class WebPushModule {}
 // @Module({

@@ -1,4 +1,4 @@
-import { ICounter } from './entity/counter.entity';
+import { ICounter } from './counter.entity';
 
 export interface CounterRepository {
   findByKeyAndLoc(key: string, location: string): Promise<ICounter>;

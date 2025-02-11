@@ -1,4 +1,4 @@
-import { IStoreApplicant } from './entity/gift.entity';
+import { IStoreApplicant } from './gift.entity';
 
 export interface GiftRepository {
   findAllSort(): Promise<IStoreApplicant[]>;

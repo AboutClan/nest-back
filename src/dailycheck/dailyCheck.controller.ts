@@ -9,7 +9,6 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { IDAILYCHECK_SERVICE } from 'src/utils/di.tokens';
 import { DailyCheckService } from './dailyCheck.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -17,10 +16,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('dailyCheck')
 @Controller('dailyCheck')
 export class DailyCheckController {
-  constructor(
-    @Inject(IDAILYCHECK_SERVICE)
-    private dailyCheckServiceInstance: DailyCheckService,
-  ) {}
+  constructor(private readonly dailyCheckServiceInstance: DailyCheckService) {}
 
   @Get()
   async getLog(

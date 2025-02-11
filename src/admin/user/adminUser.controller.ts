@@ -14,7 +14,7 @@ import {
 import { Request, Response, NextFunction } from 'express';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import AdminUserService from './adminUser.service';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 
 export type UserFilterType =
   | 'score'

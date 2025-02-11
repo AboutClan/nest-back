@@ -1,25 +1,13 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Param,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { createSubDTO } from './webpush.dto';
-import { IWebPushService } from './webpushService.interface';
-import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { AppError } from 'src/errors/AppError';
+import { WebPushService } from './webpush.service';
 
 @ApiTags('webpush')
 @Controller('webpush')
 export class WebPushController {
-  constructor(
-    @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
-  ) {}
+  constructor(private readonly webPushService: WebPushService) {}
 
   @Post('subscribe')
   subscribe(

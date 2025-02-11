@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { GiftRepository } from './gift.repository.interface';
-import { IStoreApplicant } from './entity/gift.entity';
+import { IStoreApplicant } from './gift.entity';
 import { Model } from 'mongoose';
 
 export class MongoGiftRepository implements GiftRepository {

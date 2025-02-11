@@ -10,12 +10,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { IIMAGE_SERVICE } from 'src/utils/di.tokens';
-import { IImageService } from './imageService.interface';
+import ImageService from './image.service';
 
 @Controller('image')
 export class ImageController {
-  constructor(@Inject(IIMAGE_SERVICE) private imageService: IImageService) {}
+  constructor(private readonly imageService: ImageService) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))

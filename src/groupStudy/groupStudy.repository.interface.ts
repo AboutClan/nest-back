@@ -1,5 +1,5 @@
 import { UpdateWriteOpResult } from 'mongoose';
-import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
+import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 
 export interface GroupStudyRepository {
   findByStatusAndCategory(

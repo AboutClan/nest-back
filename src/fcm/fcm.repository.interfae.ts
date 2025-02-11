@@ -1,4 +1,4 @@
-import { IFcmToken } from './entity/fcmToken.entity';
+import { IFcmToken } from './fcmToken.entity';
 
 export interface FcmRepository {
   deleteToken(uid: string, platform: string): Promise<any>;

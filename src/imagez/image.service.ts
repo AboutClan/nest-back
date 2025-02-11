@@ -2,12 +2,11 @@ import { JWT } from 'next-auth/jwt';
 import { S3Client } from '@aws-sdk/client-s3';
 import { findOneVote } from 'src/vote/util';
 import { strToDate } from 'src/utils/dateUtils';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { Upload } from '@aws-sdk/lib-storage';
 import { RequestContext } from 'src/request-context';
-import { IImageService } from './imageService.interface';
 
-export default class ImageService implements IImageService {
+export default class ImageService {
   private token: JWT;
   private s3: S3Client;
 

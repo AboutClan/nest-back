@@ -1,4 +1,4 @@
-import { commentType, IFeed, subCommentType } from './entity/feed.entity';
+import { commentType, IFeed, subCommentType } from './feed.entity';
 
 export interface FeedRepository {
   findWithQuery(

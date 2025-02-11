@@ -1,4 +1,4 @@
-import { IPlace } from './entity/place.entity';
+import { IPlace } from './place.entity';
 
 export interface PlaceRepository {
   findByStatus(status: string): Promise<IPlace[]>;

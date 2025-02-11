@@ -2,11 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { WebpushRepository } from './webpush.repository.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  INotificationSub,
-  NotificationSub,
-} from './entity/notificationsub.entity';
-import { IUser } from 'src/user/entity/user.entity';
+import { INotificationSub, NotificationSub } from './notificationsub.entity';
+import { IUser } from 'src/user/user.entity';
 
 @Injectable()
 export class MongoWebpushRepository implements WebpushRepository {

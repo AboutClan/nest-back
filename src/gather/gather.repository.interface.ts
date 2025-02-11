@@ -1,5 +1,5 @@
 import { UpdateWriteOpResult } from 'mongoose';
-import { IGatherData, subCommentType } from './entity/gather.entity';
+import { IGatherData, subCommentType } from './gather.entity';
 
 export interface GatherRepository {
   findById(gatherId: string): Promise<IGatherData>;

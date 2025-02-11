@@ -6,20 +6,15 @@ import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import ImageService from 'src/imagez/image.service';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { IFEED_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
-import {
-  commentType,
-  FeedZodSchema,
-  subCommentType,
-} from './entity/feed.entity';
+import { commentType, FeedZodSchema, subCommentType } from './feed.entity';
 import { FeedRepository } from './feed.repository.interface';
-import { IFeedService } from './feedService.interface';
-import { IUserService } from 'src/user/userService.interface';
 import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
-export class FeedService implements IFeedService {
+export class FeedService {
   private token: JWT;
   private imageServiceInstance: ImageService;
 
@@ -27,7 +22,7 @@ export class FeedService implements IFeedService {
     @Inject(IFEED_REPOSITORY)
     private readonly feedRepository: FeedRepository,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-    @Inject(IUSER_SERVICE) private readonly userService: IUserService,
+    private readonly userService: UserService,
   ) {
     this.token = this.request.decodedToken;
     this.imageServiceInstance = new ImageService();

@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { commentType, IFeed, subCommentType } from './entity/feed.entity';
+import { commentType, IFeed, subCommentType } from './feed.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { FeedRepository } from './feed.repository.interface';
 import { C_simpleUser } from 'src/Constants/constants';

@@ -7,10 +7,10 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import { RequestCategory, RequestLocation } from './entity/request.entity';
+import { RequestCategory, RequestLocation } from './request.entity';
 import { IREQUEST_SERVICE } from 'src/utils/di.tokens';
-import { IRequestService } from './request.interface';
 import { ApiTags } from '@nestjs/swagger';
+import RequestService from './request.service';
 
 // DTOs for request validation
 class CreateRequestDto {
@@ -31,9 +31,7 @@ class CreateRequestDto {
 @ApiTags('request')
 @Controller('request')
 export class RequestController {
-  constructor(
-    @Inject(IREQUEST_SERVICE) private requestService: IRequestService,
-  ) {}
+  constructor(private readonly requestService: RequestService) {}
 
   @Get()
   async getRequestData() {

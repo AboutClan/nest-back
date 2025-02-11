@@ -1,4 +1,4 @@
-import { IParticipation, IVote } from './entity/vote.entity';
+import { IParticipation, IVote } from './vote.entity';
 
 export interface VoteRepository {
   findByDatePlaceAttAbs(date: Date): Promise<IVote>;

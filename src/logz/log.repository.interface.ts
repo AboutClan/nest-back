@@ -1,4 +1,4 @@
-import { ILog } from './entity/log.entity';
+import { ILog } from './log.entity';
 
 export interface LogRepository {
   findScoreTimestamp(

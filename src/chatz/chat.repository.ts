@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { ChatRepository } from './chat.repository.interface';
 import { Model } from 'mongoose';
-import { IChat, IContent } from './entity/chat.entity';
+import { IChat, IContent } from './chat.entity';
 
 export class MongoChatRepository implements ChatRepository {
   constructor(

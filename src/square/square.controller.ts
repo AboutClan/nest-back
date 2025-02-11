@@ -18,11 +18,11 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { SecretSquareCategory } from './entity/square.entity';
+import { SecretSquareCategory } from './square.entity';
 import { CreateSquareDto } from './createSquareDto';
-import { ISquareService } from './squareService.interface';
 import { ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { ApiTags } from '@nestjs/swagger';
+import SquareService from './square.service';
 
 // DTOs for request validation
 
@@ -44,7 +44,7 @@ export class ValidationPipe implements PipeTransform {
 @ApiTags('square')
 @Controller('square')
 export class SquareController {
-  constructor(@Inject(ISQUARE_SERVICE) private squareService: ISquareService) {}
+  constructor(private readonly squareService: SquareService) {}
 
   @Get()
   async getSquareList(

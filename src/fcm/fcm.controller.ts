@@ -6,16 +6,14 @@ import {
   Delete,
   HttpException,
   HttpStatus,
-  Inject,
 } from '@nestjs/common';
-import { IFCM_SERVICE } from 'src/utils/di.tokens';
-import { IFcmService } from './fcm.interface';
 import { ApiTags } from '@nestjs/swagger';
+import { FcmService } from './fcm.service';
 
 @ApiTags('fcm')
 @Controller('fcm')
 export class FcmController {
-  constructor(@Inject(IFCM_SERVICE) private fcmService: IFcmService) {}
+  constructor(private readonly fcmService: FcmService) {}
 
   @Get('test')
   async test() {

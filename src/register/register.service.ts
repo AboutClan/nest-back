@@ -6,16 +6,15 @@ import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { ValidationError } from 'src/errors/ValidationError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { IREGISTER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
 import * as logger from '../logger';
-import { IRegistered } from './entity/register.entity';
+import { IRegistered } from './register.entity';
 import { RegisterRepository } from './register.repository';
-import { IRegisterService } from './registerService.interface';
-import { IAccount } from 'src/account/entity/account.entity';
+import { IAccount } from 'src/account/account.entity';
+import { WebPushService } from 'src/webpush/webpush.service';
 
-export default class RegisterService implements IRegisterService {
+export default class RegisterService {
   private token: JWT;
 
   constructor(
@@ -23,7 +22,7 @@ export default class RegisterService implements IRegisterService {
     private readonly registerRepository: RegisterRepository,
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Account') private Account: Model<IAccount>,
-    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
+    private readonly webPushServiceInstance: WebPushService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

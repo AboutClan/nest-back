@@ -2,11 +2,10 @@ import { JWT } from 'next-auth/jwt';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { ILogService } from './logService.interface';
 import { ILOG_REPOSITORY } from 'src/utils/di.tokens';
 import { LogRepository } from './log.repository.interface';
 
-export default class LogService implements ILogService {
+export default class LogService {
   private token: JWT;
   constructor(
     @Inject(ILOG_REPOSITORY)

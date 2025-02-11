@@ -1,17 +1,16 @@
 import admin from 'firebase-admin';
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { FcmTokenZodSchema, IFcmToken } from './entity/fcmToken.entity';
+import { FcmTokenZodSchema, IFcmToken } from './fcmToken.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { AppError } from 'src/errors/AppError';
 import dayjs from 'dayjs';
 import { findOneVote } from 'src/vote/util';
-import { IUser } from 'src/user/entity/user.entity';
-import { IFcmService } from './fcm.interface';
+import { IUser } from 'src/user/user.entity';
 import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmRepository } from './fcm.repository.interfae';
 
 @Injectable({ scope: Scope.DEFAULT })
-export class FcmService implements IFcmService {
+export class FcmService {
   private payload: any;
   static MongooseModule: any;
 

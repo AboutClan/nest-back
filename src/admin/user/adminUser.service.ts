@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { C_simpleUser } from 'src/Constants/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { UserFilterType } from './adminUser.controller';
 
 const logger = require('../../logger');

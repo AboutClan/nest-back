@@ -1,19 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
-import { CollectionZodSchema } from './entity/collection.entity';
+import { CollectionZodSchema } from './collection.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ALPHABET_COLLECTION } from 'src/Constants/constants';
-import { IRequestData } from 'src/request/entity/request.entity';
+import { IRequestData } from 'src/request/request.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { ICollectionService } from './collectionService.interface';
 import { CollectionRepository } from './collection.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { UserRepository } from 'src/user/user.repository.interface';
 
 @Injectable()
-export class CollectionService implements ICollectionService {
+export class CollectionService {
   private token: JWT;
   constructor(
     @InjectModel('Request') private Request: Model<IRequestData>,

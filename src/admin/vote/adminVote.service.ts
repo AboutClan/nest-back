@@ -3,11 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
 import { strToDate } from 'src/utils/dateUtils';
-import {
-  IAttendance,
-  IParticipation,
-  IVote,
-} from 'src/vote/entity/vote.entity';
+import { IAttendance, IParticipation, IVote } from 'src/vote/vote.entity';
 import { findOneVote, now } from 'src/vote/util';
 
 type voteTime = { start: Dayjs | Date; end: Dayjs | Date };

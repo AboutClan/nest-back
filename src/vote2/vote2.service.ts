@@ -1,17 +1,16 @@
 import { Inject } from '@nestjs/common';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
-import { IVote2Service } from './vote2.service.interface';
 import { REQUEST } from '@nestjs/core';
 import { JWT } from 'next-auth/jwt';
 import { Request } from 'express';
 import { IVote2Repository } from './vote2.repository.interface';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
-import { IParticipation, IResult } from './vote2.entity';
+import { IParticipation } from './vote2.entity';
 import { PlaceRepository } from 'src/place/place.repository.interface';
-import { IPlace } from 'src/place/entity/place.entity';
+import { IPlace } from 'src/place/place.entity';
 import { ClusterUtils, coordType } from './ClusterUtils';
 
-export class Vote2Service implements IVote2Service {
+export class Vote2Service {
   private token: JWT;
 
   constructor(
