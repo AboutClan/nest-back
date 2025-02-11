@@ -404,4 +404,14 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
 
     return result;
   }
+
+  async findMyGroupStudyId(userId: string) {
+    const result = await this.GroupStudy.find({
+      participants: {
+        $elemMatch: { user: userId },
+      },
+    }).select('-_id id');
+
+    return result;
+  }
 }

@@ -62,4 +62,5 @@ export interface GatherRepository {
   );
   findMyGather(userId: string, start: number, gap: number);
   participate(gatherId: number, userId: string, phase: string);
+  findMyGatherId(userId: string);
 }

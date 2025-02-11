@@ -7,11 +7,17 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import ImageService from 'src/imagez/image.service';
 import { IUser } from 'src/user/user.entity';
-import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
+import {
+  IFEED_REPOSITORY,
+  IGATHER_REPOSITORY,
+  IGROUPSTUDY_REPOSITORY,
+} from 'src/utils/di.tokens';
 import { commentType, FeedZodSchema, subCommentType } from './feed.entity';
 import { FeedRepository } from './feed.repository.interface';
 import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
 import { UserService } from 'src/user/user.service';
+import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
+import { GatherRepository } from 'src/gather/gather.repository.interface';
 
 @Injectable()
 export class FeedService {
@@ -19,6 +25,11 @@ export class FeedService {
   private imageServiceInstance: ImageService;
 
   constructor(
+    @Inject(IGROUPSTUDY_REPOSITORY)
+    private readonly groupStudyRepository: GroupStudyRepository,
+    @Inject(IGATHER_REPOSITORY)
+    private readonly gatherRepository: GatherRepository,
+
     @Inject(IFEED_REPOSITORY)
     private readonly feedRepository: FeedRepository,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
@@ -282,5 +293,28 @@ export class FeedService {
       );
     }
     return;
+  }
+
+  async findMyFeed(feedType: 'gather' | 'group') {
+    const feed = await this.feedRepository.findMyFeed(feedType, this.token.id);
+  }
+  async findRecievedFeed(feedType: 'gather' | 'group') {
+    let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
+      this.token.id,
+    );
+    let gatherIds = await this.gatherRepository.findMyGatherId(this.token.id);
+
+    groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
+    gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
+
+    if (feedType == 'gather') {
+      return await this.feedRepository.findRecievedFeed(
+        feedType,
+        groupStudyIds,
+      );
+    } else if (feedType == 'group') {
+      console.log(gatherIds);
+      return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
+    }
   }
 }
