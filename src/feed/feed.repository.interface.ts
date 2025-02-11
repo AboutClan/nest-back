@@ -46,4 +46,7 @@ export interface FeedRepository {
     subCommentId: string,
     userId: string,
   ): Promise<any>;
+
+  findMyFeed(feedType: string, userId: string);
+  findRecievedFeed(feedType: string, idArr: string[]);
 }

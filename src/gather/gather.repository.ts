@@ -349,4 +349,13 @@ export class MongoGatherRepository implements GatherRepository {
 
     return result;
   }
+  async findMyGatherId(userId: string) {
+    const result = await this.Gather.find({
+      participants: {
+        $elemMatch: { user: userId },
+      },
+    }).select('-_id id');
+
+    return result;
+  }
 }

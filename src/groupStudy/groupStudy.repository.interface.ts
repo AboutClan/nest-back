@@ -62,4 +62,5 @@ export interface GroupStudyRepository {
     gap: number,
   );
   findMyGroupStudy(groupStudyId: string, start: number, gap: number);
+  findMyGroupStudyId(userId: string);
 }

@@ -8,8 +8,6 @@ import {
   Query,
   UploadedFiles,
   UseInterceptors,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -169,5 +167,14 @@ export class FeedController {
   ) {
     await this.feedService.deleteSubComment(feedId, commentId, subCommentId);
     return { status: 'success' };
+  }
+
+  @Get('mine')
+  async findMyFeed(@Query('type') type: 'gather' | 'group') {
+    return await this.feedService.findMyFeed(type);
+  }
+  @Get('recieve')
+  async findRecievedFeed(@Query('type') type: 'gather' | 'group') {
+    return await this.feedService.findRecievedFeed(type);
   }
 }

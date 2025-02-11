@@ -166,4 +166,13 @@ export class MongoFeedRepository implements FeedRepository {
       },
     );
   }
+
+  async findMyFeed(feedType: string, userId: string) {
+    return await this.Feed.find({ type: feedType, writer: userId });
+  }
+  async findRecievedFeed(feedType: string, idArr: string[]) {
+    return await this.Feed.find({
+      $and: [{ type: feedType }, { typeId: { $in: idArr } }],
+    });
+  }
 }
