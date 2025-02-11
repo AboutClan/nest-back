@@ -13,7 +13,7 @@ import * as logger from '../logger';
 import { IRegistered } from './entity/register.entity';
 import { RegisterRepository } from './register.repository';
 import { IRegisterService } from './registerService.interface';
-import { IAccount } from 'src/account/entity/account.entity';
+import { IAccount } from 'src/account/account.entity';
 
 export default class RegisterService implements IRegisterService {
   private token: JWT;

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AccountSchema } from './entity/account.entity';
+import { AccountSchema } from './account.entity';
 
 @Module({
   imports: [
