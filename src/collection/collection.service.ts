@@ -1,4 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 import { CollectionZodSchema } from './collection.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -133,7 +137,7 @@ export class CollectionService {
         }`,
       });
     } else {
-      return 'not completed';
+      throw new InternalServerErrorException('mission not completed');
     }
   }
 
