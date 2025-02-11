@@ -5,13 +5,11 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Inject,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { IGATHER_SERVICE } from 'src/utils/di.tokens';
 import {
   CreateGatherDto,
   DeleteGatherDto,
@@ -20,12 +18,12 @@ import {
   SetWaitingPersonDto,
 } from './dto';
 import { gatherStatus } from './gather.entity';
-import { IGatherService } from './gatherService.interface';
+import { GatherService } from './gather.service';
 
 @ApiTags('gather')
 @Controller('gather')
 export class GatherController {
-  constructor(@Inject(IGATHER_SERVICE) private gatherService: IGatherService) {}
+  constructor(private readonly gatherService: GatherService) {}
 
   @Get()
   async getGather(

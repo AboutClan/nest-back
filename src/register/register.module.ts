@@ -9,11 +9,6 @@ import { IREGISTER_REPOSITORY, IREGISTER_SERVICE } from 'src/utils/di.tokens';
 import { MongoRegisterRepository } from './register.repository.interface';
 import { AccountModule } from 'src/account/account.module';
 
-const registerServiceProvider: ClassProvider = {
-  provide: IREGISTER_SERVICE,
-  useClass: RegisterService,
-};
-
 const registerRepositoryProvider: ClassProvider = {
   provide: IREGISTER_REPOSITORY,
   useClass: MongoRegisterRepository,
@@ -29,11 +24,7 @@ const registerRepositoryProvider: ClassProvider = {
     AccountModule,
   ],
   controllers: [RegisterController],
-  providers: [registerServiceProvider, registerRepositoryProvider],
-  exports: [
-    registerServiceProvider,
-    MongooseModule,
-    registerRepositoryProvider,
-  ],
+  providers: [RegisterService, registerRepositoryProvider],
+  exports: [RegisterService, MongooseModule, registerRepositoryProvider],
 })
 export class RegisterModule {}

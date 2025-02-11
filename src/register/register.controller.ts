@@ -10,15 +10,13 @@ import {
 } from '@nestjs/common';
 import { ApproveUserDto } from './dto';
 import { IREGISTER_SERVICE } from 'src/utils/di.tokens';
-import { IRegisterService } from './registerService.interface';
 import { ApiTags } from '@nestjs/swagger';
+import RegisterService from './register.service';
 
 @ApiTags('register')
 @Controller('register')
 export class RegisterController {
-  constructor(
-    @Inject(IREGISTER_SERVICE) private registerService: IRegisterService,
-  ) {}
+  constructor(private readonly registerService: RegisterService) {}
 
   @Get()
   async getRegisteredUsers() {

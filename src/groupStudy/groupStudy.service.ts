@@ -6,31 +6,24 @@ import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { GROUP_WEEKLY_PARTICIPATE_POINT } from 'src/Constants/point';
-import { ICounterService } from 'src/counter/counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/user.entity';
-import { IUserService } from 'src/user/userService.interface';
-import {
-  ICOUNTER_SERVICE,
-  IGROUPSTUDY_REPOSITORY,
-  IUSER_SERVICE,
-  IWEBPUSH_SERVICE,
-} from 'src/utils/di.tokens';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
+import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
-import { IGroupStudyService } from './groupStudyService.interface';
+import { CounterService } from 'src/counter/counter.service';
+import { UserService } from 'src/user/user.service';
+import { WebPushService } from 'src/webpush/webpush.service';
 //test
-export default class GroupStudyService implements IGroupStudyService {
+export default class GroupStudyService {
   private token: JWT;
   constructor(
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
-    @Inject(IUSER_SERVICE)
-    private readonly userServiceInstance: IUserService,
+    private readonly userServiceInstance: UserService,
     @InjectModel('User') private User: Model<IUser>,
-    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
-    @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
+    private webPushServiceInstance: WebPushService,
+    private readonly counterServiceInstance: CounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

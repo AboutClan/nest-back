@@ -17,16 +17,14 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { Response, NextFunction } from 'express';
 import { memoryStorage } from 'multer';
 import { IREALTIME_SERVICE } from 'src/utils/di.tokens';
-import { IRealtimeService } from './realtimeService';
 import { ApiTags } from '@nestjs/swagger';
+import RealtimeService from './realtime.service';
 
 @Injectable()
 @ApiTags('realtime')
 @Controller('realtime')
 export class RealtimeController {
-  constructor(
-    @Inject(IREALTIME_SERVICE) private realtimeService: IRealtimeService,
-  ) {}
+  constructor(private readonly realtimeService: RealtimeService) {}
 
   @Post('/basicVote')
   async createBasicVote(

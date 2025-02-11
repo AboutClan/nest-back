@@ -10,14 +10,10 @@ import {
 } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 import { CounterService } from 'src/counter/counter.service';
-import { ICounterService } from 'src/counter/counterService.interface';
-import { ICOUNTER_SERVICE } from 'src/utils/di.tokens';
 
 @Controller('admin/counter')
 export class AdminCounterController {
-  constructor(
-    @Inject(ICOUNTER_SERVICE) private counterService: ICounterService,
-  ) {}
+  constructor(private readonly counterService: CounterService) {}
 
   @Get('/')
   async getCounter(

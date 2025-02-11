@@ -1,16 +1,13 @@
 import { JWT } from 'next-auth/jwt';
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { IStoreApplicant, StoreZodSchema } from './gift.entity';
+import { StoreZodSchema } from './gift.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IGiftService } from './giftService.interface';
 import { IGIFT_REPOSITORY } from 'src/utils/di.tokens';
 import { GiftRepository } from './gift.repository.interface';
 
 @Injectable()
-export class GiftService implements IGiftService {
+export class GiftService {
   private token: JWT;
   constructor(
     @Inject(IGIFT_REPOSITORY)

@@ -8,34 +8,28 @@ import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { AppError } from 'src/errors/AppError';
 import { ILog } from 'src/logz/log.entity';
-import {
-  IIMAGE_SERVICE,
-  INOTICE_SERVICE,
-  IPLACE_SERVICE,
-  IUSER_REPOSITORY,
-} from 'src/utils/di.tokens';
+import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../logger';
 import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
-import { IUserService } from './userService.interface';
-import { IImageService } from 'src/imagez/imageService.interface';
 import { C_simpleUser } from 'src/Constants/constants';
-import { IPlaceService } from 'src/place/placeService.interface';
-import { INoticeService } from 'src/notice/noticeService.interface';
+import ImageService from 'src/imagez/image.service';
+import NoticeService from 'src/notice/notice.service';
+import PlaceService from 'src/place/place.service';
 
 @Injectable({ scope: Scope.REQUEST })
-export class UserService implements IUserService {
+export class UserService {
   private token: JWT;
   constructor(
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel('Log') private Log: Model<ILog>,
-    @Inject(INOTICE_SERVICE) private noticeService: INoticeService,
-    @Inject(IPLACE_SERVICE) private placeService: IPlaceService,
-    @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
+    private readonly noticeService: NoticeService,
+    private placeService: PlaceService,
+    private readonly imageServiceInstance: ImageService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

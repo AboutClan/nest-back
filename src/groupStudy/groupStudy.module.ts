@@ -6,16 +6,8 @@ import { GroupStudySchema } from './groupStudy.entity';
 import { UserModule } from 'src/user/user.module';
 import { CounterModule } from 'src/counter/couter.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
-import {
-  IGROUPSTUDY_REPOSITORY,
-  IGROUPSTUDY_SERVICE,
-} from 'src/utils/di.tokens';
+import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoGroupStudyInterface } from './groupStudy.repository';
-
-const groupStudyServiceProvider: ClassProvider = {
-  provide: IGROUPSTUDY_SERVICE,
-  useClass: GroupStudyService,
-};
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
@@ -32,11 +24,7 @@ const groupStudyRepositoryProvider: ClassProvider = {
     ]),
   ],
   controllers: [GroupStudyController],
-  providers: [groupStudyServiceProvider, groupStudyRepositoryProvider],
-  exports: [
-    groupStudyServiceProvider,
-    MongooseModule,
-    groupStudyRepositoryProvider,
-  ],
+  providers: [GroupStudyService, groupStudyRepositoryProvider],
+  exports: [GroupStudyService, MongooseModule, groupStudyRepositoryProvider],
 })
 export class GroupStudyModule {}

@@ -7,11 +7,6 @@ import { secretSquareSchema } from './square.entity';
 import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { MongoSquareRepository } from './square.repository';
 
-const squareServiceProvider: ClassProvider = {
-  provide: ISQUARE_SERVICE,
-  useClass: SquareService,
-};
-
 const squareRepositoryProvider: ClassProvider = {
   provide: ISQUARE_REPOSITORY,
   useClass: MongoSquareRepository,
@@ -24,7 +19,7 @@ const squareRepositoryProvider: ClassProvider = {
     ]),
   ],
   controllers: [SquareController],
-  providers: [squareServiceProvider, ImageService, squareRepositoryProvider],
-  exports: [squareServiceProvider, MongooseModule, squareRepositoryProvider],
+  providers: [SquareService, ImageService, squareRepositoryProvider],
+  exports: [SquareService, MongooseModule, squareRepositoryProvider],
 })
 export class SquareModule {}

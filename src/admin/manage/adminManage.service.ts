@@ -10,19 +10,17 @@ import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/user.entity';
-import { IUserService } from 'src/user/userService.interface';
+import { UserService } from 'src/user/user.service';
 import { strToDate } from 'src/utils/dateUtils';
-import { IUSER_SERVICE, IVOTE_SERVICE } from 'src/utils/di.tokens';
-import { IVoteService } from 'src/vote/voteService.interface';
+import { IVOTE_SERVICE } from 'src/utils/di.tokens';
+import { VoteService } from 'src/vote/vote.service';
 const logger = require('../../logger');
 
 export default class AdminManageService {
   private token: JWT;
   constructor(
-    @Inject(IVOTE_SERVICE)
-    private userServiceInstance: IUserService,
-    @Inject(IUSER_SERVICE)
-    private voteServiceInstance: IVoteService,
+    private readonly userServiceInstance: UserService,
+    private readonly voteServiceInstance: VoteService,
     @InjectModel('User') private User: Model<IUser>,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {

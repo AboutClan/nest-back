@@ -10,10 +10,10 @@ import {
   IUSER_REPOSITORY,
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { ChatRepository } from './chat.repository.interface';
 import { UserRepository } from 'src/user/user.repository.interface';
 import { ChatZodSchema, ContentZodSchema } from './chat.entity';
+import { WebPushService } from 'src/webpush/webpush.service';
 
 @Injectable()
 export class ChatService {
@@ -23,7 +23,7 @@ export class ChatService {
     //repository DI
     @Inject(ICHAT_REPOSITORY)
     private readonly chatRepository: ChatRepository,
-    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
+    private readonly webPushServiceInstance: WebPushService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입

@@ -9,16 +9,14 @@ import {
   Inject,
 } from '@nestjs/common';
 import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
-import { ICollectionService } from './collectionService.interface';
 import { updateCollectionDTO } from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { CollectionService } from './collection.service';
 
 @ApiTags('controller')
 @Controller('collection')
 export class CollectionController {
-  constructor(
-    @Inject(ICOLLECTION_SERVICE) private collectionService: ICollectionService,
-  ) {}
+  constructor(private readonly collectionService: CollectionService) {}
 
   @Get('alphabet')
   async getCollection() {

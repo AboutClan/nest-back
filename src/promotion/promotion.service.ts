@@ -3,22 +3,21 @@ import { REQUEST } from '@nestjs/core';
 import dayjs from 'dayjs';
 import { Request } from 'express';
 import { JWT } from 'next-auth/jwt';
-import { IUserService } from 'src/user/userService.interface';
 import { IPROMOTION_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
-import { IPromotionService } from './promotionService.interface';
 import {
   PROMOTION_EVENT_DOUBLE_POINT,
   PROMOTION_EVENT_POINT,
 } from 'src/Constants/point';
+import { UserService } from 'src/user/user.service';
 
-export default class PromotionService implements IPromotionService {
+export default class PromotionService {
   private token: JWT;
   constructor(
     @Inject(IPROMOTION_REPOSITORY)
     private readonly promotionRepository: PromotionRepository,
-    @Inject(IUSER_SERVICE) private userServiceInstance: IUserService,
+    private readonly userServiceInstance: UserService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

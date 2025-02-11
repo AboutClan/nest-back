@@ -19,14 +19,12 @@ import {
   ParticipateGroupStudyDto,
 } from './dto';
 import { GroupStudyStatus } from './groupStudy.entity';
-import { IGroupStudyService } from './groupStudyService.interface';
+import GroupStudyService from './groupStudy.service';
 
 @ApiTags('groupstudy')
 @Controller('groupStudy')
 export class GroupStudyController {
-  constructor(
-    @Inject(IGROUPSTUDY_SERVICE) private groupStudyService: IGroupStudyService,
-  ) {}
+  constructor(private readonly groupStudyService: GroupStudyService) {}
 
   //todo: groupStudyId정도는 분리하는게 좋아보임
   @Get()

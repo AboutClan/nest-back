@@ -6,12 +6,11 @@ import { AppError } from 'src/errors/AppError';
 import dayjs from 'dayjs';
 import { findOneVote } from 'src/vote/util';
 import { IUser } from 'src/user/user.entity';
-import { IFcmService } from './fcm.interface';
 import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmRepository } from './fcm.repository.interfae';
 
 @Injectable({ scope: Scope.DEFAULT })
-export class FcmService implements IFcmService {
+export class FcmService {
   private payload: any;
   static MongooseModule: any;
 

@@ -10,9 +10,8 @@ import { INOTICE_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from '../logger';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
-import { INoticeService } from './noticeService.interface';
 
-export default class NoticeService implements INoticeService {
+export default class NoticeService {
   private token: JWT;
   constructor(
     @Inject(INOTICE_REPOSITORY)

@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Inject,
-  Patch,
   Post,
   Req,
 } from '@nestjs/common';
@@ -15,11 +14,11 @@ import {
 } from './vote2.dto';
 import { Request } from 'express';
 import { IVOTE2_SERVICE } from 'src/utils/di.tokens';
-import { IVote2Service } from './vote2.service.interface';
+import { Vote2Service } from './vote2.service';
 
 @Controller('vote2')
 export class Vote2Controller {
-  constructor(@Inject(IVOTE2_SERVICE) private voteService2: IVote2Service) {}
+  constructor(private readonly voteService2: Vote2Service) {}
 
   @Get('test')
   async test() {

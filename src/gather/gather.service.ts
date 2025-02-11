@@ -9,33 +9,26 @@ import {
   PARTICIPATE_GATHER_SCORE,
   REMOVE_GAHTER_SCORE,
 } from 'src/Constants/score';
-import { ICounterService } from 'src/counter/counterService.interface';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUserService } from 'src/user/userService.interface';
-import {
-  ICOUNTER_SERVICE,
-  IGATHER_REPOSITORY,
-  IUSER_SERVICE,
-  IWEBPUSH_SERVICE,
-} from 'src/utils/di.tokens';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
+import { IGATHER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { gatherStatus, IGatherData, subCommentType } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
-import { IGatherService } from './gatherService.interface';
+import { CounterService } from 'src/counter/counter.service';
+import { UserService } from 'src/user/user.service';
+import { WebPushService } from 'src/webpush/webpush.service';
 
 @Injectable()
-export class GatherService implements IGatherService {
+export class GatherService {
   private token: JWT;
 
   constructor(
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: GatherRepository,
-    @Inject(IUSER_SERVICE)
-    private readonly userServiceInstance: IUserService,
-    @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
+    private readonly userServiceInstance: UserService,
+    private readonly counterServiceInstance: CounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
+    private readonly webPushServiceInstance: WebPushService,
   ) {
     this.token = this.request.decodedToken;
   }

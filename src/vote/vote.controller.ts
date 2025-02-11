@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Inject,
   Patch,
   Post,
   Query,
@@ -13,14 +12,13 @@ import { CreateVoteDTO } from './dto/createVoteDTO.dto';
 import { UpdateVoteDTO } from './dto/updateVoteDTO.dto';
 import { CreateQuickVoteDTO } from './dto/createQuickVoteDTO.dto';
 import { Request } from 'express';
-import { IVOTE_SERVICE } from 'src/utils/di.tokens';
-import { IVoteService } from './voteService.interface';
 import { ApiTags } from '@nestjs/swagger';
+import { VoteService } from './vote.service';
 
 @ApiTags('vote')
 @Controller('vote')
 export class VoteController {
-  constructor(@Inject(IVOTE_SERVICE) private voteService: IVoteService) {}
+  constructor(private readonly voteService: VoteService) {}
 
   @Get('arrived')
   async getArrivedPeriod(

@@ -7,9 +7,8 @@ import { ILog } from 'src/logz/log.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IStaticService } from './staticService.interface';
 
-export default class StaticService implements IStaticService {
+export default class StaticService {
   private token: JWT;
   constructor(
     @InjectModel('User') private User: Model<IUser>,

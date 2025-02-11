@@ -1,20 +1,19 @@
 import { JWT } from 'next-auth/jwt';
-import { IDailyCheckService } from './dailyCheck.service.interface';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { DailyCheckZodSchema } from './dailycheck.entity';
-import { IDAILYCHECK_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
+import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { DailyCheckRepository } from './dailyCheck.repository.interface';
-import { IUserService } from 'src/user/userService.interface';
 import { DAILY_ATTEND_POINT } from 'src/Constants/point';
+import { UserService } from 'src/user/user.service';
 
-export class DailyCheckService implements IDailyCheckService {
+export class DailyCheckService {
   private token: JWT;
   constructor(
     @Inject(IDAILYCHECK_REPOSITORY)
     private readonly dailyCheckRepository: DailyCheckRepository,
-    @Inject(IUSER_SERVICE) private readonly userService: IUserService,
+    private readonly userService: UserService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
     this.token = this.request.decodedToken;

@@ -1,17 +1,13 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { IPlace, PlaceZodSchema } from './place.entity';
 import { ValidationError } from 'src/errors/ValidationError';
-import { DatabaseError } from 'src/errors/DatabaseError';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IPlaceService } from './placeService.interface';
 import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
 import { PlaceRepository } from './place.repository.interface';
 
-export default class PlaceService implements IPlaceService {
+export default class PlaceService {
   private token: JWT;
   constructor(
     @Inject(IPLACE_REPOSITORY)

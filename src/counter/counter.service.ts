@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { ICounterService } from './counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ICOUNTER_REPOSITORY } from 'src/utils/di.tokens';
 import { CounterRepository } from './counter.repository.interface';
 
 @Injectable()
-export class CounterService implements ICounterService {
+export class CounterService {
   private token;
   constructor(
     @Inject(ICOUNTER_REPOSITORY)

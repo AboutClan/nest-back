@@ -15,11 +15,6 @@ import { RealtimeModule } from 'src/realtime/realtime.module';
 import { CollectionModule } from 'src/collection/collection.module';
 import { IVOTE_SERVICE } from 'src/utils/di.tokens';
 
-const voteServiceProvider: ClassProvider = {
-  provide: IVOTE_SERVICE,
-  useClass: VoteService,
-};
-
 @Module({
   imports: [
     forwardRef(() => UserModule),
@@ -29,8 +24,8 @@ const voteServiceProvider: ClassProvider = {
     CollectionModule,
   ],
   controllers: [VoteController],
-  providers: [voteServiceProvider],
-  exports: [voteServiceProvider, MongooseModule],
+  providers: [VoteService],
+  exports: [VoteService, MongooseModule],
 })
 export class VoteModule {
   configure(consumer: MiddlewareConsumer) {

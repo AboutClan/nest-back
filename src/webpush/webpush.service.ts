@@ -11,11 +11,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IGroupStudyData } from 'src/groupStudy/groupStudy.entity';
 import { IVote } from 'src/vote/vote.entity';
-import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
 import { INotificationSub } from './notificationsub.entity';
-import { AppError } from 'src/errors/AppError';
 import PushNotifications from 'node-pushnotifications';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -26,7 +24,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 @Injectable({ scope: Scope.DEFAULT })
-export class WebPushService implements IWebPushService {
+export class WebPushService {
   private basePayload: Object;
   private settings: any;
 

@@ -5,14 +5,13 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import { ILOG_SERVICE } from 'src/utils/di.tokens';
-import { ILogService } from './logService.interface';
 import { ApiTags } from '@nestjs/swagger';
+import LogService from './log.service';
 
 @ApiTags('log')
 @Controller('log')
 export class LogController {
-  constructor(@Inject(ILOG_SERVICE) private logService: ILogService) {}
+  constructor(private readonly logService: LogService) {}
 
   @Get('score')
   async getScoreLog() {

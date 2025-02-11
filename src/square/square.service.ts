@@ -12,9 +12,8 @@ import {
   subCommentType,
 } from './square.entity';
 import { SquareRepository } from './square.repository.interface';
-import { ISquareService } from './squareService.interface';
 
-export default class SquareService implements ISquareService {
+export default class SquareService {
   private token: JWT;
 
   constructor(
