@@ -13,11 +13,6 @@ import { MongoChatRepository } from './chat.repository';
 import { MongoUserRepository } from 'src/user/user.repository';
 import { ChatSchema } from './chat.entity';
 
-const chatServiceProvider: ClassProvider = {
-  provide: ICHAT_SERVICE,
-  useClass: ChatService,
-};
-
 const chatRepositoryProvider: ClassProvider = {
   provide: ICHAT_REPOSITORY,
   useClass: MongoChatRepository,
@@ -35,11 +30,7 @@ const userRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'Chat', schema: ChatSchema }]),
   ],
   controllers: [ChatContoller],
-  providers: [
-    chatServiceProvider,
-    chatRepositoryProvider,
-    userRepositoryProvider,
-  ],
-  exports: [chatServiceProvider, chatRepositoryProvider, MongooseModule],
+  providers: [ChatService, chatRepositoryProvider, userRepositoryProvider],
+  exports: [chatRepositoryProvider, MongooseModule],
 })
 export class ChatModule {}

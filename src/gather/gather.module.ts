@@ -25,7 +25,6 @@ const gatherRepositoryProvider: ClassProvider = {
     UserModule,
     CounterModule,
     MongooseModule.forFeature([{ name: 'Gather', schema: GatherSchema }]),
-    ChatModule,
     WebPushModule,
   ],
   controllers: [GatherController],

@@ -1,27 +1,18 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Query,
-  Req,
-} from '@nestjs/common';
-import { ICHAT_SERVICE } from 'src/utils/di.tokens';
-import { IChatService } from './chatService.interface';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CreateChatDTO, GetChatDTO } from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { ChatService } from './chat.service';
 
 //todo: user정보 populate 관련 수정
 @ApiTags('chat')
 @Controller('chat')
 export class ChatContoller {
-  constructor(@Inject(ICHAT_SERVICE) private chatService: IChatService) {}
+  constructor(private readonly chatService: ChatService) {}
 
   @Post()
   async createChat(@Body() createChatDTO: CreateChatDTO) {
     const { toUid, message } = createChatDTO;
-    
+
     await this.chatService.createChat(toUid, message);
     return { status: 'success' };
   }

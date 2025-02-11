@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { JWT } from 'next-auth/jwt';
-import { IChatService } from 'src/chatz/chatService.interface';
 import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 import {
   CANCEL_GAHTER_SCORE,
@@ -15,7 +14,6 @@ import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUserService } from 'src/user/userService.interface';
 import {
-  ICHAT_SERVICE,
   ICOUNTER_SERVICE,
   IGATHER_REPOSITORY,
   IUSER_SERVICE,
@@ -35,7 +33,6 @@ export class GatherService implements IGatherService {
     private readonly gatherRepository: GatherRepository,
     @Inject(IUSER_SERVICE)
     private readonly userServiceInstance: IUserService,
-    @Inject(ICHAT_SERVICE) private chatServiceInstance: IChatService,
     @Inject(ICOUNTER_SERVICE) private counterServiceInstance: ICounterService,
     @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
     @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
