@@ -1,13 +1,7 @@
-import {
-  HttpException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
 
 import { IUser } from 'src/user/user.entity';
-import { DatabaseError } from 'src/errors/DatabaseError';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
