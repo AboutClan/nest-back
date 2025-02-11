@@ -22,11 +22,7 @@ import {
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
-import {
-  gatherStatus,
-  IGatherData,
-  subCommentType,
-} from './entity/gather.entity';
+import { gatherStatus, IGatherData, subCommentType } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { IGatherService } from './gatherService.interface';
 

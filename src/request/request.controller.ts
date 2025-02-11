@@ -7,7 +7,7 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import { RequestCategory, RequestLocation } from './entity/request.entity';
+import { RequestCategory, RequestLocation } from './request.entity';
 import { IREQUEST_SERVICE } from 'src/utils/di.tokens';
 import { IRequestService } from './request.interface';
 import { ApiTags } from '@nestjs/swagger';

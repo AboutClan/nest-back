@@ -1,4 +1,4 @@
-import { IPromotion } from './entity/promotion.entity';
+import { IPromotion } from './promotion.entity';
 
 export interface PromotionRepository {
   findAll(): Promise<IPromotion[]>;

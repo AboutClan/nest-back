@@ -7,7 +7,7 @@ import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { AppError } from 'src/errors/AppError';
-import { ILog } from 'src/logz/entity/log.entity';
+import { ILog } from 'src/logz/log.entity';
 import {
   IIMAGE_SERVICE,
   INOTICE_SERVICE,
@@ -15,9 +15,9 @@ import {
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
-import { IVote } from 'src/vote/entity/vote.entity';
+import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../logger';
-import { IUser, restType } from './entity/user.entity';
+import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
 import { IUserService } from './userService.interface';
 import { IImageService } from 'src/imagez/imageService.interface';

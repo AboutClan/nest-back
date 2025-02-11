@@ -9,7 +9,7 @@ import { NoticeModule } from 'src/notice/notice.module';
 import { IUSER_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { MongoUserRepository } from './user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserSchema } from './entity/user.entity';
+import { UserSchema } from './user.entity';
 import { ImageModule } from 'src/imagez/image.module';
 
 const userServiceProvider: ClassProvider = {

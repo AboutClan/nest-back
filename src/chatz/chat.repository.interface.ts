@@ -1,4 +1,4 @@
-import { IChat, IContent } from './entity/chat.entity';
+import { IChat, IContent } from './chat.entity';
 
 export interface ChatRepository {
   find(user1: string, user2: string): Promise<IChat>;

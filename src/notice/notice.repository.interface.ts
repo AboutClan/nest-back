@@ -1,4 +1,4 @@
-import { INotice } from './entity/notice.entity';
+import { INotice } from './notice.entity';
 
 export interface NoticeRepository {
   findActiveLog(uid: string): Promise<INotice[]>;

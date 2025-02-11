@@ -19,7 +19,7 @@ import {
   ParticipateGatherDto,
   SetWaitingPersonDto,
 } from './dto';
-import { gatherStatus } from './entity/gather.entity';
+import { gatherStatus } from './gather.entity';
 import { IGatherService } from './gatherService.interface';
 
 @ApiTags('gather')

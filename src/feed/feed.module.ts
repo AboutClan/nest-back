@@ -2,7 +2,7 @@ import { ClassProvider, Module } from '@nestjs/common';
 import { FeedController } from './feed.controller';
 import { FeedService } from './feed.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { FeedSchema } from './entity/feed.entity';
+import { FeedSchema } from './feed.entity';
 import { UserModule } from 'src/user/user.module';
 import {
   IFEED_REPOSITORY,

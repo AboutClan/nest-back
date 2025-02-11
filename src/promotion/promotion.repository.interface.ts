@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { IPromotion } from './entity/promotion.entity';
+import { IPromotion } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
 import { Model } from 'mongoose';
 

@@ -9,7 +9,7 @@ import {
   PollItem,
   SecretSquareCategory,
   SecretSquareType,
-} from './entity/square.entity';
+} from './square.entity';
 
 export class CreateSquareDto {
   @IsNotEmpty({ message: 'Title is required' })

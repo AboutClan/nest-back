@@ -1,4 +1,4 @@
-import { IRegistered } from './entity/register.entity';
+import { IRegistered } from './register.entity';
 
 export interface IRegisterService {
   encodeByAES56(tel: string): Promise<string>;

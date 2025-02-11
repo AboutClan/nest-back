@@ -10,7 +10,7 @@ import {
   SecretSquareItem,
   SecretSquareZodSchema,
   subCommentType,
-} from './entity/square.entity';
+} from './square.entity';
 import { SquareRepository } from './square.repository.interface';
 import { ISquareService } from './squareService.interface';
 

@@ -7,7 +7,7 @@ import AdminVoteService from 'src/admin/vote/adminVote.service';
 import { GatherRepository } from 'src/gather/gather.repository.interface';
 import { IGatherService } from 'src/gather/gatherService.interface';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import {
   IGATHER_REPOSITORY,
   IGATHER_SERVICE,

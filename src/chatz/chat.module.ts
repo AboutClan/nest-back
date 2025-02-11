@@ -2,7 +2,6 @@ import { ClassProvider, Module } from '@nestjs/common';
 import { ChatContoller } from './chat.controller';
 import { ChatService } from './chat.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ChatSchema } from './entity/chat.entity';
 import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import {
@@ -12,6 +11,7 @@ import {
 } from 'src/utils/di.tokens';
 import { MongoChatRepository } from './chat.repository';
 import { MongoUserRepository } from 'src/user/user.repository';
+import { ChatSchema } from './chat.entity';
 
 const chatServiceProvider: ClassProvider = {
   provide: ICHAT_SERVICE,

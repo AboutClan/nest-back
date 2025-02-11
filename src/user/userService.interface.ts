@@ -1,4 +1,4 @@
-import { IUser } from './entity/user.entity';
+import { IUser } from './user.entity';
 
 export interface IUserService {
   decodeByAES256(encodedTel: string): Promise<string>;

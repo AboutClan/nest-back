@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { NoticeRepository } from './notice.repository.interface';
 import { Model } from 'mongoose';
-import { INotice } from './entity/notice.entity';
+import { INotice } from './notice.entity';
 
 export class MongoNoticeRepository implements NoticeRepository {
   constructor(

@@ -1,4 +1,4 @@
-import { gatherStatus, IGatherData } from './entity/gather.entity';
+import { gatherStatus, IGatherData } from './gather.entity';
 
 export interface IGatherService {
   getGatherById(gatherId: number): Promise<IGatherData | null>;

@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { IPlace } from './entity/place.entity';
+import { IPlace } from './place.entity';
 import { PlaceRepository } from './place.repository.interface';
 import { Model } from 'mongoose';
 

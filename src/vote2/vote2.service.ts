@@ -8,7 +8,7 @@ import { IVote2Repository } from './vote2.repository.interface';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { IParticipation, IResult } from './vote2.entity';
 import { PlaceRepository } from 'src/place/place.repository.interface';
-import { IPlace } from 'src/place/entity/place.entity';
+import { IPlace } from 'src/place/place.entity';
 import { ClusterUtils, coordType } from './ClusterUtils';
 
 export class Vote2Service implements IVote2Service {

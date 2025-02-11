@@ -6,15 +6,15 @@ import {
   Scope,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IGroupStudyData } from 'src/groupStudy/entity/groupStudy.entity';
-import { IVote } from 'src/vote/entity/vote.entity';
+import { IGroupStudyData } from 'src/groupStudy/groupStudy.entity';
+import { IVote } from 'src/vote/vote.entity';
 import { IWebPushService } from './webpushService.interface';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
-import { INotificationSub } from './entity/notificationsub.entity';
+import { INotificationSub } from './notificationsub.entity';
 import { AppError } from 'src/errors/AppError';
 import PushNotifications from 'node-pushnotifications';
 import dayjs from 'dayjs';

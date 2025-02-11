@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { DatabaseError } from '../errors/DatabaseError';
 import { Model } from 'mongoose';
-import { IRequestData } from './entity/request.entity';
+import { IRequestData } from './request.entity';
 import { IRequestService } from './request.interface';
 import { IREQUEST_REPOSITORY } from 'src/utils/di.tokens';
 import { RequestRepository } from './request.repository.interface';

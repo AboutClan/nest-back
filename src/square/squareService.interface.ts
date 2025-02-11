@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { SecretSquareCategory, SecretSquareItem } from './entity/square.entity';
+import { SecretSquareCategory, SecretSquareItem } from './square.entity';
 
 export interface ISquareService {
   getSquareList(params: {

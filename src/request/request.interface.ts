@@ -1,4 +1,4 @@
-import { IRequestData } from './entity/request.entity';
+import { IRequestData } from './request.entity';
 
 export interface IRequestService {
   getRequest(): Promise<IRequestData[]>;

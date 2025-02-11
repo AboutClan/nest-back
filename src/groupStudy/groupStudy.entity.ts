@@ -1,6 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/Constants/constants';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
 // UserRole enum

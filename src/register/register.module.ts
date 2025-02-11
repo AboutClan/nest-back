@@ -2,7 +2,7 @@ import { ClassProvider, Module } from '@nestjs/common';
 import { RegisterController } from './register.controller';
 import RegisterService from './register.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RegisteredSchema } from './entity/register.entity';
+import { RegisteredSchema } from './register.entity';
 import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import { IREGISTER_REPOSITORY, IREGISTER_SERVICE } from 'src/utils/di.tokens';

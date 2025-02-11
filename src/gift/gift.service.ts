@@ -2,7 +2,7 @@ import { JWT } from 'next-auth/jwt';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IStoreApplicant, StoreZodSchema } from './entity/gift.entity';
+import { IStoreApplicant, StoreZodSchema } from './gift.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IGiftService } from './giftService.interface';

@@ -9,7 +9,7 @@ import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { IUserService } from 'src/user/userService.interface';
 import { strToDate } from 'src/utils/dateUtils';
 import { IUSER_SERVICE, IVOTE_SERVICE } from 'src/utils/di.tokens';

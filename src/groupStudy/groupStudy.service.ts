@@ -8,7 +8,7 @@ import { JWT } from 'next-auth/jwt';
 import { GROUP_WEEKLY_PARTICIPATE_POINT } from 'src/Constants/point';
 import { ICounterService } from 'src/counter/counterService.interface';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { IUserService } from 'src/user/userService.interface';
 import {
   ICOUNTER_SERVICE,
@@ -17,7 +17,7 @@ import {
   IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
 import { IWebPushService } from 'src/webpush/webpushService.interface';
-import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
+import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { IGroupStudyService } from './groupStudyService.interface';
 //test

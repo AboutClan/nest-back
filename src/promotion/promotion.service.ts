@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { JWT } from 'next-auth/jwt';
 import { IUserService } from 'src/user/userService.interface';
 import { IPROMOTION_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
-import { PromotionZodSchema } from './entity/promotion.entity';
+import { PromotionZodSchema } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
 import { IPromotionService } from './promotionService.interface';
 import {

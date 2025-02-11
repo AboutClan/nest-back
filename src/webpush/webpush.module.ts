@@ -7,7 +7,7 @@ import { VoteModule } from 'src/vote/vote.module';
 import { IWEBPUSH_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { MongoWebpushRepository } from './webpush.repository';
 import { MongooseModule } from '@nestjs/mongoose';
-import { NotificationSubSchema } from './entity/notificationsub.entity';
+import { NotificationSubSchema } from './notificationsub.entity';
 
 const webPushServiceProvider: ClassProvider = {
   provide: IWEBPUSH_SERVICE,

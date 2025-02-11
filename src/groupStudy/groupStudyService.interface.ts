@@ -1,4 +1,4 @@
-import { IGroupStudyData } from './entity/groupStudy.entity';
+import { IGroupStudyData } from './groupStudy.entity';
 
 export interface IGroupStudyService {
   getStatusGroupStudy(cursor: number, status: string);

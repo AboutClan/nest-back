@@ -6,8 +6,8 @@ import mongoose, {
   Document,
   InferSchemaType,
 } from 'mongoose';
-import { IPlace } from 'src/place/entity/place.entity';
-import { IUser } from 'src/user/entity/user.entity';
+import { IPlace } from 'src/place/place.entity';
+import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
 const TimeStartToEndHMZodSchema = z.object({

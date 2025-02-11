@@ -2,7 +2,7 @@ import { ClassProvider, forwardRef, Module } from '@nestjs/common';
 import { GroupStudyController } from './groupStudy.controller';
 import GroupStudyService from './groupStudy.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GroupStudySchema } from './entity/groupStudy.entity';
+import { GroupStudySchema } from './groupStudy.entity';
 import { UserModule } from 'src/user/user.module';
 import { CounterModule } from 'src/counter/couter.module';
 import { WebPushModule } from 'src/webpush/webpush.module';

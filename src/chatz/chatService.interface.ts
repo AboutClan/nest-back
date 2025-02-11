@@ -1,4 +1,4 @@
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 
 export interface IChatContent {
   content: string;

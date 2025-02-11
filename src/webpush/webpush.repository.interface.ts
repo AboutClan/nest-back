@@ -1,4 +1,4 @@
-import { INotificationSub } from './entity/notificationsub.entity';
+import { INotificationSub } from './notificationsub.entity';
 
 export interface WebpushRepository {
   enrollSubscribe(

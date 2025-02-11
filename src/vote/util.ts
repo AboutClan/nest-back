@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Vote } from './entity/vote.entity';
+import { Vote } from './vote.entity';
 
 export const findOneVote = async (date: Date) =>
   await Vote.findOne({ date }).populate([

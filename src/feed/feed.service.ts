@@ -6,13 +6,9 @@ import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import ImageService from 'src/imagez/image.service';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { IFEED_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
-import {
-  commentType,
-  FeedZodSchema,
-  subCommentType,
-} from './entity/feed.entity';
+import { commentType, FeedZodSchema, subCommentType } from './feed.entity';
 import { FeedRepository } from './feed.repository.interface';
 import { IFeedService } from './feedService.interface';
 import { IUserService } from 'src/user/userService.interface';

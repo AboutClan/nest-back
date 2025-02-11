@@ -5,10 +5,10 @@ import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { INOTICE_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from '../logger';
-import { INotice, NoticeZodSchema } from './entity/notice.entity';
+import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
 import { INoticeService } from './noticeService.interface';
 

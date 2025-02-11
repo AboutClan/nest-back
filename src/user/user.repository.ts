@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IUser } from './entity/user.entity';
+import { IUser } from './user.entity';
 import { UserRepository } from './user.repository.interface';
 
 export class MongoUserRepository implements UserRepository {

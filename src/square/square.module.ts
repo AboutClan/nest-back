@@ -3,7 +3,7 @@ import { SquareController } from './square.controller';
 import SquareService from './square.service';
 import ImageService from 'src/imagez/image.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { secretSquareSchema } from './entity/square.entity';
+import { secretSquareSchema } from './square.entity';
 import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { MongoSquareRepository } from './square.repository';
 

@@ -1,4 +1,4 @@
-import { IFeed } from './entity/feed.entity';
+import { IFeed } from './feed.entity';
 
 export interface IFeedService {
   findFeedByType(

@@ -1,7 +1,7 @@
 import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
-import { ChatZodSchema, ContentZodSchema } from './entity/chat.entity';
-import { IUser } from 'src/user/entity/user.entity';
+
+import { IUser } from 'src/user/user.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
@@ -14,6 +14,7 @@ import { IWebPushService } from 'src/webpush/webpushService.interface';
 import { IChatService } from './chatService.interface';
 import { ChatRepository } from './chat.repository.interface';
 import { UserRepository } from 'src/user/user.repository.interface';
+import { ChatZodSchema, ContentZodSchema } from './chat.entity';
 
 @Injectable()
 export class ChatService implements IChatService {

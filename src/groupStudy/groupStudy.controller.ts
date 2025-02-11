@@ -18,7 +18,7 @@ import {
   CreateGroupStudyDto,
   ParticipateGroupStudyDto,
 } from './dto';
-import { GroupStudyStatus } from './entity/groupStudy.entity';
+import { GroupStudyStatus } from './groupStudy.entity';
 import { IGroupStudyService } from './groupStudyService.interface';
 
 @ApiTags('groupstudy')

@@ -1,4 +1,4 @@
-import { ICollection } from './entity/collection.entity';
+import { ICollection } from './collection.entity';
 
 export interface CollectionRepository {
   findByUser(id: string): Promise<ICollection>;

@@ -1,7 +1,7 @@
 import { ClassProvider, Module } from '@nestjs/common';
 import { RequestController } from './request.controller';
 import RequestService from './request.service';
-import { RequestSchema } from './entity/request.entity';
+import { RequestSchema } from './request.entity';
 import { MongooseModule } from '@nestjs/mongoose';
 import { IREQUEST_REPOSITORY, IREQUEST_SERVICE } from 'src/utils/di.tokens';
 import { MongoRequestRepository } from './request.repository';

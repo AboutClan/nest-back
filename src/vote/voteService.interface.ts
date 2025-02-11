@@ -1,4 +1,4 @@
-import { IVote, IVoteStudyInfo } from './entity/vote.entity';
+import { IVote, IVoteStudyInfo } from './vote.entity';
 
 export interface IVoteService {
   findOneVote(date: Date): Promise<IVote | null>;
