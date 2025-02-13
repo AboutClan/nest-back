@@ -147,7 +147,7 @@ export class GatherService {
 
     const id = userId ?? this.token.id;
 
-    await this.gatherRepository.participate(gatherId, userId, phase);
+    await this.gatherRepository.participate(gatherId, id, phase);
 
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
