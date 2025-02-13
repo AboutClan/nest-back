@@ -296,7 +296,7 @@ export class FeedService {
   }
 
   async findMyFeed(feedType: 'gather' | 'group') {
-    const feed = await this.feedRepository.findMyFeed(feedType, this.token.id);
+    return await this.feedRepository.findMyFeed(feedType, this.token.id);
   }
   async findRecievedFeed(feedType: 'gather' | 'group') {
     let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
