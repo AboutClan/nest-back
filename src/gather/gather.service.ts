@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { JWT } from 'next-auth/jwt';
@@ -12,7 +12,12 @@ import {
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IGATHER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
-import { gatherStatus, IGatherData, subCommentType } from './gather.entity';
+import {
+  gatherStatus,
+  IGatherData,
+  ParticipantsZodSchema,
+  subCommentType,
+} from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { CounterService } from 'src/counter/counter.service';
 import { UserService } from 'src/user/user.service';
@@ -147,7 +152,15 @@ export class GatherService {
 
     const id = userId ?? this.token.id;
 
-    await this.gatherRepository.participate(gatherId, id, phase);
+    try {
+      const validatedParticipate = ParticipantsZodSchema.parse({
+        user: userId,
+        phase,
+      });
+      await this.gatherRepository.participate(gatherId, validatedParticipate);
+    } catch (err) {
+      throw new BadRequestException('Invalid participate data');
+    }
 
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
@@ -231,7 +244,14 @@ export class GatherService {
         throw new AppError('ticket이 부족합니다.', 500);
       }
       if (status === 'agree') {
-        await this.gatherRepository.participate(parseInt(id), userId, 'first');
+        const validatedParticipate = ParticipantsZodSchema.parse({
+          user: userId,
+          phase: 'first',
+        });
+        await this.gatherRepository.participate(
+          parseInt(id),
+          validatedParticipate,
+        );
         await this.userServiceInstance.updateReduceTicket('gather', userId);
         message = '모임 신청이 승인되었습니다.';
       }
