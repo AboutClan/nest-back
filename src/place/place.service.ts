@@ -6,16 +6,13 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
 import { PlaceRepository } from './place.repository.interface';
+import { RequestContext } from 'src/request-context';
 
 export default class PlaceService {
-  private token: JWT;
   constructor(
     @Inject(IPLACE_REPOSITORY)
     private readonly placeRepository: PlaceRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
   async getActivePlace(status: 'active' | 'inactive') {
     try {
       const places = await this.placeRepository.findByStatus(status);
@@ -27,6 +24,7 @@ export default class PlaceService {
 
   async addPlace(placeData: IPlace) {
     try {
+      const token = RequestContext.getDecodedToken();
       const {
         status,
         fullname,
@@ -47,7 +45,7 @@ export default class PlaceService {
       if (!time) placeData.time = 'unknown';
       if (!registerDate) placeData.registerDate = new Date().toString();
       placeData.status = 'inactive';
-      placeData.registrant = this.token.id as string;
+      placeData.registrant = token.id as string;
 
       if (
         !fullname ||

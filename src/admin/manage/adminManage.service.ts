@@ -17,15 +17,11 @@ import { VoteService } from 'src/vote/vote.service';
 const logger = require('../../logger');
 
 export default class AdminManageService {
-  private token: JWT;
   constructor(
     private readonly userServiceInstance: UserService,
     private readonly voteServiceInstance: VoteService,
     @InjectModel('User') private User: Model<IUser>,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async absenceManage() {
     const date = strToDate(dayjs().format('YYYY-MM-DD').toString());

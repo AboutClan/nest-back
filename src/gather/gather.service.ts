@@ -1,7 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { JWT } from 'next-auth/jwt';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 import {
   CANCEL_GAHTER_SCORE,
@@ -11,27 +8,28 @@ import {
 } from 'src/Constants/score';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IGATHER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
-import { gatherStatus, IGatherData, subCommentType } from './gather.entity';
+import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
+import {
+  gatherStatus,
+  IGatherData,
+  ParticipantsZodSchema,
+  subCommentType,
+} from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { CounterService } from 'src/counter/counter.service';
 import { UserService } from 'src/user/user.service';
 import { WebPushService } from 'src/webpush/webpush.service';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class GatherService {
-  private token: JWT;
-
   constructor(
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: GatherRepository,
     private readonly userServiceInstance: UserService,
     private readonly counterServiceInstance: CounterService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
     private readonly webPushServiceInstance: WebPushService,
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
   }
@@ -70,11 +68,13 @@ export class GatherService {
   }
 
   async getMyOpenGather(cursor: number | null) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
     let gatherData = await this.gatherRepository.findMyStatusGather(
-      this.token.id,
+      token.id,
       'open',
       start,
       gap,
@@ -84,11 +84,13 @@ export class GatherService {
   }
 
   async getMyFinishGather(cursor: number | null) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
     let gatherData = await this.gatherRepository.findMyStatusGather(
-      this.token.id,
+      token.id,
       'finish',
       start,
       gap,
@@ -98,11 +100,13 @@ export class GatherService {
   }
 
   async getMyGather(cursor: number | null) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
     let gatherData = await this.gatherRepository.findMyGather(
-      this.token.id,
+      token.id,
       start,
       gap,
     );
@@ -113,12 +117,14 @@ export class GatherService {
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
   async createGather(data: Partial<IGatherData>) {
+    const token = RequestContext.getDecodedToken();
+
     const nextId =
       await this.counterServiceInstance.getNextSequence('counterid');
 
     const gatherInfo = {
       ...data,
-      user: this.token.id,
+      user: token.id,
       id: nextId,
     };
 
@@ -141,13 +147,23 @@ export class GatherService {
   }
 
   async participateGather(gatherId: number, phase: string, userId: string) {
+    const token = RequestContext.getDecodedToken();
+
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId.toString());
     if (!gather) throw new Error();
 
-    const id = userId ?? this.token.id;
+    const id = userId ?? token.id;
 
-    await this.gatherRepository.participate(gatherId, userId, phase);
+    try {
+      const validatedParticipate = ParticipantsZodSchema.parse({
+        user: id,
+        phase,
+      });
+      await this.gatherRepository.participate(gatherId, validatedParticipate);
+    } catch (err) {
+      throw new BadRequestException('Invalid participate data');
+    }
 
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
@@ -169,14 +185,15 @@ export class GatherService {
   }
 
   async deleteParticipate(gatherId: number) {
-    await this.gatherRepository.deleteParticipants(gatherId, this.token.id);
+    const token = RequestContext.getDecodedToken();
+    await this.gatherRepository.deleteParticipants(gatherId, token.id);
 
     await this.userServiceInstance.updateScore(
       CANCEL_GAHTER_SCORE,
       '번개 모임 참여 취소',
     );
 
-    await this.userServiceInstance.updateAddTicket('gather', this.token.id);
+    await this.userServiceInstance.updateAddTicket('gather', token.id);
     return;
   }
 
@@ -188,11 +205,13 @@ export class GatherService {
     return;
   }
   async setWaitingPerson(id: string, phase: 'first' | 'second') {
+    const token = RequestContext.getDecodedToken();
+
     const gather = await this.gatherRepository.findById(id);
     if (!gather) throw new Error();
 
     try {
-      const user = { user: this.token.id, phase };
+      const user = { user: token.id, phase };
       if (gather?.waiting) {
         if (gather.waiting.includes(user)) {
           return;
@@ -231,7 +250,14 @@ export class GatherService {
         throw new AppError('ticket이 부족합니다.', 500);
       }
       if (status === 'agree') {
-        await this.gatherRepository.participate(parseInt(id), userId, 'first');
+        const validatedParticipate = ParticipantsZodSchema.parse({
+          user: userId,
+          phase: 'first',
+        });
+        await this.gatherRepository.participate(
+          parseInt(id),
+          validatedParticipate,
+        );
         await this.userServiceInstance.updateReduceTicket('gather', userId);
         message = '모임 신청이 승인되었습니다.';
       }
@@ -243,8 +269,9 @@ export class GatherService {
   }
 
   async createSubComment(gatherId: string, commentId: string, content: string) {
+    const token = RequestContext.getDecodedToken();
     const message: subCommentType = {
-      user: this.token.id,
+      user: token.id,
       comment: content,
     };
 
@@ -284,7 +311,8 @@ export class GatherService {
 
   //수정필요
   async createComment(gatherId: string, comment: string) {
-    await this.gatherRepository.createComment(gatherId, this.token.id, comment);
+    const token = RequestContext.getDecodedToken();
+    await this.gatherRepository.createComment(gatherId, token.id, comment);
 
     return;
   }
@@ -298,15 +326,18 @@ export class GatherService {
 
   //수정필요
   async patchComment(gatherId: string, commentId: string, comment: string) {
+    console.log(gatherId, commentId, comment);
     await this.gatherRepository.updateComment(gatherId, commentId, comment);
     return;
   }
 
   async createCommentLike(gatherId: number, commentId: string) {
+    const token = RequestContext.getDecodedToken();
+
     const gather = await this.gatherRepository.createCommentLike(
       gatherId,
       commentId,
-      this.token.id,
+      token.id,
     );
 
     if (!gather) {
@@ -319,11 +350,13 @@ export class GatherService {
     commentId: string,
     subCommentId: string,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     const gather = await this.gatherRepository.createSubCommentLike(
       gatherId,
       commentId,
       subCommentId,
-      this.token.id,
+      token.id,
     );
 
     if (!gather) {

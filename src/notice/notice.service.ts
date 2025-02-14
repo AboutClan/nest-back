@@ -10,33 +10,33 @@ import { INOTICE_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from '../logger';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
+import { RequestContext } from 'src/request-context';
 
 export default class NoticeService {
-  private token: JWT;
   constructor(
     @Inject(INOTICE_REPOSITORY)
     private readonly noticeRepository: NoticeRepository,
     @InjectModel('User') private User: Model<IUser>,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async createNotice(noticeData: Partial<INotice>) {
     await this.noticeRepository.createNotice(noticeData);
   }
 
   async findActiveLog() {
-    const result = await this.noticeRepository.findActiveLog(this.token.uid);
+    const token = RequestContext.getDecodedToken();
+    const result = await this.noticeRepository.findActiveLog(token.uid);
     return result;
   }
   async getActiveLog() {
+    const token = RequestContext.getDecodedToken();
+
     logger.logger.info('hello', {
       type: 'point',
       value: 2,
     });
 
-    const result = await this.noticeRepository.findActiveLog(this.token.uid);
+    const result = await this.noticeRepository.findActiveLog(token.uid);
     return result;
   }
 
@@ -49,9 +49,10 @@ export default class NoticeService {
   }
 
   async setLike(to: string, message: string) {
+    const token = RequestContext.getDecodedToken();
     try {
       const validatedNotice = NoticeZodSchema.parse({
-        from: this.token.uid,
+        from: token.uid,
         to,
         message,
       });
@@ -73,7 +74,8 @@ export default class NoticeService {
   }
 
   async getLike() {
-    const result = await this.noticeRepository.findLike(this.token.uid);
+    const token = RequestContext.getDecodedToken();
+    const result = await this.noticeRepository.findLike(token.uid);
     return result;
   }
   async getLikeAll() {
@@ -82,7 +84,8 @@ export default class NoticeService {
   }
 
   async getFriendRequest() {
-    const result = await this.noticeRepository.findFriend(this.token.uid);
+    const token = RequestContext.getDecodedToken();
+    const result = await this.noticeRepository.findFriend(token.uid);
     return result;
   }
 
@@ -93,8 +96,10 @@ export default class NoticeService {
     sub?: string,
   ) {
     try {
+      const token = RequestContext.getDecodedToken();
+
       await this.noticeRepository.createNotice({
-        from: this.token.uid,
+        from: token.uid,
         to: toUid,
         type,
         status: 'pending',
@@ -112,8 +117,10 @@ export default class NoticeService {
     from: string,
     status: string,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     await this.noticeRepository.updateRecentStatus(
-      this.token.uid,
+      token.uid,
       from,
       type,
       status,

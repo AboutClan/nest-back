@@ -14,9 +14,9 @@ import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { CounterService } from 'src/counter/counter.service';
 import { UserService } from 'src/user/user.service';
 import { WebPushService } from 'src/webpush/webpush.service';
+import { RequestContext } from 'src/request-context';
 //test
 export default class GroupStudyService {
-  private token: JWT;
   constructor(
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
@@ -24,10 +24,7 @@ export default class GroupStudyService {
     @InjectModel('User') private User: Model<IUser>,
     private webPushServiceInstance: WebPushService,
     private readonly counterServiceInstance: CounterService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
       case 'isParticipating':
@@ -42,11 +39,13 @@ export default class GroupStudyService {
   }
 
   async getMyOpenGroupStudy(cursor: number | null) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
     let gatherData = await this.groupStudyRepository.findMyStatusGroupStudy(
-      this.token.id,
+      token.id,
       'open',
       start,
       gap,
@@ -56,11 +55,13 @@ export default class GroupStudyService {
   }
 
   async getMyFinishGroupStudy(cursor: number | null) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
     let gatherData = await this.groupStudyRepository.findMyStatusGroupStudy(
-      this.token.id,
+      token.id,
       'finish',
       start,
       gap,
@@ -70,11 +71,13 @@ export default class GroupStudyService {
   }
 
   async getMyGroupStudy(cursor: number | null) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
     let gatherData = await this.groupStudyRepository.findMyGroupStudy(
-      this.token.id,
+      token.id,
       start,
       gap,
     );
@@ -176,8 +179,9 @@ export default class GroupStudyService {
   }
 
   async getSigningGroupByStatus(status: string) {
+    const token = RequestContext.getDecodedToken();
     return await this.groupStudyRepository.getSigningGroupByStatus(
-      this.token.id,
+      token.id,
       status,
     );
   }
@@ -228,8 +232,9 @@ export default class GroupStudyService {
   }
 
   async getUserParticipatingGroupStudy() {
+    const token = RequestContext.getDecodedToken();
     const userParticipatingGroupStudy =
-      await this.groupStudyRepository.findByParticipant(this.token.id);
+      await this.groupStudyRepository.findByParticipant(token.id);
 
     return userParticipatingGroupStudy;
   }
@@ -251,8 +256,10 @@ export default class GroupStudyService {
     commentId: string,
     content: string,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     const message: subCommentType = {
-      user: this.token.id,
+      user: token.id,
       comment: content,
     };
 
@@ -295,6 +302,8 @@ export default class GroupStudyService {
   }
 
   async createGroupStudy(data: IGroupStudyData) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const nextId =
         await this.counterServiceInstance.getNextSequence('groupStudyId');
@@ -313,7 +322,7 @@ export default class GroupStudyService {
           lastWeek: [],
           thisWeek: [],
         },
-        organizer: this.token.id,
+        organizer: token.id,
         id: nextId as number,
       };
 
@@ -343,34 +352,31 @@ export default class GroupStudyService {
   //todo: 테스트 필요
   //todo: 수정도 필요
   async participateGroupStudy(id: string) {
+    const token = RequestContext.getDecodedToken();
+
     const groupStudy = await this.groupStudyRepository.findById(id);
 
     if (!groupStudy) throw new Error();
 
     if (
       !groupStudy.participants.some(
-        (participant) => participant.user == this.token.id,
+        (participant) => participant.user == token.id,
       )
     ) {
       await this.groupStudyRepository.addParticipantWithAttendance(
         id,
-        this.token.id,
-        this.token.name,
-        this.token.uid,
+        token.id,
+        token.name,
+        token.uid,
       );
     }
 
     //ticket 차감 로직
-    const ticketInfo = await this.userServiceInstance.getTicketInfo(
-      this.token.id,
-    );
+    const ticketInfo = await this.userServiceInstance.getTicketInfo(token.id);
 
     if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
 
-    await this.userServiceInstance.updateReduceTicket(
-      'groupOffline',
-      this.token.id,
-    );
+    await this.userServiceInstance.updateReduceTicket('groupOffline', token.id);
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
@@ -380,21 +386,23 @@ export default class GroupStudyService {
 
     return;
   }
+
   async deleteParticipate(id: string) {
+    const token = RequestContext.getDecodedToken();
     const groupStudy = await this.groupStudyRepository.findById(id);
 
     if (!groupStudy) throw new Error();
 
     try {
       groupStudy.participants = groupStudy.participants.filter(
-        (participant) => participant.user != this.token.id,
+        (participant) => participant.user != token.id,
       );
 
       groupStudy.attendance.lastWeek = groupStudy.attendance.lastWeek.filter(
-        (who) => who.uid !== this.token.uid + '',
+        (who) => who.uid !== token.uid + '',
       );
       groupStudy.attendance.thisWeek = groupStudy.attendance.thisWeek.filter(
-        (who) => who.uid !== this.token.uid + '',
+        (who) => who.uid !== token.uid + '',
       );
       await groupStudy.save();
     } catch (err) {
@@ -437,11 +445,13 @@ export default class GroupStudyService {
   }
 
   async setWaitingPerson(id: string, pointType: string, answer?: string) {
+    const token = RequestContext.getDecodedToken();
+
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
     try {
-      const user = { user: this.token.id, answer, pointType };
+      const user = { user: token.id, answer, pointType };
       if (groupStudy?.waiting) {
         if (groupStudy.waiting.includes(user)) {
           return;
@@ -535,6 +545,8 @@ export default class GroupStudyService {
     type: string,
     weekRecordSub?: string[],
   ) {
+    const token = RequestContext.getDecodedToken();
+
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
@@ -552,9 +564,9 @@ export default class GroupStudyService {
           ? groupStudy.attendance.thisWeek
           : groupStudy.attendance.lastWeek;
 
-      const findUser = weekData.find((who) => who.uid === this.token.uid + '');
+      const findUser = weekData.find((who) => who.uid === token.uid + '');
       const findMember = groupStudy.participants.find(
-        (who) => who.user.toString() === (this.token.id as string),
+        (who) => who.user.toString() === (token.id as string),
       );
 
       if (findUser) {
@@ -566,8 +578,8 @@ export default class GroupStudyService {
         findUser.attendRecordSub = weekRecordSub;
       } else {
         const data = {
-          name: this.token.name as string,
-          uid: this.token.uid as string,
+          name: token.name as string,
+          uid: token.uid as string,
           attendRecord: weekRecord,
           attendRecordSub: weekRecordSub,
         };
@@ -589,18 +601,20 @@ export default class GroupStudyService {
   }
 
   async createComment(groupStudyId: string, comment: string) {
+    const token = RequestContext.getDecodedToken();
+
     const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
     if (groupStudy?.comments) {
       groupStudy.comments.push({
-        user: this.token.id,
+        user: token.id,
         comment,
       });
     } else {
       groupStudy.comments = [
         {
-          user: this.token.id,
+          user: token.id,
           comment,
         },
       ];
@@ -635,10 +649,12 @@ export default class GroupStudyService {
   }
 
   async createCommentLike(groupStudyId: number, commentId: string) {
+    const token = RequestContext.getDecodedToken();
+
     const feed = await this.groupStudyRepository.createCommentLike(
       groupStudyId,
       commentId,
-      this.token.id,
+      token.id,
     );
 
     if (!feed) {
@@ -651,11 +667,13 @@ export default class GroupStudyService {
     commentId: string,
     subCommentId: string,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     const groupStudy = await this.groupStudyRepository.createSubCommentLike(
       groupStudyId,
       commentId,
       subCommentId,
-      this.token.id,
+      token.id,
     );
 
     if (!groupStudy) {

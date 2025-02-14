@@ -1,5 +1,5 @@
 import { UpdateWriteOpResult } from 'mongoose';
-import { IGatherData, subCommentType } from './gather.entity';
+import { IGatherData, participantsType, subCommentType } from './gather.entity';
 
 export interface GatherRepository {
   findById(gatherId: string): Promise<IGatherData>;
@@ -61,6 +61,6 @@ export interface GatherRepository {
     gap: number,
   );
   findMyGather(userId: string, start: number, gap: number);
-  participate(gatherId: number, userId: string, phase: string);
+  participate(gatherId: number, participateData: participantsType);
   findMyGatherId(userId: string);
 }

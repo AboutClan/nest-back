@@ -7,22 +7,19 @@ import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { DailyCheckRepository } from './dailyCheck.repository.interface';
 import { DAILY_ATTEND_POINT } from 'src/Constants/point';
 import { UserService } from 'src/user/user.service';
+import { RequestContext } from 'src/request-context';
 
 export class DailyCheckService {
-  private token: JWT;
   constructor(
     @Inject(IDAILYCHECK_REPOSITORY)
     private readonly dailyCheckRepository: DailyCheckRepository,
     private readonly userService: UserService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async setDailyCheck() {
-    const findDailyCheck = await this.dailyCheckRepository.findByUid(
-      this.token.uid,
-    );
+    const token = RequestContext.getDecodedToken();
+
+    const findDailyCheck = await this.dailyCheckRepository.findByUid(token.uid);
 
     if (findDailyCheck?.updatedAt) {
       const today = new Date();
@@ -36,8 +33,8 @@ export class DailyCheckService {
     }
 
     const validatedDailyCheck = DailyCheckZodSchema.parse({
-      uid: this.token.uid,
-      name: this.token.name,
+      uid: token.uid,
+      name: token.name,
     });
 
     await this.dailyCheckRepository.createDailyCheck(validatedDailyCheck);
@@ -47,7 +44,9 @@ export class DailyCheckService {
   }
 
   async getLog() {
-    return await this.dailyCheckRepository.findByUid(this.token.uid);
+    const token = RequestContext.getDecodedToken();
+
+    return await this.dailyCheckRepository.findByUid(token.uid);
   }
   async getAllLog() {
     return await this.dailyCheckRepository.findAll();

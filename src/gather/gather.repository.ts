@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
-import { IGatherData, subCommentType } from './gather.entity';
+import { IGatherData, participantsType, subCommentType } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 
 export class MongoGatherRepository implements GatherRepository {
@@ -208,7 +208,7 @@ export class MongoGatherRepository implements GatherRepository {
     comment: string,
   ): Promise<null> {
     await this.Gather.updateOne(
-      { _id: gatherId, 'comments._id': commentId },
+      { id: gatherId, 'comments._id': commentId },
       { $set: { 'comments.$.comment': comment } },
     );
 
@@ -299,18 +299,15 @@ export class MongoGatherRepository implements GatherRepository {
     );
   }
 
-  async participate(gatherId: number, userId: string, phase: string) {
+  async participate(gatherId: number, participateData: participantsType) {
     await this.Gather.updateOne(
       {
         id: gatherId,
-        'participants.user': { $ne: userId },
+        'participants.user': { $ne: participateData.user },
       },
       {
         $push: {
-          participants: {
-            user: userId,
-            phase,
-          },
+          participants: participateData,
         },
       },
     );

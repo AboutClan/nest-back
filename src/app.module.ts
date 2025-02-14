@@ -31,7 +31,7 @@ import { BookModule } from './book/book.module';
 import { FeedModule } from './feed/feed.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
-import { RequestContextInterceptor } from './request-context.intercepter';
+// import { RequestContextInterceptor } from './request-context.intercepter';
 import { CollectionModule } from './collection/collection.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { AdminCounterModule } from './admin/counter/adminCounter.module';
@@ -45,6 +45,7 @@ import { DailyCheckModule } from './dailycheck/dailyCheck.module';
 import { Vote2Module } from './vote2/vote2.module';
 import { PaymentModule } from './payment/payment.module';
 import { LoggingMiddleware } from './middlewares/loggingMiddleware';
+import { AsyncContextInterceptor } from './async-context.interceptor';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -105,7 +106,7 @@ const corsOptions = {
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: AuthGuard },
-    { provide: APP_INTERCEPTOR, useClass: RequestContextInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: AsyncContextInterceptor },
     NotificationScheduler,
   ],
 })

@@ -12,18 +12,14 @@ import {
   subCommentType,
 } from './square.entity';
 import { SquareRepository } from './square.repository.interface';
+import { RequestContext } from 'src/request-context';
 
 export default class SquareService {
-  private token: JWT;
-
   constructor(
     @Inject(ISQUARE_REPOSITORY)
     private readonly squareRepository: SquareRepository,
     private readonly imageServiceInstance: ImageService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async getSquareList({
     category,
@@ -45,6 +41,8 @@ export default class SquareService {
   async createSquare(
     square: Partial<SecretSquareItem> & { buffers: Buffer[] },
   ) {
+    const token = RequestContext.getDecodedToken();
+
     const {
       category,
       title,
@@ -62,7 +60,7 @@ export default class SquareService {
       );
     }
 
-    const author = this.token.id;
+    const author = token.id;
 
     const validatedSquare =
       squareType === 'poll'
@@ -94,7 +92,8 @@ export default class SquareService {
   }
 
   async getSquare(squareId: string) {
-    await this.squareRepository.findByIdAndUpdate(squareId, this.token.id);
+    const token = RequestContext.getDecodedToken();
+    await this.squareRepository.findByIdAndUpdate(squareId, token.id);
 
     const secretSquare = await this.squareRepository.findById(squareId);
 
@@ -113,7 +112,8 @@ export default class SquareService {
     comment: string;
     squareId: string;
   }) {
-    await this.squareRepository.updateComment(squareId, this.token.id, comment);
+    const token = RequestContext.getDecodedToken();
+    await this.squareRepository.updateComment(squareId, token.id, comment);
   }
 
   async deleteSquareComment({
@@ -127,9 +127,10 @@ export default class SquareService {
   }
 
   async createSubComment(squareId: string, commentId: string, content: string) {
+    const token = RequestContext.getDecodedToken();
     try {
       const message: subCommentType = {
-        user: this.token.id,
+        user: token.id,
         comment: content,
       };
       await this.squareRepository.createSubComment(
@@ -180,11 +181,13 @@ export default class SquareService {
   }
 
   async createCommentLike(squareId: string, commentId: string) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const feed = await this.squareRepository.createCommentLike(
         squareId,
         commentId,
-        this.token.id,
+        token.id,
       );
 
       if (!feed) {
@@ -200,12 +203,13 @@ export default class SquareService {
     commentId: string,
     subCommentId: string,
   ) {
+    const token = RequestContext.getDecodedToken();
     try {
       const square = await this.squareRepository.createSubCommentLike(
         squareId,
         commentId,
         subCommentId,
-        this.token.id,
+        token.id,
       );
 
       if (!square) {
@@ -222,6 +226,8 @@ export default class SquareService {
     squareId: string;
     pollItems: string[];
   }) {
+    const token = RequestContext.getDecodedToken();
+
     const secretSquare = await this.squareRepository.findById(squareId);
 
     // TODO 404 NOT FOUND
@@ -230,7 +236,7 @@ export default class SquareService {
     }
 
     // HACK Is it correct to write type assertion? Another solution?
-    const user = this.token.id as unknown as Types.ObjectId;
+    const user = token.id as unknown as Types.ObjectId;
 
     secretSquare.poll.pollItems.forEach((pollItem) => {
       const index = pollItem.users.indexOf(user);
@@ -254,6 +260,7 @@ export default class SquareService {
   }
 
   async getCurrentPollItems({ squareId }: { squareId: string }) {
+    const token = RequestContext.getDecodedToken();
     const secretSquare = await this.squareRepository.findById(squareId);
 
     // TODO 404 NOT FOUND
@@ -266,7 +273,7 @@ export default class SquareService {
     }
 
     // TODO remove type assertion
-    const user = this.token.id as unknown as Types.ObjectId;
+    const user = token.id as unknown as Types.ObjectId;
     const pollItems: string[] = [];
 
     secretSquare.poll.pollItems.forEach((pollItem) => {
@@ -279,21 +286,25 @@ export default class SquareService {
 
   //todo: 수정가능
   async putLikeSquare({ squareId }: { squareId: string }) {
+    const token = RequestContext.getDecodedToken();
     const secretSquare = await this.squareRepository.updateLike(
       squareId,
-      this.token.id,
+      token.id,
     );
 
     return;
   }
 
   async deleteLikeSquare({ squareId }: { squareId: string }) {
-    await this.squareRepository.deleteLikeSquare(squareId, this.token.id);
+    const token = RequestContext.getDecodedToken();
+    await this.squareRepository.deleteLikeSquare(squareId, token.id);
     return;
   }
 
   //todo: 수정가능
   async getIsLike({ squareId }: { squareId: string }) {
+    const token = RequestContext.getDecodedToken();
+
     const secretSquare = await this.squareRepository.findById(squareId);
 
     if (!secretSquare) {
@@ -301,7 +312,7 @@ export default class SquareService {
     }
 
     // TODO remove type assertion
-    const user = this.token.id as unknown as Types.ObjectId;
+    const user = token.id as unknown as Types.ObjectId;
     const isLike = secretSquare.like.includes(user);
 
     return isLike;
