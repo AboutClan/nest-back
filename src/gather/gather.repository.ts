@@ -208,7 +208,7 @@ export class MongoGatherRepository implements GatherRepository {
     comment: string,
   ): Promise<null> {
     await this.Gather.updateOne(
-      { _id: gatherId, 'comments._id': commentId },
+      { id: gatherId, 'comments._id': commentId },
       { $set: { 'comments.$.comment': comment } },
     );
 

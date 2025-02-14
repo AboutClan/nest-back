@@ -326,6 +326,7 @@ export class GatherService {
 
   //수정필요
   async patchComment(gatherId: string, commentId: string, comment: string) {
+    console.log(gatherId, commentId, comment);
     await this.gatherRepository.updateComment(gatherId, commentId, comment);
     return;
   }
