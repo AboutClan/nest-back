@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Inject,
   Param,
   Patch,
   Post,
@@ -13,7 +12,6 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { IUSER_SERVICE } from 'src/utils/di.tokens';
 import {
   PatchBelongDto,
   PatchRoleDto,

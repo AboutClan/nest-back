@@ -4,18 +4,16 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { ILOG_REPOSITORY } from 'src/utils/di.tokens';
 import { LogRepository } from './log.repository.interface';
+import { RequestContext } from 'src/request-context';
 
 export default class LogService {
-  private token: JWT;
   constructor(
     @Inject(ILOG_REPOSITORY)
     private readonly logRepository: LogRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async getMonthScoreLog() {
+    const token = RequestContext.getDecodedToken();
     // 현재 날짜를 구합니다.
     const currentDate = new Date();
 
@@ -31,7 +29,7 @@ export default class LogService {
       0,
     );
     const logs = await this.logRepository.findScoreTimestamp(
-      this.token.uid,
+      token.uid,
       startOfMonth,
       endOfMonth,
     );
@@ -39,7 +37,8 @@ export default class LogService {
   }
 
   async getLog(type: string) {
-    const logs = await this.logRepository.findByUidType(this.token.uid, type);
+    const token = RequestContext.getDecodedToken();
+    const logs = await this.logRepository.findByUidType(token.uid, type);
     return logs;
   }
 

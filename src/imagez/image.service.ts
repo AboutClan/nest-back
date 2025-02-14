@@ -7,12 +7,9 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { RequestContext } from 'src/request-context';
 
 export default class ImageService {
-  private token: JWT;
   private s3: S3Client;
 
   constructor() {
-    this.token = RequestContext.getDecodedToken();
-
     this.s3 = new S3Client({
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -62,14 +59,15 @@ export default class ImageService {
   }
 
   async saveImage(imageUrl: string) {
+    const token = RequestContext.getDecodedToken();
+
     const vote = await findOneVote(strToDate(this.getToday()).toDate());
     if (!vote) throw new Error();
 
     vote?.participations.forEach((participation) => {
       participation.attendences?.forEach((attendence) => {
         if (
-          (attendence.user as IUser)?.uid.toString() ===
-          this.token.uid?.toString()
+          (attendence.user as IUser)?.uid.toString() === token.uid?.toString()
         )
           attendence.imageUrl = imageUrl;
       });

@@ -9,11 +9,10 @@ import { ChatRepository } from './chat.repository.interface';
 import { UserRepository } from 'src/user/user.repository.interface';
 import { ChatZodSchema, ContentZodSchema } from './chat.entity';
 import { WebPushService } from 'src/webpush/webpush.service';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class ChatService {
-  private token: JWT;
-
   constructor(
     //repository DI
     @Inject(ICHAT_REPOSITORY)
@@ -21,20 +20,19 @@ export class ChatService {
     private readonly webPushServiceInstance: WebPushService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async getChat(userId: string) {
-    const user1 = this.token.id > userId ? userId : this.token.id;
-    const user2 = this.token.id < userId ? userId : this.token.id;
+    const token = RequestContext.getDecodedToken();
+
+    const user1 = token.id > userId ? userId : token.id;
+    const user2 = token.id < userId ? userId : token.id;
     const chat = await this.chatRepository.findChat(user1, user2);
     if (!chat)
       throw new NotFoundException(`can't find chat ${user1} and ${user2}`);
 
     const opponent =
-      (chat.user1 as IUser).id == this.token.id
+      (chat.user1 as IUser).id == token.id
         ? (chat.user2 as IUser)
         : (chat.user1 as IUser);
 
@@ -44,13 +42,14 @@ export class ChatService {
 
   //todo: User 제거 가능?
   async getChats() {
-    const chats = await this.chatRepository.findChats(this.token.id);
+    const token = RequestContext.getDecodedToken();
+
+    const chats = await this.chatRepository.findChats(token.id);
 
     //채팅 데이터가 생성돼있으면 전부 가져옴
     const chatWithUsers = await Promise.all(
       chats.map(async (chat) => {
-        const opponentUid =
-          chat.user1 == this.token.id ? chat.user2 : chat.user1;
+        const opponentUid = chat.user1 == token.id ? chat.user2 : chat.user1;
         const opponent = await this.UserRepository.findById(
           opponentUid as string,
         );
@@ -76,8 +75,10 @@ export class ChatService {
   }
 
   async getRecentChat() {
-    const chat = await this.chatRepository.findRecentChat(this.token.id);
-    if (!chat) throw new NotFoundException(`${this.token.id} dont have a chat`);
+    const token = RequestContext.getDecodedToken();
+
+    const chat = await this.chatRepository.findRecentChat(token.id);
+    if (!chat) throw new NotFoundException(`${token.id} dont have a chat`);
 
     if (chat.length) {
       return chat?.[0]._id;
@@ -87,13 +88,15 @@ export class ChatService {
   }
 
   async createChat(toUserId: string, message: string) {
+    const token = RequestContext.getDecodedToken();
+
     //user1, user2의 순서 항상 유지
-    const user1 = this.token.id > toUserId ? toUserId : this.token.id;
-    const user2 = this.token.id < toUserId ? toUserId : this.token.id;
+    const user1 = token.id > toUserId ? toUserId : token.id;
+    const user2 = token.id < toUserId ? toUserId : token.id;
 
     const contentFill = {
       content: message,
-      userId: this.token.id,
+      userId: token.id,
     };
 
     const validatedContent = ContentZodSchema.parse(contentFill);

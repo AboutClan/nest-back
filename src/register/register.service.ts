@@ -13,20 +13,16 @@ import { IRegistered } from './register.entity';
 import { RegisterRepository } from './register.repository';
 import { IAccount } from 'src/account/account.entity';
 import { WebPushService } from 'src/webpush/webpush.service';
+import { RequestContext } from 'src/request-context';
 
 export default class RegisterService {
-  private token: JWT;
-
   constructor(
     @Inject(IREGISTER_REPOSITORY)
     private readonly registerRepository: RegisterRepository,
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Account') private Account: Model<IAccount>,
     private readonly webPushServiceInstance: WebPushService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async encodeByAES56(tel: string) {
     const key = process.env.cryptoKey;
@@ -45,6 +41,7 @@ export default class RegisterService {
   }
 
   async register(subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>) {
+    const token = RequestContext.getDecodedToken();
     const { telephone } = subRegisterForm;
 
     // 전화번호 검증: 010으로 시작하고 11자리 숫자인지 확인
@@ -65,7 +62,7 @@ export default class RegisterService {
     //   telephone: encodedTel,
     // });
 
-    await this.registerRepository.updateByUid(this.token.uid, {
+    await this.registerRepository.updateByUid(token.uid, {
       ...subRegisterForm,
       role: 'waiting',
       telephone: encodedTel,

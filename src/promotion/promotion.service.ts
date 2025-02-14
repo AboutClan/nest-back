@@ -11,17 +11,14 @@ import {
   PROMOTION_EVENT_POINT,
 } from 'src/Constants/point';
 import { UserService } from 'src/user/user.service';
+import { RequestContext } from 'src/request-context';
 
 export default class PromotionService {
-  private token: JWT;
   constructor(
     @Inject(IPROMOTION_REPOSITORY)
     private readonly promotionRepository: PromotionRepository,
     private readonly userServiceInstance: UserService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async getPromotion() {
     const promotionData = await this.promotionRepository.findAll();
@@ -29,13 +26,15 @@ export default class PromotionService {
   }
 
   async setPromotion(name: string) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const previousData = await this.promotionRepository.findByName(name);
       const now = dayjs().format('YYYY-MM-DD');
 
       const validatedPromotion = PromotionZodSchema.parse({
         name,
-        uid: this.token.uid,
+        uid: token.uid,
         lastDate: now,
       });
 

@@ -18,10 +18,10 @@ import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
 import { UserService } from 'src/user/user.service';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import { GatherRepository } from 'src/gather/gather.repository.interface';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class FeedService {
-  private token: JWT;
   private imageServiceInstance: ImageService;
 
   constructor(
@@ -32,10 +32,8 @@ export class FeedService {
 
     @Inject(IFEED_REPOSITORY)
     private readonly feedRepository: FeedRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
     private readonly userService: UserService,
   ) {
-    this.token = this.request.decodedToken;
     this.imageServiceInstance = new ImageService();
   }
 
@@ -45,6 +43,8 @@ export class FeedService {
     cursor?: number | null,
     isRecent?: boolean,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
@@ -66,7 +66,7 @@ export class FeedService {
 
     return feeds?.map((feed) => {
       const myLike = (feed?.like as IUser[])?.find(
-        (who) => who.uid === this.token.uid,
+        (who) => who.uid === token.uid,
       );
       let modifiedLike;
       if (myLike) {
@@ -88,6 +88,8 @@ export class FeedService {
   }
 
   async findFeedById(id: string) {
+    const token = RequestContext.getDecodedToken();
+
     if (!Types.ObjectId.isValid(id)) {
       throw new ValidationError('invalid mongoDB Id type');
     }
@@ -95,7 +97,7 @@ export class FeedService {
     if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 
     const myLike = (feed?.like as IUser[])?.find(
-      (who) => who.uid === this.token.uid,
+      (who) => who.uid === token.uid,
     );
     let modifiedLike;
     if (myLike) {
@@ -126,6 +128,8 @@ export class FeedService {
   }
 
   async findAllFeeds(cursor: number | null, isRecent?: boolean) {
+    const token = RequestContext.getDecodedToken();
+
     const gap = 12;
     let start = gap * (cursor || 0);
 
@@ -133,7 +137,7 @@ export class FeedService {
 
     return feeds?.map((feed) => {
       const myLike = (feed?.like as IUser[])?.find(
-        (who) => who.uid === this.token.uid,
+        (who) => who.uid === token.uid,
       );
       let modifiedLike;
       if (myLike) {
@@ -163,6 +167,8 @@ export class FeedService {
     isAnonymous,
     subCategory,
   }: any) {
+    const token = RequestContext.getDecodedToken();
+
     const images = await this.imageServiceInstance.uploadImgCom(
       'feed',
       buffers,
@@ -170,7 +176,7 @@ export class FeedService {
     const validatedFeed = FeedZodSchema.parse({
       title,
       text,
-      writer: this.token.id,
+      writer: token.id,
       type,
       typeId,
       images,
@@ -182,8 +188,10 @@ export class FeedService {
     return;
   }
   async createComment(feedId: string, content: string) {
+    const token = RequestContext.getDecodedToken();
+
     const message: commentType = {
-      user: this.token.id,
+      user: token.id,
       comment: content,
     };
 
@@ -203,10 +211,12 @@ export class FeedService {
   }
 
   async createCommentLike(feedId: string, commentId: string) {
+    const token = RequestContext.getDecodedToken();
+
     const newComment = await this.feedRepository.createCommentLike(
       feedId,
       commentId,
-      this.token.id,
+      token.id,
     );
     if (!newComment) {
       throw new DatabaseError('create comment like failed');
@@ -219,11 +229,13 @@ export class FeedService {
     commentId: string,
     subCommentId: string,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     const feed = await this.feedRepository.createSubCommentLike(
       feedId,
       commentId,
       subCommentId,
-      this.token.id,
+      token.id,
     );
 
     if (!feed) {
@@ -232,8 +244,9 @@ export class FeedService {
   }
 
   async createSubComment(feedId: string, commentId: string, content: string) {
+    const token = RequestContext.getDecodedToken();
     const message: subCommentType = {
-      user: this.token.id,
+      user: token.id,
       comment: content,
     };
 
@@ -280,9 +293,11 @@ export class FeedService {
   }
 
   async toggleLike(feedId: string) {
+    const token = RequestContext.getDecodedToken();
+
     const feed = await this.feedRepository.findById(feedId);
 
-    const isLikePush: boolean = await feed?.addLike(this.token.id);
+    const isLikePush: boolean = await feed?.addLike(token.id);
 
     if (isLikePush) {
       await this.userService.updatePoint(FEED_LIKE_POINT, '피드 좋아요');
@@ -296,13 +311,17 @@ export class FeedService {
   }
 
   async findMyFeed(feedType: 'gather' | 'group') {
-    return await this.feedRepository.findMyFeed(feedType, this.token.id);
+    const token = RequestContext.getDecodedToken();
+
+    return await this.feedRepository.findMyFeed(feedType, token.id);
   }
   async findRecievedFeed(feedType: 'gather' | 'group') {
+    const token = RequestContext.getDecodedToken();
+
     let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
-      this.token.id,
+      token.id,
     );
-    let gatherIds = await this.gatherRepository.findMyGatherId(this.token.id);
+    let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
 
     groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
     gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());

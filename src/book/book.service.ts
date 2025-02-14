@@ -1,16 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { JWT } from 'next-auth/jwt';
-import { RequestContext } from 'src/request-context';
 import { now } from 'src/vote/util';
 
 @Injectable()
 export class BookService {
-  private token: JWT;
-  constructor() {
-    this.token = RequestContext.getDecodedToken();
-  }
-
   async getBookList() {
     const startDt = now().subtract(1, 'month').format('YYYY-MM');
     const endDt = now().format('YYYY-MM');

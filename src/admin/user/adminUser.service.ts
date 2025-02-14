@@ -19,13 +19,7 @@ type UserQueryProps = {
   weekStudyAccumulationMinutes?: { $gt: number };
 };
 export default class AdminUserService {
-  private token: JWT;
-  constructor(
-    @InjectModel('User') private User: Model<IUser>,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  constructor(@InjectModel('User') private User: Model<IUser>) {}
 
   async getAllUser(
     location?: string,
