@@ -160,8 +160,7 @@ export class GatherService implements IGatherService {
     if (!gather) throw new Error();
 
     const id = userId ?? this.token.id;
-
-    await this.gatherRepository.participate(gatherId, userId, phase);
+    await this.gatherRepository.participate(gatherId, id, phase);
 
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
@@ -175,7 +174,7 @@ export class GatherService implements IGatherService {
     if (gather.user)
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
-        '누군가 모임에 가입했어요',
+        '누군가 모임에 참여했어요',
         '접속하여 확인하세요!',
       );
 
