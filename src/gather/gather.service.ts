@@ -1,8 +1,4 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { JWT } from 'next-auth/jwt';
 import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 import {
   CANCEL_GAHTER_SCORE,
@@ -12,7 +8,7 @@ import {
 } from 'src/Constants/score';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IGATHER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import {
   gatherStatus,
   IGatherData,
