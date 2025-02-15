@@ -390,7 +390,17 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     })
       .skip(start)
       .limit(gap)
-      .select('-_id');
+      .select('-_id')
+      .populate([
+        'organizer',
+        'participants.user',
+        'waiting.user',
+        'comments.user',
+      ])
+      .populate({
+        path: 'comments.subComments.user',
+        select: C_simpleUser,
+      });
 
     return result;
   }
@@ -400,7 +410,17 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     })
       .skip(start)
       .limit(gap)
-      .select('-_id');
+      .select('-_id')
+      .populate([
+        'organizer',
+        'participants.user',
+        'waiting.user',
+        'comments.user',
+      ])
+      .populate({
+        path: 'comments.subComments.user',
+        select: C_simpleUser,
+      });
 
     return result;
   }
