@@ -65,7 +65,6 @@ export class MongoGatherRepository implements GatherRepository {
         },
       ]);
 
-      console.log('Users with 3 or more participations this month:', result);
       return result;
     } catch (error) {
       console.error('Error:', error);
@@ -344,7 +343,6 @@ export class MongoGatherRepository implements GatherRepository {
         path: 'comments.subComments.user',
         select: C_simpleUser,
       });
-    console.log(status, result);
     return result;
   }
 

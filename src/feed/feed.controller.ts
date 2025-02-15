@@ -175,6 +175,10 @@ export class FeedController {
   }
   @Get('recieve')
   async findRecievedFeed(@Query('type') type: 'gather' | 'group') {
-    return await this.feedService.findRecievedFeed(type);
+    return await this.feedService.findReceivedFeed(type);
+  }
+  @Get('written')
+  async findWrittenReview(@Query('type') type: 'gather' | 'group') {
+    return await this.feedService.findWrittenReview(type);
   }
 }

@@ -685,7 +685,5 @@ export class UserService {
         point: log.meta.value,
       };
     });
-
-    console.log(cleanedData);
   }
 }

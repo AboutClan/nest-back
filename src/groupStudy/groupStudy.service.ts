@@ -757,7 +757,6 @@ export default class GroupStudyService {
       userId,
     );
 
-    console.log(result.modifiedCount);
     if (result.modifiedCount) {
       await this.userServiceInstance.updatePointWithUserId(
         userId,

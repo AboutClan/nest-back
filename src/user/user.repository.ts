@@ -210,7 +210,6 @@ export class MongoUserRepository implements UserRepository {
     );
   }
   async getTicketInfo(userId: string) {
-    console.log(userId);
     return this.User.findOne({ _id: userId }, 'ticket');
   }
   async addbadge(uid: string, badgeIdx: number) {
