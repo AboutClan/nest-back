@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { IVote, IParticipation } from './entity/vote.entity';
+import { IVote, IParticipation } from './vote.entity';
 import { VoteRepository } from './vote.repository.interface';
 import { Model } from 'mongoose';
 import { strToDate } from 'src/utils/dateUtils';

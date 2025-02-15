@@ -1,34 +1,31 @@
 import { Inject } from '@nestjs/common';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
-import { IVote2Service } from './vote2.service.interface';
 import { REQUEST } from '@nestjs/core';
 import { JWT } from 'next-auth/jwt';
 import { Request } from 'express';
 import { IVote2Repository } from './vote2.repository.interface';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
-import { IParticipation, IResult } from './vote2.entity';
+import { IParticipation } from './vote2.entity';
 import { PlaceRepository } from 'src/place/place.repository.interface';
-import { IPlace } from 'src/place/entity/place.entity';
+import { IPlace } from 'src/place/place.entity';
 import { ClusterUtils, coordType } from './ClusterUtils';
+import { RequestContext } from 'src/request-context';
 
-export class Vote2Service implements IVote2Service {
-  private token: JWT;
-
+export class Vote2Service {
   constructor(
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
     @Inject(IVOTE2_REPOSITORY)
     private readonly Vote2Repository: IVote2Repository,
     @Inject(IPLACE_REPOSITORY)
     private readonly PlaceRepository: PlaceRepository,
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   setVote(date: Date, createVote: CreateNewVoteDTO) {
+    const token = RequestContext.getDecodedToken();
+
     const { latitude, longitude, start, end } = createVote;
 
     const userVoteData: IParticipation = {
-      userId: this.token.id,
+      userId: token.id,
       latitude,
       longitude,
       start,
@@ -39,7 +36,8 @@ export class Vote2Service implements IVote2Service {
   }
 
   async deleteVote(date: Date) {
-    await this.Vote2Repository.deleteVote(date, this.token.id);
+    const token = RequestContext.getDecodedToken();
+    await this.Vote2Repository.deleteVote(date, token.id);
   }
 
   async setResult(date: Date) {
@@ -90,11 +88,12 @@ export class Vote2Service implements IVote2Service {
   }
 
   async setArrive(date: Date, memo: string) {
+    const token = RequestContext.getDecodedToken();
     const arriveData = {
       memo,
       arrived: new Date(),
     };
-    await this.Vote2Repository.setArrive(date, this.token.id, arriveData);
+    await this.Vote2Repository.setArrive(date, token.id, arriveData);
   }
 
   patchArrive(date: Date) {
@@ -102,12 +101,13 @@ export class Vote2Service implements IVote2Service {
   }
 
   async setParticipate(date: Date, createParticipate: CreateParticipateDTO) {
+    const token = RequestContext.getDecodedToken();
     const { placeId, start, end } = createParticipate;
 
     await this.Vote2Repository.setParticipate(date, placeId, {
       start,
       end,
-      userId: this.token.id,
+      userId: token.id,
     });
   }
 }

@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Inject,
   Param,
   Patch,
   Post,
@@ -13,26 +12,23 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { IUSER_SERVICE } from 'src/utils/di.tokens';
 import {
   PatchBelongDto,
   PatchRoleDto,
   SetFriendDto,
   SetPreferenceDto,
-  SetPromotionDto,
   UpdateAvatarDto,
   UpdateCommentDto,
   UpdateInstagramDto,
 } from './dto';
-import { IUserService } from './userService.interface';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
+import { UserService } from './user.service';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(@Inject(IUSER_SERVICE) private userService: IUserService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get('active')
   async getActive() {

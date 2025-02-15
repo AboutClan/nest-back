@@ -1,4 +1,4 @@
-import { commentType, IFeed, subCommentType } from './entity/feed.entity';
+import { commentType, IFeed, subCommentType } from './feed.entity';
 
 export interface FeedRepository {
   findWithQuery(
@@ -46,4 +46,7 @@ export interface FeedRepository {
     subCommentId: string,
     userId: string,
   ): Promise<any>;
+
+  findMyFeed(feedType: string, userId: string);
+  findRecievedFeed(feedType: string, idArr: string[]);
 }

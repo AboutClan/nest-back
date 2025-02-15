@@ -1,30 +1,30 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JWT } from 'next-auth/jwt';
-import { CollectionZodSchema } from './entity/collection.entity';
+import { CollectionZodSchema } from './collection.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ALPHABET_COLLECTION } from 'src/Constants/constants';
-import { IRequestData } from 'src/request/entity/request.entity';
+import { IRequestData } from 'src/request/request.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { ICollectionService } from './collectionService.interface';
 import { CollectionRepository } from './collection.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { UserRepository } from 'src/user/user.repository.interface';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
-export class CollectionService implements ICollectionService {
-  private token: JWT;
+export class CollectionService {
   constructor(
     @InjectModel('Request') private Request: Model<IRequestData>,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
     @Inject(ICOLLECTION_REPOSITORY)
     private readonly collectionRepository: CollectionRepository,
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async setCollectionStamp(id: string) {
     const currentCollection = await this.collectionRepository.findByUser(id);
@@ -94,15 +94,17 @@ export class CollectionService implements ICollectionService {
   }
 
   async setCollection(alphabet: string) {
+    const token = RequestContext.getDecodedToken();
+
     const validatedCollection = CollectionZodSchema.parse({
-      user: this.token.id,
+      user: token.id,
       collects: [alphabet],
       collectCnt: 0,
     });
 
     await this.collectionRepository.setCollection(
       alphabet,
-      this.token.id,
+      token.id,
       validatedCollection.collectCnt,
     );
 
@@ -110,9 +112,9 @@ export class CollectionService implements ICollectionService {
   }
 
   async setCollectionCompleted() {
-    const previousData = await this.collectionRepository.findByUser(
-      this.token.id,
-    );
+    const token = RequestContext.getDecodedToken();
+
+    const previousData = await this.collectionRepository.findByUser(token.id);
     const myAlphabets = previousData?.collects?.length
       ? [...previousData?.collects]
       : null;
@@ -121,25 +123,23 @@ export class CollectionService implements ICollectionService {
         const idx = myAlphabets?.indexOf(item);
         if (idx !== -1) myAlphabets?.splice(idx as number, 1);
       });
-      await this.collectionRepository.updateCollection(
-        this.token.id,
-        myAlphabets,
-      );
+      await this.collectionRepository.updateCollection(token.id, myAlphabets);
       await this.Request.create({
         category: '건의',
         title: '알파벳 완성',
-        writer: this.token.name,
-        content: `${this.token.name}/${
+        writer: token.name,
+        content: `${token.name}/${
           previousData?.collectCnt ? previousData.collectCnt + 1 : 0
         }`,
       });
     } else {
-      return 'not completed';
+      throw new InternalServerErrorException('mission not completed');
     }
   }
 
   async getCollection() {
-    const result = this.collectionRepository.findByUserPop(this.token.id);
+    const token = RequestContext.getDecodedToken();
+    const result = this.collectionRepository.findByUserPop(token.id);
     return result;
   }
 

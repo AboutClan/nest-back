@@ -1,25 +1,18 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { IPlace, PlaceZodSchema } from './entity/place.entity';
+import { IPlace, PlaceZodSchema } from './place.entity';
 import { ValidationError } from 'src/errors/ValidationError';
-import { DatabaseError } from 'src/errors/DatabaseError';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IPlaceService } from './placeService.interface';
 import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
 import { PlaceRepository } from './place.repository.interface';
+import { RequestContext } from 'src/request-context';
 
-export default class PlaceService implements IPlaceService {
-  private token: JWT;
+export default class PlaceService {
   constructor(
     @Inject(IPLACE_REPOSITORY)
     private readonly placeRepository: PlaceRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
   async getActivePlace(status: 'active' | 'inactive') {
     try {
       const places = await this.placeRepository.findByStatus(status);
@@ -31,6 +24,7 @@ export default class PlaceService implements IPlaceService {
 
   async addPlace(placeData: IPlace) {
     try {
+      const token = RequestContext.getDecodedToken();
       const {
         status,
         fullname,
@@ -51,7 +45,7 @@ export default class PlaceService implements IPlaceService {
       if (!time) placeData.time = 'unknown';
       if (!registerDate) placeData.registerDate = new Date().toString();
       placeData.status = 'inactive';
-      placeData.registrant = this.token.id as string;
+      placeData.registrant = token.id as string;
 
       if (
         !fullname ||

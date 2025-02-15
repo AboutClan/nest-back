@@ -6,20 +6,25 @@ import {
   Scope,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IGroupStudyData } from 'src/groupStudy/entity/groupStudy.entity';
-import { IVote } from 'src/vote/entity/vote.entity';
-import { IWebPushService } from './webpushService.interface';
+import { IGroupStudyData } from 'src/groupStudy/groupStudy.entity';
+import { IVote } from 'src/vote/vote.entity';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
-import { INotificationSub } from './entity/notificationsub.entity';
-import { AppError } from 'src/errors/AppError';
+import { INotificationSub } from './notificationsub.entity';
 import PushNotifications from 'node-pushnotifications';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+// 플러그인 등록
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 @Injectable({ scope: Scope.DEFAULT })
-export class WebPushService implements IWebPushService {
+export class WebPushService {
   private basePayload: Object;
   private settings: any;
 
@@ -67,7 +72,8 @@ export class WebPushService implements IWebPushService {
       requireInteraction: true,
       silent: false,
       renotify: true,
-      timestamp: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString(),
+      timestamp: dayjs().tz('Asia/Seoul').toDate().getTime(),
+      // timestamp: Date.now(),
       vibrate: [100, 50, 100],
       priority: 'high',
     };
@@ -93,6 +99,7 @@ export class WebPushService implements IWebPushService {
         title: title || '테스트 알림이에요',
         body: description || '테스트 알림이에요',
       });
+
       const subscriptions = await this.WebpushRepository.findByUid(uid);
       const results = await this.sendParallel(subscriptions, payload);
 

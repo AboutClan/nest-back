@@ -6,16 +6,14 @@ import {
   Query,
   HttpException,
   HttpStatus,
-  Inject,
 } from '@nestjs/common';
-import { IPLACE_SERVICE } from 'src/utils/di.tokens';
-import { IPlaceService } from './placeService.interface';
 import { ApiTags } from '@nestjs/swagger';
+import PlaceService from './place.service';
 
 @ApiTags('place')
 @Controller('place')
 export class PlaceController {
-  constructor(@Inject(IPLACE_SERVICE) private placeService: IPlaceService) {}
+  constructor(private readonly placeService: PlaceService) {}
 
   @Get()
   async getActivePlace(

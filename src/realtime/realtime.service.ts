@@ -8,36 +8,24 @@ import {
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
-import { IVoteService } from 'src/vote/voteService.interface';
-import {
-  ICOLLECTION_SERVICE,
-  IIMAGE_SERVICE,
-  IREALTIME_REPOSITORY,
-  IUSER_SERVICE,
-  IVOTE_SERVICE,
-} from 'src/utils/di.tokens';
-import { IImageService } from 'src/imagez/imageService.interface';
-import { ICollectionService } from 'src/collection/collectionService.interface';
-import { IRealtimeService } from './realtimeService';
+import { IREALTIME_REPOSITORY, IVOTE_SERVICE } from 'src/utils/di.tokens';
 import { RealtimeRepository } from './realtime.repository.interface';
-import { IUserService } from 'src/user/userService.interface';
 import { ATTEND_STUDY_POINT } from 'src/Constants/point';
+import { CollectionService } from 'src/collection/collection.service';
+import ImageService from 'src/imagez/image.service';
+import { UserService } from 'src/user/user.service';
+import { VoteService } from 'src/vote/vote.service';
+import { RequestContext } from 'src/request-context';
 
-export default class RealtimeService implements IRealtimeService {
-  private token: JWT;
-
+export default class RealtimeService {
   constructor(
     @Inject(IREALTIME_REPOSITORY)
     private readonly realtimeRepository: RealtimeRepository,
-    @Inject(IUSER_SERVICE) private readonly userServiceInstance: IUserService,
-    @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
-    @Inject(IVOTE_SERVICE) private voteServiceInstance: IVoteService,
-    @Inject(ICOLLECTION_SERVICE)
-    private collectionServiceInstance: ICollectionService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request?.decodedToken;
-  }
+    private readonly userServiceInstance: UserService,
+    private readonly imageServiceInstance: ImageService,
+    private readonly voteServiceInstance: VoteService,
+    private readonly collectionServiceInstance: CollectionService,
+  ) {}
 
   getToday() {
     const todayMidnight = new Date();
@@ -58,12 +46,14 @@ export default class RealtimeService implements IRealtimeService {
 
   // 기본 투표 생성
   async createBasicVote(studyData: Partial<IRealtime>) {
+    const token = RequestContext.getDecodedToken();
+
     const date = this.getToday();
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
       status: 'pending',
-      user: this.token.id,
+      user: token.id,
     });
 
     this.voteServiceInstance.deleteVote(date);
@@ -79,6 +69,8 @@ export default class RealtimeService implements IRealtimeService {
   //todo: 수정 급함
   //test
   async markAttendance(studyData: Partial<IRealtimeUser>, buffers: Buffer[]) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const date = this.getToday();
 
@@ -87,7 +79,7 @@ export default class RealtimeService implements IRealtimeService {
         time: studyData.time,
         place: studyData.place,
         arrived: new Date(),
-        user: this.token.id,
+        user: token.id,
       });
 
       if (buffers.length) {
@@ -104,11 +96,11 @@ export default class RealtimeService implements IRealtimeService {
       await this.realtimeRepository.patchAttendance(
         date,
         validatedStudy,
-        this.token.id,
+        token.id,
       );
 
       const result = this.collectionServiceInstance.setCollectionStamp(
-        this.token.id,
+        token.id,
       );
 
       await this.userServiceInstance.updatePoint(
@@ -123,6 +115,8 @@ export default class RealtimeService implements IRealtimeService {
 
   // 스터디 정보 업데이트
   async updateStudy(studyData: Partial<IRealtime>) {
+    const token = RequestContext.getDecodedToken();
+
     const updateFields: Record<string, any> = {};
 
     Object.keys(studyData).forEach((key) => {
@@ -134,7 +128,7 @@ export default class RealtimeService implements IRealtimeService {
     });
 
     const updatedRealtime = await this.realtimeRepository.patchRealtime(
-      this.token.id,
+      token.id,
       updateFields,
       this.getToday(),
     );
@@ -144,11 +138,13 @@ export default class RealtimeService implements IRealtimeService {
   }
 
   async patchVote(start: any, end: any) {
+    const token = RequestContext.getDecodedToken();
+
     const todayData = await this.getTodayData();
     try {
       if (start && end && todayData?.userList) {
         todayData.userList.forEach((userInfo) => {
-          if (userInfo.user.toString() === this.token.id) {
+          if (userInfo.user.toString() === token.id) {
             userInfo.time.start = start;
             userInfo.time.end = end;
           }
@@ -164,10 +160,12 @@ export default class RealtimeService implements IRealtimeService {
   }
 
   async deleteVote() {
+    const token = RequestContext.getDecodedToken();
+
     const todayData = await this.getTodayData();
     try {
       todayData.userList = todayData.userList?.filter(
-        (userInfo) => userInfo.user.toString() !== this.token.id,
+        (userInfo) => userInfo.user.toString() !== token.id,
       );
 
       await todayData.save();
@@ -176,11 +174,13 @@ export default class RealtimeService implements IRealtimeService {
     }
   }
   async patchStatus(status: any) {
+    const token = RequestContext.getDecodedToken();
+
     const todayData = await this.getTodayData();
 
     try {
       todayData.userList?.forEach((userInfo) => {
-        if (userInfo.user.toString() === this.token.id) {
+        if (userInfo.user.toString() === token.id) {
           userInfo.status = status;
         }
       });
@@ -191,11 +191,13 @@ export default class RealtimeService implements IRealtimeService {
     }
   }
   async patchComment(comment: string) {
+    const token = RequestContext.getDecodedToken();
+
     const todayData = await this.getTodayData();
 
     try {
       todayData.userList?.forEach((userInfo) => {
-        if (userInfo.user.toString() === this.token.id) {
+        if (userInfo.user.toString() === token.id) {
           userInfo.comment = userInfo.comment || { text: '' };
           userInfo.comment.text = comment;
         }

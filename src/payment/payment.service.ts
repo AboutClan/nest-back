@@ -10,15 +10,12 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 
 @Injectable()
 export class PaymentService {
-  private token: JWT;
   // private portone: PortOne.PortOneClient;
 
   constructor(
     @Inject(IPAYMENT_REPOSITORY)
     private readonly paymentRepository: PaymentRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
   ) {
-    this.token = this.request.decodedToken;
     // this.portone = PortOne.PortOneClient({
     //   secret: process.env.PORTONE_SECRET,
     // });

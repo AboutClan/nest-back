@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
-import { IGatherData, subCommentType } from './entity/gather.entity';
+import { IGatherData, participantsType, subCommentType } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 
 export class MongoGatherRepository implements GatherRepository {
@@ -65,7 +65,6 @@ export class MongoGatherRepository implements GatherRepository {
         },
       ]);
 
-      console.log('Users with 3 or more participations this month:', result);
       return result;
     } catch (error) {
       console.error('Error:', error);
@@ -209,7 +208,7 @@ export class MongoGatherRepository implements GatherRepository {
     comment: string,
   ): Promise<null> {
     await this.Gather.updateOne(
-      { _id: gatherId, 'comments._id': commentId },
+      { id: gatherId, 'comments._id': commentId },
       { $set: { 'comments.$.comment': comment } },
     );
 
@@ -284,7 +283,12 @@ export class MongoGatherRepository implements GatherRepository {
           $set: {
             status: {
               $cond: {
-                if: { $lt: [{ $size: '$participants' }, '$memberCnt.min'] },
+                if: {
+                  $lt: [
+                    { $add: [{ $size: '$participants' }, 1] },
+                    '$memberCnt.min',
+                  ],
+                },
                 then: 'close',
                 else: 'open',
               },
@@ -295,19 +299,15 @@ export class MongoGatherRepository implements GatherRepository {
     );
   }
 
-  async participate(gatherId: number, userId: string, phase: string) {
-    console.log(2, userId);
+  async participate(gatherId: number, participateData: participantsType) {
     await this.Gather.updateOne(
       {
         id: gatherId,
-        'participants.user': { $ne: userId },
+        'participants.user': { $ne: participateData.user },
       },
       {
         $push: {
-          participants: {
-            user: userId,
-            phase,
-          },
+          participants: participateData,
         },
       },
     );
@@ -343,7 +343,6 @@ export class MongoGatherRepository implements GatherRepository {
         path: 'comments.subComments.user',
         select: C_simpleUser,
       });
-    console.log(status, result);
     return result;
   }
 
@@ -360,6 +359,15 @@ export class MongoGatherRepository implements GatherRepository {
         path: 'comments.subComments.user',
         select: C_simpleUser,
       });
+
+    return result;
+  }
+  async findMyGatherId(userId: string) {
+    const result = await this.Gather.find({
+      participants: {
+        $elemMatch: { user: userId },
+      },
+    }).select('-_id id');
 
     return result;
   }

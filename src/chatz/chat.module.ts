@@ -2,7 +2,6 @@ import { ClassProvider, Module } from '@nestjs/common';
 import { ChatContoller } from './chat.controller';
 import { ChatService } from './chat.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ChatSchema } from './entity/chat.entity';
 import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import {
@@ -12,11 +11,7 @@ import {
 } from 'src/utils/di.tokens';
 import { MongoChatRepository } from './chat.repository';
 import { MongoUserRepository } from 'src/user/user.repository';
-
-const chatServiceProvider: ClassProvider = {
-  provide: ICHAT_SERVICE,
-  useClass: ChatService,
-};
+import { ChatSchema } from './chat.entity';
 
 const chatRepositoryProvider: ClassProvider = {
   provide: ICHAT_REPOSITORY,
@@ -35,11 +30,7 @@ const userRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'Chat', schema: ChatSchema }]),
   ],
   controllers: [ChatContoller],
-  providers: [
-    chatServiceProvider,
-    chatRepositoryProvider,
-    userRepositoryProvider,
-  ],
-  exports: [chatServiceProvider, chatRepositoryProvider, MongooseModule],
+  providers: [ChatService, chatRepositoryProvider, userRepositoryProvider],
+  exports: [chatRepositoryProvider, MongooseModule],
 })
 export class ChatModule {}

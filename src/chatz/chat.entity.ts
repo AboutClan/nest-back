@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { IUser } from '../../user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
 // Zod로 IContent 유효성 검사 스키마 정의

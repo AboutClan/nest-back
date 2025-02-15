@@ -6,28 +6,23 @@ import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
 import { ValidationError } from 'src/errors/ValidationError';
-import { IUser } from 'src/user/entity/user.entity';
+import { IUser } from 'src/user/user.entity';
 import { IREGISTER_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
 import * as logger from '../logger';
-import { IRegistered } from './entity/register.entity';
+import { IRegistered } from './register.entity';
 import { RegisterRepository } from './register.repository';
-import { IRegisterService } from './registerService.interface';
-import { IAccount } from 'src/account/entity/account.entity';
+import { IAccount } from 'src/account/account.entity';
+import { WebPushService } from 'src/webpush/webpush.service';
+import { RequestContext } from 'src/request-context';
 
-export default class RegisterService implements IRegisterService {
-  private token: JWT;
-
+export default class RegisterService {
   constructor(
     @Inject(IREGISTER_REPOSITORY)
     private readonly registerRepository: RegisterRepository,
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Account') private Account: Model<IAccount>,
-    @Inject(IWEBPUSH_SERVICE) private webPushServiceInstance: IWebPushService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+    private readonly webPushServiceInstance: WebPushService,
+  ) {}
 
   async encodeByAES56(tel: string) {
     const key = process.env.cryptoKey;
@@ -46,6 +41,7 @@ export default class RegisterService implements IRegisterService {
   }
 
   async register(subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>) {
+    const token = RequestContext.getDecodedToken();
     const { telephone } = subRegisterForm;
 
     // 전화번호 검증: 010으로 시작하고 11자리 숫자인지 확인
@@ -66,7 +62,7 @@ export default class RegisterService implements IRegisterService {
     //   telephone: encodedTel,
     // });
 
-    await this.registerRepository.updateByUid(this.token.uid, {
+    await this.registerRepository.updateByUid(token.uid, {
       ...subRegisterForm,
       role: 'waiting',
       telephone: encodedTel,

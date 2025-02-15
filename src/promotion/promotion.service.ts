@@ -3,26 +3,22 @@ import { REQUEST } from '@nestjs/core';
 import dayjs from 'dayjs';
 import { Request } from 'express';
 import { JWT } from 'next-auth/jwt';
-import { IUserService } from 'src/user/userService.interface';
 import { IPROMOTION_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
-import { PromotionZodSchema } from './entity/promotion.entity';
+import { PromotionZodSchema } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
-import { IPromotionService } from './promotionService.interface';
 import {
   PROMOTION_EVENT_DOUBLE_POINT,
   PROMOTION_EVENT_POINT,
 } from 'src/Constants/point';
+import { UserService } from 'src/user/user.service';
+import { RequestContext } from 'src/request-context';
 
-export default class PromotionService implements IPromotionService {
-  private token: JWT;
+export default class PromotionService {
   constructor(
     @Inject(IPROMOTION_REPOSITORY)
     private readonly promotionRepository: PromotionRepository,
-    @Inject(IUSER_SERVICE) private userServiceInstance: IUserService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+    private readonly userServiceInstance: UserService,
+  ) {}
 
   async getPromotion() {
     const promotionData = await this.promotionRepository.findAll();
@@ -30,13 +26,15 @@ export default class PromotionService implements IPromotionService {
   }
 
   async setPromotion(name: string) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const previousData = await this.promotionRepository.findByName(name);
       const now = dayjs().format('YYYY-MM-DD');
 
       const validatedPromotion = PromotionZodSchema.parse({
         name,
-        uid: this.token.uid,
+        uid: token.uid,
         lastDate: now,
       });
 

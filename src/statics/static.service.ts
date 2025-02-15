@@ -2,28 +2,23 @@ import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from '../errors/DatabaseError';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IUser } from 'src/user/entity/user.entity';
-import { ILog } from 'src/logz/entity/log.entity';
+import { IUser } from 'src/user/user.entity';
+import { ILog } from 'src/logz/log.entity';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IStaticService } from './staticService.interface';
+import { RequestContext } from 'src/request-context';
 
-export default class StaticService implements IStaticService {
-  private token: JWT;
+export default class StaticService {
   constructor(
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Log') private Log: Model<ILog>,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async roleCheck() {
+    const token = RequestContext.getDecodedToken();
     const authorized = ['previliged', 'manager'];
-    const user = await this.User.findOne({ uid: this.token.uid }).select(
-      'role',
-    );
+    const user = await this.User.findOne({ uid: token.uid }).select('role');
     if (!user || !user.role) return false;
 
     if (authorized.includes(user.role)) return true;
@@ -79,9 +74,10 @@ export default class StaticService implements IStaticService {
   }
 
   async getUserInSameLocation(date: string) {
+    const token = RequestContext.getDecodedToken();
     const dateInfo = this.getFirstAndLastDay(date);
 
-    const manager = await this.User.findById(this.token.id);
+    const manager = await this.User.findById(token.id);
     if (!manager) throw new DatabaseError('no user');
     const managerLocation = manager.location;
 

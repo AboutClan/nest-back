@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterRepository } from './register.repository';
 import { Model } from 'mongoose';
-import { IRegistered } from './entity/register.entity';
+import { IRegistered } from './register.entity';
 
 export class MongoRegisterRepository implements RegisterRepository {
   constructor(

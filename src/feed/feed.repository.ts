@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { commentType, IFeed, subCommentType } from './entity/feed.entity';
+import { commentType, IFeed, subCommentType } from './feed.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { FeedRepository } from './feed.repository.interface';
 import { C_simpleUser } from 'src/Constants/constants';
@@ -165,5 +165,14 @@ export class MongoFeedRepository implements FeedRepository {
         new: true, // 업데이트된 도큐먼트를 반환
       },
     );
+  }
+
+  async findMyFeed(feedType: string, userId: string) {
+    return await this.Feed.find({ type: feedType, writer: userId });
+  }
+  async findRecievedFeed(feedType: string, idArr: string[]) {
+    return await this.Feed.find({
+      $and: [{ type: feedType }, { typeId: { $in: idArr } }],
+    });
   }
 }

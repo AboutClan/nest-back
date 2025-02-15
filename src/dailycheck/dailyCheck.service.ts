@@ -1,29 +1,25 @@
 import { JWT } from 'next-auth/jwt';
-import { IDailyCheckService } from './dailyCheck.service.interface';
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { DailyCheckZodSchema } from './dailycheck.entity';
-import { IDAILYCHECK_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
+import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { DailyCheckRepository } from './dailyCheck.repository.interface';
-import { IUserService } from 'src/user/userService.interface';
 import { DAILY_ATTEND_POINT } from 'src/Constants/point';
+import { UserService } from 'src/user/user.service';
+import { RequestContext } from 'src/request-context';
 
-export class DailyCheckService implements IDailyCheckService {
-  private token: JWT;
+export class DailyCheckService {
   constructor(
     @Inject(IDAILYCHECK_REPOSITORY)
     private readonly dailyCheckRepository: DailyCheckRepository,
-    @Inject(IUSER_SERVICE) private readonly userService: IUserService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+    private readonly userService: UserService,
+  ) {}
 
   async setDailyCheck() {
-    const findDailyCheck = await this.dailyCheckRepository.findByUid(
-      this.token.uid,
-    );
+    const token = RequestContext.getDecodedToken();
+
+    const findDailyCheck = await this.dailyCheckRepository.findByUid(token.uid);
 
     if (findDailyCheck?.updatedAt) {
       const today = new Date();
@@ -37,8 +33,8 @@ export class DailyCheckService implements IDailyCheckService {
     }
 
     const validatedDailyCheck = DailyCheckZodSchema.parse({
-      uid: this.token.uid,
-      name: this.token.name,
+      uid: token.uid,
+      name: token.name,
     });
 
     await this.dailyCheckRepository.createDailyCheck(validatedDailyCheck);
@@ -48,7 +44,9 @@ export class DailyCheckService implements IDailyCheckService {
   }
 
   async getLog() {
-    return await this.dailyCheckRepository.findByUid(this.token.uid);
+    const token = RequestContext.getDecodedToken();
+
+    return await this.dailyCheckRepository.findByUid(token.uid);
   }
   async getAllLog() {
     return await this.dailyCheckRepository.findAll();

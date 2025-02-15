@@ -1,49 +1,39 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
+import { Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
-import { Request } from 'express';
 import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
-import { ICollectionService } from 'src/collection/collectionService.interface';
 import { convertUserToSummary } from 'src/convert';
-import { IPlace } from 'src/place/entity/place.entity';
+import { IPlace } from 'src/place/place.entity';
 import { IRealtime } from 'src/realtime/realtime.entity';
-import { IUser } from 'src/user/entity/user.entity';
-import { IUserService } from 'src/user/userService.interface';
+import { IUser } from 'src/user/user.entity';
 import { strToDate } from 'src/utils/dateUtils';
-import { ICOLLECTION_SERVICE, IUSER_SERVICE } from 'src/utils/di.tokens';
 import {
   IAttendance,
   IParticipation,
   IVote,
   IVoteStudyInfo,
-} from './entity/vote.entity';
+} from './vote.entity';
 import { now } from './util';
-import { IVoteService } from './voteService.interface';
 import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import {
   ATTEND_STUDY_POINT,
   CANCEL_VOTE_POINT,
   VOTE_POINT,
 } from 'src/Constants/point';
+import { CollectionService } from 'src/collection/collection.service';
+import { UserService } from 'src/user/user.service';
+import { RequestContext } from 'src/request-context';
 
 @Injectable({ scope: Scope.REQUEST })
-export class VoteService implements IVoteService {
-  private token: JWT;
+export class VoteService {
   constructor(
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Place') private Place: Model<IPlace>,
     @InjectModel('Realtime') private Realtime: Model<IRealtime>,
-    @Inject(ICOLLECTION_SERVICE)
-    private collectionServiceInstance: ICollectionService,
-    @Inject(IUSER_SERVICE)
-    private userServiceInstance: IUserService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+    private readonly collectionServiceInstance: CollectionService,
+    private userServiceInstance: UserService,
+  ) {}
 
   findOneVote = async (date: Date) =>
     await this.Vote.findOne({ date }).populate([
@@ -193,10 +183,12 @@ export class VoteService implements IVoteService {
   }
 
   async isVoting(date: any) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const result = await this.Vote.exists({
         date,
-        'participations.attendences.user': this.token.id, // 참석자 중 현재 사용자 존재 여부 확인
+        'participations.attendences.user': token.id, // 참석자 중 현재 사용자 존재 여부 확인
       });
 
       return result !== null; // 문서가 존재하면 true, 없으면 false
@@ -206,21 +198,21 @@ export class VoteService implements IVoteService {
   }
 
   async getFilteredVoteOne(date: any) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const vote: IVote = await this.getVote(date);
-      const myInfo = await this.User.findOne({ uid: this.token.uid });
+      const myInfo = await this.User.findOne({ uid: token.uid });
 
       const users = await this.User.find({
-        location: this.token.location,
+        location: token.location,
         weekStudyAccumulationMinutes: { $gt: 0 },
       }).sort({ weekStudyAccumulationMinutes: -1 });
 
       const rankNum = users.findIndex((user) => user.uid === myInfo?.uid) + 1;
 
       const findMyParticipation = vote?.participations?.find((par) =>
-        par.attendences?.some(
-          (att) => (att.user as IUser)?.id === this.token.id,
-        ),
+        par.attendences?.some((att) => (att.user as IUser)?.id === token.id),
       );
 
       if (findMyParticipation) {
@@ -247,7 +239,7 @@ export class VoteService implements IVoteService {
         .populate(['userList.user'])
         .lean();
       const findStudy = data?.userList?.find(
-        (user) => (user.user as IUser)._id.toString() === this.token.id,
+        (user) => (user.user as IUser)._id.toString() === token.id,
       );
 
       if (!findStudy) return;
@@ -277,11 +269,13 @@ export class VoteService implements IVoteService {
     }
   }
   async getFilteredVote(date: any, location: string) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const STUDY_RESULT_HOUR = 23;
       const vote: IVote = await this.getVote(date);
 
-      const user = await this.User.findOne({ uid: this.token.uid });
+      const user = await this.User.findOne({ uid: token.uid });
 
       const studyPreference = user?.studyPreference;
 
@@ -544,6 +538,7 @@ export class VoteService implements IVoteService {
   }
 
   async setVote(date: any, studyInfo: IVoteStudyInfo) {
+    const token = RequestContext.getDecodedToken();
     try {
       const { place, subPlace, start, end, memo }: IVoteStudyInfo = studyInfo;
       const vote = await this.getVote(date);
@@ -555,7 +550,7 @@ export class VoteService implements IVoteService {
       await this.Realtime.updateOne(
         { date },
         {
-          $pull: { userList: { user: this.token.id } },
+          $pull: { userList: { user: token.id } },
         },
       );
 
@@ -564,7 +559,7 @@ export class VoteService implements IVoteService {
         {
           $pull: {
             'participations.$[].attendences': {
-              'user.uid': this.token.uid,
+              'user.uid': token.uid,
             },
           },
         },
@@ -572,7 +567,7 @@ export class VoteService implements IVoteService {
 
       const attendance = {
         time: { start: start, end: end },
-        user: this.token.id,
+        user: token.id,
       } as IAttendance;
 
       //todo: 조금 신중히 수정
@@ -615,8 +610,10 @@ export class VoteService implements IVoteService {
 
   //todo: test 필요
   async patchComment(date: any, comment: string) {
+    const token = RequestContext.getDecodedToken();
+
     try {
-      const userId = this.token.id?.toString();
+      const userId = token.id?.toString();
 
       const updatedVote = await this.Vote.findOneAndUpdate(
         {
@@ -643,6 +640,8 @@ export class VoteService implements IVoteService {
   }
 
   async patchVote(date: any, start: any, end: any) {
+    const token = RequestContext.getDecodedToken();
+
     const vote = await this.getVote(date);
     if (!vote) throw new Error();
 
@@ -653,7 +652,7 @@ export class VoteService implements IVoteService {
 
       // 유효한 투표를 찾고, 사용자의 출석 시간을 업데이트
       const updatedVote = await this.Vote.findOneAndUpdate(
-        { date, 'participations.attendences.user': this.token.id },
+        { date, 'participations.attendences.user': token.id },
         {
           $set: {
             'participations.$[].attendences.$[attendance].time.start': start,
@@ -661,7 +660,7 @@ export class VoteService implements IVoteService {
           },
         },
         {
-          arrayFilters: [{ 'attendance.user': this.token.id }],
+          arrayFilters: [{ 'attendance.user': token.id }],
           new: true, // 업데이트된 문서 반환
         },
       );
@@ -678,12 +677,14 @@ export class VoteService implements IVoteService {
   }
 
   async deleteVote(date: any) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       await this.Vote.updateOne(
-        { date, 'participations.attendences.user': this.token.id },
+        { date, 'participations.attendences.user': token.id },
         {
           $pull: {
-            'participations.$[].attendences': { user: this.token.id },
+            'participations.$[].attendences': { user: token.id },
           },
         },
       );
@@ -725,17 +726,18 @@ export class VoteService implements IVoteService {
   }
 
   async setAbsence(date: any, message: string) {
+    const token = RequestContext.getDecodedToken();
     try {
       const result = await this.Vote.updateOne(
         {
           date,
-          'participations.attendences.user': this.token.id,
+          'participations.attendences.user': token.id,
           'participations.attendences.firstChoice': true,
         },
         {
           $addToSet: {
             'participations.$[].absences': {
-              user: this.token.id,
+              user: token.id,
               noShow: true,
               message,
             },
@@ -744,7 +746,7 @@ export class VoteService implements IVoteService {
         {
           arrayFilters: [
             {
-              'attendance.user': this.token.id,
+              'attendance.user': token.id,
               'attendance.firstChoice': true,
             },
           ],
@@ -797,8 +799,10 @@ export class VoteService implements IVoteService {
   }
 
   async patchArrive(date: any, memo: any, endHour: any) {
+    const token = RequestContext.getDecodedToken();
+
     const vote = await this.getVote(date);
-    const userData = await this.User.findOne({ uid: this.token.uid });
+    const userData = await this.User.findOne({ uid: token.uid });
 
     if (!vote) throw new Error();
 
@@ -808,7 +812,7 @@ export class VoteService implements IVoteService {
       vote.participations.forEach((participation: any) => {
         participation.attendences.forEach((att: any) => {
           if (
-            (att.user as IUser)._id?.toString() === this.token.id?.toString() &&
+            (att.user as IUser)._id?.toString() === token.id?.toString() &&
             att?.firstChoice
           ) {
             if (endHour) att.time.end = endHour;
@@ -828,7 +832,7 @@ export class VoteService implements IVoteService {
       await userData?.save();
 
       const result = this.collectionServiceInstance.setCollectionStamp(
-        this.token.id,
+        token.id,
       );
 
       await this.userServiceInstance.updatePoint(
@@ -847,17 +851,19 @@ export class VoteService implements IVoteService {
   }
 
   async patchConfirm(date: any) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       // 특정 날짜와 사용자의 출석 상태를 업데이트
       const result = await this.Vote.updateOne(
-        { date, 'participations.attendences.user': this.token.id },
+        { date, 'participations.attendences.user': token.id },
         {
           $set: {
             'participations.$[].attendences.$[attendance].confirmed': true,
           },
         },
         {
-          arrayFilters: [{ 'attendance.user': this.token.id }],
+          arrayFilters: [{ 'attendance.user': token.id }],
         },
       );
 
@@ -872,6 +878,8 @@ export class VoteService implements IVoteService {
   }
 
   async patchDismiss(date: any) {
+    const token = RequestContext.getDecodedToken();
+
     const vote = await this.findOneVote(date);
     if (!vote) throw new Error();
 
@@ -879,22 +887,22 @@ export class VoteService implements IVoteService {
       const result = await this.Vote.updateOne(
         {
           date,
-          'participations.attendences.user': this.token.id,
+          'participations.attendences.user': token.id,
         },
         {
           $pull: {
-            'participations.$[].attendences': { user: this.token.id },
+            'participations.$[].attendences': { user: token.id },
           },
           $push: {
             'participations.$[].absences': {
-              user: this.token.id,
+              user: token.id,
               noShow: false,
               message: '',
             },
           },
         },
         {
-          arrayFilters: [{ 'attendance.user': this.token.id }],
+          arrayFilters: [{ 'attendance.user': token.id }],
         },
       );
 
@@ -938,10 +946,12 @@ export class VoteService implements IVoteService {
     date: any,
     studyInfo: Omit<IVoteStudyInfo, 'place' | 'subPlace'>,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const { start, end } = studyInfo;
       const user: any = await this.User.findOne(
-        { uid: this.token.uid },
+        { uid: token.uid },
         'studyPreference',
       );
       let { place, subPlace } = user.studyPreference;

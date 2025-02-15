@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 import { RequestRepository } from './request.repository.interface';
-import { IRequestData } from './entity/request.entity';
+import { IRequestData } from './request.entity';
 import { InjectModel } from '@nestjs/mongoose';
 
 export class MongoRequestRepository implements RequestRepository {

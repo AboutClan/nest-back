@@ -9,28 +9,19 @@ import {
   Inject,
 } from '@nestjs/common';
 import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
-import { ICollectionService } from './collectionService.interface';
 import { updateCollectionDTO } from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { CollectionService } from './collection.service';
 
 @ApiTags('controller')
 @Controller('collection')
 export class CollectionController {
-  constructor(
-    @Inject(ICOLLECTION_SERVICE) private collectionService: ICollectionService,
-  ) {}
+  constructor(private readonly collectionService: CollectionService) {}
 
   @Get('alphabet')
   async getCollection() {
     const user = await this.collectionService.getCollection();
     return user;
-  }
-
-  //todo: 이게 도대체 뭐냐
-  @Patch('alphabet')
-  async setCollection() {
-    // const result = await this.collectionService?.setCollectionStamp();
-    return { status: 'success' };
   }
 
   //todo: route명 수정
@@ -43,12 +34,7 @@ export class CollectionController {
 
   @Post('alphabet/completed')
   async setCollectionCompleted() {
-    const result = await this.collectionService.setCollectionCompleted();
-
-    //todo: Error 타입 수정
-    if (result === 'not completed') {
-      throw new HttpException('Not completed', HttpStatus.BAD_REQUEST);
-    }
+    await this.collectionService.setCollectionCompleted();
     return { status: 'success' };
   }
 

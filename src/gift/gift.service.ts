@@ -1,24 +1,18 @@
 import { JWT } from 'next-auth/jwt';
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { IStoreApplicant, StoreZodSchema } from './entity/gift.entity';
+import { StoreZodSchema } from './gift.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { IGiftService } from './giftService.interface';
 import { IGIFT_REPOSITORY } from 'src/utils/di.tokens';
 import { GiftRepository } from './gift.repository.interface';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
-export class GiftService implements IGiftService {
-  private token: JWT;
+export class GiftService {
   constructor(
     @Inject(IGIFT_REPOSITORY)
     private readonly giftRepository: GiftRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
 
   async getAllGift() {
     const giftUsers = await this.giftRepository.findAllSort();
@@ -33,7 +27,9 @@ export class GiftService implements IGiftService {
   }
 
   async setGift(name: any, cnt: any, giftId: any) {
-    const { uid } = this.token;
+    const token = RequestContext.getDecodedToken();
+
+    const { uid } = token;
     const existingUser = await this.giftRepository.findByUidGiftId(uid, giftId);
     if (existingUser) {
       const validatedGift = StoreZodSchema.parse({
@@ -43,10 +39,7 @@ export class GiftService implements IGiftService {
         giftId,
       });
 
-      const user = await this.giftRepository.updateGift(
-        this.token.uid,
-        validatedGift,
-      );
+      const user = await this.giftRepository.updateGift(uid, validatedGift);
       if (!user) {
         throw new Error('no user');
       }

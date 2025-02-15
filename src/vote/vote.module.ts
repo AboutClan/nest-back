@@ -8,17 +8,12 @@ import { VoteController } from './vote.controller';
 import { VoteService } from './vote.service';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { MongooseModule } from '@nestjs/mongoose';
-import { VoteSchema } from './entity/vote.entity';
+import { VoteSchema } from './vote.entity';
 import { UserModule } from 'src/user/user.module';
 import { PlaceModule } from 'src/place/place.module';
 import { RealtimeModule } from 'src/realtime/realtime.module';
 import { CollectionModule } from 'src/collection/collection.module';
 import { IVOTE_SERVICE } from 'src/utils/di.tokens';
-
-const voteServiceProvider: ClassProvider = {
-  provide: IVOTE_SERVICE,
-  useClass: VoteService,
-};
 
 @Module({
   imports: [
@@ -29,8 +24,8 @@ const voteServiceProvider: ClassProvider = {
     CollectionModule,
   ],
   controllers: [VoteController],
-  providers: [voteServiceProvider],
-  exports: [voteServiceProvider, MongooseModule],
+  providers: [VoteService],
+  exports: [VoteService, MongooseModule],
 })
 export class VoteModule {
   configure(consumer: MiddlewareConsumer) {

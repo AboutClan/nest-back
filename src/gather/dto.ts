@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { IGatherData } from './entity/gather.entity';
+import { IGatherData } from './gather.entity';
 
 // DTOs for request validation
 export class CreateGatherDto {

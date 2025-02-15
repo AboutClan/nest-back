@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
-import { IGroupStudyData, subCommentType } from './entity/groupStudy.entity';
+import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 
 export class MongoGroupStudyInterface implements GroupStudyRepository {
@@ -421,6 +421,16 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
         path: 'comments.subComments.user',
         select: C_simpleUser,
       });
+
+    return result;
+  }
+
+  async findMyGroupStudyId(userId: string) {
+    const result = await this.GroupStudy.find({
+      participants: {
+        $elemMatch: { user: userId },
+      },
+    }).select('-_id id');
 
     return result;
   }

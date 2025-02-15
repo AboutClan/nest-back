@@ -1,45 +1,33 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
-import { Request } from 'express';
 import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
 import { AppError } from 'src/errors/AppError';
-import { ILog } from 'src/logz/entity/log.entity';
-import {
-  IIMAGE_SERVICE,
-  INOTICE_SERVICE,
-  IPLACE_SERVICE,
-  IUSER_REPOSITORY,
-} from 'src/utils/di.tokens';
+import { ILog } from 'src/logz/log.entity';
+import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
-import { IVote } from 'src/vote/entity/vote.entity';
+import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../logger';
-import { IUser, restType } from './entity/user.entity';
+import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
-import { IUserService } from './userService.interface';
-import { IImageService } from 'src/imagez/imageService.interface';
 import { C_simpleUser } from 'src/Constants/constants';
-import { IPlaceService } from 'src/place/placeService.interface';
-import { INoticeService } from 'src/notice/noticeService.interface';
+import ImageService from 'src/imagez/image.service';
+import NoticeService from 'src/notice/notice.service';
+import PlaceService from 'src/place/place.service';
+import { RequestContext } from 'src/request-context';
 
 @Injectable({ scope: Scope.REQUEST })
-export class UserService implements IUserService {
-  private token: JWT;
+export class UserService {
   constructor(
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel('Log') private Log: Model<ILog>,
-    @Inject(INOTICE_SERVICE) private noticeService: INoticeService,
-    @Inject(IPLACE_SERVICE) private placeService: IPlaceService,
-    @Inject(IIMAGE_SERVICE) private imageServiceInstance: IImageService,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+    private readonly noticeService: NoticeService,
+    private placeService: PlaceService,
+    private readonly imageServiceInstance: ImageService,
+  ) {}
 
   async decodeByAES256(encodedTel: string) {
     const key = process.env.cryptoKey;
@@ -89,16 +77,19 @@ export class UserService implements IUserService {
 
   //유저의 _id도 같이 전송. 유저 로그인 정보 불일치 문제를 클라이언트에서 접속중인 session의 _id와 DB에서 호출해서 가져오는 _id의 일치여부로 판단할 것임
   async getUserInfo(strArr: string[]) {
+    const token = RequestContext.getDecodedToken();
     let queryString = this.createQueryString(strArr);
     if (strArr.length) queryString = '-_id' + queryString;
 
-    const result = await this.UserRepository.findByUid(
-      this.token.uid,
-      queryString,
-    );
+    const result = await this.UserRepository.findByUid(token.uid, queryString);
 
-    if (result && result.telephone)
-      result.telephone = await this.decodeByAES256(result.telephone);
+    try {
+      if (result && result.telephone)
+        result.telephone = await this.decodeByAES256(result.telephone);
+    } catch (error) {
+      console.error('Error decoding telephone:', error.message);
+      result.telephone = 'Decryption Failed';
+    }
 
     return result;
   }
@@ -118,10 +109,8 @@ export class UserService implements IUserService {
   }
 
   async getSimpleUserInfo() {
-    const result = await this.UserRepository.findByUid(
-      this.token.uid,
-      C_simpleUser,
-    );
+    const token = RequestContext.getDecodedToken();
+    const result = await this.UserRepository.findByUid(token.uid, C_simpleUser);
 
     return result;
   }
@@ -133,10 +122,8 @@ export class UserService implements IUserService {
   }
 
   async updateUser(updateInfo: Partial<IUser>) {
-    const updated = await this.UserRepository.updateUser(
-      this.token.uid,
-      updateInfo,
-    );
+    const token = RequestContext.getDecodedToken();
+    const updated = await this.UserRepository.updateUser(token.uid, updateInfo);
     return updated;
   }
 
@@ -148,6 +135,7 @@ export class UserService implements IUserService {
     location?: string | null,
     summary?: boolean,
   ) {
+    const token = RequestContext.getDecodedToken();
     try {
       const allUser = all
         ? await this.UserRepository.findByIsActive(
@@ -155,7 +143,7 @@ export class UserService implements IUserService {
             C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
           )
         : await this.UserRepository.findByIsActiveUid(
-            this.token.uid,
+            token.uid,
             true,
             C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
           );
@@ -319,7 +307,8 @@ export class UserService implements IUserService {
   }
 
   async patchStudyTargetHour(hour: number) {
-    await this.UserRepository.updateUser(this.token.uid, {
+    const token = RequestContext.getDecodedToken();
+    await this.UserRepository.updateUser(token.uid, {
       weekStudyTragetHour: hour,
     });
 
@@ -327,16 +316,17 @@ export class UserService implements IUserService {
   }
 
   async patchProfile() {
+    const token = RequestContext.getDecodedToken();
     const profile = await getProfile(
-      this.token.accessToken as string,
-      this.token.uid as string,
+      token.accessToken as string,
+      token.uid as string,
     );
     if (!profile) {
       return new AppError('profile patching failed', 500);
     }
 
     const updatedUser = await this.UserRepository.updateUser(
-      this.token.uid,
+      token.uid,
       profile,
     );
 
@@ -344,12 +334,14 @@ export class UserService implements IUserService {
   }
 
   async updatePoint(point: number, message: string, sub?: string) {
-    await this.UserRepository.increasePoint(point, this.token.uid);
+    const token = RequestContext.getDecodedToken();
+
+    await this.UserRepository.increasePoint(point, token.uid);
 
     logger.logger.info(message, {
       type: 'point',
       sub,
-      uid: this.token.uid,
+      uid: token.uid,
       value: point,
     });
     return;
@@ -361,12 +353,14 @@ export class UserService implements IUserService {
     message: string,
     sub?: string,
   ) {
+    const token = RequestContext.getDecodedToken();
+
     await this.UserRepository.increasePointWithUserId(point, userId);
 
     logger.logger.info(message, {
       type: 'point',
       sub,
-      uid: this.token.uid,
+      uid: token.uid,
       value: point,
     });
     return;
@@ -378,33 +372,39 @@ export class UserService implements IUserService {
   }
 
   async updateScore(score: number, message: string, sub?: string) {
-    await this.UserRepository.increaseScore(score, this.token.uid);
+    const token = RequestContext.getDecodedToken();
+
+    await this.UserRepository.increaseScore(score, token.uid);
 
     logger.logger.info(message, {
       type: 'score',
       sub,
-      uid: this.token.uid,
+      uid: token.uid,
       value: score,
     });
     return;
   }
 
   async updateDeposit(deposit: number, message: string, sub?: string) {
-    await this.UserRepository.increaseDeposit(deposit, this.token.uid);
+    const token = RequestContext.getDecodedToken();
+
+    await this.UserRepository.increaseDeposit(deposit, token.uid);
 
     logger.logger.info(message, {
       type: 'deposit',
       sub,
-      uid: this.token.uid,
+      uid: token.uid,
       value: deposit,
     });
     return;
   }
 
   async setPreference(place: any, subPlace: any[]) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const user = await this.UserRepository.findByUid(
-        this.token.uid,
+        token.uid,
         'studyPreference',
       );
 
@@ -426,7 +426,7 @@ export class UserService implements IUserService {
       }
 
       await Promise.all([
-        this.UserRepository.updateUser(this.token.uid, {
+        this.UserRepository.updateUser(token.uid, {
           studyPreference: { place, subPlace },
         }),
         this.placeService.updatePrefCnt(place, 1),
@@ -443,8 +443,10 @@ export class UserService implements IUserService {
 
   // studyPreference도 id만 보내는 걸로 변경
   async getPreference() {
+    const token = RequestContext.getDecodedToken();
+
     const result = await this.UserRepository.findByUid(
-      this.token.uid,
+      token.uid,
       'studyPreference',
     );
     return result;
@@ -474,10 +476,12 @@ export class UserService implements IUserService {
   }
 
   async setRest(info: Omit<restType, 'restCnt' | 'cumulativeSum'>) {
+    const token = RequestContext.getDecodedToken();
+
     try {
       const { startDate, endDate } = info;
 
-      const user = await this.UserRepository.findByUid(this.token.uid);
+      const user = await this.UserRepository.findByUid(token.uid);
       if (!user) throw new Error();
 
       const startDay = dayjs(startDate, 'YYYY-MM-DD');
@@ -486,7 +490,7 @@ export class UserService implements IUserService {
 
       const result = await this.UserRepository.setRest(
         info,
-        this.token.uid,
+        token.uid,
         dayDiff,
       );
 
@@ -498,17 +502,19 @@ export class UserService implements IUserService {
   }
 
   async deleteFriend(toUid: string) {
-    await this.UserRepository.deleteFriend(this.token.uid, toUid);
+    const token = RequestContext.getDecodedToken();
+    await this.UserRepository.deleteFriend(token.uid, toUid);
     return null;
   }
 
   async setFriend(toUid: string) {
-    await this.UserRepository.updateFriend(this.token.uid, toUid);
+    const token = RequestContext.getDecodedToken();
+    await this.UserRepository.updateFriend(token.uid, toUid);
 
     await this.noticeService.createNotice({
-      from: this.token.uid,
+      from: token.uid,
       to: toUid,
-      message: `${this.token.name}님과 친구가 되었습니다.`,
+      message: `${token.name}님과 친구가 되었습니다.`,
       type: 'friend',
       status: 'response',
     });
@@ -523,6 +529,8 @@ export class UserService implements IUserService {
   }
 
   async getMonthScoreLog() {
+    const token = RequestContext.getDecodedToken();
+
     // 현재 날짜를 구합니다.
     const currentDate = new Date();
 
@@ -541,7 +549,7 @@ export class UserService implements IUserService {
     const logs = await this.Log.find(
       {
         'meta.type': 'score',
-        'meta.uid': this.token.uid,
+        'meta.uid': token.uid,
         timestamp: {
           $gte: startOfMonth,
           $lte: endOfMonth,
@@ -555,9 +563,10 @@ export class UserService implements IUserService {
   }
 
   async getLog(type: string) {
+    const token = RequestContext.getDecodedToken();
     const logs = await this.Log.find(
       {
-        'meta.uid': this.token.uid,
+        'meta.uid': token.uid,
         'meta.type': type,
       },
       '-_id timestamp message meta',
@@ -577,12 +586,9 @@ export class UserService implements IUserService {
   }
 
   async patchLocationDetail(text: string, lat: string, lon: string) {
-    await this.UserRepository.patchLocationDetail(
-      this.token.uid,
-      text,
-      lat,
-      lon,
-    );
+    const token = RequestContext.getDecodedToken();
+
+    await this.UserRepository.patchLocationDetail(token.uid, text, lat, lon);
 
     return;
   }
@@ -626,16 +632,17 @@ export class UserService implements IUserService {
   }
 
   async addBadge(badgeIdx: number) {
-    await this.UserRepository.addbadge(this.token.uid, badgeIdx);
+    const token = RequestContext.getDecodedToken();
+    await this.UserRepository.addbadge(token.uid, badgeIdx);
   }
 
   async selectBadge(badgeIdx: number) {
-    const badgeList: any[] = await this.UserRepository.getBadgeList(
-      this.token.uid,
-    );
+    const token = RequestContext.getDecodedToken();
+
+    const badgeList: any[] = await this.UserRepository.getBadgeList(token.uid);
 
     if (badgeList.includes(badgeIdx)) {
-      await this.UserRepository.selectbadge(this.token.uid, badgeIdx);
+      await this.UserRepository.selectbadge(token.uid, badgeIdx);
       return null;
     } else {
       throw new Error('no badge');
@@ -651,7 +658,8 @@ export class UserService implements IUserService {
   }
 
   async resetGatherTicket() {
-    await this.UserRepository.resetGatherTicket(this.token.uid);
+    const token = RequestContext.getDecodedToken();
+    await this.UserRepository.resetGatherTicket(token.uid);
   }
 
   async getTicketInfo(userId: string) {
@@ -677,7 +685,5 @@ export class UserService implements IUserService {
         point: log.meta.value,
       };
     });
-
-    console.log(cleanedData);
   }
 }

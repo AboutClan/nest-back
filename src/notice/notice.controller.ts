@@ -9,18 +9,18 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import { INOTICE_SERVICE, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
-import { IWebPushService } from 'src/webpush/webpushService.interface';
-import { INoticeService } from './noticeService.interface';
+import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { ApiTags } from '@nestjs/swagger';
+import NoticeService from './notice.service';
+import { WebPushService } from 'src/webpush/webpush.service';
 
 //todo: Notice 전반적인 수정 필요해보임
 @ApiTags('notice')
 @Controller('notice')
 export class NoticeController {
   constructor(
-    @Inject(INOTICE_SERVICE) private noticeService: INoticeService,
-    @Inject(IWEBPUSH_SERVICE) private webPushService: IWebPushService,
+    private readonly noticeService: NoticeService,
+    private readonly webPushService: WebPushService,
   ) {}
 
   @Get()
@@ -158,14 +158,7 @@ export class NoticeController {
     @Body('status') status: string,
   ) {
     try {
-      const data = await this.noticeService.updateRequestFriend(
-        'friend',
-        from,
-        status,
-      );
-      if (data === 'no data') {
-        throw new HttpException('No data found', HttpStatus.NOT_FOUND);
-      }
+      await this.noticeService.updateRequestFriend('friend', from, status);
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(
@@ -198,14 +191,7 @@ export class NoticeController {
     @Body('status') status: string,
   ) {
     try {
-      const data = await this.noticeService.updateRequestFriend(
-        'alphabet',
-        from,
-        status,
-      );
-      if (data === 'no data') {
-        throw new HttpException('No data found', HttpStatus.NOT_FOUND);
-      }
+      await this.noticeService.updateRequestFriend('alphabet', from, status);
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(

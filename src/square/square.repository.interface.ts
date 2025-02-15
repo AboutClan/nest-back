@@ -1,4 +1,4 @@
-import { SecretSquareItem } from './entity/square.entity';
+import { SecretSquareItem } from './square.entity';
 
 export interface SquareRepository {
   findSquareByCategory(

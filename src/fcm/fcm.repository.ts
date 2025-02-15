@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { FcmRepository } from './fcm.repository.interfae';
 import { Model } from 'mongoose';
-import { IFcmToken } from './entity/fcmToken.entity';
+import { IFcmToken } from './fcmToken.entity';
 
 export class MongoFcmRepository implements FcmRepository {
   constructor(

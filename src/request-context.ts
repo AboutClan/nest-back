@@ -1,22 +1,27 @@
-import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import { JWT } from 'next-auth/jwt';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { decodedTokenType } from './types/express';
 
-@Injectable()
+interface ContextStore {
+  request: Request;
+}
+
 export class RequestContext {
-  private static request: Request;
+  private static readonly als = new AsyncLocalStorage<ContextStore>();
 
-  static setRequest(request: Request) {
-    RequestContext.request = request;
+  static run(store: ContextStore, callback: () => void) {
+    return this.als.run(store, callback);
   }
 
-  static getRequest(): Request {
-    return RequestContext.request;
+  static getStore(): ContextStore | undefined {
+    return this.als.getStore();
   }
 
-  static getDecodedToken(): JWT {
-    const decodedToken = RequestContext.getRequest()?.decodedToken;
-    if (!decodedToken) return null;
-    return decodedToken;
+  static getRequest(): Request | undefined {
+    return this.als.getStore()?.request;
+  }
+
+  static getDecodedToken(): decodedTokenType | undefined {
+    return this.als.getStore()?.request.decodedToken;
   }
 }

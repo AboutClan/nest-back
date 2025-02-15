@@ -1,6 +1,6 @@
 import clustering from 'density-clustering';
 import { IParticipation, IResult } from './vote2.entity';
-import { IPlace } from 'src/place/entity/place.entity';
+import { IPlace } from 'src/place/place.entity';
 
 export interface coordType {
   lat: number;

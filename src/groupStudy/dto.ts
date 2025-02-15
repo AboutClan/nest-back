@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { IGroupStudyData } from './entity/groupStudy.entity';
+import { IGroupStudyData } from './groupStudy.entity';
 
 // DTOs for request validation
 export class CreateGroupStudyDto {
