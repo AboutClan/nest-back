@@ -315,7 +315,7 @@ export class FeedService {
 
     return await this.feedRepository.findMyFeed(feedType, token.id);
   }
-  async findRecievedFeed(feedType: 'gather' | 'group') {
+  async findReceivedFeed(feedType: 'gather' | 'group') {
     const token = RequestContext.getDecodedToken();
 
     let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
@@ -332,8 +332,17 @@ export class FeedService {
         groupStudyIds,
       );
     } else if (feedType == 'group') {
-      console.log(gatherIds);
       return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
     }
+  }
+
+  async findWrittenReview(feedType: 'gather' | 'group') {
+    const myFeed = await this.findMyFeed(feedType);
+    const receivedFeed = await this.findReceivedFeed(feedType);
+
+    return {
+      writtenReviewCnt: myFeed.length,
+      reviewReceived: receivedFeed.length,
+    };
   }
 }
