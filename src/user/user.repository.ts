@@ -204,7 +204,7 @@ export class MongoUserRepository implements UserRepository {
         uid,
       },
       {
-        $set: { 'ticket.gatherTicket': 4 },
+        $set: { 'ticket.gatherTicket': 2 },
       },
       { new: true, upsert: false },
     );

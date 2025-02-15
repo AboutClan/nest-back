@@ -493,7 +493,7 @@ export default class GroupStudyService {
       //ticket 소모 로직
       if (status === 'agree') {
         const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
-        if (groupStudy.meetingType == 'offline') {
+        if (groupStudy.meetingType !== 'online') {
           if (ticketInfo.groupStudyOfflineTicket <= 1)
             throw new Error('no ticket');
           this.userServiceInstance.updateReduceTicket('groupOffline', userId);

@@ -1,14 +1,14 @@
+import { REQUEST } from '@nestjs/core';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
+import { Model } from 'mongoose';
 import {
   IIMAGE_SERVICE,
   INOTICE_SERVICE,
   IPLACE_SERVICE,
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { REQUEST } from '@nestjs/core';
+import { UserService } from './user.service';
 
 const mockUser = {
   _id: {
@@ -79,9 +79,8 @@ const mockUser = {
     bg: 1,
   },
   ticket: {
-    gatherTicket: 4,
-    groupStudyOnlineTicket: 1,
-    groupStudyOfflineTicket: 2,
+    gatherTicket: 2,
+    groupStudyTicke: 4,
   },
   badge: {
     badgeIdx: 1,

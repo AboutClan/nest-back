@@ -55,7 +55,7 @@ export class GatherController {
     @Query('status') status?: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
-
+    
     try {
       return await this.gatherService.getStatusGather(status, cursorNum);
     } catch (err) {

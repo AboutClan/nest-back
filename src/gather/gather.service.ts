@@ -177,7 +177,7 @@ export class GatherService {
     if (gather.user)
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
-        '누군가 모임에 가입했어요',
+        '누군가 모임에 참여했어요',
         '접속하여 확인하세요!',
       );
 

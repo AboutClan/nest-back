@@ -1,4 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
+import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
 import { IGatherData, participantsType, subCommentType } from './gather.entity';
@@ -319,20 +320,31 @@ export class MongoGatherRepository implements GatherRepository {
     start: number,
     gap: number,
   ) {
+    const todayString = dayjs().startOf('day').toISOString();
+
     const result = await this.Gather.find({
       $and: [
         {
-          participants: {
-            $elemMatch: { user: userId },
-          },
+          $or: [
+            { participants: { $elemMatch: { user: userId } } },
+            { user: userId },
+          ],
         },
-        status == 'open' ? { status: 'open' } : { status: { $ne: 'open' } },
+        status === 'open'
+          ? { date: { $gte: todayString } }
+          : { date: { $lt: todayString } },
       ],
     })
+      .sort({ date: -1 })
       .skip(start)
       .limit(gap)
-      .select('-_id');
-
+      .select('-_id')
+      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'comments.subComments.user',
+        select: C_simpleUser,
+      });
+    console.log(status, result);
     return result;
   }
 
@@ -340,9 +352,15 @@ export class MongoGatherRepository implements GatherRepository {
     const result = await this.Gather.find({
       user: userId,
     })
+      .sort({ date: -1 })
       .skip(start)
       .limit(gap)
-      .select('-_id');
+      .select('-_id')
+      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'comments.subComments.user',
+        select: C_simpleUser,
+      });
 
     return result;
   }
