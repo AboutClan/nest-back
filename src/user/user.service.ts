@@ -83,8 +83,13 @@ export class UserService {
 
     const result = await this.UserRepository.findByUid(token.uid, queryString);
 
-    if (result && result.telephone)
-      result.telephone = await this.decodeByAES256(result.telephone);
+    try {
+      if (result && result.telephone)
+        result.telephone = await this.decodeByAES256(result.telephone);
+    } catch (error) {
+      console.error('Error decoding telephone:', error.message);
+      result.telephone = 'Decryption Failed';
+    }
 
     return result;
   }

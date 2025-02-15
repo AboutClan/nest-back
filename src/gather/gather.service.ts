@@ -165,6 +165,7 @@ export class GatherService {
       throw new BadRequestException('Invalid participate data');
     }
 
+    await this.userServiceInstance.updateReduceTicket('gather', userId);
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',
