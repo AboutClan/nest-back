@@ -341,8 +341,8 @@ export class FeedService {
     const receivedFeed = await this.findReceivedFeed(feedType);
 
     return {
-      writtenReviewCnt: myFeed.length,
-      reviewReceived: receivedFeed.length,
+      writtenReviewCnt: (myFeed || []).length,
+      reviewReceived: (receivedFeed || []).length,
     };
   }
 }
