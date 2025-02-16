@@ -49,7 +49,6 @@ export class UserController {
   }
 
   @Patch('avatar')
-  @UsePipes(new ValidationPipe({ transform: true }))
   async updateAvatar(@Body() updateAvatarDto: UpdateAvatarDto) {
     await this.userService.updateUser({ avatar: updateAvatarDto });
     return { message: 'Avatar updated successfully' };
