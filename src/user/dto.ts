@@ -7,11 +7,9 @@ import {
 } from 'class-validator';
 
 export class UpdateAvatarDto {
-  @IsNotEmpty()
   @IsNumber()
   type: number;
 
-  @IsNotEmpty()
   @IsNumber()
   bg: number;
 }
