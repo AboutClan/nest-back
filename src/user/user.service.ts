@@ -640,13 +640,14 @@ export class UserService {
         ticketNum = -1;
         break;
       default:
-        logger.logger.info('티켓 소모', {
-          type: 'ticket',
-          uid: userId,
-          value: ticketNum,
-        });
         break;
     }
+
+    logger.logger.info('티켓 소모', {
+      type: 'ticket',
+      uid: userId,
+      value: ticketNum,
+    });
   }
 
   async addBadge(badgeIdx: number) {
@@ -687,23 +688,25 @@ export class UserService {
   }
 
   async test() {
-    const logs = await this.Log.find({
-      $and: [
-        { 'meta.value': { $lte: -100 } },
-        {
-          $or: [
-            { message: { $regex: '스터디 가입', $options: 'i' } },
-            { message: { $regex: '동아리 가입', $options: 'i' } },
-          ],
-        },
-      ],
-    });
-
-    const cleanedData = logs.map((log) => {
-      return {
-        uid: log.meta.uid,
-        point: log.meta.value,
-      };
-    });
+    await this.UserRepository.test();
   }
+  //   const logs = await this.Log.find({
+  //     $and: [
+  //       { 'meta.value': { $lte: -100 } },
+  //       {
+  //         $or: [
+  //           { message: { $regex: '스터디 가입', $options: 'i' } },
+  //           { message: { $regex: '동아리 가입', $options: 'i' } },
+  //         ],
+  //       },
+  //     ],
+  //   });
+
+  //   const cleanedData = logs.map((log) => {
+  //     return {
+  //       uid: log.meta.uid,
+  //       point: log.meta.value,
+  //     };
+  //   });
+  // }
 }

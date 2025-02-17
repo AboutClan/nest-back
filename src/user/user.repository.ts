@@ -229,4 +229,14 @@ export class MongoUserRepository implements UserRepository {
   async getBadgeList(uid: string) {
     return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
   }
+
+  async test() {
+    await this.User.updateMany(
+      {},
+      {
+        monthScore: 10,
+        'badge.badgeIdx': 0,
+      },
+    );
+  }
 }
