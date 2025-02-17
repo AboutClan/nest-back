@@ -55,7 +55,7 @@ export class GatherController {
     @Query('status') status?: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
-    
+
     try {
       return await this.gatherService.getStatusGather(status, cursorNum);
     } catch (err) {
@@ -144,19 +144,12 @@ export class GatherController {
 
   @Post('participate')
   async participateGather(@Body() participateGatherDto: ParticipateGatherDto) {
-    try {
-      await this.gatherService.participateGather(
-        participateGatherDto.gatherId,
-        participateGatherDto.phase,
-        participateGatherDto.userId,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error participating in gather',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.participateGather(
+      participateGatherDto.gatherId,
+      participateGatherDto.phase,
+      participateGatherDto.userId,
+    );
+    return { status: 'success' };
   }
   @Delete('participate')
   async deleteParticipate(@Body() body: { gatherId: number }) {

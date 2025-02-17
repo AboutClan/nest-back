@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 import {
   CANCEL_GAHTER_SCORE,
@@ -148,12 +153,17 @@ export class GatherService {
 
   async participateGather(gatherId: number, phase: string, userId: string) {
     const token = RequestContext.getDecodedToken();
+    const id = userId ?? token.id;
+
+    const { ticket } = await this.userServiceInstance.getTicketInfo(id);
+
+    if (ticket.gatherTicket <= 0) {
+      throw new HttpException('ticket이 부족합니다.', 500);
+    }
 
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId.toString());
     if (!gather) throw new Error();
-
-    const id = userId ?? token.id;
 
     try {
       const validatedParticipate = ParticipantsZodSchema.parse({
@@ -165,7 +175,7 @@ export class GatherService {
       throw new BadRequestException('Invalid participate data');
     }
 
-    await this.userServiceInstance.updateReduceTicket('gather', userId);
+    await this.userServiceInstance.updateReduceTicket('gather', id);
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',
@@ -245,12 +255,14 @@ export class GatherService {
       let message = `모임 신청이 거절되었습니다. ${text}`;
 
       await this.gatherRepository.deleteWaiting(id, userId);
-      const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
 
-      if (ticket.gatherTicket <= 0) {
-        throw new AppError('ticket이 부족합니다.', 500);
-      }
       if (status === 'agree') {
+        const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
+
+        if (ticket.gatherTicket <= 0) {
+          throw new AppError('ticket이 부족합니다.', 500);
+        }
+
         const validatedParticipate = ParticipantsZodSchema.parse({
           user: userId,
           phase: 'first',
