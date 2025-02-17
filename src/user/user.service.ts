@@ -597,17 +597,26 @@ export class UserService {
     type: 'gather' | 'groupOnline' | 'groupOffline',
     userId: string,
   ) {
+    let ticketNum;
     switch (type) {
       case 'gather':
         await this.UserRepository.updateGatherTicket(userId, 1);
+        ticketNum = 1;
         break;
       case 'groupOffline':
         await this.UserRepository.updateGroupStudyTicket(userId, 2);
+        ticketNum = 2;
         break;
       case 'groupOnline':
         await this.UserRepository.updateGroupStudyTicket(userId, 1);
+        ticketNum = 1;
         break;
       default:
+        logger.logger.info('티켓 추가', {
+          type: 'ticket',
+          uid: userId,
+          value: ticketNum,
+        });
         break;
     }
   }
@@ -616,17 +625,26 @@ export class UserService {
     type: 'gather' | 'groupOnline' | 'groupOffline',
     userId: string,
   ) {
+    let ticketNum;
     switch (type) {
       case 'gather':
         await this.UserRepository.updateGatherTicket(userId, -1);
+        ticketNum = -1;
         break;
       case 'groupOffline':
         await this.UserRepository.updateGroupStudyTicket(userId, -2);
+        ticketNum = -2;
         break;
       case 'groupOnline':
         await this.UserRepository.updateGroupStudyTicket(userId, -1);
+        ticketNum = -1;
         break;
       default:
+        logger.logger.info('티켓 소모', {
+          type: 'ticket',
+          uid: userId,
+          value: ticketNum,
+        });
         break;
     }
   }
@@ -639,14 +657,16 @@ export class UserService {
   async selectBadge(badgeIdx: number) {
     const token = RequestContext.getDecodedToken();
 
-    const badgeList: any[] = await this.UserRepository.getBadgeList(token.uid);
+    // const badgeList: any[] = await this.UserRepository.getBadgeList(token.uid);
 
-    if (badgeList.includes(badgeIdx)) {
-      await this.UserRepository.selectbadge(token.uid, badgeIdx);
-      return null;
-    } else {
-      throw new Error('no badge');
-    }
+    // if (badgeList.includes(badgeIdx)) {
+    //   await this.UserRepository.selectbadge(token.uid, badgeIdx);
+    //   return null;
+    // } else {
+    //   throw new Error('no badge');
+    // }
+
+    await this.UserRepository.selectbadge(token.uid, badgeIdx);
   }
 
   async updateProfileImg(img: Express.Multer.File) {
