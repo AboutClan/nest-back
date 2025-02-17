@@ -43,6 +43,6 @@ docker stop nest-app || true
 docker rm nest-app || true
 
 # 새 컨테이너 실행
-docker run -d --name nest-app \
+docker run -d --restart on-failure --name nest-app \
   --env-file /home/ubuntu/app/.env \
   -p 3001:3001 294951093594.dkr.ecr.ap-northeast-2.amazonaws.com/about:latest

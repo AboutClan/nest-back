@@ -6,8 +6,17 @@ import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
 import { join } from 'path';
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('🔥 Uncaught Exception:', error);
+});
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
+    abortOnError: false,
     bodyParser: true,
     rawBody: true,
     logger: WinstonModule.createLogger({
