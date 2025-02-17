@@ -99,7 +99,6 @@ export class MongoGatherRepository implements GatherRepository {
         path: 'comments.subComments.user',
         select: C_simpleUser,
       });
-    console.log([...notStudy, ...study]);
     return [...notStudy, ...study];
   }
   async findAll(start: number, gap: number): Promise<IGatherData[]> {
