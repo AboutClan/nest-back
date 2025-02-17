@@ -6,9 +6,13 @@ import {
   PARTICIPATE_GATHER_SCORE,
   REMOVE_GAHTER_SCORE,
 } from 'src/Constants/score';
+import { CounterService } from 'src/counter/counter.service';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
+import { RequestContext } from 'src/request-context';
+import { UserService } from 'src/user/user.service';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
+import { WebPushService } from 'src/webpush/webpush.service';
 import {
   gatherStatus,
   IGatherData,
@@ -16,11 +20,7 @@ import {
   subCommentType,
 } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
-import { CounterService } from 'src/counter/counter.service';
-import { UserService } from 'src/user/user.service';
-import { WebPushService } from 'src/webpush/webpush.service';
-import { RequestContext } from 'src/request-context';
-
+//commit
 @Injectable()
 export class GatherService {
   constructor(
