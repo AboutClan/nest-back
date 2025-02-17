@@ -7,13 +7,37 @@ export class MongoUserRepository implements UserRepository {
   constructor(@InjectModel('User') private readonly User: Model<IUser>) {}
 
   async findById(userId: string): Promise<IUser> {
-    return await this.User.findById(userId);
+    return await this.User.findById(userId)
+      .populate({
+        path: 'studyPreference.place',
+        select: '_id name',
+      })
+      .populate({
+        path: 'studyPreference.place',
+        select: '_id name',
+      });
   }
 
   async findByUid(uid: string, queryString?: string): Promise<IUser> {
     return queryString
       ? await this.User.findOne({ uid }, queryString)
-      : await this.User.findOne({ uid });
+          .populate({
+            path: 'studyPreference.place',
+            select: '_id fullname',
+          })
+          .populate({
+            path: 'studyPreference.subPlace',
+            select: '_id fullname',
+          })
+      : await this.User.findOne({ uid })
+          .populate({
+            path: 'studyPreference.place',
+            select: '_id fullname',
+          })
+          .populate({
+            path: 'studyPreference.subPlace',
+            select: '_id fullname',
+          });
   }
   async findByUserId(userId: string): Promise<IUser> {
     return await this.User.findOne({ _id: userId });
@@ -231,12 +255,15 @@ export class MongoUserRepository implements UserRepository {
   }
 
   async test() {
-    await this.User.updateMany(
-      {},
-      {
-        monthScore: 10,
-        'badge.badgeIdx': 0,
-      },
+    const users = await this.User.find({ friend: '2259633694' }).select(
+      '-_id uid',
+    );
+
+    const a = users.map((user) => user.uid);
+
+    await this.User.updateOne(
+      { uid: '2259633694' }, // 특정 유저 선택
+      { $set: { friend: a } }, // 기존 friend 필드를 이 배열로 덮어씀
     );
   }
 }
