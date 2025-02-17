@@ -30,12 +30,17 @@ export class UserService {
   ) {}
 
   async decodeByAES256(encodedTel: string) {
-    const key = process.env.cryptoKey;
-    if (!key) return encodedTel;
+    try {
+      const key = process.env.cryptoKey;
+      if (!key) return encodedTel;
 
-    const bytes = CryptoJS.AES.decrypt(encodedTel, key);
-    const originalText = bytes.toString(CryptoJS.enc.Utf8);
-    return originalText;
+      const bytes = CryptoJS.AES.decrypt(encodedTel, key);
+      const originalText = bytes.toString(CryptoJS.enc.Utf8);
+      return originalText;
+    } catch (error) {
+      console.error('Error decoding telephone:', error.message);
+      return 'Decryption Failed';
+    }
   }
 
   //User의 정보 중에서 특정 정보만 선택
@@ -83,13 +88,8 @@ export class UserService {
 
     const result = await this.UserRepository.findByUid(token.uid, queryString);
 
-    try {
-      if (result && result.telephone)
-        result.telephone = await this.decodeByAES256(result.telephone);
-    } catch (error) {
-      console.error('Error decoding telephone:', error.message);
-      result.telephone = 'Decryption Failed';
-    }
+    if (result && result.telephone)
+      result.telephone = await this.decodeByAES256(result.telephone);
 
     return result;
   }
