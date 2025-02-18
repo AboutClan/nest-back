@@ -129,12 +129,12 @@ export class MongoGatherRepository implements GatherRepository {
     return null;
   }
   async deleteParticipants(gatherId: number, userId: string): Promise<null> {
-    await this.Gather.findOneAndUpdate(
+    return await this.Gather.findOneAndUpdate(
       { id: gatherId },
       {
         $pull: { participants: { user: userId } },
       },
-      { new: true, useFindAndModify: false },
+      { useFindAndModify: false },
     );
     return null;
   }
