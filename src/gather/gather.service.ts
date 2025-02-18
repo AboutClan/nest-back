@@ -154,7 +154,6 @@ export class GatherService {
   async participateGather(gatherId: number, phase: string, userId: string) {
     const token = RequestContext.getDecodedToken();
     const id = userId ?? token.id;
-
     const { ticket } = await this.userServiceInstance.getTicketInfo(id);
 
     if (ticket.gatherTicket <= 0) {
@@ -166,10 +165,21 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      const validatedParticipate = ParticipantsZodSchema.parse({
-        user: id,
-        phase,
-      });
+      let partData;
+      if (userId) {
+        partData = {
+          user: id,
+          phase,
+          invited: true,
+        };
+      } else {
+        partData = {
+          user: id,
+          phase,
+          invited: false,
+        };
+      }
+      const validatedParticipate = ParticipantsZodSchema.parse(partData);
       await this.gatherRepository.participate(gatherId, validatedParticipate);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
@@ -197,14 +207,19 @@ export class GatherService {
 
   async deleteParticipate(gatherId: number) {
     const token = RequestContext.getDecodedToken();
-    await this.gatherRepository.deleteParticipants(gatherId, token.id);
+    const oldData = await this.gatherRepository.deleteParticipants(
+      gatherId,
+      token.id,
+    );
 
     await this.userServiceInstance.updateScore(
       CANCEL_GAHTER_SCORE,
       '번개 모임 참여 취소',
     );
 
-    await this.userServiceInstance.updateAddTicket('gather', token.id);
+    const myData = oldData.participants.filter((data) => data.user == token.id);
+    if (!myData[0].invited)
+      await this.userServiceInstance.updateAddTicket('gather', token.id);
     return;
   }
 

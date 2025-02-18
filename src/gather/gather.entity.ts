@@ -34,6 +34,7 @@ export const GathersZodSchema = z.object({
 export const ParticipantsZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
   phase: z.string(),
+  invited: z.boolean().default(false),
 });
 
 export const SubCommentZodSchema = z.object({
@@ -157,6 +158,10 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     phase: {
       type: String,
       enum: ['all', 'first', 'second'],
+    },
+    invited: {
+      type: Boolean,
+      default: false,
     },
   },
   { _id: false, timestamps: false },
