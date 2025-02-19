@@ -5,7 +5,6 @@ import {
   Injectable,
   Scope,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { IUser } from 'src/user/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,11 +12,11 @@ import { IGroupStudyData } from 'src/groupStudy/groupStudy.entity';
 import { IVote } from 'src/vote/vote.entity';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
-import { INotificationSub } from './notificationsub.entity';
-import PushNotifications from 'node-pushnotifications';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 // 플러그인 등록
 dayjs.extend(utc);
@@ -26,36 +25,15 @@ dayjs.extend(timezone);
 @Injectable({ scope: Scope.DEFAULT })
 export class WebPushService {
   private basePayload: Object;
-  private settings: any;
 
   constructor(
-    private readonly configService: ConfigService,
+    @InjectQueue('webpushQ') private readonly webpushQ: Queue,
     @InjectModel('User') private readonly User: Model<IUser>,
     @InjectModel('Vote') private readonly Vote: Model<IVote>,
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
     @Inject(IWEBPUSH_REPOSITORY)
     private readonly WebpushRepository: WebpushRepository,
   ) {
-    const publicKey = this.configService.get<string>('PUBLIC_KEY');
-    const privateKey = this.configService.get<string>('PRIVATE_KEY');
-
-    this.settings = {
-      web: {
-        vapidDetails: {
-          subject: 'mailto:alsrhks0503@gmail.com',
-          publicKey: publicKey,
-          privateKey: privateKey,
-        },
-        TTL: 86400,
-        contentEncoding: 'aes128gcm',
-        headers: {},
-      },
-      android: {
-        priority: 'high', // 우선 순위 설정
-      },
-      isAlwaysUseFCM: true,
-    };
-
     // Send 201 - resource created
     this.basePayload = {
       title: '스터디 투표',
@@ -87,8 +65,13 @@ export class WebPushService {
 
   async sendNotificationAllUser() {
     const subscriptions = await this.WebpushRepository.findAll();
-    const results = await this.sendParallel(subscriptions, this.basePayload);
-    this.logForFailure(results);
+    await this.webpushQ.add('sendWebpush', {
+      subscriptions,
+      payload: this.basePayload,
+    });
+
+    // const results = await this.sendParallel(subscriptions, this.basePayload);
+    // this.logForFailure(results);
     return;
   }
 
@@ -101,9 +84,14 @@ export class WebPushService {
       });
 
       const subscriptions = await this.WebpushRepository.findByUid(uid);
-      const results = await this.sendParallel(subscriptions, payload);
 
-      this.logForFailure(results);
+      await this.webpushQ.add('sendWebpush', {
+        subscriptions,
+        payload,
+      });
+
+      // const results = await this.sendParallel(subscriptions, payload);
+      // this.logForFailure(results);
 
       return;
     } catch (err: any) {
@@ -123,9 +111,13 @@ export class WebPushService {
         body: description || '테스트 알림이에요',
       });
       const subscriptions = await this.WebpushRepository.findByUserId(userId);
-      const results = await this.sendParallel(subscriptions, payload);
 
-      this.logForFailure(results);
+      await this.webpushQ.add('sendWebpush', {
+        subscriptions,
+        payload,
+      });
+      // const results = await this.sendParallel(subscriptions, payload);
+      // this.logForFailure(results);
 
       return;
     } catch (err: any) {
@@ -156,8 +148,12 @@ export class WebPushService {
       const subscriptions =
         await this.WebpushRepository.findByArray(memberArray);
 
-      const results = await this.sendParallel(subscriptions, payload);
-      this.logForFailure(results);
+      await this.webpushQ.add('sendWebpush', {
+        subscriptions,
+        payload,
+      });
+      // const results = await this.sendParallel(subscriptions, payload);
+      // this.logForFailure(results);
       return;
     } catch (err) {
       throw new HttpException(
@@ -182,8 +178,12 @@ export class WebPushService {
       body: '앱을 확인해보세요.',
     });
 
-    const results = await this.sendParallel(managerSubscriptions, payload);
-    this.logForFailure(results);
+    await this.webpushQ.add('sendWebpush', {
+      subscriptions: managerSubscriptions,
+      payload,
+    });
+    // const results = await this.sendParallel(managerSubscriptions, payload);
+    // this.logForFailure(results);
     return;
   }
 
@@ -232,57 +232,15 @@ export class WebPushService {
       body: '내일 스터디 투표를 참여해보세요',
     });
 
-    const failureResults = await this.sendParallel(
-      failureSubscriptions,
-      failPayload,
-    );
-    const successResults = await this.sendParallel(
-      successSubscriptions,
-      successPayload,
-    );
+    await this.webpushQ.add('sendWebpush', {
+      subscriptions: failureSubscriptions,
+      payload: failPayload,
+    });
+    await this.webpushQ.add('sendWebpush', {
+      subscriptions: successSubscriptions,
+      payload: successPayload,
+    });
 
-    this.logForFailure(failureResults);
-    this.logForFailure(successResults);
     return;
   }
-
-  //알림 전송 실패한 사람들 로그
-  logForFailure = (results: any[]) => {
-    const failed = results.filter((result) => result.status === 'rejected');
-    failed.forEach((failure, index) => {
-      console.error(
-        `Error #${index + 1}:`,
-        (failure as PromiseRejectedResult).reason,
-      );
-    });
-    return;
-  };
-
-  sendParallel = async (
-    subscriptions: INotificationSub[],
-    payload: any,
-  ): Promise<any> => {
-    const limit = 10; // 병렬로 실행할 작업의 최대 개수
-    const results: any[] = [];
-
-    // subscriptions 배열을 limit 크기만큼씩 잘라서 실행
-    for (let i = 0; i < subscriptions.length; i += limit) {
-      const batch = subscriptions.slice(i, i + limit); // 현재 batch만큼 가져오기
-      const batchPromises = batch.map(async (subscription) => {
-        const push = new PushNotifications(this.settings);
-        try {
-          await push.send(subscription as any, payload);
-          return { status: 'fulfilled' };
-        } catch (error) {
-          return { status: 'rejected', reason: error };
-        }
-      });
-
-      // batch의 Promise가 모두 완료될 때까지 대기
-      const batchResults = await Promise.allSettled(batchPromises);
-      results.push(...batchResults);
-    }
-
-    return results;
-  };
 }

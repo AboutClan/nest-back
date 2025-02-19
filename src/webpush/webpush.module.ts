@@ -4,10 +4,12 @@ import { WebPushService } from './webpush.service';
 import { UserModule } from 'src/user/user.module';
 import { GroupStudyModule } from 'src/groupStudy/groupStudy.module';
 import { VoteModule } from 'src/vote/vote.module';
-import { IWEBPUSH_REPOSITORY, IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
+import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoWebpushRepository } from './webpush.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationSubSchema } from './notificationsub.entity';
+import { BullModule } from '@nestjs/bull';
+import { WebPushConsumer } from './webpush.consumer';
 const webPushRepositoryProvider: ClassProvider = {
   provide: IWEBPUSH_REPOSITORY,
   useClass: MongoWebpushRepository,
@@ -15,6 +17,9 @@ const webPushRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
+    BullModule.registerQueue({
+      name: 'webpushQ',
+    }),
     UserModule,
     GroupStudyModule,
     VoteModule,
@@ -23,7 +28,7 @@ const webPushRepositoryProvider: ClassProvider = {
     ]),
   ], // Mongoose 모델 등록],
   controllers: [WebPushController],
-  providers: [WebPushService, webPushRepositoryProvider],
+  providers: [WebPushService, webPushRepositoryProvider, WebPushConsumer],
   exports: [WebPushService, webPushRepositoryProvider],
 })
 export class WebPushModule {}
