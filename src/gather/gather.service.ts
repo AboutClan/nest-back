@@ -152,6 +152,7 @@ export class GatherService {
   }
 
   async participateGather(gatherId: number, phase: string, userId: string) {
+    //userId존재 => 초대로 들어온 경우임
     const token = RequestContext.getDecodedToken();
     const id = userId ?? token.id;
     const { ticket } = await this.userServiceInstance.getTicketInfo(id);
@@ -185,7 +186,8 @@ export class GatherService {
       throw new BadRequestException('Invalid participate data');
     }
 
-    await this.userServiceInstance.updateReduceTicket('gather', id);
+    if (!userId)
+      await this.userServiceInstance.updateReduceTicket('gather', id);
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',
