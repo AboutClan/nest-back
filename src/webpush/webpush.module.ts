@@ -19,6 +19,12 @@ const webPushRepositoryProvider: ClassProvider = {
   imports: [
     BullModule.registerQueue({
       name: 'webpushQ',
+      defaultJobOptions: {
+        attempts: 2,
+        backoff: 3000,
+        removeOnComplete: 50,
+        removeOnFail: 50,
+      },
     }),
     UserModule,
     GroupStudyModule,
