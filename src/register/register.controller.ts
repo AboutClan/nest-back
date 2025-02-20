@@ -34,15 +34,8 @@ export class RegisterController {
   //todo: dto수정 필요
   @Post()
   async registerUser(@Body() registerUserDto: any) {
-    try {
-      await this.registerService.register(registerUserDto);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error registering user',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.registerService.register(registerUserDto);
+    return { status: 'success' };
   }
 
   @Post('approval')
