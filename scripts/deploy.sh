@@ -31,6 +31,9 @@ NEW_RELIC_ENABLED=$(echo "$SECRETS" | jq -r '.NEW_RELIC_ENABLED')
 PORTONE_SECRET=$(echo "$SECRETS" | jq -r '.PORTONE_SECRET')
 PORTONE_WEBHOOK_SECRET=$(echo "$SECRETS" | jq -r '.PORTONE_WEBHOOK_SECRET')
 PORTONE_API_SECRET=$(echo "$SECRETS" | jq -r '.PORTONE_API_SECRET')
+REDIS_HOST=$(echo "$SECRETS" | jq -r '.REDIS_HOST')
+REDIS_PORT=$(echo "$SECRETS" | jq -r '.REDIS_PORT')
+REDIS_PASSWORD=$(echo "$SECRETS" | jq -r '.REDIS_PASSWORD')
 EOF
 
 echo ".env file created successfully."
