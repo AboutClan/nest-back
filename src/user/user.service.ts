@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, Inject, Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
@@ -30,6 +30,7 @@ export class UserService {
   ) {}
 
   async decodeByAES256(encodedTel: string) {
+    const token = RequestContext.getDecodedToken();
     try {
       const key = process.env.cryptoKey;
       if (!key) return encodedTel;
@@ -38,7 +39,9 @@ export class UserService {
       const originalText = bytes.toString(CryptoJS.enc.Utf8);
       return originalText;
     } catch (error) {
-      console.error('Error decoding telephone:', error.message);
+      console.error({
+        message: `${token.uid} Error decoding telephone:${error.message}`,
+      });
       return 'Decryption Failed';
     }
   }
