@@ -269,6 +269,7 @@ export class GatherService {
     text?: string,
   ) {
     let message = `모임 신청이 거절되었습니다. ${text}`;
+    const token = RequestContext.getDecodedToken();
 
     await this.gatherRepository.deleteWaiting(id, userId);
 
@@ -276,7 +277,7 @@ export class GatherService {
       const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
 
       if (ticket.gatherTicket <= 0) {
-        throw new AppError('ticket이 부족합니다.', 500);
+        throw new AppError(`${token.uid} ticket이 부족합니다.`, 500);
       }
 
       const validatedParticipate = ParticipantsZodSchema.parse({
