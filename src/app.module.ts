@@ -49,6 +49,7 @@ import { BullModule } from '@nestjs/bull';
 import { HttpExceptionFilter } from './http-exception.filter';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
+import { ZodExceptionFilter } from './zod-exception.filter';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -123,6 +124,7 @@ const corsOptions = {
   providers: [
     AppService,
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
+    { provide: APP_FILTER, useClass: ZodExceptionFilter },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: AsyncContextInterceptor },
     NotificationScheduler,

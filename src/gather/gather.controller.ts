@@ -131,15 +131,8 @@ export class GatherController {
     @Body() handleWaitingPersonDto: HandleWaitingPersonDto,
   ) {
     const { id, userId, status, text } = handleWaitingPersonDto;
-    try {
-      await this.gatherService.handleWaitingPerson(id, userId, status, text);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error setting waiting person',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.handleWaitingPerson(id, userId, status, text);
+    return { status: 'success' };
   }
 
   @Post('participate')

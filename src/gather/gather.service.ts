@@ -268,34 +268,32 @@ export class GatherService {
     status: string,
     text?: string,
   ) {
-    try {
-      let message = `모임 신청이 거절되었습니다. ${text}`;
+    let message = `모임 신청이 거절되었습니다. ${text}`;
 
-      await this.gatherRepository.deleteWaiting(id, userId);
+    await this.gatherRepository.deleteWaiting(id, userId);
 
-      if (status === 'agree') {
-        const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
+    if (status === 'agree') {
+      const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
 
-        if (ticket.gatherTicket <= 0) {
-          throw new AppError('ticket이 부족합니다.', 500);
-        }
-
-        const validatedParticipate = ParticipantsZodSchema.parse({
-          user: userId,
-          phase: 'first',
-        });
-        await this.gatherRepository.participate(
-          parseInt(id),
-          validatedParticipate,
-        );
-        await this.userServiceInstance.updateReduceTicket('gather', userId);
-        message = '모임 신청이 승인되었습니다.';
+      if (ticket.gatherTicket <= 0) {
+        throw new AppError('ticket이 부족합니다.', 500);
       }
 
-      // await this.chatServiceInstance.createChat(userId, message);
-    } catch (err) {
-      throw new Error();
+      const validatedParticipate = ParticipantsZodSchema.parse({
+        user: userId,
+        phase: 'first',
+      });
+
+      await this.gatherRepository.participate(
+        parseInt(id),
+        validatedParticipate,
+      );
+
+      await this.userServiceInstance.updateReduceTicket('gather', userId);
+      message = '모임 신청이 승인되었습니다.';
     }
+
+    // await this.chatServiceInstance.createChat(userId, message);
   }
 
   async createSubComment(gatherId: string, commentId: string, content: string) {
