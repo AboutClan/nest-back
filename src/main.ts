@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
@@ -27,7 +26,6 @@ async function bootstrap() {
   });
 
   //Error Handling
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   //Cors설정
   app.enableCors({

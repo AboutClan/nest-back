@@ -29,7 +29,7 @@ import { GatherModule } from './gather/gather.module';
 import { ChatModule } from './chatz/chat.module';
 import { BookModule } from './book/book.module';
 import { FeedModule } from './feed/feed.module';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 // import { RequestContextInterceptor } from './request-context.intercepter';
 import { CollectionModule } from './collection/collection.module';
@@ -46,6 +46,9 @@ import { Vote2Module } from './vote2/vote2.module';
 import { PaymentModule } from './payment/payment.module';
 import { AsyncContextInterceptor } from './async-context.interceptor';
 import { BullModule } from '@nestjs/bull';
+import { HttpExceptionFilter } from './http-exception.filter';
+import { WinstonModule } from 'nest-winston';
+import winston from 'winston';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -67,6 +70,13 @@ const corsOptions = {
 
 @Module({
   imports: [
+    WinstonModule.forRoot({
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.json(),
+        }),
+      ],
+    }),
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST,
@@ -112,6 +122,7 @@ const corsOptions = {
   controllers: [AppController],
   providers: [
     AppService,
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: AsyncContextInterceptor },
     NotificationScheduler,
