@@ -332,7 +332,10 @@ export const UserSchema: Schema<IUser> = new Schema({
   locationDetail: { type: locationDetailSchema },
   weekStudyTragetHour: { type: Number, default: 0 },
   weekStudyAccumulationMinutes: { type: Number, default: 0 },
-  ticket: { type: ticketSchema },
+  ticket: {
+    type: ticketSchema,
+    default: () => ({ gatherTicket: 2, groupStudyTicket: 4 }),
+  },
   badge: {
     type: badgeSchema,
     required: false,
