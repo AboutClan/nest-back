@@ -83,6 +83,10 @@ export default class RegisterService {
       registerDate: new Date(),
       isActive: true,
       deposit: 3000,
+      ticket: {
+        gatherTicket: 2,
+        groupStudyTicket: 4,
+      },
     };
 
     try {
