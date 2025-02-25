@@ -155,6 +155,13 @@ export class UserController {
     return isActive;
   }
 
+  @Get('profiles')
+  async getUserByUids(@Query('uids') uids: string[]) {
+    console.log(uids);
+    const isActive = await this.userService.getUsersWithUids(uids);
+    return isActive;
+  }
+
   @Get('profile')
   async getProfile() {
     const targetUser = await this.userService.getUserInfo([]);
