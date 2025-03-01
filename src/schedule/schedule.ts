@@ -69,6 +69,26 @@ export class NotificationScheduler {
     }
   }
 
+  //매달 gatherTicket 3개로
+  @Cron('0 0 1 * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async resetGatherTicket() {
+    try {
+      await this.User.findOneAndUpdate(
+        { 'ticket.gatherTicket': { $lt: 3 } },
+        {
+          $set: { 'ticket.gatherTicket': 3 },
+        },
+        { new: true, upsert: false },
+      );
+      this.logger.log('Gather ticket reset successfully.');
+    } catch (error) {
+      this.logger.error('Error resetting monthly scores:', error);
+      throw new Error(error);
+    }
+  }
+
   //매주 targetHour 삭제
   @Cron('0 0 0 * * 1', {
     timeZone: 'Asia/Seoul',

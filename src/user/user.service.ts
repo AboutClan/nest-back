@@ -682,8 +682,7 @@ export class UserService {
   }
 
   async resetGatherTicket() {
-    const token = RequestContext.getDecodedToken();
-    await this.UserRepository.resetGatherTicket(token.uid);
+    await this.UserRepository.resetGatherTicket();
   }
 
   async getTicketInfo(userId: string) {
