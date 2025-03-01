@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { HttpException, Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
@@ -494,12 +494,12 @@ export default class GroupStudyService {
       if (status === 'agree') {
         const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
         if (groupStudy.meetingType !== 'online') {
-          if (ticketInfo.groupStudyOfflineTicket <= 1)
-            throw new Error('no ticket');
+          if (ticketInfo.groupStudyTicket <= 1)
+            throw new HttpException('no ticket', 500);
           this.userServiceInstance.updateReduceTicket('groupOffline', userId);
         } else {
-          if (ticketInfo.groupStudyOnlineTicket <= 0)
-            throw new Error('no ticket');
+          if (ticketInfo.groupStudyTicket <= 0)
+            throw new HttpException('no ticket', 500);
           this.userServiceInstance.updateReduceTicket('groupOnline', userId);
         }
       }
