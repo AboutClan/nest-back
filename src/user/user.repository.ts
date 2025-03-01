@@ -198,13 +198,11 @@ export class MongoUserRepository implements UserRepository {
     return null;
   }
 
-  async resetGatherTicket(uid: string) {
+  async resetGatherTicket() {
     await this.User.findOneAndUpdate(
+      { 'ticket.gatherTicket': { $lt: 3 } },
       {
-        uid,
-      },
-      {
-        $set: { 'ticket.gatherTicket': 2 },
+        $set: { 'ticket.gatherTicket': 3 },
       },
       { new: true, upsert: false },
     );

@@ -28,7 +28,7 @@ export interface UserRepository {
   patchLocationDetail(uid: string, text: string, lat: string, lon: string);
   updateGatherTicket(uid: string, value: number);
   updateGroupStudyTicket(uid: string, value: number);
-  resetGatherTicket(uid: string);
+  resetGatherTicket();
   getTicketInfo(userId: string);
   addbadge(uid: string, badgeIdx: number);
   selectbadge(uid: string, badgeIdx: number);
