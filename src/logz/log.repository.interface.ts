@@ -8,4 +8,5 @@ export interface LogRepository {
   ): Promise<ILog[]>;
   findByUidType(uid: string, type: string): Promise<ILog[]>;
   findAllByType(type: string): Promise<ILog[]>;
+  findTicketLog(type: string[]): Promise<ILog[]>;
 }
