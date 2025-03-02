@@ -54,7 +54,7 @@ export default class LogService {
       case 'gather':
         logs = await this.logRepository.findTicketLog(['gather']);
         break;
-      case 'groupstudy':
+      case 'groupStudy':
         logs = await this.logRepository.findTicketLog([
           'groupOffline',
           'groupOnline',
