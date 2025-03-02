@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import LogService from './log.service';
@@ -95,6 +96,19 @@ export class LogController {
   async getAllDepositLog() {
     try {
       const logs = await this.logService.getAllLog('deposit');
+      return logs;
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching all deposit logs',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('ticket/:category')
+  async getTicketLog(@Param('category') category: string) {
+    try {
+      const logs = await this.logService.getTicketLog(category);
       return logs;
     } catch (err) {
       throw new HttpException(

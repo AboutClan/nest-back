@@ -616,7 +616,7 @@ export class UserService {
         break;
       default:
         logger.logger.info('티켓 추가', {
-          type: 'ticket',
+          type,
           uid: userId,
           value: ticketNum,
         });
@@ -646,8 +646,8 @@ export class UserService {
         break;
     }
 
-    logger.logger.info('티켓 소모', {
-      type: 'ticket',
+    logger.logger.info(`티켓 소모`, {
+      type,
       uid: userId,
       value: ticketNum,
     });

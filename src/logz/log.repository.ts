@@ -44,4 +44,10 @@ export class MongoLogRepository implements LogRepository {
       '-_id timestamp message meta',
     );
   }
+  async findTicketLog(type: string[]): Promise<ILog[]> {
+    return await this.Log.find(
+      { 'meta.type': { $in: type } },
+      '-_id timestamp message meta',
+    );
+  }
 }

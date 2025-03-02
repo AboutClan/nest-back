@@ -47,4 +47,22 @@ export default class LogService {
 
     return logs;
   }
+
+  async getTicketLog(category: string) {
+    let logs;
+    switch (category) {
+      case 'gather':
+        logs = await this.logRepository.findTicketLog(['gather']);
+        break;
+      case 'groupstudy':
+        logs = await this.logRepository.findTicketLog([
+          'groupOffline',
+          'groupOnline',
+        ]);
+        break;
+      default:
+    }
+
+    return logs;
+  }
 }
