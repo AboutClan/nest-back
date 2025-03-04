@@ -44,6 +44,7 @@ export const SubCommentZodSchema = z.object({
 });
 
 export const CommentZodSchema = z.object({
+  _id: z.string().optional(),
   user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   subComments: z.array(SubCommentZodSchema).optional(),

@@ -142,15 +142,15 @@ export class MongoGatherRepository implements GatherRepository {
     gatherId: string,
     commentId: string,
     message: subCommentType,
-  ): Promise<null> {
-    await this.Gather.updateOne(
+  ): Promise<IGatherData> {
+    return await this.Gather.findOneAndUpdate(
       {
         id: gatherId,
         'comments._id': commentId,
       },
       { $push: { 'comments.$.subComments': message } },
+      { new: true },
     );
-    return null;
   }
   async deleteSubComment(
     gatherId: string,
@@ -190,7 +190,7 @@ export class MongoGatherRepository implements GatherRepository {
     userId: string,
     message: string,
   ): Promise<null> {
-    await this.Gather.findOneAndUpdate(
+    return await this.Gather.findOneAndUpdate(
       { id: gatherId },
       {
         $push: {
@@ -202,8 +202,6 @@ export class MongoGatherRepository implements GatherRepository {
       },
       { new: true }, // 업데이트 후 변경된 문서를 반환 (선택 사항)
     );
-
-    return null;
   }
   async deleteComment(gatherId: string, commentId: string): Promise<null> {
     await this.Gather.findOneAndUpdate(

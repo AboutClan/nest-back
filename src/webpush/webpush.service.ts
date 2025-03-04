@@ -128,16 +128,16 @@ export class WebPushService {
     }
   }
 
-  async sendNotificationGroupStudy(groupStudyId: string) {
+  async sendNotificationGroupStudy(groupStudyId: string, title: string) {
     try {
       const payload = JSON.stringify({
         ...this.basePayload,
-        title: '소모임에 누군가 가입했어요!',
+        title,
         body: '소모임을 확인해보세요.',
       });
 
       const groupStudy = await this.GroupStudy.findOne({
-        groupStudyId,
+        id: groupStudyId,
       }).populate(['participants.user']);
 
       const memberUids = groupStudy.participants?.map(
