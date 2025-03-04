@@ -378,9 +378,13 @@ export default class GroupStudyService {
 
     await this.userServiceInstance.updateReduceTicket('groupOffline', token.id);
 
+    await this.webPushServiceInstance.sendNotificationGroupStudy(
+      id,
+      `${token.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
+    );
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
-      '누군가 소모임에 가입했어요',
+      `${token.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
       '접속하여 확인하세요!',
     );
 
@@ -488,10 +492,8 @@ export default class GroupStudyService {
           attendCnt: 0,
           randomId: userId ? undefined : Math.floor(Math.random() * 100000),
         });
-      }
 
-      //ticket 소모 로직
-      if (status === 'agree') {
+        //ticket 소모 로직
         const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
         if (groupStudy.meetingType !== 'online') {
           if (ticketInfo.groupStudyTicket <= 1)
@@ -502,15 +504,21 @@ export default class GroupStudyService {
             throw new HttpException('no ticket', 500);
           this.userServiceInstance.updateReduceTicket('groupOnline', userId);
         }
+
+        //알림
+        await this.webPushServiceInstance.sendNotificationGroupStudy(
+          groupStudy.organizer,
+          `누군가 소모임에 가입했어요! 환영해 주세요!`,
+        );
+
+        await this.webPushServiceInstance.sendNotificationToXWithId(
+          userId,
+          '소모임 참여가 승인됐어요! 이제 함께할 수 있어요.',
+          '접속하여 확인하세요!',
+        );
       }
 
       await groupStudy?.save();
-
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        userId,
-        '소모임 가입이 승인되었어요.',
-        '접속하여 확인하세요!',
-      );
     } catch (err) {
       throw new Error();
     }
@@ -619,6 +627,12 @@ export default class GroupStudyService {
         },
       ];
     }
+
+    await this.webPushServiceInstance.sendNotificationToXWithId(
+      groupStudy.organizer,
+      `[${groupStudy.title}] 게시글에 새로운 댓글이 달렸어요.`,
+      '접속하여 확인하세요!',
+    );
 
     await groupStudy.save();
   }

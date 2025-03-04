@@ -322,7 +322,7 @@ export class GatherService {
     if (comment[0] && comment[0].user) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         comment[0].user as string,
-        `${gather.title} 에 새로운 댓글이 달렸어요!`,
+        `${token.name} 님이 내 댓글에 답글을 남겼어요.`,
         '접속하여 확인하세요!',
       );
     }
@@ -368,6 +368,7 @@ export class GatherService {
       comment,
     );
 
+    console.log(gatherId, comment);
     await this.webPushServiceInstance.sendNotificationToXWithId(
       gather.user as string,
       `${gather.title} 에 새로운 댓글이 달렸어요!`,
