@@ -16,7 +16,7 @@ export interface GatherRepository {
     gatherId: string,
     commentId: string,
     message: subCommentType,
-  ): Promise<null>;
+  ): Promise<IGatherData>;
   deleteSubComment(
     gatherId: string,
     commentId: string,
@@ -32,7 +32,7 @@ export interface GatherRepository {
     gatherId: string,
     userId: string,
     message: string,
-  ): Promise<null>;
+  ): Promise<IGatherData>;
   deleteComment(gatherId: string, commentId: string): Promise<null>;
   updateComment(
     gatherId: string,

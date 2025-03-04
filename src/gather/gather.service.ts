@@ -200,7 +200,7 @@ export class GatherService {
     if (gather.user)
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
-        '누군가 모임에 참여했어요',
+        `${token.name}님이 번개 모임에 합류했어요!`,
         '접속하여 확인하세요!',
       );
 
@@ -253,7 +253,7 @@ export class GatherService {
       if (gather.user)
         await this.webPushServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
-          '누군가 모임에 가입했어요',
+          `${token.name}님이 번개 모임 참여 신청을 했어요.`,
           '접속하여 확인하세요!',
         );
     } catch (err) {
@@ -291,9 +291,14 @@ export class GatherService {
       );
 
       await this.userServiceInstance.updateReduceTicket('gather', userId);
-      message = '모임 신청이 승인되었습니다.';
+      message = '번개 모임 참여가 승인됐어요! 일정 확인하고 함께해요.';
     }
 
+    await this.webPushServiceInstance.sendNotificationToXWithId(
+      token.id,
+      message,
+      '접속하여 확인하세요!',
+    );
     // await this.chatServiceInstance.createChat(userId, message);
   }
 
@@ -304,7 +309,23 @@ export class GatherService {
       comment: content,
     };
 
-    await this.gatherRepository.createSubComment(gatherId, commentId, message);
+    const gather = await this.gatherRepository.createSubComment(
+      gatherId,
+      commentId,
+      message,
+    );
+
+    const comment = gather.comments.filter(
+      (comment) => comment._id == commentId,
+    );
+
+    if (comment[0] && comment[0].user) {
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        comment[0].user as string,
+        `${gather.title} 에 새로운 댓글이 달렸어요!`,
+        '접속하여 확인하세요!',
+      );
+    }
 
     return;
   }
@@ -341,7 +362,17 @@ export class GatherService {
   //수정필요
   async createComment(gatherId: string, comment: string) {
     const token = RequestContext.getDecodedToken();
-    await this.gatherRepository.createComment(gatherId, token.id, comment);
+    const gather = await this.gatherRepository.createComment(
+      gatherId,
+      token.id,
+      comment,
+    );
+
+    await this.webPushServiceInstance.sendNotificationToXWithId(
+      gather.user as string,
+      `${gather.title} 에 새로운 댓글이 달렸어요!`,
+      '접속하여 확인하세요!',
+    );
 
     return;
   }
