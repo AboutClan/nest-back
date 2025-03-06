@@ -4,13 +4,21 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
 
-// process.on('unhandledRejection', (reason, promise) => {
-//   console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
-// });
+const logger = winston.createLogger({
+  level: 'error',
+  transports: [
+    new winston.transports.Console({ format: winston.format.json() }),
+  ],
+});
 
-// process.on('uncaughtException', (error) => {
-//   console.error('🔥 Uncaught Exception:', error);
-// });
+// ✅ 전역 에러 핸들링에서 Winston 사용
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('🔥 Unhandled Rejection', { promise, reason });
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('🔥 Uncaught Exception', { error });
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
