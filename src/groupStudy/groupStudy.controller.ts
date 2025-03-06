@@ -498,4 +498,9 @@ export class GroupStudyController {
       throw new HttpException('Error agreeing waiting person', 500);
     }
   }
+
+  // @Get('test')
+  // async test() {
+  //   await this.groupStudyService.test();
+  // }
 }

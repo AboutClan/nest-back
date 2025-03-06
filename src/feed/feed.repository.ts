@@ -168,7 +168,9 @@ export class MongoFeedRepository implements FeedRepository {
   }
 
   async findMyFeed(feedType: string, userId: string) {
-    return await this.Feed.find({ type: feedType, writer: userId });
+    return await this.Feed.find({ type: feedType, writer: userId }).sort({
+      createdAt: -1,
+    });
   }
   async findRecievedFeed(feedType: string, idArr: string[]) {
     return await this.Feed.find({
