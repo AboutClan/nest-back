@@ -5,7 +5,10 @@ import dayjs from 'dayjs';
 import { Request } from 'express';
 import { Model } from 'mongoose';
 import { JWT } from 'next-auth/jwt';
-import { GROUP_WEEKLY_PARTICIPATE_POINT } from 'src/Constants/point';
+import {
+  GROUP_WEEKLY_PARTICIPATE_POINT,
+  GROUPSTUDY_FIRST_COMMENT,
+} from 'src/Constants/point';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/user.entity';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
@@ -400,8 +403,6 @@ export default class GroupStudyService {
     const ticketInfo = await this.userServiceInstance.getTicketInfo(user.id);
     if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
 
-    await this.userServiceInstance.updateReduceTicket('groupOffline', user.id);
-
     if (
       !groupStudy.participants.some(
         (participant) => participant.user == user.id,
@@ -414,6 +415,8 @@ export default class GroupStudyService {
         user.uid,
       );
     }
+
+    await this.userServiceInstance.updateReduceTicket('groupOffline', user.id);
 
     await this.webPushServiceInstance.sendNotificationGroupStudy(
       id,
@@ -657,6 +660,11 @@ export default class GroupStudyService {
         comment,
       });
     } else {
+      await this.userServiceInstance.updatePoint(
+        GROUPSTUDY_FIRST_COMMENT,
+        '소모임 최초 리뷰 작성',
+        token.uid,
+      );
       groupStudy.comments = [
         {
           user: token.id,
@@ -825,5 +833,9 @@ export default class GroupStudyService {
 
   async getEnthMembers() {
     return await this.groupStudyRepository.findEnthMembers();
+  }
+
+  async test() {
+    return await this.groupStudyRepository.test();
   }
 }

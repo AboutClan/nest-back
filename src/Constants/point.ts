@@ -18,3 +18,5 @@ export const ATTEND_STUDY_POINT = 5;
 export const VOTE_POINT = 5;
 //스터디 투표 취소
 export const CANCEL_VOTE_POINT = -5;
+//소모임 최초 댓글
+export const GROUPSTUDY_FIRST_COMMENT = 100;
