@@ -374,7 +374,12 @@ export class UserService {
     return;
   }
 
-  async updateScore(score: number, message: string, sub?: string) {
+  async updateScore(
+    score: number,
+    message: string,
+    sub?: string,
+    uid?: string,
+  ) {
     const token = RequestContext.getDecodedToken();
 
     await this.UserRepository.increaseScore(score, token.uid);
@@ -382,7 +387,7 @@ export class UserService {
     logger.logger.info(message, {
       type: 'score',
       sub,
-      uid: token.uid,
+      uid: uid ?? token.uid,
       value: score,
     });
     return;

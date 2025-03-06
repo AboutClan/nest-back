@@ -3,15 +3,14 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
-import { join } from 'path';
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
-});
+// process.on('unhandledRejection', (reason, promise) => {
+//   console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
+// });
 
-process.on('uncaughtException', (error) => {
-  console.error('🔥 Uncaught Exception:', error);
-});
+// process.on('uncaughtException', (error) => {
+//   console.error('🔥 Uncaught Exception:', error);
+// });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
