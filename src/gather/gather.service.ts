@@ -151,11 +151,9 @@ export class GatherService {
     return;
   }
 
-  async participateGather(gatherId: number, phase: string, userId: string) {
-    //userId존재 => 초대로 들어온 경우임
+  async participateGather(gatherId: number, phase: string) {
     const token = RequestContext.getDecodedToken();
-    const id = userId ?? token.id;
-    const { ticket } = await this.userServiceInstance.getTicketInfo(id);
+    const { ticket } = await this.userServiceInstance.getTicketInfo(token.id);
 
     if (ticket.gatherTicket <= 0) {
       throw new HttpException('ticket이 부족합니다.', 500);
@@ -166,28 +164,18 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      let partData;
-      if (userId) {
-        partData = {
-          user: id,
-          phase,
-          invited: true,
-        };
-      } else {
-        partData = {
-          user: id,
-          phase,
-          invited: false,
-        };
-      }
+      let partData = {
+        user: token.id,
+        phase,
+        invited: false,
+      };
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
       await this.gatherRepository.participate(gatherId, validatedParticipate);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
     }
 
-    if (!userId)
-      await this.userServiceInstance.updateReduceTicket('gather', id);
+    await this.userServiceInstance.updateReduceTicket('gather', token.id);
 
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
@@ -202,6 +190,57 @@ export class GatherService {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
         `${token.name}님이 번개 모임에 합류했어요!`,
+        '접속하여 확인하세요!',
+      );
+
+    return;
+  }
+
+  async inviteGather(gatherId: number, phase: string, userId: string) {
+    //userId존재 => 초대로 들어온 경우임
+    const token = RequestContext.getDecodedToken();
+    const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
+
+    if (ticket.gatherTicket <= 0) {
+      throw new HttpException('ticket이 부족합니다.', 500);
+    }
+
+    //type 수정필요
+    const gather = await this.gatherRepository.findById(gatherId.toString());
+    if (!gather) throw new Error();
+
+    try {
+      let partData = {
+        user: userId,
+        phase,
+        invited: true,
+      };
+
+      const validatedParticipate = ParticipantsZodSchema.parse(partData);
+      await this.gatherRepository.participate(gatherId, validatedParticipate);
+    } catch (err) {
+      throw new BadRequestException('Invalid participate data');
+    }
+
+    const user = await this.userServiceInstance.getUserWithUserId(userId);
+
+    await this.userServiceInstance.updateScore(
+      PARTICIPATE_GATHER_SCORE,
+      '번개 모임 참여',
+      undefined,
+      user.uid,
+    );
+    await this.userServiceInstance.updatePoint(
+      PARTICIPATE_GATHER_POINT,
+      '번개 모임 참여',
+      undefined,
+      user.uid,
+    );
+
+    if (gather.user)
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        gather?.user as string,
+        `${user.name}님이 번개 모임에 합류했어요!`,
         '접속하여 확인하세요!',
       );
 

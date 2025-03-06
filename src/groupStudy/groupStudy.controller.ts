@@ -16,6 +16,7 @@ import { IGROUPSTUDY_SERVICE } from 'src/utils/di.tokens';
 import {
   CommentDto,
   CreateGroupStudyDto,
+  inviteGroupStudyDto,
   ParticipateGroupStudyDto,
 } from './dto';
 import { GroupStudyStatus } from './groupStudy.entity';
@@ -147,6 +148,23 @@ export class GroupStudyController {
     try {
       await this.groupStudyService.participateGroupStudy(
         participateGroupStudyDto.id.toString(),
+      );
+      return { status: 'success' };
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(
+        'Error participating in group study',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('participate')
+  async inviteGroupStudy(@Body() inviteGroupStudyDto: inviteGroupStudyDto) {
+    try {
+      await this.groupStudyService.inviteGroupStudy(
+        inviteGroupStudyDto.id.toString(),
+        inviteGroupStudyDto.userId.toString(),
       );
       return { status: 'success' };
     } catch (err) {
