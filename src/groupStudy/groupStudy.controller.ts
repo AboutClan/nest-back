@@ -159,7 +159,7 @@ export class GroupStudyController {
     }
   }
 
-  @Post('participate')
+  @Post('invite')
   async inviteGroupStudy(@Body() inviteGroupStudyDto: inviteGroupStudyDto) {
     try {
       await this.groupStudyService.inviteGroupStudy(
