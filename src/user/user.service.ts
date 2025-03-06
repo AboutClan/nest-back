@@ -40,6 +40,8 @@ export class UserService {
       return originalText;
     } catch (error) {
       console.error({
+        context: 'NestApplication',
+        level: 'error',
         message: `${token.uid} Error decoding telephone:${error.message}`,
       });
       return 'Decryption Failed';
