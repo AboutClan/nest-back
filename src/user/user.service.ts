@@ -338,7 +338,12 @@ export class UserService {
     return updatedUser;
   }
 
-  async updatePoint(point: number, message: string, sub?: string) {
+  async updatePoint(
+    point: number,
+    message: string,
+    sub?: string,
+    uid?: string,
+  ) {
     const token = RequestContext.getDecodedToken();
 
     await this.UserRepository.increasePoint(point, token.uid);

@@ -391,6 +391,43 @@ export default class GroupStudyService {
     return;
   }
 
+  async inviteGroupStudy(id: string, userId: string) {
+    const groupStudy = await this.groupStudyRepository.findById(id);
+    const user = await this.userServiceInstance.getUserWithUserId(userId);
+    if (!groupStudy) throw new Error();
+
+    //ticket 차감 로직
+    const ticketInfo = await this.userServiceInstance.getTicketInfo(user.id);
+    if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
+
+    await this.userServiceInstance.updateReduceTicket('groupOffline', user.id);
+
+    if (
+      !groupStudy.participants.some(
+        (participant) => participant.user == user.id,
+      )
+    ) {
+      await this.groupStudyRepository.addParticipantWithAttendance(
+        id,
+        user._id,
+        user.name,
+        user.uid,
+      );
+    }
+
+    await this.webPushServiceInstance.sendNotificationGroupStudy(
+      id,
+      `${user.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
+    );
+    await this.webPushServiceInstance.sendNotificationToXWithId(
+      groupStudy.organizer,
+      `${user.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
+      '접속하여 확인하세요!',
+    );
+
+    return;
+  }
+
   async deleteParticipate(id: string) {
     const token = RequestContext.getDecodedToken();
     const groupStudy = await this.groupStudyRepository.findById(id);

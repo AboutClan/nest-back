@@ -140,10 +140,20 @@ export class GatherController {
     await this.gatherService.participateGather(
       participateGatherDto.gatherId,
       participateGatherDto.phase,
-      participateGatherDto.userId,
     );
     return { status: 'success' };
   }
+
+  @Post('invite')
+  async inviteGather(@Body() inviteGatherDto: ParticipateGatherDto) {
+    await this.gatherService.inviteGather(
+      inviteGatherDto.gatherId,
+      inviteGatherDto.phase,
+      inviteGatherDto.userId,
+    );
+    return { status: 'success' };
+  }
+
   @Delete('participate')
   async deleteParticipate(@Body() body: { gatherId: number }) {
     try {

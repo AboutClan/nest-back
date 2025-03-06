@@ -13,6 +13,16 @@ export class ParticipateGroupStudyDto {
   id: number;
 }
 
+export class inviteGroupStudyDto {
+  @IsNotEmpty({ message: 'id필요' })
+  @IsNumber()
+  id: number;
+
+  @IsNotEmpty({ message: 'userId 필요' })
+  @IsNumber()
+  userId: number;
+}
+
 export class CommentDto {
   @IsNotEmpty({ message: 'id필요' })
   @IsNumber()
