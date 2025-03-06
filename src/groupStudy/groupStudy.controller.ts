@@ -5,14 +5,12 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Inject,
   Param,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { IGROUPSTUDY_SERVICE } from 'src/utils/di.tokens';
 import {
   CommentDto,
   CreateGroupStudyDto,
@@ -22,7 +20,7 @@ import {
 import { GroupStudyStatus } from './groupStudy.entity';
 import GroupStudyService from './groupStudy.service';
 
-@ApiTags('groupstudy')
+@ApiTags('groupStudy')
 @Controller('groupStudy')
 export class GroupStudyController {
   constructor(private readonly groupStudyService: GroupStudyService) {}

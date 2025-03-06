@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
@@ -10,7 +10,6 @@ import { IUser } from 'src/user/user.entity';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
-  IWEBPUSH_SERVICE,
 } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/webpush/webpush.service';
 
@@ -116,7 +115,7 @@ export class NotificationScheduler {
     }
   }
 
-  //매시간 groupstudy 상태 변경
+  //매시간 groupStudy 상태 변경
 
   @Cron(CronExpression.EVERY_6_HOURS, {
     timeZone: 'Asia/Seoul',
