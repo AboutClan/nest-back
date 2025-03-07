@@ -50,6 +50,7 @@ import { HttpExceptionFilter } from './http-exception.filter';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
 import { ZodExceptionFilter } from './zod-exception.filter';
+import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -134,7 +135,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
-        // LoggingMiddleware,
+        LoggingMiddleware,
         helmet(),
         compression(),
         // cors(corsOptions),
