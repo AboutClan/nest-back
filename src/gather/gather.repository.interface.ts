@@ -63,4 +63,5 @@ export interface GatherRepository {
   findMyGather(userId: string, start: number, gap: number);
   participate(gatherId: number, participateData: participantsType);
   findMyGatherId(userId: string);
+  exileUser(gatherId: number, userId: string);
 }

@@ -247,6 +247,10 @@ export class GatherService {
     return;
   }
 
+  async exileGather(gatherId: number, userId: string) {
+    await this.gatherRepository.exileUser(gatherId, userId);
+  }
+
   async deleteParticipate(gatherId: number) {
     const token = RequestContext.getDecodedToken();
     const oldData = await this.gatherRepository.deleteParticipants(
