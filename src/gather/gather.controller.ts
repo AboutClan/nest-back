@@ -13,6 +13,7 @@ import { ApiTags } from '@nestjs/swagger';
 import {
   CreateGatherDto,
   DeleteGatherDto,
+  ExileGatherDto,
   HandleWaitingPersonDto,
   ParticipateGatherDto,
   SetWaitingPersonDto,
@@ -80,6 +81,13 @@ export class GatherController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Post('exile')
+  async exileGather(@Body() exileGatherDto: ExileGatherDto) {
+    const { gatherId, userId } = exileGatherDto;
+
+    await this.gatherService.exileGather(gatherId, userId);
   }
 
   @Delete()

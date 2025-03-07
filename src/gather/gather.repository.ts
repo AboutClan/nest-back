@@ -379,4 +379,11 @@ export class MongoGatherRepository implements GatherRepository {
 
     return result;
   }
+
+  async exileUser(gatherId: number, userId: string) {
+    await this.Gather.updateOne(
+      { id: gatherId }, // 숫자 타입 ID 검색
+      { $pull: { participants: { user: userId } } }, // $elemMatch 없이 바로 사용
+    );
+  }
 }

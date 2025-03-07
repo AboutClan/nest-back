@@ -37,6 +37,16 @@ export class HandleWaitingPersonDto {
   text: string;
 }
 
+export class ExileGatherDto {
+  @IsNotEmpty({ message: 'gather id필요' })
+  @IsNumber()
+  gatherId: number;
+
+  @IsNotEmpty({ message: 'user id필요' })
+  @IsString()
+  userId: string;
+}
+
 export class ParticipateGatherDto {
   @IsNotEmpty({ message: 'gatherId필요' })
   @IsNumber()
