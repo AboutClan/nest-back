@@ -25,6 +25,7 @@ import {
   subCommentType,
 } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
+import dayjs from 'dayjs';
 //commit
 @Injectable()
 export class GatherService {
@@ -40,7 +41,7 @@ export class GatherService {
   }
 
   async getGatherById(gatherId: number) {
-    const gatherData = await this.gatherRepository.findByIdPop(gatherId);
+    const gatherData = await this.gatherRepository.findById(gatherId, true);
     return gatherData;
   }
 
@@ -54,7 +55,11 @@ export class GatherService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.gatherRepository.findAll(start, gap);
+    let gatherData = await this.gatherRepository.findWithQueryPop(
+      {},
+      start,
+      gap,
+    );
 
     return gatherData;
   }
@@ -78,9 +83,21 @@ export class GatherService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.gatherRepository.findMyStatusGather(
-      token.id,
-      'open',
+    const todayString = dayjs().startOf('day').toISOString();
+    const query = {
+      $and: [
+        {
+          $or: [
+            { participants: { $elemMatch: { user: token.id } } },
+            { user: token.id },
+          ],
+        },
+        { date: { $gte: todayString } },
+      ],
+    };
+
+    let gatherData = await this.gatherRepository.findWithQueryPop(
+      query,
       start,
       gap,
     );
@@ -94,9 +111,22 @@ export class GatherService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.gatherRepository.findMyStatusGather(
-      token.id,
-      'finish',
+    const todayString = dayjs().startOf('day').toISOString();
+    const query = {
+      $and: [
+        {
+          $or: [
+            { participants: { $elemMatch: { user: token.id } } },
+            { user: token.id },
+          ],
+        },
+        { date: { $lt: todayString } },
+        ,
+      ],
+    };
+
+    let gatherData = await this.gatherRepository.findWithQueryPop(
+      query,
       start,
       gap,
     );
@@ -110,8 +140,11 @@ export class GatherService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.gatherRepository.findMyGather(
-      token.id,
+    const query = {
+      user: token.id,
+    };
+    let gatherData = await this.gatherRepository.findWithQueryPop(
+      query,
       start,
       gap,
     );
@@ -160,7 +193,7 @@ export class GatherService {
     }
 
     //type 수정필요
-    const gather = await this.gatherRepository.findById(gatherId.toString());
+    const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
 
     try {
@@ -206,7 +239,7 @@ export class GatherService {
     }
 
     //type 수정필요
-    const gather = await this.gatherRepository.findById(gatherId.toString());
+    const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
 
     try {
@@ -276,7 +309,7 @@ export class GatherService {
 
     return;
   }
-  async setWaitingPerson(id: string, phase: 'first' | 'second') {
+  async setWaitingPerson(id: number, phase: 'first' | 'second') {
     const token = RequestContext.getDecodedToken();
 
     const gather = await this.gatherRepository.findById(id);

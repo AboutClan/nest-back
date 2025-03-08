@@ -70,17 +70,24 @@ export class MongoGatherRepository implements GatherRepository {
       console.error('Error:', error);
     }
   }
-  async findById(gatherId: string): Promise<IGatherData> {
-    return await this.Gather.findOne({ id: gatherId });
+  async findById(gatherId: number, pop?: boolean): Promise<IGatherData> {
+    let query = this.Gather.findOne({ id: gatherId });
+    if (pop) {
+      query = query
+        .populate([
+          'user',
+          'participants.user',
+          'waiting.user',
+          'comments.user',
+        ])
+        .populate({
+          path: 'comments.subComments.user',
+          select: C_simpleUser,
+        });
+    }
+    return await query;
   }
-  async findByIdPop(gatherId: number): Promise<IGatherData> {
-    return await this.Gather.findOne({ id: gatherId })
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
-  }
+
   async findThree(): Promise<IGatherData[]> {
     const notStudy = await this.Gather.find({ 'type.title': { $ne: '스터디' } })
       .sort({ createdAt: -1 })
@@ -101,23 +108,7 @@ export class MongoGatherRepository implements GatherRepository {
       });
     return [...notStudy, ...study];
   }
-  async findAll(start: number, gap: number): Promise<IGatherData[]> {
-    return await this.Gather.find()
-      .sort({ createdAt: -1 })
-      .skip(start)
-      .limit(gap)
-      .select('-_id')
-      .populate([
-        { path: 'user' },
-        { path: 'participants.user' },
-        { path: 'comments.user' },
-        { path: 'waiting.user' },
-        {
-          path: 'comments.subComments.user',
-          select: C_simpleUser,
-        },
-      ]);
-  }
+
   async createGather(gatherData: Partial<IGatherData>): Promise<IGatherData> {
     return await this.Gather.create(gatherData);
   }
@@ -321,43 +312,8 @@ export class MongoGatherRepository implements GatherRepository {
     );
   }
 
-  async findMyStatusGather(
-    userId: string,
-    status: string,
-    start: number,
-    gap: number,
-  ) {
-    const todayString = dayjs().startOf('day').toISOString();
-
-    const result = await this.Gather.find({
-      $and: [
-        {
-          $or: [
-            { participants: { $elemMatch: { user: userId } } },
-            { user: userId },
-          ],
-        },
-        status === 'open'
-          ? { date: { $gte: todayString } }
-          : { date: { $lt: todayString } },
-      ],
-    })
-      .sort({ date: -1 })
-      .skip(start)
-      .limit(gap)
-      .select('-_id')
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
-    return result;
-  }
-
-  async findMyGather(userId: string, start: number, gap: number) {
-    const result = await this.Gather.find({
-      user: userId,
-    })
+  async findWithQueryPop(query: any, start?: number, gap?: number) {
+    const result = await this.Gather.find(query)
       .sort({ date: -1 })
       .skip(start)
       .limit(gap)
@@ -370,6 +326,7 @@ export class MongoGatherRepository implements GatherRepository {
 
     return result;
   }
+
   async findMyGatherId(userId: string) {
     const result = await this.Gather.find({
       participants: {

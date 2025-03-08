@@ -122,7 +122,7 @@ export class GatherController {
   async setWaitingPerson(@Body() setWaitingPersonDto: SetWaitingPersonDto) {
     try {
       await this.gatherService.setWaitingPerson(
-        setWaitingPersonDto.id,
+        parseInt(setWaitingPersonDto.id),
         setWaitingPersonDto.phase,
       );
       return { status: 'success' };

@@ -1,11 +1,9 @@
-import { UpdateWriteOpResult } from 'mongoose';
 import { IGatherData, participantsType, subCommentType } from './gather.entity';
 
 export interface GatherRepository {
-  findById(gatherId: string): Promise<IGatherData>;
-  findByIdPop(gatherId: number): Promise<IGatherData>;
+  findById(gatherId: number, pop?: boolean): Promise<IGatherData>;
   findThree(): Promise<IGatherData[]>;
-  findAll(start: number, gap: number): Promise<IGatherData[]>;
+  findWithQueryPop(query: any, start?: number, gap?: number);
   createGather(gatherData: Partial<IGatherData>): Promise<IGatherData>;
   updateGather(
     gatherId: number,
@@ -54,13 +52,6 @@ export interface GatherRepository {
   getEnthMembers();
   deleteWaiting(gatherId: string, userId: string);
   updateNotOpened(current: Date);
-  findMyStatusGather(
-    userId: string,
-    status: string,
-    start: number,
-    gap: number,
-  );
-  findMyGather(userId: string, start: number, gap: number);
   participate(gatherId: number, participateData: participantsType);
   findMyGatherId(userId: string);
   exileUser(gatherId: number, userId: string);
