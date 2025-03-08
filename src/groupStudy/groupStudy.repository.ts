@@ -9,14 +9,18 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     @InjectModel('GroupStudy')
     private readonly GroupStudy: Model<IGroupStudyData>,
   ) {}
-  async findByStatusAndCategory(
-    filterQuery: any,
-    start: number,
-    gap: number,
-  ): Promise<IGroupStudyData[]> {
-    return await this.GroupStudy.find(filterQuery)
-      .skip(start)
-      .limit(gap)
+
+  async findWithQueryPopPage(filterQuery: any, start?: number, gap?: number) {
+    let query = this.GroupStudy.find(filterQuery || {}).select('-_id');
+
+    if (start !== undefined) {
+      query = query.skip(start);
+    }
+    if (gap !== undefined) {
+      query = query.limit(gap);
+    }
+
+    return await query
       .populate({
         path: 'organizer',
         select: 'name profileImage uid score avatar comment',
@@ -36,8 +40,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       .populate({
         path: 'comments.subComments.user',
         select: C_simpleUser,
-      })
-      .select('-_id');
+      });
   }
 
   async addParticipantWithAttendance(
@@ -65,33 +68,6 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       },
       { new: true },
     );
-  }
-
-  async findByCategory(category: string): Promise<IGroupStudyData[]> {
-    return await this.GroupStudy.find({
-      'category.main': category,
-    })
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
   }
 
   async findById(groupStudyId: string): Promise<IGroupStudyData> {
@@ -130,58 +106,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       })
       .select('-_id');
   }
-  async findByParticipant(userId: string): Promise<IGroupStudyData[]> {
-    return await this.GroupStudy.find({
-      'participants.user': userId as string,
-    })
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
-  }
-  async findAllFilter(start: number, gap: number): Promise<IGroupStudyData[]> {
-    return await this.GroupStudy.find()
-      .skip(start)
-      .limit(gap + 1)
-      .populate({
-        path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
-      })
-      .populate({
-        path: 'participants.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.user',
-        select: C_simpleUser,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      })
-      .select('-_id');
-  }
+
   async createSubComment(
     groupStudyId: string,
     commentId: string,
@@ -196,6 +121,7 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     );
     return null;
   }
+
   async deleteSubComment(
     groupStudyId: string,
     commentId: string,
@@ -368,61 +294,6 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  async findMyStatusGroupStudy(
-    userId: string,
-    status: string,
-    start: number,
-    gap: number,
-  ) {
-    const result = await this.GroupStudy.find({
-      $and: [
-        {
-          participants: {
-            $elemMatch: { user: userId },
-          },
-        },
-        status == 'open'
-          ? { status: 'pending' }
-          : { status: { $ne: 'pending' } },
-      ],
-    })
-      .skip(start)
-      .limit(gap)
-      .select('-_id')
-      .populate([
-        'organizer',
-        'participants.user',
-        'waiting.user',
-        'comments.user',
-      ])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
-
-    return result;
-  }
-  async findMyGroupStudy(userId: string, start: number, gap: number) {
-    const result = await this.GroupStudy.find({
-      organizer: userId,
-    })
-      .skip(start)
-      .limit(gap)
-      .select('-_id')
-      .populate([
-        'organizer',
-        'participants.user',
-        'waiting.user',
-        'comments.user',
-      ])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
-
-    return result;
   }
 
   async findMyGroupStudyId(userId: string) {

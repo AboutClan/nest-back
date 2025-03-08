@@ -1,10 +1,7 @@
 import { HttpException, Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
-import { Request } from 'express';
 import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
 import {
   GROUP_WEEKLY_PARTICIPATE_POINT,
   GROUPSTUDY_FIRST_COMMENT,
@@ -47,9 +44,19 @@ export default class GroupStudyService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.groupStudyRepository.findMyStatusGroupStudy(
-      token.id,
-      'open',
+    const filterQuery = {
+      $and: [
+        {
+          participants: {
+            $elemMatch: { user: token.id },
+          },
+        },
+        { status: 'pending' },
+      ],
+    };
+
+    let gatherData = await this.groupStudyRepository.findWithQueryPopPage(
+      filterQuery,
       start,
       gap,
     );
@@ -63,9 +70,20 @@ export default class GroupStudyService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.groupStudyRepository.findMyStatusGroupStudy(
-      token.id,
-      'finish',
+    const filterQuery = {
+      $and: [
+        {
+          participants: {
+            $elemMatch: { user: token.id },
+          },
+        },
+        { status: { $ne: 'pending' } },
+        ,
+      ],
+    };
+
+    let gatherData = await this.groupStudyRepository.findWithQueryPopPage(
+      filterQuery,
       start,
       gap,
     );
@@ -79,8 +97,11 @@ export default class GroupStudyService {
     const gap = 12;
     let start = gap * (cursor || 0);
 
-    let gatherData = await this.groupStudyRepository.findMyGroupStudy(
-      token.id,
+    const filterQuery = {
+      organizer: token.id,
+    };
+    let gatherData = await this.groupStudyRepository.findWithQueryPopPage(
+      filterQuery,
       start,
       gap,
     );
@@ -94,7 +115,7 @@ export default class GroupStudyService {
 
     const filterQuery = { status: 'study' };
 
-    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+    groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       0,
       Infinity,
@@ -109,7 +130,7 @@ export default class GroupStudyService {
 
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
-    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+    groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       0,
       Infinity,
@@ -166,7 +187,7 @@ export default class GroupStudyService {
       'category.main': category,
     };
 
-    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+    groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
       gap,
@@ -207,7 +228,7 @@ export default class GroupStudyService {
       }), // 배열 길이 조건 추가
     };
 
-    groupStudyData = await this.groupStudyRepository.findByStatusAndCategory(
+    groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
       gap,
@@ -219,8 +240,11 @@ export default class GroupStudyService {
   }
 
   async getGroupStudyByCategory(category: string) {
+    const filterQuery = {
+      'category.main': category,
+    };
     const groupStudyData =
-      await this.groupStudyRepository.findByCategory(category);
+      await this.groupStudyRepository.findWithQueryPopPage(filterQuery);
 
     return groupStudyData;
   }
@@ -236,8 +260,13 @@ export default class GroupStudyService {
 
   async getUserParticipatingGroupStudy() {
     const token = RequestContext.getDecodedToken();
+
+    const query = {
+      'participants.user': token.id as string,
+    };
+
     const userParticipatingGroupStudy =
-      await this.groupStudyRepository.findByParticipant(token.id);
+      await this.groupStudyRepository.findWithQueryPopPage(query);
 
     return userParticipatingGroupStudy;
   }
@@ -246,7 +275,8 @@ export default class GroupStudyService {
     const gap = 7;
     let start = gap * (cursor || 0);
 
-    const groupStudyData = await this.groupStudyRepository.findAllFilter(
+    const groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
+      null,
       start,
       gap,
     );

@@ -2,23 +2,17 @@ import { UpdateWriteOpResult } from 'mongoose';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 
 export interface GroupStudyRepository {
-  findByStatusAndCategory(
-    filterQuery: any,
-    start: number,
-    gap: number,
-  ): Promise<IGroupStudyData[]>;
-  findByCategory(category: string): Promise<IGroupStudyData[]>;
+  findWithQueryPopPage(filterQuery: any, start?: number, gap?: number);
+  // findWithQuery(filterQuery: any);
   findById(groupStudyId: string): Promise<IGroupStudyData>;
   findByIdWithWaiting(groupStudyId: string): Promise<IGroupStudyData>;
   findByIdWithPop(groupStudyId: number): Promise<IGroupStudyData>;
-  findByParticipant(userId: string): Promise<IGroupStudyData[]>;
   addParticipantWithAttendance(
     id: string,
     userId: string,
     userName: string,
     userUid: string,
   ): Promise<IGroupStudyData>;
-  findAllFilter(start: number, gap: number): Promise<IGroupStudyData[]>;
   createSubComment(
     groupStudyId: string,
     commentId: string,
@@ -55,13 +49,6 @@ export interface GroupStudyRepository {
   weekAttendance(groupId: string, id: string): Promise<UpdateWriteOpResult>;
   initWeekAttendance(): Promise<void>;
   findEnthMembers();
-  findMyStatusGroupStudy(
-    groupStudyId: string,
-    status: string,
-    start: number,
-    gap: number,
-  );
-  findMyGroupStudy(groupStudyId: string, start: number, gap: number);
   findMyGroupStudyId(userId: string);
   findMyGroupStudyComment(userId: string);
   test();
