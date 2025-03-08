@@ -835,6 +835,28 @@ export default class GroupStudyService {
     return await this.groupStudyRepository.findEnthMembers();
   }
 
+  async getComment(type: 'mine' | 'others', cursor: number) {
+    const token = RequestContext.getDecodedToken();
+
+    const groupStudies =
+      await this.groupStudyRepository.findMyGroupStudyComment(token.id);
+
+    const commentArr = [];
+
+    groupStudies.forEach((groupStudy) => {
+      commentArr.push(...groupStudy.comments);
+    });
+
+    let usedComment;
+    if (type == 'mine') {
+      usedComment = commentArr.filter((comment) => comment.user == token.id);
+    } else {
+      usedComment = commentArr.filter((comment) => comment.user != token.id);
+    }
+
+    return usedComment;
+  }
+
   async test() {
     return await this.groupStudyRepository.test();
   }

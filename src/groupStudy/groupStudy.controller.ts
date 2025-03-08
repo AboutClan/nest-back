@@ -208,6 +208,15 @@ export class GroupStudyController {
     }
   }
 
+  @Get('comment')
+  async getComment(
+    @Query('type') type?: 'mine' | 'others',
+    @Query('cursor') cursor?: string,
+  ) {
+    const cursorNum = cursor ? parseInt(cursor) : 0;
+    await this.groupStudyService.getComment(type, cursorNum);
+  }
+
   @Post('comment')
   async createComment(@Body() commentDto: CommentDto) {
     try {
