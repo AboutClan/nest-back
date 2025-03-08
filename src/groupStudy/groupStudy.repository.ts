@@ -435,6 +435,16 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     return result;
   }
 
+  async findMyGroupStudyComment(userId: string) {
+    const result = await this.GroupStudy.find({
+      participants: {
+        $elemMatch: { user: userId },
+      },
+    }).select('-_id comments');
+
+    return result;
+  }
+
   async test() {
     await this.GroupStudy.updateMany(
       {},

@@ -346,12 +346,12 @@ export class UserService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    await this.UserRepository.increasePoint(point, token.uid);
+    await this.UserRepository.increasePoint(point, uid ?? token.uid);
 
     logger.logger.info(message, {
       type: 'point',
       sub,
-      uid: token.uid,
+      uid: uid ?? token.uid,
       value: point,
     });
     return;
@@ -702,7 +702,24 @@ export class UserService {
   }
 
   async test() {
-    await this.UserRepository.test();
+    // await this.UserRepository.test();
+
+    const result = await this.Log.find({
+      message: '소모임 가입',
+      'meta.value': -1500,
+    });
+
+    const uids = result.map((item) => item.meta.uid);
+
+    uids.forEach(async (uid) => {
+      console.log(uid);
+      await this.updatePoint(
+        1500,
+        '포인트 에러 복구',
+        undefined,
+        uid.toString(),
+      );
+    });
   }
   //   const logs = await this.Log.find({
   //     $and: [
