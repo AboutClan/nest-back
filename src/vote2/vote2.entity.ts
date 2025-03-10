@@ -21,6 +21,7 @@ export interface IMember {
   img?: string;
   start?: string;
   end?: string;
+  absence?: boolean;
 }
 
 export interface IResult {
@@ -37,6 +38,10 @@ export const MemberSchema: Schema<IMember> = new Schema(
     start: String,
     end: String,
     arrived: Date,
+    absence: {
+      type: Boolean,
+      default: false,
+    },
     memo: String,
     img: String,
   },

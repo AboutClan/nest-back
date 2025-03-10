@@ -19,7 +19,36 @@ export class Vote2Service {
     private readonly PlaceRepository: PlaceRepository,
   ) {}
 
-  setVote(date: Date, createVote: CreateNewVoteDTO) {
+  async getArrivedPeriod(startDay: string, endDay: string) {
+    const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
+
+    const result = [];
+    votes.forEach((vote) => {
+      const a = {
+        date: vote.date,
+        arrivedInfoList: vote.results.map((result) => {
+          const arrivedMembers = result.members.filter(
+            (member) => member.arrived,
+          );
+
+          return {
+            placeId: result.placeId,
+            arrivedInfo: arrivedMembers.map((member) => {
+              return {
+                uid: member.userId.uid,
+                name: member.userId.name,
+              };
+            }),
+          };
+        }),
+      };
+      result.push(a);
+    });
+
+    return result;
+  }
+
+  async setVote(date: Date, createVote: CreateNewVoteDTO) {
     const token = RequestContext.getDecodedToken();
 
     const { latitude, longitude, start, end } = createVote;
@@ -32,7 +61,8 @@ export class Vote2Service {
       end,
     };
 
-    this.Vote2Repository.setVote(date, userVoteData);
+    await this.Vote2Repository.setVote(date, userVoteData);
+    return;
   }
 
   async deleteVote(date: Date) {
@@ -87,6 +117,17 @@ export class Vote2Service {
     await this.Vote2Repository.setVoteResult(date, voteResults);
   }
 
+  async getFilteredVoteOne(date: any) {
+    const voteData = await this.Vote2Repository.findByDate(date);
+    return voteData.results.map((result) => {
+      return {
+        place: result.placeId,
+        absences: result.members.filter((member) => member.absence),
+        members: result.members.filter((member) => member.arrived),
+      };
+    });
+  }
+
   async setArrive(date: Date, memo: string) {
     const token = RequestContext.getDecodedToken();
     const arriveData = {
@@ -109,5 +150,29 @@ export class Vote2Service {
       end,
       userId: token.id,
     });
+  }
+
+  async getAbsence(date: Date) {
+    const voteData = await this.Vote2Repository.findByDate(date);
+
+    const resultArr = [];
+    voteData.results.forEach((result) => {
+      resultArr.push(
+        ...result.members.map((member) => {
+          return {
+            userId: member.userId,
+            message: member.memo,
+          };
+        }),
+      );
+    });
+
+    return resultArr;
+  }
+
+  async setAbsence(date: Date, message: string) {
+    const token = RequestContext.getDecodedToken();
+
+    await this.Vote2Repository.setAbsence(date, message, token.id);
   }
 }

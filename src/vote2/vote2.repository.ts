@@ -2,12 +2,40 @@ import { InjectModel } from '@nestjs/mongoose';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import { Model } from 'mongoose';
+import dayjs from 'dayjs';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
     @InjectModel('Vote2')
     private readonly Vote2: Model<IVote2>,
   ) {}
+
+  async findByDate(date: Date) {
+    return await this.Vote2.findOne({ date });
+  }
+  async setAbsence(date: Date, message: string, userId: string) {
+    await this.Vote2.updateMany(
+      { date }, // 특정 date 문서만 선택
+      {
+        $set: {
+          'results.$[].members.$[member].absence': true,
+          'results.$[].members.$[member].memo': message,
+        },
+      },
+      {
+        arrayFilters: [{ 'member.userId': userId }],
+      },
+    );
+  }
+
+  async getVoteByPeriod(startDay: string, endDay: string) {
+    return this.Vote2.find({
+      date: {
+        $gte: dayjs(startDay).toDate(),
+        $lt: dayjs(endDay).toDate(),
+      },
+    }).populate('results.members.userId');
+  }
 
   async setArrive(date: Date, userId: string, arriveData) {
     await this.Vote2.updateOne(
