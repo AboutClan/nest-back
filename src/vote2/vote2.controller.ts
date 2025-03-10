@@ -27,6 +27,15 @@ export class Vote2Controller {
     await this.voteService2.setResult(new Date());
   }
 
+  @Get(':date/one')
+  async getFilteredVoteByDateOne(@Req() req: Request): Promise<any> {
+    const { date } = req;
+
+    const filteredVote = await this.voteService2.getFilteredVoteOne(date);
+
+    return filteredVote;
+  }
+
   @Get('arrived')
   async getArrived(
     @Query('startDay') startDay: string,

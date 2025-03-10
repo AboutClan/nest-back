@@ -117,6 +117,17 @@ export class Vote2Service {
     await this.Vote2Repository.setVoteResult(date, voteResults);
   }
 
+  async getFilteredVoteOne(date: any) {
+    const voteData = await this.Vote2Repository.findByDate(date);
+    return voteData.results.map((result) => {
+      return {
+        place: result.placeId,
+        absences: result.members.filter((member) => member.absence),
+        members: result.members.filter((member) => member.arrived),
+      };
+    });
+  }
+
   async setArrive(date: Date, memo: string) {
     const token = RequestContext.getDecodedToken();
     const arriveData = {
