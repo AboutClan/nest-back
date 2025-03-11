@@ -476,12 +476,8 @@ export class GroupStudyController {
     @Body('status') status: string,
     @Body('userId') userId: string,
   ) {
-    try {
-      await this.groupStudyService.agreeWaitingPerson(id, userId, status);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException('Error agreeing waiting person', 500);
-    }
+    await this.groupStudyService.agreeWaitingPerson(id, userId, status);
+    return { status: 'success' };
   }
 
   @Post('weekAttend')
