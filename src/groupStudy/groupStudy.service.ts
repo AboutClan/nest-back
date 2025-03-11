@@ -574,6 +574,7 @@ export default class GroupStudyService {
             throw new HttpException('no ticket', 500);
           this.userServiceInstance.updateReduceTicket('groupOnline', userId);
         }
+        await groupStudy?.save();
 
         //알림
         await this.webPushServiceInstance.sendNotificationGroupStudy(
@@ -587,8 +588,6 @@ export default class GroupStudyService {
           '접속하여 확인하세요!',
         );
       }
-
-      await groupStudy?.save();
     } catch (err) {
       throw new Error();
     }
