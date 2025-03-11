@@ -578,7 +578,7 @@ export default class GroupStudyService {
 
         //알림
         await this.webPushServiceInstance.sendNotificationGroupStudy(
-          groupStudy.organizer,
+          id,
           `누군가 소모임에 가입했어요! 환영해 주세요!`,
         );
 
