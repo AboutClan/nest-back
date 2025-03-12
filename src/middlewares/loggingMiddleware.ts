@@ -38,7 +38,7 @@ export class LoggingMiddleware implements NestMiddleware {
         method: req.method,
         url: req.originalUrl,
         statusCode: res.statusCode,
-        duration: `${duration}ms`,
+        duration: `${duration}`,
       });
     });
 
