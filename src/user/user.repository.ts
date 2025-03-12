@@ -230,10 +230,9 @@ export class MongoUserRepository implements UserRepository {
 
   async test() {
     await this.User.updateMany(
-      {},
+      { 'ticket.gatherTicket': { $lt: 3 } },
       {
-        monthScore: 10,
-        'badge.badgeIdx': 0,
+        $set: { 'ticket.gatherTicket': 3 },
       },
     );
   }

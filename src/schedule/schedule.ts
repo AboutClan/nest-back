@@ -74,7 +74,7 @@ export class NotificationScheduler {
   })
   async resetGatherTicket() {
     try {
-      await this.User.findOneAndUpdate(
+      await this.User.updateMany(
         { 'ticket.gatherTicket': { $lt: 3 } },
         {
           $set: { 'ticket.gatherTicket': 3 },
