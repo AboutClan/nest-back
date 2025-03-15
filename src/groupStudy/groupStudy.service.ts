@@ -15,9 +15,13 @@ import { CounterService } from 'src/counter/counter.service';
 import { UserService } from 'src/user/user.service';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
+import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
+import Redis from 'ioredis';
 //test
 export default class GroupStudyService {
   constructor(
+    @Inject(REDIS_CLIENT)
+    private readonly redisClient: Redis,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
     private readonly userServiceInstance: UserService,
@@ -130,11 +134,29 @@ export default class GroupStudyService {
 
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
-    groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
-      filterQuery,
-      0,
-      Infinity,
-    );
+    console.time();
+    groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
+    console.timeEnd();
+
+    if (!groupStudyData) {
+      console.log('not cached');
+      groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
+        filterQuery,
+        0,
+        Infinity,
+      );
+
+      await this.redisClient.set(
+        GROUPSTUDY_FULL_DATA,
+        JSON.stringify(groupStudyData),
+        'EX',
+        10,
+      );
+    } else {
+      console.log('cached');
+      groupStudyData = JSON.parse(groupStudyData);
+    }
+
     groupStudyData = groupStudyData.sort(() => Math.random() - 0.5);
 
     const filterGroupStudies = (data, type, status) => {

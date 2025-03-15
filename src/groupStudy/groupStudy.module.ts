@@ -8,6 +8,7 @@ import { CounterModule } from 'src/counter/couter.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoGroupStudyInterface } from './groupStudy.repository';
+import { RedisModule } from 'src/redis/redis.module';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
@@ -16,6 +17,7 @@ const groupStudyRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
+    RedisModule,
     UserModule,
     CounterModule,
     forwardRef(() => WebPushModule),
