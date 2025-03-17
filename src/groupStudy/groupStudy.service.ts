@@ -15,9 +15,16 @@ import { CounterService } from 'src/counter/counter.service';
 import { UserService } from 'src/user/user.service';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
+import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
+import Redis from 'ioredis';
+import * as zlib from 'zlib';
+import { promisify } from 'util';
+
 //test
 export default class GroupStudyService {
   constructor(
+    @Inject(REDIS_CLIENT)
+    private readonly redisClient: Redis,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
     private readonly userServiceInstance: UserService,
@@ -126,15 +133,27 @@ export default class GroupStudyService {
     };
   }
   async getGroupStudySnapshot() {
+    const gzip = promisify(zlib.gzip);
+    const gunzip = promisify(zlib.gunzip);
+
     let groupStudyData;
 
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
+
+    groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
+
+    if (groupStudyData) {
+      return await JSON.parse(
+        (await gunzip(Buffer.from(groupStudyData, 'base64'))).toString(),
+      );
+    }
 
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       0,
       Infinity,
     );
+
     groupStudyData = groupStudyData.sort(() => Math.random() - 0.5);
 
     const filterGroupStudies = (data, type, status) => {
@@ -164,13 +183,21 @@ export default class GroupStudyService {
         .slice(0, type === '취미' ? 6 : 3);
     };
 
-    return {
+    const returnVal = {
       hobby: filterGroupStudies(groupStudyData, '취미', 'pending'),
       development: filterGroupStudies(groupStudyData, '자기계발', 'pending'),
       study: filterGroupStudies(groupStudyData, '성장 스터디', 'pending'),
       exam: filterGroupStudies(groupStudyData, '시험 스터디', 'pending'),
       waiting: filterGroupStudies(groupStudyData, null, 'planned'),
     };
+    this.redisClient.set(
+      GROUPSTUDY_FULL_DATA,
+      (await gzip(JSON.stringify(returnVal))).toString('base64'),
+      'EX',
+      10,
+    );
+
+    return returnVal;
   }
 
   async getGroupStudyByFilterAndCategory(

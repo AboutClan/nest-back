@@ -65,7 +65,7 @@ export class WebPushService {
 
   async sendNotificationAllUser() {
     const subscriptions = await this.WebpushRepository.findAll();
-    await this.webpushQ.add('sendWebpush', {
+    this.webpushQ.add('sendWebpush', {
       subscriptions,
       payload: this.basePayload,
     });
@@ -85,7 +85,7 @@ export class WebPushService {
 
       const subscriptions = await this.WebpushRepository.findByUid(uid);
 
-      await this.webpushQ.add('sendWebpush', {
+      this.webpushQ.add('sendWebpush', {
         subscriptions,
         payload,
       });
@@ -112,7 +112,7 @@ export class WebPushService {
       });
       const subscriptions = await this.WebpushRepository.findByUserId(userId);
 
-      await this.webpushQ.add('sendWebpush', {
+      this.webpushQ.add('sendWebpush', {
         subscriptions,
         payload,
       });
@@ -148,7 +148,7 @@ export class WebPushService {
       const subscriptions =
         await this.WebpushRepository.findByArray(memberArray);
 
-      await this.webpushQ.add('sendWebpush', {
+      this.webpushQ.add('sendWebpush', {
         subscriptions,
         payload,
       });
@@ -178,7 +178,7 @@ export class WebPushService {
       body: '앱을 확인해보세요.',
     });
 
-    await this.webpushQ.add('sendWebpush', {
+    this.webpushQ.add('sendWebpush', {
       subscriptions: managerSubscriptions,
       payload,
     });
@@ -232,11 +232,11 @@ export class WebPushService {
       body: '내일 스터디 투표를 참여해보세요',
     });
 
-    await this.webpushQ.add('sendWebpush', {
+    this.webpushQ.add('sendWebpush', {
       subscriptions: failureSubscriptions,
       payload: failPayload,
     });
-    await this.webpushQ.add('sendWebpush', {
+    this.webpushQ.add('sendWebpush', {
       subscriptions: successSubscriptions,
       payload: successPayload,
     });
