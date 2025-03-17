@@ -190,11 +190,12 @@ export default class GroupStudyService {
       exam: filterGroupStudies(groupStudyData, '시험 스터디', 'pending'),
       waiting: filterGroupStudies(groupStudyData, null, 'planned'),
     };
+
     this.redisClient.set(
       GROUPSTUDY_FULL_DATA,
       (await gzip(JSON.stringify(returnVal))).toString('base64'),
       'EX',
-      10,
+      60 * 30,
     );
 
     return returnVal;
