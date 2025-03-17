@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
@@ -19,9 +20,11 @@ import {
 } from './dto';
 import { GroupStudyStatus } from './groupStudy.entity';
 import GroupStudyService from './groupStudy.service';
+import { GroupStudyInterceptor } from './groupstudy.interceptor';
 
 @ApiTags('groupStudy')
 @Controller('groupStudy')
+@UseInterceptors(GroupStudyInterceptor)
 export class GroupStudyController {
   constructor(private readonly groupStudyService: GroupStudyService) {}
 
