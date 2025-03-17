@@ -17,6 +17,9 @@ import { WebPushService } from 'src/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
 import Redis from 'ioredis';
+import * as zlib from 'zlib';
+import { promisify } from 'util';
+
 //test
 export default class GroupStudyService {
   constructor(
@@ -130,32 +133,26 @@ export default class GroupStudyService {
     };
   }
   async getGroupStudySnapshot() {
+    const gzip = promisify(zlib.gzip);
+    const gunzip = promisify(zlib.gunzip);
+
     let groupStudyData;
 
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
-    console.time();
     groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
-    console.timeEnd();
 
-    if (!groupStudyData) {
-      console.log('not cached');
-      groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
-        filterQuery,
-        0,
-        Infinity,
+    if (groupStudyData) {
+      return await JSON.parse(
+        (await gunzip(Buffer.from(groupStudyData, 'base64'))).toString(),
       );
-
-      await this.redisClient.set(
-        GROUPSTUDY_FULL_DATA,
-        JSON.stringify(groupStudyData),
-        'EX',
-        10,
-      );
-    } else {
-      console.log('cached');
-      groupStudyData = JSON.parse(groupStudyData);
     }
+
+    groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
+      filterQuery,
+      0,
+      Infinity,
+    );
 
     groupStudyData = groupStudyData.sort(() => Math.random() - 0.5);
 
@@ -186,13 +183,21 @@ export default class GroupStudyService {
         .slice(0, type === '취미' ? 6 : 3);
     };
 
-    return {
+    const returnVal = {
       hobby: filterGroupStudies(groupStudyData, '취미', 'pending'),
       development: filterGroupStudies(groupStudyData, '자기계발', 'pending'),
       study: filterGroupStudies(groupStudyData, '성장 스터디', 'pending'),
       exam: filterGroupStudies(groupStudyData, '시험 스터디', 'pending'),
       waiting: filterGroupStudies(groupStudyData, null, 'planned'),
     };
+    this.redisClient.set(
+      GROUPSTUDY_FULL_DATA,
+      (await gzip(JSON.stringify(returnVal))).toString('base64'),
+      'EX',
+      10,
+    );
+
+    return returnVal;
   }
 
   async getGroupStudyByFilterAndCategory(
