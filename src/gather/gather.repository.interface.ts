@@ -3,7 +3,12 @@ import { IGatherData, participantsType, subCommentType } from './gather.entity';
 export interface GatherRepository {
   findById(gatherId: number, pop?: boolean): Promise<IGatherData>;
   findThree(): Promise<IGatherData[]>;
-  findWithQueryPop(query: any, start?: number, gap?: number);
+  findWithQueryPop(
+    query: any,
+    start?: number,
+    gap?: number,
+    sortBy?: 'createdAt' | 'date',
+  );
   createGather(gatherData: Partial<IGatherData>): Promise<IGatherData>;
   updateGather(
     gatherId: number,

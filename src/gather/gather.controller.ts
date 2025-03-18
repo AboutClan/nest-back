@@ -30,6 +30,8 @@ export class GatherController {
   async getGather(
     @Query('cursor') cursor?: string,
     @Query('gatherId') gatherId?: string,
+    @Query('category') category?: '스터디' | '취미' | null,
+    @Query('sortBy') sortBy?: 'createdAt' | 'date',
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
     const gatherIdNum = gatherId ? parseInt(gatherId) : null;
@@ -40,7 +42,7 @@ export class GatherController {
       } else if (cursorNum === -1) {
         return await this.gatherService.getThreeGather();
       } else {
-        return await this.gatherService.getGather(cursorNum);
+        return await this.gatherService.getGather(cursorNum, category, sortBy);
       }
     } catch (err) {
       throw new HttpException(

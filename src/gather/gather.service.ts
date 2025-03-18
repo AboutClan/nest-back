@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+import dayjs from 'dayjs';
 import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 import {
   CANCEL_GAHTER_SCORE,
@@ -25,7 +26,6 @@ import {
   subCommentType,
 } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
-import dayjs from 'dayjs';
 //commit
 @Injectable()
 export class GatherService {
@@ -51,14 +51,25 @@ export class GatherService {
     return gatherData;
   }
 
-  async getGather(cursor: number | null) {
+  async getGather(
+    cursor: number | null,
+    category: '취미' | '스터디',
+    sortBy: 'createdAt' | 'date',
+  ) {
     const gap = 12;
     let start = gap * (cursor || 0);
+    const query =
+      category === '스터디'
+        ? { 'type.title': '스터디' }
+        : category === '취미'
+          ? { 'type.title': { $ne: '스터디' } }
+          : {};
 
     let gatherData = await this.gatherRepository.findWithQueryPop(
-      {},
+      query,
       start,
       gap,
+      sortBy,
     );
 
     return gatherData;

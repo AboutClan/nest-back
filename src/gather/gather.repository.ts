@@ -1,6 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
-import { Model } from 'mongoose';
+import { Model, SortOrder } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
 import { IGatherData, participantsType, subCommentType } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
@@ -312,9 +311,15 @@ export class MongoGatherRepository implements GatherRepository {
     );
   }
 
-  async findWithQueryPop(query: any, start?: number, gap?: number) {
+  async findWithQueryPop(
+    query: any,
+    start?: number,
+    gap?: number,
+    sortBy: 'createdAt' | 'date' = 'createdAt',
+  ) {
+    const sortOption: { [key: string]: SortOrder } = { [sortBy]: -1 };
     const result = await this.Gather.find(query)
-      .sort({ date: -1 })
+      .sort(sortOption)
       .skip(start)
       .limit(gap)
       .select('-_id')
