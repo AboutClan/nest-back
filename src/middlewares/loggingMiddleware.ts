@@ -16,16 +16,16 @@ export class LoggingMiddleware implements NestMiddleware {
     const startTime = Date.now();
 
     // 요청 로깅 (JSON 형식)
-    this.logger.log({
-      timestamp: new Date().toISOString(),
-      level: 'info',
-      message: 'Incoming Request',
-      method: req.method,
-      url: req.originalUrl,
-      ip: req.ip,
-      userAgent: req.headers['user-agent'],
-      body: req.body,
-    });
+    // this.logger.log({
+    //   timestamp: new Date().toISOString(),
+    //   level: 'info',
+    //   message: 'Incoming Request',
+    //   method: req.method,
+    //   url: req.originalUrl,
+    //   ip: req.ip,
+    //   userAgent: req.headers['user-agent'],
+    //   body: req.body,
+    // });
 
     res.on('finish', () => {
       const duration = Date.now() - startTime;
