@@ -49,13 +49,14 @@ export default class LogService {
   }
 
   async getTicketLog(category: string) {
+    const token = RequestContext.getDecodedToken();
     let logs;
     switch (category) {
       case 'gather':
-        logs = await this.logRepository.findTicketLog(['gather']);
+        logs = await this.logRepository.findTicketLog(token.uid, ['gather']);
         break;
       case 'groupStudy':
-        logs = await this.logRepository.findTicketLog([
+        logs = await this.logRepository.findTicketLog(token.uid, [
           'groupOffline',
           'groupOnline',
         ]);
