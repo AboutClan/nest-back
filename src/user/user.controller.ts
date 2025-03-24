@@ -362,7 +362,8 @@ export class UserController {
   async updateTicket(
     @Req() req: Request,
     @Body('ticketNum') ticketNum,
-    @Body('type') type: 'gather' | 'groupOnline' | 'groupOffline',
+    @Body('type')
+    type: 'gather' | 'groupStudy' | 'groupOnline' | 'groupOffline',
   ) {
     await this.userService.updateAddTicket(
       type,

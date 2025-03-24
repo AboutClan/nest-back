@@ -609,7 +609,7 @@ export class UserService {
   }
 
   async updateAddTicket(
-    type: 'gather' | 'groupOnline' | 'groupOffline',
+    type: 'gather' | 'groupOnline' | 'groupOffline' | 'groupStudy',
     userId: string,
     ticketNum?: number,
   ) {
@@ -617,6 +617,10 @@ export class UserService {
       case 'gather':
         if (!ticketNum) ticketNum = 1;
         await this.UserRepository.updateGatherTicket(userId, ticketNum);
+        break;
+      case 'groupStudy':
+        if (!ticketNum) ticketNum = 1;
+        await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
         break;
       case 'groupOffline':
         if (!ticketNum) ticketNum = 2;
