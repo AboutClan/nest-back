@@ -609,22 +609,26 @@ export class UserService {
   }
 
   async updateAddTicket(
-    type: 'gather' | 'groupOnline' | 'groupOffline',
+    type: 'gather' | 'groupOnline' | 'groupOffline' | 'groupStudy',
     userId: string,
+    ticketNum?: number,
   ) {
-    let ticketNum;
     switch (type) {
       case 'gather':
-        await this.UserRepository.updateGatherTicket(userId, 1);
-        ticketNum = 1;
+        if (!ticketNum) ticketNum = 1;
+        await this.UserRepository.updateGatherTicket(userId, ticketNum);
+        break;
+      case 'groupStudy':
+        if (!ticketNum) ticketNum = 1;
+        await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
         break;
       case 'groupOffline':
-        await this.UserRepository.updateGroupStudyTicket(userId, 2);
-        ticketNum = 2;
+        if (!ticketNum) ticketNum = 2;
+        await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
         break;
       case 'groupOnline':
-        await this.UserRepository.updateGroupStudyTicket(userId, 1);
-        ticketNum = 1;
+        if (!ticketNum) ticketNum = 1;
+        await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
         break;
       default:
         logger.logger.info('티켓 추가', {
