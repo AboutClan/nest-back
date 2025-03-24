@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseInterceptors,
   UsePipes,
@@ -24,6 +25,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
+import { Request } from 'express';
 
 @ApiTags('user')
 @Controller('user')
@@ -355,6 +357,19 @@ export class UserController {
   @Post('profileImg')
   @UseInterceptors(FileInterceptor('image'))
   async updateProfileImg(@UploadedFile() file: Express.Multer.File) {}
+
+  @Post('ticket')
+  async updateTicket(
+    @Req() req: Request,
+    @Body('ticketNum') ticketNum,
+    @Body('type') type: 'gather' | 'groupOnline' | 'groupOffline',
+  ) {
+    await this.userService.updateAddTicket(
+      type,
+      req.decodedToken.uid,
+      ticketNum,
+    );
+  }
 
   @Get('test')
   async test() {
