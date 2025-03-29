@@ -150,6 +150,7 @@ export class GatherController {
     await this.gatherService.participateGather(
       participateGatherDto.gatherId,
       participateGatherDto.phase,
+      participateGatherDto.isFree,
     );
     return { status: 'success' };
   }

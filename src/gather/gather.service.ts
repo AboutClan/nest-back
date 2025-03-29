@@ -195,11 +195,11 @@ export class GatherService {
     return;
   }
 
-  async participateGather(gatherId: number, phase: string) {
+  async participateGather(gatherId: number, phase: string, isFree: boolean) {
     const token = RequestContext.getDecodedToken();
     const { ticket } = await this.userServiceInstance.getTicketInfo(token.id);
 
-    if (ticket.gatherTicket <= 0) {
+    if (ticket.gatherTicket <= 0 && !isFree) {
       throw new HttpException('ticket이 부족합니다.', 500);
     }
 
@@ -219,8 +219,9 @@ export class GatherService {
       throw new BadRequestException('Invalid participate data');
     }
 
-    await this.userServiceInstance.updateReduceTicket('gather', token.id);
-
+    if (!isFree) {
+      await this.userServiceInstance.updateReduceTicket('gather', token.id);
+    }
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',

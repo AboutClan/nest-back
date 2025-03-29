@@ -54,5 +54,7 @@ export class ParticipateGatherDto {
   @IsOptional()
   phase?: string;
   @IsOptional()
+  isFree?: boolean;
+  @IsOptional()
   userId?: string;
 }
