@@ -22,4 +22,5 @@ export const LOCATION_LIST = [
   '부천',
   '시흥',
   '전체',
+  '기타',
 ] as const;
