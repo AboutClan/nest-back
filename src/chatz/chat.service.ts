@@ -1,22 +1,19 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { JWT } from 'next-auth/jwt';
 
 import { IUser } from 'src/user/user.entity';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
-import { ChatRepository } from './chat.repository.interface';
 import { UserRepository } from 'src/user/user.repository.interface';
-import { ChatZodSchema, ContentZodSchema } from './chat.entity';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
+import { IChatRepository } from './ChatRepository.interface';
+import { Chat } from 'src/domain/entities/chat/Chat';
 
 @Injectable()
 export class ChatService {
   constructor(
     //repository DI
     @Inject(ICHAT_REPOSITORY)
-    private readonly chatRepository: ChatRepository,
+    private readonly chatRepository: IChatRepository,
     private readonly webPushServiceInstance: WebPushService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
@@ -27,12 +24,17 @@ export class ChatService {
 
     const user1 = token.id > userId ? userId : token.id;
     const user2 = token.id < userId ? userId : token.id;
-    const chat = await this.chatRepository.findChat(user1, user2);
+
+    const chat = await this.chatRepository.findByUser1AndUser2WithUser(
+      user1,
+      user2,
+    );
+
     if (!chat)
       throw new NotFoundException(`can't find chat ${user1} and ${user2}`);
 
     const opponent =
-      (chat.user1 as IUser).id == token.id
+      (chat.user1 as IUser)._id == token.id
         ? (chat.user2 as IUser)
         : (chat.user1 as IUser);
 
@@ -44,17 +46,17 @@ export class ChatService {
   async getChats() {
     const token = RequestContext.getDecodedToken();
 
-    const chats = await this.chatRepository.findChats(token.id);
+    const chats = await this.chatRepository.findByUserId(token.id);
 
     //채팅 데이터가 생성돼있으면 전부 가져옴
     const chatWithUsers = await Promise.all(
       chats.map(async (chat) => {
-        const opponentUid = chat.user1 == token.id ? chat.user2 : chat.user1;
+        const opponentId = chat.user1 == token.id ? chat.user2 : chat.user1;
         const opponent = await this.UserRepository.findById(
-          opponentUid as string,
+          opponentId as string,
         );
         if (!opponent)
-          throw new NotFoundException(`cant find opponent ${opponentUid}`);
+          throw new NotFoundException(`cant find opponent ${opponentId}`);
 
         const chatForm = {
           user: opponent,
@@ -67,24 +69,17 @@ export class ChatService {
       }),
     );
 
-    const sortedChat = chatWithUsers.sort((a, b) =>
-      a.content.createdAt > b.content.createdAt ? -1 : 1,
-    );
-
-    return sortedChat;
+    return chatWithUsers;
   }
 
   async getRecentChat() {
     const token = RequestContext.getDecodedToken();
 
-    const chat = await this.chatRepository.findRecentChat(token.id);
+    const chat = await this.chatRepository.findRecentChatByUserId(token.id);
+
     if (!chat) throw new NotFoundException(`${token.id} dont have a chat`);
 
-    if (chat.length) {
-      return chat?.[0]._id;
-    } else {
-      return '';
-    }
+    return chat;
   }
 
   async createChat(toUserId: string, message: string) {
@@ -99,22 +94,20 @@ export class ChatService {
       userId: token.id,
     };
 
-    const validatedContent = ContentZodSchema.parse(contentFill);
-    const validatedChat = ChatZodSchema.parse({
+    const chat = await this.chatRepository.findByUser1AndUser2WithUser(
       user1,
       user2,
-      contents: [contentFill],
-    });
+    );
 
-    const chat = await this.chatRepository.find(user1, user2);
     if (chat) {
-      await this.chatRepository.addContentToChat(
+      chat.addContent(contentFill);
+    } else {
+      const newChat = new Chat({
         user1,
         user2,
-        validatedContent,
-      );
-    } else {
-      await this.chatRepository.createChat(validatedChat);
+        contents: [contentFill],
+      });
+      await this.chatRepository.create(newChat);
     }
 
     //알림 보내기
