@@ -4,18 +4,14 @@ import { ChatService } from './chat.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from 'src/user/user.module';
 import { WebPushModule } from 'src/webpush/webpush.module';
-import {
-  ICHAT_REPOSITORY,
-  ICHAT_SERVICE,
-  IUSER_REPOSITORY,
-} from 'src/utils/di.tokens';
-import { MongoChatRepository } from './chat.repository';
+import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoUserRepository } from 'src/user/user.repository';
 import { ChatSchema } from './chat.entity';
+import { ChatRepository } from './ChatRepository';
 
 const chatRepositoryProvider: ClassProvider = {
   provide: ICHAT_REPOSITORY,
-  useClass: MongoChatRepository,
+  useClass: ChatRepository,
 };
 
 const userRepositoryProvider: ClassProvider = {
