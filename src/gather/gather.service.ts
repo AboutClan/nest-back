@@ -378,6 +378,15 @@ export class GatherService {
         validatedParticipate,
       );
 
+      const targetUser =
+        await this.userServiceInstance.getUserWithUserId(userId);
+      await this.userServiceInstance.updateScore(
+        PARTICIPATE_GATHER_SCORE,
+        '번개 모임 참여',
+        undefined,
+        targetUser.uid,
+      );
+
       await this.userServiceInstance.updateReduceTicket('gather', userId);
       message = '번개 모임 참여가 승인됐어요! 일정 확인하고 함께해요.';
     }
