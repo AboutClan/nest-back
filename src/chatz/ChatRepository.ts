@@ -12,8 +12,6 @@ export class ChatRepository implements IChatRepository {
   ) {}
 
   async findRecentChatByUserId(userId: string): Promise<Chat | null> {
-    console.log(1);
-
     const doc = await this.ChatModel.find({
       $or: [{ user1: userId }, { user2: userId }],
     })
@@ -83,8 +81,8 @@ export class ChatRepository implements IChatRepository {
 
   private mapToDomain(doc: IChat): Chat {
     const chat = new Chat({
-      user1: doc.user1.toString(),
-      user2: doc.user2.toString(),
+      user1: doc.user1,
+      user2: doc.user2,
       status: doc.status,
       contents: doc.contents.map((c) => ({
         userId: c.userId,
