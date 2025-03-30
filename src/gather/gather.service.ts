@@ -211,7 +211,7 @@ export class GatherService {
       let partData = {
         user: token.id,
         phase,
-        invited: false,
+        invited: !!isFree,
       };
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
       await this.gatherRepository.participate(gatherId, validatedParticipate);
