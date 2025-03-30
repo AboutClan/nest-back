@@ -1,4 +1,4 @@
-import { Chat } from 'src/domain/entities/chat/Chat';
+import { Chat } from 'src/domain/entities/Chat/Chat';
 
 export interface IChatRepository {
   findAll(): Promise<Chat[] | null>;
