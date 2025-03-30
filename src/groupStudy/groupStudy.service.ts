@@ -1,24 +1,24 @@
 import { HttpException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
+import Redis from 'ioredis';
 import { Model } from 'mongoose';
 import {
-  GROUP_WEEKLY_PARTICIPATE_POINT,
   GROUPSTUDY_FIRST_COMMENT,
+  GROUP_WEEKLY_PARTICIPATE_POINT,
 } from 'src/Constants/point';
+import { CounterService } from 'src/counter/counter.service';
 import { DatabaseError } from 'src/errors/DatabaseError';
+import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
+import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/user/user.entity';
+import { UserService } from 'src/user/user.service';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
+import { WebPushService } from 'src/webpush/webpush.service';
+import { promisify } from 'util';
+import * as zlib from 'zlib';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
-import { CounterService } from 'src/counter/counter.service';
-import { UserService } from 'src/user/user.service';
-import { WebPushService } from 'src/webpush/webpush.service';
-import { RequestContext } from 'src/request-context';
-import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
-import Redis from 'ioredis';
-import * as zlib from 'zlib';
-import { promisify } from 'util';
 
 //test
 export default class GroupStudyService {
@@ -33,6 +33,7 @@ export default class GroupStudyService {
     private readonly counterServiceInstance: CounterService,
   ) {}
   async getStatusGroupStudy(cursor: number, status: string) {
+    console.log(status);
     switch (status) {
       case 'isParticipating':
         return this.getMyOpenGroupStudy(cursor);
@@ -106,7 +107,9 @@ export default class GroupStudyService {
 
     const filterQuery = {
       organizer: token.id,
+      status: 'pending',
     };
+
     let gatherData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
@@ -602,7 +605,6 @@ export default class GroupStudyService {
             throw new HttpException('no ticket', 500);
           this.userServiceInstance.updateReduceTicket('groupOnline', userId);
         }
-        await groupStudy?.save();
 
         //알림
         await this.webPushServiceInstance.sendNotificationGroupStudy(
@@ -616,6 +618,7 @@ export default class GroupStudyService {
           '접속하여 확인하세요!',
         );
       }
+      await groupStudy?.save();
     } catch (err) {
       throw new Error();
     }
