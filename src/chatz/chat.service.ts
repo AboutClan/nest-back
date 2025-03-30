@@ -6,7 +6,7 @@ import { UserRepository } from 'src/user/user.repository.interface';
 import { WebPushService } from 'src/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
 import { IChatRepository } from './ChatRepository.interface';
-import { Chat } from 'src/domain/entities/chat/Chat';
+import { Chat } from 'src/domain/entities/Chat/Chat';
 
 @Injectable()
 export class ChatService {

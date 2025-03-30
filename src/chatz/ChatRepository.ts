@@ -1,4 +1,4 @@
-import { Chat } from 'src/domain/entities/chat/Chat';
+import { Chat } from 'src/domain/entities/Chat/Chat';
 import { IChatRepository } from './ChatRepository.interface';
 import { IChat } from './chat.entity';
 import { HttpException } from '@nestjs/common';
