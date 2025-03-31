@@ -6,12 +6,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CollectionSchema } from './collection.entity';
 import { UserModule } from 'src/user/user.module';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
-import { MongoCollectionRepository } from './collection.repository';
 import { MongoUserRepository } from 'src/user/user.repository';
+import { CollectionRepository } from './CollectionRepository';
 
 const collectionRepositoryProvider: ClassProvider = {
   provide: ICOLLECTION_REPOSITORY,
-  useClass: MongoCollectionRepository,
+  useClass: CollectionRepository,
 };
 
 const userRepositoryProvider: ClassProvider = {

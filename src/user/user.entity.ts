@@ -50,7 +50,7 @@ export type ticketType = z.infer<typeof ticketZodSchema>;
 export type badgeType = z.infer<typeof badgeZodSchema>;
 
 // IUser Zod schema
-const userZodSchema = z.object({
+export const userZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
   location: z.enum(LOCATION_LIST).default('수원'),
