@@ -2,6 +2,7 @@
  * 도메인에서 사용될 속성(비즈니스 관점)
  */
 export interface DailyCheckProps {
+  id?: string;
   uid: string;
   name: string;
   createdAt?: Date;
@@ -12,6 +13,7 @@ export interface DailyCheckProps {
  * 비즈니스 로직(검증, 메서드)을 담는 DailyCheck 엔티티
  */
 export class DailyCheck {
+  private id: string;
   private uid: string;
   private name: string;
   private createdAt: Date;
@@ -26,11 +28,16 @@ export class DailyCheck {
       throw new Error('DailyCheck requires a name');
     }
 
+    this.id = props.id || '';
     // 2) 상태 초기화
     this.uid = props.uid;
     this.name = props.name;
     this.createdAt = props.createdAt ?? new Date();
     this.updatedAt = props.updatedAt ?? new Date();
+  }
+
+  getId(): string {
+    return this.id;
   }
 
   /** uid 조회 */
@@ -65,6 +72,7 @@ export class DailyCheck {
    */
   toPrimitives(): DailyCheckProps {
     return {
+      id: this.id,
       uid: this.uid,
       name: this.name,
       createdAt: this.createdAt,
