@@ -1,21 +1,21 @@
-import { HttpException, Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
+import { C_simpleUser } from 'src/Constants/constants';
 import { AppError } from 'src/errors/AppError';
+import ImageService from 'src/imagez/image.service';
 import { ILog } from 'src/logz/log.entity';
+import NoticeService from 'src/notice/notice.service';
+import PlaceService from 'src/place/place.service';
+import { RequestContext } from 'src/request-context';
 import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../logger';
 import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
-import { C_simpleUser } from 'src/Constants/constants';
-import ImageService from 'src/imagez/image.service';
-import NoticeService from 'src/notice/notice.service';
-import PlaceService from 'src/place/place.service';
-import { RequestContext } from 'src/request-context';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -388,8 +388,7 @@ export class UserService {
     uid?: string,
   ) {
     const token = RequestContext.getDecodedToken();
-
-    await this.UserRepository.increaseScore(score, token.uid);
+    await this.UserRepository.increaseScore(score, uid ?? token.uid);
 
     logger.logger.info(message, {
       type: 'score',

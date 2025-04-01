@@ -268,7 +268,7 @@ export class GatherService {
     }
 
     const user = await this.userServiceInstance.getUserWithUserId(userId);
-
+    
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',
