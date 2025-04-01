@@ -1,9 +1,9 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { ICollectionRepository } from './CollectionRepository.interface';
-import { Model } from 'mongoose';
-import { ICollection } from './collection.entity';
-import { Collection } from 'src/domain/entities/Collection';
 import { HttpException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Collection } from 'src/domain/entities/Collection';
+import { ICollection } from './collection.entity';
+import { ICollectionRepository } from './CollectionRepository.interface';
 
 export class CollectionRepository implements ICollectionRepository {
   constructor(
@@ -17,6 +17,22 @@ export class CollectionRepository implements ICollectionRepository {
     if (!doc) return null;
 
     return this.mapToDomain(doc);
+  }
+
+  async findByUserJoin(userId: string): Promise<Collection | null> {
+    const doc = await this.Collection.findOne({
+      user: userId,
+    }).populate('user');
+    if (!doc) return null;
+
+    return this.mapToDomain(doc);
+  }
+
+  async findAll(): Promise<Collection[]> {
+    const doc = await this.Collection.find({}).populate('user');
+    if (!doc) return null;
+
+    return doc.map((item) => this.mapToDomain(item));
   }
 
   async create(collection: Collection): Promise<Collection> {
@@ -54,7 +70,7 @@ export class CollectionRepository implements ICollectionRepository {
 
     return collection;
   }
-  mapToDB(collection: Collection): Partial<ICollection> {
+  private mapToDB(collection: Collection): Partial<ICollection> {
     return {
       id: collection.id,
       user: collection.user,

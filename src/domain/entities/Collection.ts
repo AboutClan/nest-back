@@ -23,6 +23,13 @@ export class Collection {
     };
   }
 
+  removeAlphabet(alphabet: string) {
+    const index = this.collects.indexOf(alphabet);
+    if (index !== -1) {
+      this.collects.splice(index, 1);
+    }
+  }
+
   addAlphabet(alphabet: string) {
     this.collects.push(alphabet);
   }
