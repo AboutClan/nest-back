@@ -2,23 +2,23 @@
 import { SubComment, SubCommentProps } from './SubComment';
 
 export interface CommentProps {
-  userId: string;
+  user: string;
   comment: string;
   subComments?: SubCommentProps[];
   likeList?: string[];
 }
 
 export class Comment {
-  private userId: string;
+  private user: string;
   private comment: string;
   private subComments: SubComment[];
   private likeList: string[];
 
   constructor(props: CommentProps) {
-    if (!props.userId) throw new Error('userId is required');
+    if (!props.user) throw new Error('userId is required');
     if (!props.comment) throw new Error('comment is required');
 
-    this.userId = props.userId;
+    this.user = props.user;
     this.comment = props.comment;
     this.subComments = (props.subComments ?? []).map(
       (sc) => new SubComment(sc),
@@ -26,8 +26,8 @@ export class Comment {
     this.likeList = props.likeList ?? [];
   }
 
-  getUserId(): string {
-    return this.userId;
+  getUser(): string {
+    return this.user;
   }
 
   getComment(): string {
@@ -65,7 +65,7 @@ export class Comment {
 
   toPrimitives(): CommentProps {
     return {
-      userId: this.userId,
+      user: this.user,
       comment: this.comment,
       subComments: this.subComments.map((sc) => sc.toPrimitives()),
       likeList: [...this.likeList],
