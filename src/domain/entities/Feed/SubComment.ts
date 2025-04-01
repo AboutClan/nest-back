@@ -1,25 +1,25 @@
 export interface SubCommentProps {
-  userId: string; // 실제 DB에서 user: ObjectId 인 경우 → domain에서는 string
+  user: string; // 실제 DB에서 user: ObjectId 인 경우 → domain에서는 string
   comment: string;
   likeList?: string[];
 }
 
 export class SubComment {
-  private userId: string;
+  private user: string;
   private comment: string;
   private likeList: string[];
 
   constructor(props: SubCommentProps) {
-    if (!props.userId) throw new Error('userId is required');
+    if (!props.user) throw new Error('userId is required');
     if (!props.comment) throw new Error('comment is required');
 
-    this.userId = props.userId;
+    this.user = props.user;
     this.comment = props.comment;
     this.likeList = props.likeList ?? [];
   }
 
   getUserId(): string {
-    return this.userId;
+    return this.user;
   }
 
   getComment(): string {
@@ -49,7 +49,7 @@ export class SubComment {
 
   toPrimitives(): SubCommentProps {
     return {
-      userId: this.userId,
+      user: this.user,
       comment: this.comment,
       likeList: [...this.likeList],
     };

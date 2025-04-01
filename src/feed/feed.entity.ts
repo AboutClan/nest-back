@@ -32,7 +32,7 @@ export const FeedZodSchema = z.object({
 export type commentType = z.infer<typeof CommentZodSchema>;
 export type subCommentType = z.infer<typeof SubCommentZodSchema>;
 export type IFeed = z.infer<typeof FeedZodSchema> & {
-  addLike(userId: string): Promise<boolean>;
+  addLike: (userId: string) => Promise<boolean> | null;
 } & Document;
 
 export const subCommentSchema: Schema<subCommentType> = new Schema(
