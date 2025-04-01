@@ -143,7 +143,13 @@ export default class GroupStudyService {
 
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
-    groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
+    try {
+      groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
+    } catch (error) {
+      // Redis 연결이 안 되어 있거나 장애가 있을 경우
+      console.error('Redis 연결 에러:', error);
+      groupStudyData = null;
+    }
 
     if (groupStudyData) {
       return await JSON.parse(
