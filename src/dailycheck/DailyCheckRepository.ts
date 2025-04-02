@@ -2,8 +2,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DailyCheck } from 'src/domain/entities/DailyCheck';
 import { IDailyCheck } from './dailycheck.entity';
+import { IDailyCheckRepository } from './DailyCheckRepository.interface';
 
-export class DailyCheckRepository {
+export class DailyCheckRepository implements IDailyCheckRepository {
   constructor(
     @InjectModel('DailyCheck') private readonly DailyCheck: Model<IDailyCheck>,
   ) {}
@@ -32,8 +33,8 @@ export class DailyCheckRepository {
 
   private mapToDomain(doc: IDailyCheck): DailyCheck {
     const dailyCheck = new DailyCheck({
-      uid: '',
-      name: '',
+      uid: doc.uid,
+      name: doc.name,
     });
     return dailyCheck;
   }
