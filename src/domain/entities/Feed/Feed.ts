@@ -87,6 +87,27 @@ export class Feed {
     this.comments.push(new Comment(commentProps));
   }
 
+  removeComment(commentId: string) {
+    this.comments = this.comments.filter(
+      (comment) => comment.getId() !== commentId,
+    );
+  }
+
+  updateComment(commentId: string, content: string) {
+    this.comments.forEach((comment) => {
+      if (comment.getId() === commentId) {
+        comment.setComment(content);
+      }
+    });
+  }
+
+  addCommentLike(commentId: string, writer: string) {
+    this.comments.forEach((comment) => {
+      if (comment.getId() === commentId) {
+        comment.addLike(writer);
+      }
+    });
+  }
   toPrimitives(): FeedProps {
     return {
       title: this.title,

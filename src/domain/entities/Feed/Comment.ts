@@ -2,6 +2,7 @@
 import { SubComment, SubCommentProps } from './SubComment';
 
 export interface CommentProps {
+  id?: string;
   user: string;
   comment: string;
   subComments?: SubCommentProps[];
@@ -9,6 +10,7 @@ export interface CommentProps {
 }
 
 export class Comment {
+  private id: string;
   private user: string;
   private comment: string;
   private subComments: SubComment[];
@@ -18,6 +20,7 @@ export class Comment {
     if (!props.user) throw new Error('userId is required');
     if (!props.comment) throw new Error('comment is required');
 
+    this.id = props.id || '';
     this.user = props.user;
     this.comment = props.comment;
     this.subComments = (props.subComments ?? []).map(
@@ -26,12 +29,20 @@ export class Comment {
     this.likeList = props.likeList ?? [];
   }
 
+  getId(): string {
+    return this.id;
+  }
   getUser(): string {
     return this.user;
   }
 
   getComment(): string {
     return this.comment;
+  }
+
+  setComment(comment: string) {
+    this.comment = comment;
+    return;
   }
 
   getSubComments(): SubComment[] {

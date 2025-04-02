@@ -1,24 +1,22 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 import { Types } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
+import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
+import { Feed } from 'src/domain/entities/Feed/Feed';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
+import { GatherRepository } from 'src/gather/gather.repository.interface';
+import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import ImageService from 'src/imagez/image.service';
+import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/user/user.entity';
+import { UserService } from 'src/user/user.service';
 import {
   IFEED_REPOSITORY,
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { commentType, FeedZodSchema, subCommentType } from './feed.entity';
-import { FeedRepository } from './feed.repository.interface';
-import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
-import { UserService } from 'src/user/user.service';
-import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
-import { GatherRepository } from 'src/gather/gather.repository.interface';
-import { RequestContext } from 'src/request-context';
+import { subCommentType } from './feed.entity';
+import { IFeedRepository } from './FeedRepository.interface';
 
 @Injectable()
 export class FeedService {
@@ -31,7 +29,7 @@ export class FeedService {
     private readonly gatherRepository: GatherRepository,
 
     @Inject(IFEED_REPOSITORY)
-    private readonly feedRepository: FeedRepository,
+    private readonly feedRepository: IFeedRepository,
     private readonly userService: UserService,
   ) {
     this.imageServiceInstance = new ImageService();
@@ -46,43 +44,33 @@ export class FeedService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
-    const query: any = { type };
-    if (typeId && typeId.trim() !== '') {
-      query.typeId = typeId;
-    }
-
-    const feeds = await this.feedRepository.findWithQuery(
-      query,
+    const feeds = await this.feedRepository.findByType(type, {
       start,
       gap,
-      isRecent,
-    );
-
-    if (isRecent === false) {
-      feeds.sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1));
-    }
+      sort: !isRecent,
+    });
 
     return feeds?.map((feed) => {
-      const myLike = (feed?.like as IUser[])?.find(
+      const myLike = (feed?.getLike() as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
       );
       let modifiedLike;
       if (myLike) {
         modifiedLike = [
           myLike,
-          ...(feed.like as IUser[])
+          ...(feed.getLike() as unknown as IUser[])
             .filter((who) => who.uid !== myLike.uid)
             .slice(0, 7),
         ];
       } else {
-        modifiedLike = feed.like.slice(0, 8);
+        modifiedLike = feed.getLike().slice(0, 8);
       }
       return {
-        ...feed.toObject(),
+        ...feed,
         like: modifiedLike,
-        likeCnt: feed?.like?.length,
+        likeCnt: feed?.getLike()?.length,
       };
     });
   }
@@ -93,27 +81,27 @@ export class FeedService {
     if (!Types.ObjectId.isValid(id)) {
       throw new ValidationError('invalid mongoDB Id type');
     }
-    const feed = await this.findFeedById(id);
+    const feed = await this.feedRepository.findById(id);
     if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 
-    const myLike = (feed?.like as IUser[])?.find(
+    const myLike = (feed?.getLike() as unknown as IUser[])?.find(
       (who) => who.uid === token.uid,
     );
     let modifiedLike;
     if (myLike) {
       modifiedLike = [
         myLike,
-        ...(feed?.like as IUser[])
+        ...(feed?.getLike() as unknown as IUser[])
           .filter((who) => who.uid !== myLike.uid)
           .slice(0, 7),
       ];
     } else {
-      modifiedLike = feed?.like.slice(0, 8);
+      modifiedLike = feed?.getLike().slice(0, 8);
     }
     return {
-      ...feed?.toObject(),
+      ...feed,
       like: modifiedLike,
-      likeCnt: feed?.like?.length,
+      likeCnt: feed?.getLike()?.length,
     };
   }
 
@@ -121,39 +109,39 @@ export class FeedService {
     if (!Types.ObjectId.isValid(id)) {
       throw new ValidationError('invalid mongoDB Id type');
     }
-    const feed = await this.feedRepository.findByIdLike(id);
+    const feed = await this.feedRepository.findByIdJoin(id);
     if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 
-    return feed?.like as IUser[];
+    return feed?.getLike() as unknown as IUser[];
   }
 
   async findAllFeeds(cursor: number | null, isRecent?: boolean) {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
-    const feeds = await this.feedRepository.findAll(start, gap, isRecent);
+    const feeds = await this.feedRepository.findAll({ start, gap, isRecent });
 
     return feeds?.map((feed) => {
-      const myLike = (feed?.like as IUser[])?.find(
+      const myLike = (feed?.getLike() as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
       );
       let modifiedLike;
       if (myLike) {
         modifiedLike = [
           myLike,
-          ...(feed.like as IUser[])
+          ...(feed.getLike() as unknown as IUser[])
             .filter((who) => who.uid !== myLike.uid)
             .slice(0, 7),
         ];
       } else {
-        modifiedLike = feed.like.slice(0, 8);
+        modifiedLike = feed.getLike().slice(0, 8);
       }
       return {
-        ...feed.toObject(),
+        ...feed,
         like: modifiedLike,
-        likeCnt: feed?.like?.length,
+        likeCnt: feed?.getLike()?.length,
       };
     });
   }
@@ -173,7 +161,8 @@ export class FeedService {
       'feed',
       buffers,
     );
-    const validatedFeed = FeedZodSchema.parse({
+
+    const newFeed = new Feed({
       title,
       text,
       writer: token.id,
@@ -183,44 +172,44 @@ export class FeedService {
       isAnonymous: Boolean(isAnonymous),
       subCategory,
     });
-
-    await this.feedRepository.createFeed(validatedFeed);
+    await this.feedRepository.create(newFeed);
     return;
   }
+
   async createComment(feedId: string, content: string) {
     const token = RequestContext.getDecodedToken();
+    const feed = await this.feedRepository.findById(feedId);
 
-    const message: commentType = {
+    feed.addComment({
       user: token.id,
       comment: content,
-    };
+    });
 
-    const newComment = await this.feedRepository.createComment(feedId, message);
+    const newComment = await this.feedRepository.save(feed);
     if (!newComment) throw new DatabaseError('create comment failed');
     return;
   }
 
   async deleteComment(feedId: string, commentId: string) {
-    await this.feedRepository.deleteComment(feedId, commentId);
+    const feed = await this.feedRepository.findById(feedId);
+    feed.removeComment(commentId);
+    await this.feedRepository.save(feed);
     return;
   }
 
   async updateComment(feedId: string, commentId: string, comment: string) {
-    await this.feedRepository.updateComment(feedId, commentId, comment);
+    const feed = await this.feedRepository.findById(feedId);
+    feed.updateComment(commentId, comment);
+    await this.feedRepository.save(feed);
     return;
   }
 
   async createCommentLike(feedId: string, commentId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const newComment = await this.feedRepository.createCommentLike(
-      feedId,
-      commentId,
-      token.id,
-    );
-    if (!newComment) {
-      throw new DatabaseError('create comment like failed');
-    }
+    const feed = await this.feedRepository.findById(feedId);
+    feed.updateComment(commentId, token.id);
+    await this.feedRepository.save(feed);
     return;
   }
 
