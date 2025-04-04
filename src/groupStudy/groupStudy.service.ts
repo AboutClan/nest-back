@@ -50,7 +50,7 @@ export default class GroupStudyService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const filterQuery = {
       $and: [
@@ -63,7 +63,7 @@ export default class GroupStudyService {
       ],
     };
 
-    let gatherData = await this.groupStudyRepository.findWithQueryPopPage(
+    const gatherData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
       gap,
@@ -76,7 +76,7 @@ export default class GroupStudyService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const filterQuery = {
       $and: [
@@ -90,7 +90,7 @@ export default class GroupStudyService {
       ],
     };
 
-    let gatherData = await this.groupStudyRepository.findWithQueryPopPage(
+    const gatherData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
       gap,
@@ -103,14 +103,14 @@ export default class GroupStudyService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const filterQuery = {
       organizer: token.id,
       status: 'pending',
     };
 
-    let gatherData = await this.groupStudyRepository.findWithQueryPopPage(
+    const gatherData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
       gap,
@@ -217,7 +217,7 @@ export default class GroupStudyService {
   ) {
     let groupStudyData;
     const gap = 8;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const filterQuery = {
       status: filter,
@@ -250,7 +250,7 @@ export default class GroupStudyService {
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
     let groupStudyData;
     const gap = 8;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const filterQuery = {
       status: filter === 'planned' ? 'pending' : filter,
@@ -310,7 +310,7 @@ export default class GroupStudyService {
 
   async getGroupStudy(cursor: number | null) {
     const gap = 7;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       null,
@@ -424,6 +424,10 @@ export default class GroupStudyService {
   async participateGroupStudy(id: string) {
     const token = RequestContext.getDecodedToken();
 
+    //ticket 차감 로직
+    const ticketInfo = await this.userServiceInstance.getTicketInfo(token.id);
+    if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
+
     const groupStudy = await this.groupStudyRepository.findById(id);
 
     if (!groupStudy) throw new Error();
@@ -440,11 +444,6 @@ export default class GroupStudyService {
         token.uid,
       );
     }
-
-    //ticket 차감 로직
-    const ticketInfo = await this.userServiceInstance.getTicketInfo(token.id);
-
-    if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
 
     await this.userServiceInstance.updateReduceTicket('groupOffline', token.id);
 
