@@ -45,6 +45,23 @@ export class FeedRepository implements IFeedRepository {
     return this.mapToDomain(doc);
   }
 
+  async findByWriterAndType(id: string, type: string): Promise<Feed[]> {
+    const docs = await this.FeedModel.find({
+      type: type,
+      writer: id,
+    }).sort({
+      createdAt: -1,
+    });
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
+  async findByTypeAndIds(type: string, ids: string[]): Promise<Feed[]> {
+    const docs = await this.FeedModel.find({
+      $and: [{ type }, { typeId: { $in: ids } }],
+    });
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
   async findByIdJoin(id: string): Promise<Feed> {
     const doc = await this.FeedModel.findById(id).populate({
       path: 'like',

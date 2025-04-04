@@ -302,8 +302,9 @@ export class FeedService {
   async findMyFeed(feedType: 'gather' | 'group') {
     const token = RequestContext.getDecodedToken();
 
-    return await this.feedRepository.findMyFeed(feedType, token.id);
+    return await this.feedRepository.findByWriterAndType(token.id, feedType);
   }
+
   async findReceivedFeed(feedType: 'gather' | 'group') {
     const token = RequestContext.getDecodedToken();
 
@@ -316,12 +317,12 @@ export class FeedService {
     gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
 
     if (feedType == 'gather') {
-      return await this.feedRepository.findRecievedFeed(
+      return await this.feedRepository.findByTypeAndIds(
         feedType,
         groupStudyIds,
       );
     } else if (feedType == 'group') {
-      return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
+      return await this.feedRepository.findByTypeAndIds(feedType, gatherIds);
     }
   }
 

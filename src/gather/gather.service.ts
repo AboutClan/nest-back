@@ -25,13 +25,13 @@ import {
   ParticipantsZodSchema,
   subCommentType,
 } from './gather.entity';
-import { GatherRepository } from './gather.repository.interface';
+import { IGatherRepository } from './GatherRepository.interface';
 //commit
 @Injectable()
 export class GatherService {
   constructor(
     @Inject(IGATHER_REPOSITORY)
-    private readonly gatherRepository: GatherRepository,
+    private readonly gatherRepository: IGatherRepository,
     private readonly userServiceInstance: UserService,
     private readonly counterServiceInstance: CounterService,
     private readonly webPushServiceInstance: WebPushService,
@@ -41,7 +41,7 @@ export class GatherService {
   }
 
   async getGatherById(gatherId: number) {
-    const gatherData = await this.gatherRepository.findById(gatherId, true);
+    const gatherData = await this.gatherRepository.findByIdJoin(gatherId);
     return gatherData;
   }
 
@@ -57,7 +57,7 @@ export class GatherService {
     sortBy: 'createdAt' | 'date',
   ) {
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
     const query =
       category === '스터디'
         ? { 'type.title': '스터디' }
@@ -65,7 +65,7 @@ export class GatherService {
           ? { 'type.title': { $ne: '스터디' } }
           : {};
 
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -92,7 +92,7 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const todayString = dayjs().startOf('day').toISOString();
     const query = {
@@ -107,7 +107,7 @@ export class GatherService {
       ],
     };
 
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -120,7 +120,7 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const todayString = dayjs().startOf('day').toISOString();
     const query = {
@@ -136,7 +136,7 @@ export class GatherService {
       ],
     };
 
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -149,12 +149,12 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const query = {
       user: token.id,
     };
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -208,7 +208,7 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      let partData = {
+      const partData = {
         user: token.id,
         phase,
         invited: false,
@@ -254,7 +254,7 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      let partData = {
+      const partData = {
         user: userId,
         phase,
         invited: true,
