@@ -1,4 +1,4 @@
-// src/domain/entities/realtime/Realtime.ts
+// src/domain/entities/Realtime.ts
 import { RealtimeUser, RealtimeUserProps } from './RealtimeUser';
 
 export interface RealtimeProps {
@@ -11,10 +11,14 @@ export class Realtime {
   private userList: RealtimeUser[];
 
   constructor(props: RealtimeProps) {
-    // date가 필수라면 검증
+    if (!props.date) {
+      throw new Error('date is required');
+    }
+
     this.date = props.date;
-    // userList 초기화
-    this.userList = (props.userList ?? []).map((u) => new RealtimeUser(u));
+    this.userList = (props.userList ?? []).map(
+      (userProps) => new RealtimeUser(userProps),
+    );
   }
 
   getDate(): Date {
@@ -25,16 +29,9 @@ export class Realtime {
     return this.userList;
   }
 
-  // 예: 사용자 목록에 추가
+  // ex) domain logic: add user, remove user, etc.
   addUser(userProps: RealtimeUserProps) {
     this.userList.push(new RealtimeUser(userProps));
-  }
-
-  // 예: 사용자 제거/업데이트 로직 등
-  removeUser(userId: string): boolean {
-    const initialLength = this.userList.length;
-    this.userList = this.userList.filter((u) => u.getUserId() !== userId);
-    return this.userList.length !== initialLength;
   }
 
   toPrimitives(): RealtimeProps {

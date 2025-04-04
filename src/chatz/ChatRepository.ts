@@ -1,9 +1,9 @@
-import { Chat } from 'src/domain/entities/Chat/Chat';
-import { IChatRepository } from './ChatRepository.interface';
-import { IChat } from './chat.entity';
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Chat } from 'src/domain/entities/Chat/Chat';
+import { IChatRepository } from './ChatRepository.interface';
+import { IChat } from './chat.entity';
 
 export class ChatRepository implements IChatRepository {
   constructor(
@@ -54,6 +54,7 @@ export class ChatRepository implements IChatRepository {
       user1: user1Id,
       user2: user2Id,
     }).populate('user1 user2');
+
     if (!doc) return null;
     return this.mapToDomain(doc);
   }
