@@ -2,27 +2,27 @@ import { Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
+import { CollectionService } from 'src/collection/collection.service';
+import {
+  ATTEND_STUDY_POINT,
+  CANCEL_VOTE_POINT,
+  VOTE_POINT,
+} from 'src/Constants/point';
+import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { convertUserToSummary } from 'src/convert';
 import { IPlace } from 'src/place/place.entity';
 import { IRealtime } from 'src/realtime/realtime.entity';
+import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/user/user.entity';
+import { UserService } from 'src/user/user.service';
 import { strToDate } from 'src/utils/dateUtils';
+import { now } from './util';
 import {
   IAttendance,
   IParticipation,
   IVote,
   IVoteStudyInfo,
 } from './vote.entity';
-import { now } from './util';
-import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
-import {
-  ATTEND_STUDY_POINT,
-  CANCEL_VOTE_POINT,
-  VOTE_POINT,
-} from 'src/Constants/point';
-import { CollectionService } from 'src/collection/collection.service';
-import { UserService } from 'src/user/user.service';
-import { RequestContext } from 'src/request-context';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VoteService {
@@ -680,20 +680,24 @@ export class VoteService {
     const token = RequestContext.getDecodedToken();
 
     try {
-      await this.Vote.updateOne(
-        { date, 'participations.attendences.user': token.id },
-        {
-          $pull: {
-            'participations.$[].attendences': { user: token.id },
+      const voteDoc = await this.Vote.findOne({
+        date,
+        'participations.attendences.user': token.id,
+      });
+      if (voteDoc) {
+        await this.Vote.updateOne(
+          { date, 'participations.attendences.user': token.id },
+          {
+            $pull: {
+              'participations.$[].attendences': { user: token.id },
+            },
           },
-        },
-      );
-
-      this.userServiceInstance.updatePoint(
-        CANCEL_VOTE_POINT,
-        '스터디 투표 취소',
-      );
-
+        );
+        this.userServiceInstance.updatePoint(
+          CANCEL_VOTE_POINT,
+          '스터디 투표 취소',
+        );
+      }
       return;
     } catch (err) {
       throw new Error();
