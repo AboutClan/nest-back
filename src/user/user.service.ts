@@ -630,9 +630,10 @@ export class UserService {
         await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
         break;
       default:
+        const { uid } = await this.getUserWithUserId(userId);
         logger.logger.info('티켓 추가', {
           type,
-          uid: userId,
+          uid,
           value: ticketNum,
         });
         break;
@@ -661,9 +662,11 @@ export class UserService {
         break;
     }
 
+    const { uid } = await this.getUserWithUserId(userId);
+
     logger.logger.info(`티켓 소모`, {
       type,
-      uid: userId,
+      uid,
       value: ticketNum,
     });
   }
@@ -705,7 +708,18 @@ export class UserService {
   }
 
   async test() {
-    // await this.UserRepository.test();
+    // const users = await this.getAllUserInfo([]);
+    // const uidToId = new Map<string, string>();
+    // users.forEach((user) => uidToId.set(user.id, user.uid));
+    // const logs = await this.Log.find({ message: '티켓 소모' });
+    // for (let log of logs) {
+    //   await this.Log.updateOne(
+    //     { _id: log._id },
+    //     {
+    //       'meta.uid': uidToId.get(log.meta.uid.toString()),
+    //     },
+    //   );
+    // }
   }
   //   const logs = await this.Log.find({
   //     $and: [
