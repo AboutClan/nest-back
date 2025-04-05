@@ -13,6 +13,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import {
   PatchBelongDto,
   PatchRoleDto,
@@ -22,10 +25,7 @@ import {
   UpdateCommentDto,
   UpdateInstagramDto,
 } from './dto';
-import { ApiTags } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import { Request } from 'express';
 
 @ApiTags('user')
 @Controller('user')
@@ -367,7 +367,7 @@ export class UserController {
   ) {
     await this.userService.updateAddTicket(
       type,
-      req.decodedToken.uid,
+      req.decodedToken.id,
       ticketNum,
     );
   }
