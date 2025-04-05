@@ -1,5 +1,6 @@
 // src/domain/entities/realtime/RealtimeUser.ts
-import { Comment, CommentProps } from './Comment';
+
+import { CommentProps, Comment } from './Comments';
 import { Place, PlaceProps } from './Place';
 import { Time, TimeProps } from './Time';
 

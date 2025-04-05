@@ -7,7 +7,7 @@ import { ICollectionRepository } from './CollectionRepository.interface';
 
 export class CollectionRepository implements ICollectionRepository {
   constructor(
-    @InjectModel('Collection') private readonly Collection: Model<ICollection>,
+    @InjectModel('collection') private readonly Collection: Model<ICollection>,
   ) {}
 
   async findByUser(userId: string): Promise<Collection | null> {
