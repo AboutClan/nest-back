@@ -3,19 +3,17 @@ import {
   Controller,
   Delete,
   Get,
-  Inject,
   Patch,
   Post,
   Query,
   Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   CreateArriveDTO,
   CreateNewVoteDTO,
   CreateParticipateDTO,
 } from './vote2.dto';
-import { Request } from 'express';
-import { IVOTE2_SERVICE } from 'src/utils/di.tokens';
 import { Vote2Service } from './vote2.service';
 
 @Controller('vote2')
@@ -25,6 +23,15 @@ export class Vote2Controller {
   @Get('test')
   async test() {
     await this.voteService2.setResult(new Date());
+  }
+
+  @Get(':date/info')
+  async getVoteInfo(@Req() req: Request): Promise<any> {
+    const { date } = req;
+
+    const filteredVote = await this.voteService2.getVoteInfo(date);
+
+    return filteredVote;
   }
 
   @Get(':date/one')

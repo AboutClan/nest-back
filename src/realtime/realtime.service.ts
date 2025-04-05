@@ -27,7 +27,7 @@ export default class RealtimeService {
     private readonly collectionServiceInstance: CollectionService,
   ) {}
 
-  getToday() {
+  private getToday() {
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0); // 시간을 0시 0분 0초 0밀리초로 설정
     return todayMidnight;

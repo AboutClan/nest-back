@@ -1,15 +1,13 @@
 import { Inject } from '@nestjs/common';
-import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
-import { REQUEST } from '@nestjs/core';
-import { JWT } from 'next-auth/jwt';
-import { Request } from 'express';
-import { IVote2Repository } from './vote2.repository.interface';
-import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
-import { IParticipation } from './vote2.entity';
-import { PlaceRepository } from 'src/place/place.repository.interface';
 import { IPlace } from 'src/place/place.entity';
-import { ClusterUtils, coordType } from './ClusterUtils';
+import { PlaceRepository } from 'src/place/place.repository.interface';
 import { RequestContext } from 'src/request-context';
+import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
+import { ClusterUtils, coordType } from './ClusterUtils';
+import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
+import { IParticipation } from './vote2.entity';
+import { IVote2Repository } from './vote2.repository.interface';
+import RealtimeService from 'src/realtime/realtime.service';
 
 export class Vote2Service {
   constructor(
@@ -17,7 +15,46 @@ export class Vote2Service {
     private readonly Vote2Repository: IVote2Repository,
     @Inject(IPLACE_REPOSITORY)
     private readonly PlaceRepository: PlaceRepository,
+    private readonly RealtimeService: RealtimeService,
   ) {}
+
+  async getVoteInfo(date: Date) {
+    const now = new Date();
+    // 9시간 더하기
+    const koreaTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    // 시간(Hour)만 추출
+    const hour = koreaTime.getHours();
+
+    if (hour > 14 && hour < 22) return this.getBeforeVoteInfo(date);
+    else return this.getAfterVoteInfo(date);
+  }
+
+  private async getBeforeVoteInfo(date: Date) {
+    const participations: IParticipation[] =
+      await this.Vote2Repository.findParticipationsByDate(date);
+
+    const voteResults = await this.doAlgorithm(participations);
+    const resultPlaceIds = voteResults.map((result) => result.placeId);
+
+    const resultPlaces = await this.PlaceRepository.findByIds(
+      resultPlaceIds as string[],
+    );
+
+    return {
+      participations,
+      result: resultPlaces,
+    };
+  }
+
+  private async getAfterVoteInfo(date: Date) {
+    const voteData = await this.Vote2Repository.findByDate(date);
+    const realtimeData = await this.RealtimeService.getTodayData();
+
+    return {
+      result: voteData.results,
+      realtimes: realtimeData,
+    };
+  }
 
   async getArrivedPeriod(startDay: string, endDay: string) {
     const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
@@ -70,10 +107,7 @@ export class Vote2Service {
     await this.Vote2Repository.deleteVote(date, token.id);
   }
 
-  async setResult(date: Date) {
-    const participations: IParticipation[] =
-      await this.Vote2Repository.findParticipationsByDate(date);
-
+  private async doAlgorithm(participations) {
     const coords: coordType[] = participations.map((loc) => {
       return {
         lat: parseFloat(loc.latitude),
@@ -85,7 +119,7 @@ export class Vote2Service {
     let eps = 0.01;
     const maxMember = 8;
 
-    let { clusters, noise } = ClusterUtils.DBSCANClustering(coords, eps);
+    const { clusters, noise } = ClusterUtils.DBSCANClustering(coords, eps);
 
     //클러스터 결과 8명이 넘는 클러스터가 있을 경우, 더 작게 더 분해.
     while (ClusterUtils.findLongestArrayLength(clusters) > maxMember) {
@@ -93,7 +127,7 @@ export class Vote2Service {
         if (cluster.length <= 8) return;
         const newCoords = coords.filter((coord, j) => cluster.includes(j));
 
-        let { clusters: newClusters, noise: newNoise } =
+        const { clusters: newClusters, noise: newNoise } =
           ClusterUtils.DBSCANClustering(newCoords, (eps /= 2));
 
         clusters.splice(i, 1, ...newClusters);
@@ -113,6 +147,14 @@ export class Vote2Service {
       formedClusters,
       places,
     );
+
+    return voteResults;
+  }
+  async setResult(date: Date) {
+    const participations: IParticipation[] =
+      await this.Vote2Repository.findParticipationsByDate(date);
+
+    const voteResults = await this.doAlgorithm(participations);
 
     await this.Vote2Repository.setVoteResult(date, voteResults);
   }

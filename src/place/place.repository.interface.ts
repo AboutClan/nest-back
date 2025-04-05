@@ -5,4 +5,5 @@ export interface PlaceRepository {
   createPlace(placeData: Partial<IPlace>): Promise<IPlace>;
   updateStatus(placeId: string, status: string): Promise<null>;
   updatePrefCnt(placeId: string, num: number);
+  findByIds(placeIds: string[]): Promise<IPlace[]>
 }
