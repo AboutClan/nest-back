@@ -9,7 +9,7 @@ export class DailyCheckRepository implements IDailyCheckRepository {
     @InjectModel('DailyCheck') private readonly DailyCheck: Model<IDailyCheck>,
   ) {}
 
-  async findByUid(uid: string): Promise<> {
+  async findByUid(uid: string): Promise<DailyCheck> {
     const doc = await this.DailyCheck.findOne({
       uid,
     }).sort({ updatedAt: -1 });

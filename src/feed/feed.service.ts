@@ -220,16 +220,16 @@ export class FeedService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const feed = await this.feedRepository.createSubCommentLike(
-      feedId,
-      commentId,
-      subCommentId,
-      token.id,
-    );
+    // const feed = await this.feedRepository.createSubCommentLike(
+    //   feedId,
+    //   commentId,
+    //   subCommentId,
+    //   token.id,
+    // );
 
-    if (!feed) {
-      throw new DatabaseError('create subcomment like failed');
-    }
+    // if (!feed) {
+    //   throw new DatabaseError('create subcomment like failed');
+    // }
   }
 
   async createSubComment(feedId: string, commentId: string, content: string) {
@@ -239,15 +239,15 @@ export class FeedService {
       comment: content,
     };
 
-    const updated = await this.feedRepository.createSubComment(
-      feedId,
-      commentId,
-      message,
-    );
+    // const updated = await this.feedRepository.createSubComment(
+    //   feedId,
+    //   commentId,
+    //   message,
+    // );
 
-    if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
+    // if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
 
-    return;
+    // return;
   }
 
   async deleteSubComment(
@@ -255,13 +255,12 @@ export class FeedService {
     commentId: string,
     subCommentId: string,
   ) {
-    const updated = await this.feedRepository.deleteSubComment(
-      feedId,
-      commentId,
-      subCommentId,
-    );
-
-    if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
+    // const updated = await this.feedRepository.deleteSubComment(
+    //   feedId,
+    //   commentId,
+    //   subCommentId,
+    // );
+    // if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
   }
 
   async updateSubComment(
@@ -270,14 +269,14 @@ export class FeedService {
     subCommentId: string,
     comment: string,
   ) {
-    const updated = await this.feedRepository.updateSubComment(
-      feedId,
-      commentId,
-      subCommentId,
-      comment,
-    );
+    // const updated = await this.feedRepository.updateSubComment(
+    //   feedId,
+    //   commentId,
+    //   subCommentId,
+    //   comment,
+    // );
 
-    if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
+    // if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
     return;
   }
 
@@ -300,38 +299,33 @@ export class FeedService {
   }
 
   async findMyFeed(feedType: 'gather' | 'group') {
-    const token = RequestContext.getDecodedToken();
-
-    return await this.feedRepository.findMyFeed(feedType, token.id);
+    // const token = RequestContext.getDecodedToken();
+    // return await this.feedRepository.findMyFeed(feedType, token.id);
   }
   async findReceivedFeed(feedType: 'gather' | 'group') {
-    const token = RequestContext.getDecodedToken();
-
-    let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
-      token.id,
-    );
-    let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
-
-    groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
-    gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
-
-    if (feedType == 'gather') {
-      return await this.feedRepository.findRecievedFeed(
-        feedType,
-        groupStudyIds,
-      );
-    } else if (feedType == 'group') {
-      return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
-    }
+    // const token = RequestContext.getDecodedToken();
+    // let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
+    //   token.id,
+    // );
+    // let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
+    // groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
+    // gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
+    // if (feedType == 'gather') {
+    //   return await this.feedRepository.findRecievedFeed(
+    //     feedType,
+    //     groupStudyIds,
+    //   );
+    // } else if (feedType == 'group') {
+    //   return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
+    // }
   }
 
   async findWrittenReview(feedType: 'gather' | 'group') {
-    const myFeed = await this.findMyFeed(feedType);
-    const receivedFeed = await this.findReceivedFeed(feedType);
-
-    return {
-      writtenReviewCnt: (myFeed || []).length,
-      reviewReceived: (receivedFeed || []).length,
-    };
+    // const myFeed = await this.findMyFeed(feedType);
+    // const receivedFeed = await this.findReceivedFeed(feedType);
+    // return {
+    //   writtenReviewCnt: (myFeed || []).length,
+    //   reviewReceived: (receivedFeed || []).length,
+    // };
   }
 }

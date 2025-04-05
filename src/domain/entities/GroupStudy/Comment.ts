@@ -1,5 +1,6 @@
 // src/domain/entities/groupStudy/Comment.ts
-import { SubComment, SubCommentProps } from './SubComment';
+
+import { SubComment, SubCommentProps } from './SubComments';
 
 export interface CommentProps {
   userId: string;
