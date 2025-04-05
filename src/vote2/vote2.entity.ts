@@ -1,4 +1,5 @@
 import mongoose, { model, Model, Schema } from 'mongoose';
+import { IPlace } from 'src/place/place.entity';
 
 export interface IVote2 {
   date: Date;
@@ -25,7 +26,7 @@ export interface IMember {
 }
 
 export interface IResult {
-  placeId: string | String;
+  placeId: string | String | IPlace;
   members: IMember[];
 }
 

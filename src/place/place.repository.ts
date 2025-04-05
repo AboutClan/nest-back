@@ -8,6 +8,11 @@ export class MongoPlaceReposotory implements PlaceRepository {
     @InjectModel('Place')
     private readonly Place: Model<IPlace>,
   ) {}
+
+  async findByIds(placeIds: string[]): Promise<IPlace[]> {
+    return await this.Place.find({ _id: { $in: placeIds } });
+  }
+
   async findByStatus(status: string): Promise<IPlace[]> {
     return await this.Place.find({ status });
   }

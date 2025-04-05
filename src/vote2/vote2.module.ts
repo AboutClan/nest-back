@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Vote2Schema } from './vote2.entity';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { PlaceModule } from 'src/place/place.module';
+import { RealtimeModule } from 'src/realtime/realtime.module';
 
 const vote2RepositoryProvider: ClassProvider = {
   provide: IVOTE2_REPOSITORY,
@@ -17,6 +18,7 @@ const vote2RepositoryProvider: ClassProvider = {
   imports: [
     MongooseModule.forFeature([{ name: 'Vote2', schema: Vote2Schema }]),
     PlaceModule,
+    RealtimeModule,
   ],
 
   controllers: [Vote2Controller],
