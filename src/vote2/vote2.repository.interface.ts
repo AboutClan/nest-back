@@ -6,6 +6,7 @@ export interface IVote2Repository {
   deleteVote(date: Date, userId: string);
   setVoteResult(date: Date, result: IResult[]);
   findParticipationsByDate(date: Date);
+  findParticipationsByDateJoin(date: Date);
   setArrive(date: Date, userId: string, memo: any);
   setParticipate(date: Date, placeId, participateData: Partial<IMember>);
   findByDate(date: Date);
