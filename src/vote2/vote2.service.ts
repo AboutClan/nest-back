@@ -25,7 +25,7 @@ export class Vote2Service {
     // 시간(Hour)만 추출
     const hour = koreaTime.getHours();
 
-    if (hour > 14 && hour < 22) return this.getBeforeVoteInfo(date);
+    if (hour >= 14 && hour <= 22) return this.getBeforeVoteInfo(date);
     else return this.getAfterVoteInfo(date);
   }
 
