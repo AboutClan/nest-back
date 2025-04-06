@@ -9,6 +9,7 @@ import {
 import { IVote2Repository } from './vote2.repository.interface';
 import { Model } from 'mongoose';
 import dayjs from 'dayjs';
+import { C_simpleUser } from 'src/Constants/constants';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
@@ -17,7 +18,7 @@ export class Vote2Repository implements IVote2Repository {
   ) {}
 
   async findByDate(date: Date) {
-    return await this.Vote2.findOne({ date });
+    return (await this.Vote2.findOne({ date })).populate('results.placeId');
   }
   async setAbsence(date: Date, message: string, userId: string) {
     await this.Vote2.updateMany(
@@ -64,7 +65,12 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async findParticipationsByDate(date: Date) {
-    return (await this.Vote2.findOne({ date })).participations;
+    return (
+      await this.Vote2.findOne({ date }).populate({
+        path: 'participations.userId',
+        select: C_simpleUser,
+      })
+    ).participations;
   }
 
   async findParticipationsByDateJoin(date: Date) {

@@ -30,6 +30,7 @@ export class Vote2Service {
   }
 
   private async getBeforeVoteInfo(date: Date) {
+    console.log(1);
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
