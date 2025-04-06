@@ -13,41 +13,50 @@ export interface DailyCheckProps {
  * 비즈니스 로직(검증, 메서드)을 담는 DailyCheck 엔티티
  */
 export class DailyCheck {
-  private id: string;
-  private uid: string;
-  private name: string;
-  private createdAt: Date;
-  private updatedAt: Date;
+  #id: string;
+  #uid: string;
+  #name: string;
+  #createdAt: Date;
+  #updatedAt: Date;
 
   constructor(props: DailyCheckProps) {
     // 1) 필수값 검증
-    if (!props.uid) {
-      throw new Error('DailyCheck requires a uid');
-    }
-    if (!props.name) {
-      throw new Error('DailyCheck requires a name');
-    }
+    // if (!props.uid) {
+    //   throw new Error('DailyCheck requires a uid');
+    // }
+    // if (!props.name) {
+    //   throw new Error('DailyCheck requires a name');
+    // }
 
-    this.id = props.id || '';
+    this.#id = props.id || '';
     // 2) 상태 초기화
-    this.uid = props.uid;
-    this.name = props.name;
-    this.createdAt = props.createdAt ?? new Date();
-    this.updatedAt = props.updatedAt ?? new Date();
+    this.#uid = props.uid;
+    this.#name = props.name;
+    this.#createdAt = props.createdAt ?? new Date();
+    this.#updatedAt = props.updatedAt ?? new Date();
   }
 
-  getId(): string {
-    return this.id;
+  get id(): string {
+    return this.#id;
   }
 
   /** uid 조회 */
-  getUid(): string {
-    return this.uid;
+  get uid(): string {
+    return this.#uid;
   }
 
   /** name 조회 */
-  getName(): string {
-    return this.name;
+  get name(): string {
+    return this.#name;
+  }
+
+  /** createdAt/updatedAt 필요시 getter */
+  get createdAt(): Date {
+    return this.#createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this.#updatedAt;
   }
 
   /** 도메인 로직 예시: name 변경 */
@@ -55,16 +64,8 @@ export class DailyCheck {
     if (!newName || !newName.trim()) {
       throw new Error('Name cannot be empty');
     }
-    this.name = newName;
-    this.updatedAt = new Date(); // 변경 시점 반영
-  }
-
-  /** createdAt/updatedAt 필요시 getter */
-  getCreatedAt(): Date {
-    return this.createdAt;
-  }
-  getUpdatedAt(): Date {
-    return this.updatedAt;
+    this.#name = newName;
+    this.#updatedAt = new Date(); // 변경 시점 반영
   }
 
   /**

@@ -6,12 +6,12 @@ import { UserModule } from 'src/user/user.module';
 import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
 import { FeedController } from './feed.controller';
 import { FeedSchema } from './feed.entity';
-import { MongoFeedRepository } from './feed.repository';
 import { FeedService } from './feed.service';
+import { FeedRepository } from './FeedRepository';
 
 const feedRepositoryProvider: ClassProvider = {
   provide: IFEED_REPOSITORY,
-  useClass: MongoFeedRepository,
+  useClass: FeedRepository,
 };
 
 @Module({

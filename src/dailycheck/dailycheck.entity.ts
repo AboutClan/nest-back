@@ -2,6 +2,7 @@ import mongoose, { Model, Schema } from 'mongoose';
 import { z } from 'zod';
 
 export const DailyCheckZodSchema = z.object({
+  _id: z.string().optional(),
   uid: z.string(),
   name: z.string(),
   createdAt: z.instanceof(Date).optional(),
@@ -14,8 +15,6 @@ export const dailyCheckSchema: Schema<IDailyCheck> = new Schema(
   {
     uid: String,
     name: String,
-    createdAt: Date,
-    updatedAt: Date,
   },
   { timestamps: true },
 );

@@ -17,7 +17,7 @@ export class FeedRepository implements IFeedRepository {
   async save(doc: Feed): Promise<Feed> {
     const docToSave = this.mapToDB(doc);
     const updatedDoc = await this.FeedModel.findByIdAndUpdate(
-      docToSave._id,
+      docToSave.id,
       docToSave,
       { new: true },
     );
@@ -71,7 +71,9 @@ export class FeedRepository implements IFeedRepository {
   }
 
   private mapToDomain(doc: IFeed): Feed {
-    const feed = new Feed({
+    console.log(doc);
+    return new Feed({
+      id: doc._id as string,
       title: doc.title,
       text: doc.text,
       images: doc.images,
@@ -81,6 +83,7 @@ export class FeedRepository implements IFeedRepository {
       isAnonymous: doc.isAnonymous,
       like: doc.like as string[],
       comments: (doc.comments ?? []).map((c) => ({
+        id: c.id,
         user: c.user as string,
         likeList: c.likeList,
         comment: c.comment,
@@ -93,13 +96,13 @@ export class FeedRepository implements IFeedRepository {
       subCategory: doc.subCategory,
       createdAt: doc.createdAt,
     });
-    return feed;
   }
 
   private mapToDB(doc: Feed): Partial<IFeed> {
     const feedProps = doc.toPrimitives();
 
     return {
+      id: feedProps.id,
       title: feedProps.title,
       text: feedProps.text,
       images: feedProps.images,
@@ -109,6 +112,7 @@ export class FeedRepository implements IFeedRepository {
       isAnonymous: feedProps.isAnonymous,
       like: feedProps.like as string[],
       comments: (feedProps.comments ?? []).map((c) => ({
+        id: c.id as string,
         user: c.user as string,
         likeList: c.likeList,
         comment: c.comment,

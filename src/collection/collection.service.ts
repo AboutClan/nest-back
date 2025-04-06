@@ -59,6 +59,7 @@ export class CollectionService {
     };
   }
 
+  //알파벳 교환
   async changeCollection(
     mine: string,
     opponent: string,
@@ -84,16 +85,9 @@ export class CollectionService {
 
     myAlphabets.addAlphabet(opponent);
     opponentAlphabets.addAlphabet(mine);
-    // const myCollects = myAlphabets?.collects;
-    // const opponentCollects = opponentAlphabets?.collects;
-    // const myIdx = myCollects?.indexOf(mine);
-    // const opponentIdx = opponentCollects?.indexOf(opponent);
-    // myCollects?.splice(myIdx, 1);
-    // opponentCollects?.splice(opponentIdx, 1);
-    // myCollects?.push(opponent);
-    // opponentCollects?.push(mine);
-    // await myAlphabets?.save();
-    // await opponentAlphabets?.save();
+
+    await this.collectionRepository.save(myAlphabets);
+    await this.collectionRepository.save(opponentAlphabets);
 
     return null;
   }
@@ -159,8 +153,8 @@ export class CollectionService {
 
   async getCollection() {
     const token = RequestContext.getDecodedToken();
-    const result = this.collectionRepository.findByUserJoin(token.id);
-    return result;
+    const result = await this.collectionRepository.findByUserJoin(token.id);
+    return result.toPrimitives();
   }
 
   async getCollectionAll() {

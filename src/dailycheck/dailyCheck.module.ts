@@ -4,12 +4,12 @@ import { DailyCheckController } from './dailyCheck.controller';
 import { dailyCheckSchema } from './dailycheck.entity';
 import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { DailyCheckService } from './dailyCheck.service';
-import { MongoDailyCheckRepository } from './dailyCheck,repository';
 import { UserModule } from 'src/user/user.module';
+import { DailyCheckRepository } from './DailyCheckRepository';
 
 const dailyCheckRepositoryProvider: ClassProvider = {
   provide: IDAILYCHECK_REPOSITORY,
-  useClass: MongoDailyCheckRepository,
+  useClass: DailyCheckRepository,
 };
 
 @Module({

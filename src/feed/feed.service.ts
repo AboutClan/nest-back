@@ -53,24 +53,24 @@ export class FeedService {
     });
 
     return feeds?.map((feed) => {
-      const myLike = (feed?.getLike() as unknown as IUser[])?.find(
+      const myLike = (feed?.like as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
       );
       let modifiedLike;
       if (myLike) {
         modifiedLike = [
           myLike,
-          ...(feed.getLike() as unknown as IUser[])
+          ...(feed.like as unknown as IUser[])
             .filter((who) => who.uid !== myLike.uid)
             .slice(0, 7),
         ];
       } else {
-        modifiedLike = feed.getLike().slice(0, 8);
+        modifiedLike = feed.like.slice(0, 8);
       }
       return {
         ...feed,
         like: modifiedLike,
-        likeCnt: feed?.getLike()?.length,
+        likeCnt: feed?.like?.length,
       };
     });
   }
@@ -84,24 +84,24 @@ export class FeedService {
     const feed = await this.feedRepository.findById(id);
     if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 
-    const myLike = (feed?.getLike() as unknown as IUser[])?.find(
+    const myLike = (feed?.like as unknown as IUser[])?.find(
       (who) => who.uid === token.uid,
     );
     let modifiedLike;
     if (myLike) {
       modifiedLike = [
         myLike,
-        ...(feed?.getLike() as unknown as IUser[])
+        ...(feed?.like as unknown as IUser[])
           .filter((who) => who.uid !== myLike.uid)
           .slice(0, 7),
       ];
     } else {
-      modifiedLike = feed?.getLike().slice(0, 8);
+      modifiedLike = feed?.like.slice(0, 8);
     }
     return {
       ...feed,
       like: modifiedLike,
-      likeCnt: feed?.getLike()?.length,
+      likeCnt: feed?.like?.length,
     };
   }
 
@@ -112,7 +112,7 @@ export class FeedService {
     const feed = await this.feedRepository.findByIdJoin(id);
     if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 
-    return feed?.getLike() as unknown as IUser[];
+    return feed?.like as unknown as IUser[];
   }
 
   async findAllFeeds(cursor: number | null, isRecent?: boolean) {
@@ -124,24 +124,24 @@ export class FeedService {
     const feeds = await this.feedRepository.findAll({ start, gap, isRecent });
 
     return feeds?.map((feed) => {
-      const myLike = (feed?.getLike() as unknown as IUser[])?.find(
+      const myLike = (feed?.like as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
       );
       let modifiedLike;
       if (myLike) {
         modifiedLike = [
           myLike,
-          ...(feed.getLike() as unknown as IUser[])
+          ...(feed.like as unknown as IUser[])
             .filter((who) => who.uid !== myLike.uid)
             .slice(0, 7),
         ];
       } else {
-        modifiedLike = feed.getLike().slice(0, 8);
+        modifiedLike = feed.like.slice(0, 8);
       }
       return {
         ...feed,
         like: modifiedLike,
-        likeCnt: feed?.getLike()?.length,
+        likeCnt: feed?.like?.length,
       };
     });
   }
@@ -286,6 +286,7 @@ export class FeedService {
     const feed = await this.feedRepository.findById(feedId);
 
     const isLikePush: boolean = await feed?.addLike(token.id);
+    await this.feedRepository.save(feed);
 
     if (isLikePush) {
       await this.userService.updatePoint(FEED_LIKE_POINT, '피드 좋아요');
