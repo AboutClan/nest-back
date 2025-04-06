@@ -18,10 +18,10 @@ export class DailyCheckService {
 
     const findDailyCheck = await this.dailyCheckRepository.findByUid(token.uid);
 
-    if (findDailyCheck.getUpdatedAt()) {
+    if (findDailyCheck.updatedAt) {
       const today = new Date();
-      const updatedAt = findDailyCheck.getUpdatedAt()
-        ? new Date(findDailyCheck.getUpdatedAt())
+      const updatedAt = findDailyCheck.updatedAt
+        ? new Date(findDailyCheck.updatedAt)
         : null;
 
       if (updatedAt && today.toDateString() === updatedAt.toDateString()) {
@@ -43,10 +43,13 @@ export class DailyCheckService {
   async getLog() {
     const token = RequestContext.getDecodedToken();
 
-    return await this.dailyCheckRepository.findByUid(token.uid);
+    const result = await this.dailyCheckRepository.findByUid(token.uid);
+    return result.toPrimitives();
   }
 
   async getAllLog() {
-    return await this.dailyCheckRepository.findAll();
+    return (await this.dailyCheckRepository.findAll()).map((data) =>
+      data.toPrimitives(),
+    );
   }
 }

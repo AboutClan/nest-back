@@ -33,17 +33,18 @@ export class DailyCheckRepository implements IDailyCheckRepository {
 
   private mapToDomain(doc: IDailyCheck): DailyCheck {
     const dailyCheck = new DailyCheck({
+      id: doc._id,
       uid: doc.uid,
       name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     });
     return dailyCheck;
   }
   private mapToDB(doc: DailyCheck): IDailyCheck {
     return {
-      uid: doc.getUid(),
-      name: doc.getName(),
-      createdAt: doc.getCreatedAt(),
-      updatedAt: doc.getUpdatedAt(),
+      uid: doc.uid,
+      name: doc.name,
     };
   }
 }

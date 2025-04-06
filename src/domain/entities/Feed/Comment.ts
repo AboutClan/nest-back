@@ -10,76 +10,78 @@ export interface CommentProps {
 }
 
 export class Comment {
-  private id: string;
-  private user: string;
-  private comment: string;
-  private subComments: SubComment[];
-  private likeList: string[];
+  private _id: string;
+  private _user: string;
+  private _comment: string;
+  private _subComments: SubComment[];
+  private _likeList: string[];
 
   constructor(props: CommentProps) {
     if (!props.user) throw new Error('userId is required');
     if (!props.comment) throw new Error('comment is required');
 
-    this.id = props.id || '';
-    this.user = props.user;
-    this.comment = props.comment;
-    this.subComments = (props.subComments ?? []).map(
+    this._id = props.id || '';
+    this._user = props.user;
+    this._comment = props.comment;
+    this._subComments = (props.subComments ?? []).map(
       (sc) => new SubComment(sc),
     );
-    this.likeList = props.likeList ?? [];
+    this._likeList = props.likeList ?? [];
   }
 
-  getId(): string {
-    return this.id;
-  }
-  getUser(): string {
-    return this.user;
+  public get id(): string {
+    return this._id;
   }
 
-  getComment(): string {
-    return this.comment;
+  public get user(): string {
+    return this._user;
   }
 
-  setComment(comment: string) {
-    this.comment = comment;
-    return;
+  public get comment(): string {
+    return this._comment;
   }
 
-  getSubComments(): SubComment[] {
-    return this.subComments;
+  // set 메서드를 사용하면, comment.comment = "new value" 같은 식으로 할당할 수 있습니다.
+  public set comment(value: string) {
+    this._comment = value;
   }
 
-  getLikeList(): string[] {
-    return this.likeList;
+  public get subComments(): SubComment[] {
+    return this._subComments;
   }
 
-  addLike(userId: string): boolean {
-    if (!this.likeList.includes(userId)) {
-      this.likeList.push(userId);
+  public get likeList(): string[] {
+    return this._likeList;
+  }
+
+  public addLike(userId: string): boolean {
+    if (!this._likeList.includes(userId)) {
+      this._likeList.push(userId);
       return true;
     }
     return false;
   }
 
-  removeLike(userId: string): boolean {
-    const idx = this.likeList.indexOf(userId);
+  public removeLike(userId: string): boolean {
+    const idx = this._likeList.indexOf(userId);
     if (idx !== -1) {
-      this.likeList.splice(idx, 1);
+      this._likeList.splice(idx, 1);
       return true;
     }
     return false;
   }
 
-  addSubComment(subCommentProps: SubCommentProps) {
-    this.subComments.push(new SubComment(subCommentProps));
+  public addSubComment(subCommentProps: SubCommentProps) {
+    this._subComments.push(new SubComment(subCommentProps));
   }
 
-  toPrimitives(): CommentProps {
+  public toPrimitives(): CommentProps {
     return {
-      user: this.user,
-      comment: this.comment,
-      subComments: this.subComments.map((sc) => sc.toPrimitives()),
-      likeList: [...this.likeList],
+      id: this._id,
+      user: this._user,
+      comment: this._comment,
+      subComments: this._subComments.map((sc) => sc.toPrimitives()),
+      likeList: [...this._likeList],
     };
   }
 }

@@ -58,4 +58,8 @@ export class Collection {
   set stamps(stamps: number) {
     this.props.stamps = stamps;
   }
+
+  toPrimitives() {
+    return { ...this.props };
+  }
 }
