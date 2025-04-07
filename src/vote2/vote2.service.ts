@@ -30,30 +30,50 @@ export class Vote2Service {
   }
 
   private async getBeforeVoteInfo(date: Date) {
-    console.log(1);
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
     const voteResults = await this.doAlgorithm(participations);
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
+    //todo: {placeId, members}로 오도록
     const resultPlaces = await this.PlaceRepository.findByIds(
       resultPlaceIds as string[],
     );
 
+    const m = new Map<string, any>();
+    resultPlaces.forEach((place) => m.set(place._id.toString(), place));
+
+    const results = voteResults.map((result) => ({
+      members: result.members,
+      place: m.get(result.placeId.toString()),
+    }));
+
     return {
       participations,
-      result: resultPlaces,
+      results,
     };
   }
 
+  //todo: locationDetail 등록해야함
   private async getAfterVoteInfo(date: Date) {
     const voteData = await this.Vote2Repository.findByDate(date);
     const realtimeData = await this.RealtimeService.getTodayData();
 
+    console.log(
+      voteData.results.map((result) => ({
+        place: result.placeId,
+        members: result.members.map((who) => ({ ...who, user: who.userId })),
+      })),
+    );
+    //results
+    //
     return {
-      result: voteData.results,
-      realtimes: realtimeData,
+      results: voteData.results.map((result) => ({
+        place: result.placeId,
+        members: result.members.map((who) => ({ ...who, user: who.userId })),
+      })),
+      realTimes: realtimeData,
     };
   }
 
