@@ -60,12 +60,6 @@ export class Vote2Service {
     const voteData = await this.Vote2Repository.findByDate(date);
     const realtimeData = await this.RealtimeService.getTodayData();
 
-    console.log(
-      voteData.results.map((result) => ({
-        place: result.placeId,
-        members: result.members.map((who) => ({ ...who, user: who.userId })),
-      })),
-    );
     //results
     //
     return {
