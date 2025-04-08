@@ -25,8 +25,18 @@ export class Vote2Service {
     // 시간(Hour)만 추출
     const hour = koreaTime.getHours();
 
-    if (hour >= 14 && hour <= 22) return this.getBeforeVoteInfo(date);
-    else return this.getAfterVoteInfo(date);
+    const todayStr = koreaTime.toISOString().split('T')[0];
+    const targetStr = new Date(date.getTime() + 9 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0];
+
+    if (targetStr < todayStr) {
+      return this.getAfterVoteInfo(date);
+    } else if (targetStr > todayStr) {
+      return this.getBeforeVoteInfo(date);
+    } else if (hour > 22) {
+      return this.getAfterVoteInfo(date);
+    }
   }
 
   private async getBeforeVoteInfo(date: Date) {
