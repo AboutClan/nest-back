@@ -33,13 +33,15 @@ export default class RealtimeService {
     return todayMidnight;
   }
 
-  async getTodayData() {
-    const date = this.getToday();
+  async getTodayData(date?: Date) {
+    // const date = this.getToday();
+    if (!date) date = this.getToday();
+
     const data = await this.realtimeRepository.findByDate(date);
 
-    if (!data) {
-      return await this.realtimeRepository.createByDate(date);
-    }
+    // if (!data) {
+    //   return await this.realtimeRepository.createByDate(date);
+    // }
 
     return data;
   }
