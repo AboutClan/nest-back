@@ -338,8 +338,9 @@ export class UserController {
   async patchLocationDetail(
     @Body('text') text,
     @Body('lat') lat,
-    @Body('text') lon,
+    @Body('lon') lon,
   ) {
+    console.log(text, lat, lon);
     await this.userService?.patchLocationDetail(text, lat, lon);
     return;
   }
