@@ -33,25 +33,27 @@ export class Vote2Service {
         type: member.absence ? 'arrived' : 'absenced',
       },
     };
+    return form;
   }
 
   formatRealtime(member: IRealtimeUser) {
     const form = {
       user: member.user,
       time: {
-        start: member.time.start,
-        end: member.time.end,
+        start: member.time?.start,
+        end: member.time?.end,
       },
       attendanceInfo: {
         time: member.arrived,
-        memo: member.memo,
+        memo: member?.memo,
         attendanceImage: member.image,
         type: member.arrived ? 'arrived' : 'absenced',
       },
       commentInfo: {
-        text: member.comment.text,
+        text: member.comment?.text,
       },
     };
+    return form;
   }
 
   async getVoteInfo(date: Date) {

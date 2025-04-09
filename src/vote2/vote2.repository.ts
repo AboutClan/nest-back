@@ -48,7 +48,7 @@ export class Vote2Repository implements IVote2Repository {
         $gte: dayjs(startDay).toDate(),
         $lt: dayjs(endDay).toDate(),
       },
-    }).populate('results.members.userId');
+    }).populate({ path: 'results.members.userId', select: C_simpleUser });
   }
 
   async setArrive(date: Date, userId: string, arriveData) {
