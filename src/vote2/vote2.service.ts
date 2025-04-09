@@ -5,9 +5,10 @@ import { RequestContext } from 'src/request-context';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { ClusterUtils, coordType } from './ClusterUtils';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
-import { IParticipation } from './vote2.entity';
+import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import RealtimeService from 'src/realtime/realtime.service';
+import { IRealtimeUser } from 'src/realtime/realtime.entity';
 
 export class Vote2Service {
   constructor(
@@ -18,6 +19,43 @@ export class Vote2Service {
     private readonly RealtimeService: RealtimeService,
   ) {}
 
+  formatMember(member: IMember) {
+    const form = {
+      user: member.userId,
+      time: {
+        start: member.start,
+        end: member.end,
+      },
+      attendanceInfo: {
+        time: member.arrived,
+        memo: member.memo,
+        attendanceImage: member.img,
+        type: member.absence ? 'arrived' : 'absenced',
+      },
+    };
+    return form;
+  }
+
+  formatRealtime(member: IRealtimeUser) {
+    const form = {
+      user: member.user,
+      time: {
+        start: member.time?.start,
+        end: member.time?.end,
+      },
+      attendanceInfo: {
+        time: member.arrived,
+        memo: member?.memo,
+        attendanceImage: member.image,
+        type: member.arrived ? 'arrived' : 'absenced',
+      },
+      commentInfo: {
+        text: member.comment?.text,
+      },
+    };
+    return form;
+  }
+
   async getVoteInfo(date: Date) {
     const now = new Date();
     // 9시간 더하기
@@ -25,8 +63,18 @@ export class Vote2Service {
     // 시간(Hour)만 추출
     const hour = koreaTime.getHours();
 
-    if (hour >= 14 && hour <= 22) return this.getBeforeVoteInfo(date);
-    else return this.getAfterVoteInfo(date);
+    const todayStr = koreaTime.toISOString().split('T')[0];
+    const targetStr = new Date(date.getTime() + 9 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0];
+
+    if (targetStr < todayStr) {
+      return this.getAfterVoteInfo(date);
+    } else if (targetStr > todayStr) {
+      return this.getBeforeVoteInfo(date);
+    } else if (hour > 22) {
+      return this.getAfterVoteInfo(date);
+    }
   }
 
   private async getBeforeVoteInfo(date: Date) {
@@ -45,7 +93,7 @@ export class Vote2Service {
     resultPlaces.forEach((place) => m.set(place._id.toString(), place));
 
     const results = voteResults.map((result) => ({
-      members: result.members,
+      members: result.members.map((member) => this.formatMember(member)),
       place: m.get(result.placeId.toString()),
     }));
 
@@ -58,7 +106,7 @@ export class Vote2Service {
   //todo: locationDetail 등록해야함
   private async getAfterVoteInfo(date: Date) {
     const voteData = await this.Vote2Repository.findByDate(date);
-    const realtimeData = await this.RealtimeService.getTodayData();
+    const realtimeData = await this.RealtimeService.getTodayData(date);
 
     //results
     //
@@ -67,7 +115,12 @@ export class Vote2Service {
         place: result.placeId,
         members: result.members.map((who) => ({ ...who, user: who.userId })),
       })),
-      realTimes: realtimeData,
+      realTimes: {
+        ...realtimeData,
+        userList: realtimeData.userList.map((user) =>
+          this.formatRealtime(user),
+        ),
+      },
     };
   }
 

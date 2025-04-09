@@ -18,7 +18,14 @@ export class Vote2Repository implements IVote2Repository {
   ) {}
 
   async findByDate(date: Date) {
-    return (await this.Vote2.findOne({ date })).populate('results.placeId');
+    let vote = await this.Vote2.findOne({ date }).populate('results.placeId');
+
+    if (!vote) {
+      await this.Vote2.create({ date, results: [], participations: [] });
+      vote = await this.Vote2.findOne({ date }).populate('results.placeId');
+    }
+
+    return vote;
   }
   async setAbsence(date: Date, message: string, userId: string) {
     await this.Vote2.updateMany(
@@ -41,7 +48,7 @@ export class Vote2Repository implements IVote2Repository {
         $gte: dayjs(startDay).toDate(),
         $lt: dayjs(endDay).toDate(),
       },
-    }).populate('results.members.userId');
+    }).populate({ path: 'results.members.userId', select: C_simpleUser });
   }
 
   async setArrive(date: Date, userId: string, arriveData) {
