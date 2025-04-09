@@ -1,21 +1,18 @@
-import { JWT } from 'next-auth/jwt';
-import { DatabaseError } from '../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
 import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { CollectionService } from 'src/collection/collection.service';
+import { ATTEND_STUDY_POINT } from 'src/Constants/point';
+import ImageService from 'src/imagez/image.service';
+import { RequestContext } from 'src/request-context';
+import { UserService } from 'src/user/user.service';
+import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
+import { VoteService } from 'src/vote/vote.service';
+import { DatabaseError } from '../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
 import {
   IRealtime,
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
-import { IREALTIME_REPOSITORY, IVOTE_SERVICE } from 'src/utils/di.tokens';
 import { RealtimeRepository } from './realtime.repository.interface';
-import { ATTEND_STUDY_POINT } from 'src/Constants/point';
-import { CollectionService } from 'src/collection/collection.service';
-import ImageService from 'src/imagez/image.service';
-import { UserService } from 'src/user/user.service';
-import { VoteService } from 'src/vote/vote.service';
-import { RequestContext } from 'src/request-context';
 
 export default class RealtimeService {
   constructor(
@@ -54,7 +51,7 @@ export default class RealtimeService {
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
-      status: 'pending',
+      status: 'free',
       user: token.id,
     });
 
