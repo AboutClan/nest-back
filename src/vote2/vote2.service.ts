@@ -58,22 +58,33 @@ export class Vote2Service {
 
   async getVoteInfo(date: Date) {
     const now = new Date();
-    // 9시간 더하기
+
     const koreaTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-    // 시간(Hour)만 추출
     const hour = koreaTime.getHours();
 
-    const todayStr = koreaTime.toISOString().split('T')[0];
-    const targetStr = new Date(date.getTime() + 9 * 60 * 60 * 1000)
-      .toISOString()
-      .split('T')[0];
+    const targetTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
 
+    const todayStr = koreaTime.toISOString().split('T')[0];
+    const targetStr = targetTime.toISOString().split('T')[0];
+
+    // 과거
     if (targetStr < todayStr) {
       return this.getAfterVoteInfo(date);
-    } else if (targetStr > todayStr) {
-      return this.getBeforeVoteInfo(date);
-    } else if (hour > 22) {
+    }
+    // 오늘
+    if (targetStr === todayStr) {
       return this.getAfterVoteInfo(date);
+    }
+
+    //미래
+    const tomorrow = new Date(koreaTime);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    if (targetStr === tomorrowStr && hour >= 22) {
+      return this.getAfterVoteInfo(date);
+    } else {
+      return this.getBeforeVoteInfo(date);
     }
   }
 
