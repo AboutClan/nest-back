@@ -223,7 +223,7 @@ export class VoteService {
           members: findMyParticipation.attendences?.map((who) => ({
             time: who.time,
             isMainChoice: who.firstChoice,
-            attendanceInfo: {
+            attendance: {
               attendanceImage: who?.imageUrl,
               arrived: who?.arrived,
               arrivedMessage: who?.memo,
@@ -251,7 +251,7 @@ export class VoteService {
       return {
         data: filtered?.map((props) => ({
           ...props,
-          attendanceInfo: {
+          attendance: {
             attendanceImage: props?.image,
             arrived: props?.arrived,
             arrivedMessage: props?.memo,
@@ -389,7 +389,7 @@ export class VoteService {
               par.attendences?.map((who) => ({
                 time: who.time,
                 isMainChoice: who.firstChoice,
-                attendanceInfo: {
+                attendance: {
                   attendanceImage: who?.imageUrl,
                   arrived: who?.arrived,
                   arrivedMessage: who?.memo,
@@ -408,7 +408,7 @@ export class VoteService {
       const realTime =
         data?.userList?.map((props) => ({
           ...props,
-          attendanceInfo: {
+          attendance: {
             attendanceImage: props?.image,
             arrived: props?.arrived,
             arrivedMessage: props?.memo,

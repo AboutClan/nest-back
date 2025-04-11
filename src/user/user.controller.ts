@@ -340,7 +340,6 @@ export class UserController {
     @Body('lat') lat,
     @Body('lon') lon,
   ) {
-    console.log(text, lat, lon);
     await this.userService?.patchLocationDetail(text, lat, lon);
     return;
   }

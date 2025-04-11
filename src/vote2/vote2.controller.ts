@@ -28,9 +28,7 @@ export class Vote2Controller {
   @Get(':date/info')
   async getVoteInfo(@Req() req: Request): Promise<any> {
     const { date } = req;
-
     const filteredVote = await this.voteService2.getVoteInfo(date);
-
     return filteredVote;
   }
 

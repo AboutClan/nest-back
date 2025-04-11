@@ -29,6 +29,7 @@ export interface IMember {
 export interface IResult {
   placeId: string | String | IPlace;
   members: IMember[];
+  center: any;
 }
 
 export interface IVoteComment {

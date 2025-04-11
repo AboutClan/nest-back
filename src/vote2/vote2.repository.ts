@@ -1,15 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  IMember,
-  IParticipation,
-  IResult,
-  IVote2,
-  ResultSchema,
-} from './vote2.entity';
-import { IVote2Repository } from './vote2.repository.interface';
-import { Model } from 'mongoose';
 import dayjs from 'dayjs';
+import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
+import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
+import { IVote2Repository } from './vote2.repository.interface';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
@@ -27,6 +21,22 @@ export class Vote2Repository implements IVote2Repository {
 
     return vote;
   }
+  async findParticipationsByDate(date: Date) {
+    let vote = await this.Vote2.findOne({ date }).populate({
+      path: 'participations.userId',
+      select: C_simpleUser,
+    });
+
+    if (!vote) {
+      await this.Vote2.create({ date, results: [], participations: [] });
+      vote = await this.Vote2.findOne({ date }).populate(
+        'participations.userId',
+      );
+    }
+
+    return vote.participations;
+  }
+
   async setAbsence(date: Date, message: string, userId: string) {
     await this.Vote2.updateMany(
       { date }, // 특정 date 문서만 선택
@@ -69,15 +79,6 @@ export class Vote2Repository implements IVote2Repository {
         ],
       },
     );
-  }
-
-  async findParticipationsByDate(date: Date) {
-    return (
-      await this.Vote2.findOne({ date }).populate({
-        path: 'participations.userId',
-        select: C_simpleUser,
-      })
-    ).participations;
   }
 
   async findParticipationsByDateJoin(date: Date) {

@@ -268,7 +268,7 @@ export class GatherService {
     }
 
     const user = await this.userServiceInstance.getUserWithUserId(userId);
-    
+
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',
@@ -466,7 +466,6 @@ export class GatherService {
       comment,
     );
 
-    console.log(gatherId, comment);
     await this.webPushServiceInstance.sendNotificationToXWithId(
       gather.user as string,
       `${gather.title} 에 새로운 댓글이 달렸어요!`,
