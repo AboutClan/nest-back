@@ -17,7 +17,7 @@ import * as logger from '../logger';
 import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable({ scope: Scope.DEFAULT })
 export class UserService {
   constructor(
     @Inject(IUSER_REPOSITORY)

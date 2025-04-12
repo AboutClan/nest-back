@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
-import AdminVoteService from 'src/admin/vote/adminVote.service';
 import { GatherRepository } from 'src/gather/gather.repository.interface';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/user/user.entity';
@@ -12,18 +11,15 @@ import {
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { Vote2Service } from 'src/vote2/vote2.service';
-import { WebPushService } from 'src/webpush/webpush.service';
 
 @Injectable()
 export class NotificationScheduler {
   private readonly logger = new Logger(NotificationScheduler.name);
 
   constructor(
-    private readonly webPushService: WebPushService,
     @Inject(IGATHER_REPOSITORY) private gatherRepository: GatherRepository,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
-    private readonly adminVoteService: AdminVoteService,
     private readonly vote2Service: Vote2Service,
     @InjectModel('User') private readonly User: Model<IUser>,
   ) {}
