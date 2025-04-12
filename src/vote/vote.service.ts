@@ -24,7 +24,7 @@ import {
   IVoteStudyInfo,
 } from './vote.entity';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class VoteService {
   constructor(
     @InjectModel('Vote') private Vote: Model<IVote>,

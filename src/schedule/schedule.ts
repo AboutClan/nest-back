@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
-import AdminVoteService from 'src/admin/vote/adminVote.service';
 import { GatherRepository } from 'src/gather/gather.repository.interface';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/user/user.entity';
@@ -11,18 +10,17 @@ import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { WebPushService } from 'src/webpush/webpush.service';
+import { Vote2Service } from 'src/vote2/vote2.service';
 
 @Injectable()
 export class NotificationScheduler {
   private readonly logger = new Logger(NotificationScheduler.name);
 
   constructor(
-    private readonly webPushService: WebPushService,
     @Inject(IGATHER_REPOSITORY) private gatherRepository: GatherRepository,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
-    private readonly adminVoteService: AdminVoteService,
+    private readonly vote2Service: Vote2Service,
     @InjectModel('User') private readonly User: Model<IUser>,
   ) {}
   // @Cron('0 18 * * 2,3,5,6', {
@@ -38,15 +36,30 @@ export class NotificationScheduler {
   //   }
   // }
 
+  // //투표 결과 알림
+  // @Cron(CronExpression.EVERY_DAY_AT_9AM, {
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async announceVoteResult() {
+  //   try {
+  //     const date = dayjs().format('YYYY-MM-DD');
+  //     await this.adminVoteService.confirm(date);
+  //     await this.webPushService.sendNotificationVoteResult();
+  //     this.logger.log('Vote result notifications sent successfully.');
+  //   } catch (error) {
+  //     this.logger.error('Error sending vote result notifications:', error);
+  //     throw new Error(error);
+  //   }
+  // }
+
   //투표 결과 알림
-  @Cron(CronExpression.EVERY_DAY_AT_9AM, {
+  @Cron(CronExpression.EVERY_DAY_AT_10PM, {
     timeZone: 'Asia/Seoul',
   })
   async announceVoteResult() {
     try {
-      const date = dayjs().format('YYYY-MM-DD');
-      await this.adminVoteService.confirm(date);
-      await this.webPushService.sendNotificationVoteResult();
+      const date = dayjs().toDate();
+      await this.vote2Service.setResult(date);
       this.logger.log('Vote result notifications sent successfully.');
     } catch (error) {
       this.logger.error('Error sending vote result notifications:', error);

@@ -39,8 +39,6 @@ import { AdminLogModule } from './admin/log/adminLog.module';
 import { AdminUserModule } from './admin/user/adminUser.module';
 import { AdminVoteModule } from './admin/vote/adminVote.module';
 import { AdminManageModule } from './admin/manage/adminManage.module';
-import { ScheduleModule } from '@nestjs/schedule';
-import { NotificationScheduler } from './schedule/schedule';
 import { DailyCheckModule } from './dailycheck/dailyCheck.module';
 import { Vote2Module } from './vote2/vote2.module';
 import { PaymentModule } from './payment/payment.module';
@@ -51,6 +49,8 @@ import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
 import { ZodExceptionFilter } from './zod-exception.filter';
 import { LoggingMiddleware } from './middlewares/loggingMiddleware';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SchedulerModule } from './schedule/schedule.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -90,6 +90,7 @@ const corsOptions = {
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
+    SchedulerModule,
 
     DatabaseModule,
     WebPushModule,
@@ -128,7 +129,6 @@ const corsOptions = {
     { provide: APP_FILTER, useClass: ZodExceptionFilter },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: AsyncContextInterceptor },
-    NotificationScheduler,
   ],
 })
 export class AppModule implements NestModule {
