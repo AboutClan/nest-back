@@ -106,6 +106,22 @@ export class Vote2Repository implements IVote2Repository {
     }
   }
 
+  async updateResult(date: Date, userId: string, start: string, end: string) {
+    console.log(userId);
+    await this.Vote2.updateMany(
+      { date },
+      {
+        $set: {
+          'results.$[r].members.$[m].start': start,
+          'results.$[r].members.$[m].end': end,
+        },
+      },
+      {
+        arrayFilters: [{ 'r.members.userId': userId }, { 'm.userId': userId }],
+      },
+    );
+  }
+
   async setComment(date: Date, userId: string, comment: string) {
     await this.Vote2.updateMany(
       { date, 'participations.userId': userId },
