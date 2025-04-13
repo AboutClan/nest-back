@@ -169,15 +169,16 @@ export class Vote2Service {
 
     const { latitude, longitude, start, end } = createVote;
 
-    const userVoteData: IParticipation = {
-      userId: token.id,
-      latitude,
-      longitude,
-      start,
-      end,
-    };
+    const voteData: any = {};
 
-    await this.Vote2Repository.setVote(date, userVoteData);
+    voteData.userId = token.id;
+    // null이 아닌 경우만 필드에 추가
+    if (latitude !== null) voteData.latitude = latitude;
+    if (longitude !== null) voteData.longitude = longitude;
+    if (start !== null) voteData.start = start;
+    if (end !== null) voteData.end = end;
+
+    await this.Vote2Repository.setVote(date, voteData);
     return;
   }
 
@@ -229,6 +230,12 @@ export class Vote2Service {
 
     return voteResults;
   }
+
+  async setComment(date: Date, comment: string) {
+    const token = RequestContext.getDecodedToken();
+    await this.Vote2Repository.setComment(date, token.id, comment);
+  }
+
   async setResult(date: Date) {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);

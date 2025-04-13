@@ -11,4 +11,5 @@ export interface IVote2Repository {
   setParticipate(date: Date, placeId, participateData: Partial<IMember>);
   findByDate(date: Date);
   setAbsence(date: Date, message: string, userId: string);
+  setComment(date: Date, userId, comment: string);
 }

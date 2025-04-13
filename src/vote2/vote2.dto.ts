@@ -1,15 +1,19 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateNewVoteDTO {
   @IsString()
+  @IsOptional()
   latitude: string;
 
+  @IsOptional()
   @IsString()
   longitude: string;
 
+  @IsOptional()
   @IsString()
   start: string;
 
+  @IsOptional()
   @IsString()
   end: string;
 }
