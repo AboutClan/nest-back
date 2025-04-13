@@ -17,6 +17,7 @@ import {
 } from 'src/utils/di.tokens';
 import { subCommentType } from './feed.entity';
 import { IFeedRepository } from './FeedRepository.interface';
+import { SubCommentProps } from 'src/domain/entities/Feed/SubComment';
 
 @Injectable()
 export class FeedService {
@@ -220,34 +221,21 @@ export class FeedService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    // const feed = await this.feedRepository.createSubCommentLike(
-    //   feedId,
-    //   commentId,
-    //   subCommentId,
-    //   token.id,
-    // );
-
-    // if (!feed) {
-    //   throw new DatabaseError('create subcomment like failed');
-    // }
+    const feed = await this.feedRepository.findById(feedId);
+    feed.addSubCommentLike(commentId, subCommentId, token.id);
+    await this.feedRepository.save(feed);
   }
 
   async createSubComment(feedId: string, commentId: string, content: string) {
     const token = RequestContext.getDecodedToken();
-    const message: subCommentType = {
+    const message: SubCommentProps = {
       user: token.id,
       comment: content,
     };
 
-    // const updated = await this.feedRepository.createSubComment(
-    //   feedId,
-    //   commentId,
-    //   message,
-    // );
-
-    // if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
-
-    // return;
+    const feed = await this.feedRepository.findById(feedId);
+    feed.addSubComment(commentId, message);
+    await this.feedRepository.save(feed);
   }
 
   async deleteSubComment(
@@ -255,12 +243,7 @@ export class FeedService {
     commentId: string,
     subCommentId: string,
   ) {
-    // const updated = await this.feedRepository.deleteSubComment(
-    //   feedId,
-    //   commentId,
-    //   subCommentId,
-    // );
-    // if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
+    c;
   }
 
   async updateSubComment(
@@ -269,14 +252,9 @@ export class FeedService {
     subCommentId: string,
     comment: string,
   ) {
-    // const updated = await this.feedRepository.updateSubComment(
-    //   feedId,
-    //   commentId,
-    //   subCommentId,
-    //   comment,
-    // );
-
-    // if (!updated.modifiedCount) throw new DatabaseError('nothing updated');
+    const feed = await this.feedRepository.findById(feedId);
+    feed.updateSubComment(commentId, subCommentId, comment);
+    await this.feedRepository.save(feed);
     return;
   }
 

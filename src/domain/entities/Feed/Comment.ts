@@ -75,6 +75,26 @@ export class Comment {
     this._subComments.push(new SubComment(subCommentProps));
   }
 
+  public updateSubComment(subCommentId, comment) {
+    this._subComments.forEach((subComment) => {
+      if (subComment.id === subCommentId) {
+        subComment.comment = comment;
+      }
+    });
+  }
+
+  public addSubCommentLike(subCommentID, writer) {
+    this._subComments.forEach((subComment) => {
+      if (subComment.id === subCommentID) {
+        subComment.addLike(writer);
+      }
+    });
+  }
+
+  public removeSubComment(subCommentId: string) {
+    this._subComments.filter((subComment) => subComment.id !== subCommentId);
+  }
+
   public toPrimitives(): CommentProps {
     return {
       id: this._id,

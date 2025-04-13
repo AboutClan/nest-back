@@ -35,6 +35,10 @@ export class SubComment {
     return this._comment;
   }
 
+  public set comment(comment: string) {
+    this._comment = comment;
+  }
+
   public get likeList(): string[] {
     return this._likeList;
   }

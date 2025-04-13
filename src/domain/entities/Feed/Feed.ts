@@ -1,5 +1,6 @@
 // src/domain/entities/Feed.ts
 import { Comment, CommentProps } from './Comment';
+import { SubComment, SubCommentProps } from './SubComment';
 
 export interface FeedProps {
   id?: string;
@@ -132,6 +133,38 @@ export class Feed {
     this._comments.forEach((comment) => {
       if (comment.id === commentId) {
         comment.addLike(writer);
+      }
+    });
+  }
+
+  public addSubComment(commentId: string, subComment: SubCommentProps) {
+    this._comments.forEach((comment) => {
+      if (comment.id === commentId) {
+        comment.addSubComment(new SubComment(subComment));
+      }
+    });
+  }
+
+  public removeSubComment(commentId, subCommentId) {
+    this._comments.forEach((comment) => {
+      if (comment.id === commentId) {
+        comment.removeSubComment(subCommentId);
+      }
+    });
+  }
+
+  public updateSubComment(commentId, subCommentId, comment) {
+    this._comments.forEach((comment) => {
+      if (comment.id === commentId) {
+        comment.updateSubComment(subCommentId, comment);
+      }
+    });
+  }
+
+  public addSubCommentLike(commentId: string, subCommentID, writer: string) {
+    this._comments.forEach((comment) => {
+      if (comment.id === commentId) {
+        comment.addSubCommentLike(subCommentID, writer);
       }
     });
   }
