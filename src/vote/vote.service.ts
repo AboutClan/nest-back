@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
@@ -539,6 +539,7 @@ export class VoteService {
 
   async setVote(date: any, studyInfo: IVoteStudyInfo) {
     const token = RequestContext.getDecodedToken();
+
     try {
       const { place, subPlace, start, end, memo }: IVoteStudyInfo = studyInfo;
       const vote = await this.getVote(date);
