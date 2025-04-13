@@ -147,13 +147,13 @@ export class Vote2Controller {
   @Post(':date/arrive')
   async setArrive(
     @Req() req: Request,
-    @Body() arriveData: CreateArriveDTO,
+    @Body() body: CreateArriveDTO,
   ): Promise<any> {
     const { date } = req;
-    const { memo } = arriveData;
-    await this.voteService2.setArrive(date, memo);
+    const { memo, end } = body;
+    const result = await this.voteService2.setArrive(date, memo, end);
 
-    return 'success';
+    return result;
   }
 
   @Get(':date/absence')

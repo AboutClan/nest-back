@@ -1,8 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CollectionRepository } from './collection.repository.interface';
 import { Model } from 'mongoose';
 import { ICollection } from './collection.entity';
-import { Injectable } from '@nestjs/common';
+import { CollectionRepository } from './collection.repository.interface';
 
 @Injectable()
 export class MongoCollectionRepository implements CollectionRepository {

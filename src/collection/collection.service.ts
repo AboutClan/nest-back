@@ -3,18 +3,15 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { JWT } from 'next-auth/jwt';
-import { CollectionZodSchema } from './collection.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ALPHABET_COLLECTION } from 'src/Constants/constants';
-import { IRequestData } from 'src/request/request.entity';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { CollectionRepository } from './collection.repository.interface';
-import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
-import { UserRepository } from 'src/user/user.repository.interface';
 import { RequestContext } from 'src/request-context';
+import { IRequestData } from 'src/request/request.entity';
+import { UserRepository } from 'src/user/user.repository.interface';
+import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
+import { CollectionZodSchema } from './collection.entity';
+import { CollectionRepository } from './collection.repository.interface';
 
 @Injectable()
 export class CollectionService {
@@ -39,7 +36,8 @@ export class CollectionService {
         await this.collectionRepository.createCollection(validatedCollection);
       } else {
         // 문서가 있으면 stamps 증가
-        await this.collectionRepository.increateStamp(id);
+        const A = await this.collectionRepository.increateStamp(id);
+        console.log('A', A);
       }
     }
 
@@ -48,11 +46,9 @@ export class CollectionService {
       currentStamps === 4
         ? ALPHABET_COLLECTION[Math.floor(Math.random() * 5)]
         : null;
-
-    // stamps가 5인 경우에만 alphabet을 추가합니다
-    // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
-    await this.collectionRepository.setRandomAlphabet(id, updatedAlphabet);
-
+    if (updatedAlphabet) {
+      await this.collectionRepository.setRandomAlphabet(id, updatedAlphabet);
+    }
     return {
       alphabet: updatedAlphabet, // alphabet을 얻었으면 반환하고, 그렇지 않으면 null
       stamps: updatedStamps, // 현재 stamps에서 1 증가한 값 반환

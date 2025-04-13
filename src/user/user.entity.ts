@@ -43,11 +43,21 @@ const badgeZodSchema = z
   })
   .optional();
 
+const studyRecordZodSchema = z
+  .object({
+    accumulationMinutes: z.number(),
+    accumulationCnt: z.number(),
+    monthCnt: z.number(),
+    monthMinutes: z.number(),
+  })
+  .optional();
+
 export type restType = z.infer<typeof restZodSchema>;
 export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
 export type ticketType = z.infer<typeof ticketZodSchema>;
 export type badgeType = z.infer<typeof badgeZodSchema>;
+export type studyRecordType = z.infer<typeof studyRecordZodSchema>;
 
 // IUser Zod schema
 const userZodSchema = z.object({
@@ -128,10 +138,9 @@ export interface IUser extends Document, IRegistered {
   monthScore: number;
   isPrivate?: boolean;
   instagram?: string;
-  weekStudyTragetHour: number;
-  weekStudyAccumulationMinutes: number;
   ticket: ticketType;
   badge: badgeType;
+  studyRecord: studyRecordType;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -209,6 +218,18 @@ export const ticketSchema: Schema<ticketType> = new Schema(
   },
 );
 
+export const studyRecordSchema: Schema<studyRecordType> = new Schema(
+  {
+    accumulationMinutes: { type: Number, default: 0 },
+    accumulationCnt: { type: Number, default: 0 },
+    monthMinutes: { type: Number, default: 0 },
+    monthCnt: { type: Number, default: 0 },
+  },
+  {
+    _id: false,
+    timestamps: false,
+  },
+);
 export const badgeSchema: Schema<badgeType> = new Schema(
   {
     badgeIdx: Number,
@@ -330,8 +351,7 @@ export const UserSchema: Schema<IUser> = new Schema({
     type: preferenceSchema,
   },
   locationDetail: { type: locationDetailSchema },
-  weekStudyTragetHour: { type: Number, default: 0 },
-  weekStudyAccumulationMinutes: { type: Number, default: 0 },
+
   ticket: {
     type: ticketSchema,
     default: () => ({ gatherTicket: 2, groupStudyTicket: 4 }),
@@ -339,6 +359,15 @@ export const UserSchema: Schema<IUser> = new Schema({
   badge: {
     type: badgeSchema,
     required: false,
+  },
+  studyRecord: {
+    type: studyRecordSchema,
+    default: () => ({
+      accumulationMinutes: 0,
+      accumulationCnt: 0,
+      monthCnt: 0,
+      monthMinutes: 0,
+    }),
   },
 });
 

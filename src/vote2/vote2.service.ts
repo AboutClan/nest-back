@@ -31,6 +31,26 @@ export class Vote2Service {
     return form;
   }
 
+  formatResultMember(member: IMember) {
+    const form = {
+      user: member.userId,
+      time: {
+        start: member.start,
+        end: member.end,
+      },
+      attendance: {
+        time: member?.arrived,
+        memo: member?.memo,
+        attendanceImage: member?.img,
+        type: member.arrived ? 'arrived' : null,
+      },
+      comment: {
+        text: member.comment,
+      },
+    };
+
+    return form;
+  }
   formatRealtime(member: IRealtimeUser) {
     const form = {
       user: member.user,
@@ -128,10 +148,9 @@ export class Vote2Service {
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
-        members: result.members.map((who) => ({
-          ...who.toObject(),
-          user: who.userId,
-        })),
+        members: result.members.map((member) =>
+          this.formatResultMember(member),
+        ),
       })),
       realTimes: realtimeData
         ? {
@@ -248,7 +267,7 @@ export class Vote2Service {
   async setResult(date: Date) {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
-
+    console.log(date, participations);
     const voteResults = await this.doAlgorithm(participations);
 
     await this.Vote2Repository.setVoteResult(date, voteResults);
@@ -270,13 +289,15 @@ export class Vote2Service {
     });
   }
 
-  async setArrive(date: Date, memo: string) {
+  async setArrive(date: Date, memo: string, end: string) {
     const token = RequestContext.getDecodedToken();
     const arriveData = {
       memo,
       arrived: new Date(),
+      end,
     };
-    await this.Vote2Repository.setArrive(date, token.id, arriveData);
+    console.log(arriveData);
+    return await this.Vote2Repository.setArrive(date, token.id, arriveData);
   }
 
   patchArrive(date: Date) {

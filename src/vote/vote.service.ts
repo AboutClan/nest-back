@@ -821,12 +821,7 @@ export class VoteService {
           ) {
             if (endHour) att.time.end = endHour;
             att.arrived = new Date();
-            if (userData) {
-              userData.weekStudyAccumulationMinutes += dayjs(att.time.end).diff(
-                dayjs(),
-                'm',
-              );
-            }
+
             //memo가 빈문자열인 경우는 출석이 아닌 개인 스터디 신청에서 사용한 경우
             if (memo) att.memo = memo;
           }
