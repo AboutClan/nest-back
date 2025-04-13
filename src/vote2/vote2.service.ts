@@ -245,6 +245,11 @@ export class Vote2Service {
     await this.Vote2Repository.setVoteResult(date, voteResults);
   }
 
+  async updateResult(date: Date, start: string, end: string) {
+    const token = RequestContext.getDecodedToken();
+    await this.Vote2Repository.updateResult(date, token.id, start, end);
+  }
+
   async getFilteredVoteOne(date: any) {
     const voteData = await this.Vote2Repository.findByDate(date);
     return voteData.results.map((result) => {

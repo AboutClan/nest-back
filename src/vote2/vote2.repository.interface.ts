@@ -12,4 +12,5 @@ export interface IVote2Repository {
   findByDate(date: Date);
   setAbsence(date: Date, message: string, userId: string);
   setComment(date: Date, userId, comment: string);
+  updateResult(date: Date, userId: string, start: string, end: string);
 }
