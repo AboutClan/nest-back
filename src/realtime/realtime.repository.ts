@@ -11,7 +11,6 @@ export class MongoRealtimeRepository implements RealtimeRepository {
   ) {}
 
   async findByDate(date: Date): Promise<IRealtime> {
-  
     return await this.RealtimeModel.findOne({ date }).populate({
       path: 'userList.user',
       select: C_simpleUser,

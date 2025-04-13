@@ -118,6 +118,7 @@ const userZodSchema = z.object({
   weekStudyAccumulationMinutes: z.number().default(0),
   ticket: ticketZodSchema,
   badge: badgeZodSchema,
+  isLocationSharingDenided: z.boolean().default(false).optional(),
 });
 
 export interface IUser extends Document, IRegistered {
@@ -141,6 +142,7 @@ export interface IUser extends Document, IRegistered {
   ticket: ticketType;
   badge: badgeType;
   studyRecord: studyRecordType;
+  isLocationSharingDenided: boolean;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -286,6 +288,10 @@ export const UserSchema: Schema<IUser> = new Schema({
   isPrivate: {
     type: Boolean,
     default: false,
+  },
+  isLocationSharingDenided: {
+    type: Boolean,
+    default: true,
   },
   role: {
     type: String,

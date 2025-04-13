@@ -42,7 +42,7 @@ export class Vote2Service {
         time: member?.arrived,
         memo: member?.memo,
         attendanceImage: member?.img,
-        type: member.arrived ? 'arrived' : null,
+        type: member.arrived ? 'arrived' : member?.absence ? 'absenced' : null,
       },
       comment: {
         text: member.comment,
@@ -52,6 +52,7 @@ export class Vote2Service {
     return form;
   }
   formatRealtime(member: IRealtimeUser) {
+    console.log(member);
     const form = {
       user: member.user,
       time: {

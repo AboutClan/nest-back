@@ -38,9 +38,9 @@ export class Vote2Repository implements IVote2Repository {
   async findParticipationsByDate(date: Date) {
     let vote = await this.Vote2.findOne({ date }).populate({
       path: 'participations.userId',
-      select: C_simpleUser,
+      select: C_simpleUser + 'isLocationSharingDenided',
     });
-
+    console.log(23, vote);
     if (!vote) {
       await this.Vote2.create({ date, results: [], participations: [] });
       vote = await this.Vote2.findOne({ date }).populate(

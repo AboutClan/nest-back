@@ -94,6 +94,15 @@ export class UserController {
     await this.userService.updateUser({ isPrivate });
     return { message: 'Privacy setting updated successfully' };
   }
+  @Patch('isLocationSharingDenided')
+  async patchIsLocationSharingDenided(
+    @Body() body: { isLocationSharingDenided: boolean },
+  ) {
+    const { isLocationSharingDenided } = body;
+    console.log(isLocationSharingDenided);
+    await this.userService.updateUser({ isLocationSharingDenided });
+    return { message: 'Privacy setting updated successfully' };
+  }
 
   //todo: info의 타입
   @Patch('rest')
