@@ -97,6 +97,18 @@ export class Vote2Controller {
     return 'success';
   }
 
+  @Post(':date/comment')
+  async setComment(
+    @Req() req: Request,
+    @Body('comment') comment: string,
+  ): Promise<any> {
+    const { date } = req;
+
+    await this.voteService2.setComment(date, comment);
+
+    return 'success';
+  }
+
   @Post(':date/participate')
   async setAttend(
     @Req() req: Request,

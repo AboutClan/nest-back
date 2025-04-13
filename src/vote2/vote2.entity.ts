@@ -13,6 +13,7 @@ export interface IParticipation {
   longitude: string;
   start?: string;
   end?: string;
+  comment?: IVoteComment;
 }
 
 export interface IMember {
@@ -28,6 +29,10 @@ export interface IMember {
 export interface IResult {
   placeId: string | String | IPlace;
   members: IMember[];
+}
+
+export interface IVoteComment {
+  comment: string;
 }
 
 export const MemberSchema: Schema<IMember> = new Schema(
@@ -49,6 +54,14 @@ export const MemberSchema: Schema<IMember> = new Schema(
   { _id: false },
 );
 
+export const voteCommentSchema: Schema<IVoteComment> = new Schema(
+  {
+    comment: String,
+  },
+  {
+    timestamps: true,
+  },
+);
 export const ParticipationSchema: Schema<IParticipation> = new Schema(
   {
     userId: {
@@ -64,6 +77,9 @@ export const ParticipationSchema: Schema<IParticipation> = new Schema(
     end: {
       type: String,
       required: false,
+    },
+    comment: {
+      type: voteCommentSchema,
     },
   },
   { _id: false },
