@@ -3,6 +3,7 @@ import { CollectionService } from 'src/collection/collection.service';
 import { ATTEND_STUDY_POINT } from 'src/Constants/point';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
+import { IUser } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { VoteService } from 'src/vote/vote.service';
@@ -73,6 +74,14 @@ export default class RealtimeService {
     try {
       const date = this.getToday();
 
+      if (buffers.length) {
+        const images = await this.imageServiceInstance.uploadImgCom(
+          'studyAttend',
+          buffers,
+        );
+        studyData.image = images[0];
+      }
+
       const validatedStudy = RealtimeUserZodSchema.parse({
         ...studyData,
         time: studyData.time,
@@ -80,15 +89,6 @@ export default class RealtimeService {
         arrived: new Date(),
         user: token.id,
       });
-
-      if (buffers.length) {
-        const images = await this.imageServiceInstance.uploadImgCom(
-          'studyAttend',
-          buffers,
-        );
-
-        studyData.image = images[0];
-      }
 
       await this.voteServiceInstance.deleteVote(date);
 
@@ -143,7 +143,7 @@ export default class RealtimeService {
     try {
       if (start && end && todayData?.userList) {
         todayData.userList.forEach((userInfo) => {
-          if (userInfo.user.toString() === token.id) {
+          if ((userInfo.user as IUser)._id.toString() === token.id) {
             userInfo.time.start = start;
             userInfo.time.end = end;
           }
@@ -185,6 +185,10 @@ export default class RealtimeService {
       });
 
       await todayData.save();
+
+      if (status === 'cancel') {
+        await this.userServiceInstance.updateDeposit(-100, '개인 스터디 불참');
+      }
     } catch (err) {
       throw new Error();
     }

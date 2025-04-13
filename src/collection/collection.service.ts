@@ -36,8 +36,7 @@ export class CollectionService {
         await this.collectionRepository.createCollection(validatedCollection);
       } else {
         // 문서가 있으면 stamps 증가
-        const A = await this.collectionRepository.increateStamp(id);
-        console.log('A', A);
+        return await this.collectionRepository.increateStamp(id);
       }
     }
 

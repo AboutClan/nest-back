@@ -20,7 +20,6 @@ export class Vote2Service {
   ) {}
 
   formatMember(member: IMember) {
-    console.log(member);
     const form = {
       user: member.userId,
       time: {
@@ -52,7 +51,6 @@ export class Vote2Service {
     return form;
   }
   formatRealtime(member: IRealtimeUser) {
-    console.log(member);
     const form = {
       user: member.user,
       time: {
@@ -121,7 +119,7 @@ export class Vote2Service {
 
     const m = new Map<string, any>();
     resultPlaces.forEach((place) => m.set(place._id.toString(), place));
-    console.log(voteResults);
+
     const results = voteResults.map((result) => ({
       members: result.members.map((member) => this.formatMember(member)),
       place: m.get(result.placeId.toString()),
@@ -261,6 +259,7 @@ export class Vote2Service {
   }
 
   async setComment(date: Date, comment: string) {
+   
     const token = RequestContext.getDecodedToken();
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
@@ -268,7 +267,7 @@ export class Vote2Service {
   async setResult(date: Date) {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
-    console.log(date, participations);
+
     const voteResults = await this.doAlgorithm(participations);
 
     await this.Vote2Repository.setVoteResult(date, voteResults);
@@ -297,7 +296,7 @@ export class Vote2Service {
       arrived: new Date(),
       end,
     };
-    console.log(arriveData);
+
     return await this.Vote2Repository.setArrive(date, token.id, arriveData);
   }
 
@@ -334,9 +333,9 @@ export class Vote2Service {
     return resultArr;
   }
 
-  async setAbsence(date: Date, message: string) {
+  async setAbsence(date: Date, message: string, fee: number) {
     const token = RequestContext.getDecodedToken();
 
-    await this.Vote2Repository.setAbsence(date, message, token.id);
+    await this.Vote2Repository.setAbsence(date, message, token.id, fee);
   }
 }

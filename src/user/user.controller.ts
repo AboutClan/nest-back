@@ -99,7 +99,7 @@ export class UserController {
     @Body() body: { isLocationSharingDenided: boolean },
   ) {
     const { isLocationSharingDenided } = body;
-    console.log(isLocationSharingDenided);
+   
     await this.userService.updateUser({ isLocationSharingDenided });
     return { message: 'Privacy setting updated successfully' };
   }
@@ -168,7 +168,7 @@ export class UserController {
 
   @Get('profiles')
   async getUserByUids(@Query('uids') uids: string[]) {
-    console.log(uids);
+  
     const isActive = await this.userService.getUsersWithUids(uids);
     return isActive;
   }

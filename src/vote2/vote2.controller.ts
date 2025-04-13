@@ -167,12 +167,12 @@ export class Vote2Controller {
   @Post(':date/absence')
   async setAbsence(
     @Req() req: Request,
-    @Body() body: { message: string },
+    @Body() body: { message: string; fee: number },
   ): Promise<any> {
-    const { message = '' } = body; // message 값, 기본값 설정
+    const { message = '', fee } = body; // message 값, 기본값 설정
     const { date } = req; // 미들웨어에서 설정된 date 값 가져오기
 
-    const result = await this.voteService2.setAbsence(date, message);
+    const result = await this.voteService2.setAbsence(date, message, fee);
     return result;
   }
 }

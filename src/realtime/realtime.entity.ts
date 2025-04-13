@@ -24,6 +24,7 @@ export const RealtimeUserZodSchema = z.object({
   comment: z.object({ text: z.string() }).optional(),
   status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']).default('solo'),
   time: TimeSchema,
+  _id: z.string().optional(),
 });
 
 export const RealtimeAttZodSchema = z.object({

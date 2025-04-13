@@ -40,7 +40,7 @@ export class Vote2Repository implements IVote2Repository {
       path: 'participations.userId',
       select: C_simpleUser + 'isLocationSharingDenided',
     });
-    console.log(23, vote);
+
     if (!vote) {
       await this.Vote2.create({ date, results: [], participations: [] });
       vote = await this.Vote2.findOne({ date }).populate(
@@ -51,7 +51,7 @@ export class Vote2Repository implements IVote2Repository {
     return vote.participations;
   }
 
-  async setAbsence(date: Date, message: string, userId: string) {
+  async setAbsence(date: Date, message: string, userId: string, fee: number) {
     await this.Vote2.updateMany(
       { date }, // 특정 date 문서만 선택
       {
@@ -64,6 +64,7 @@ export class Vote2Repository implements IVote2Repository {
         arrayFilters: [{ 'member.userId': userId }],
       },
     );
+    await this.userServiceInstance.updateDeposit(fee, '스터디 당일 불참');
   }
 
   async getVoteByPeriod(startDay: string, endDay: string) {
@@ -103,9 +104,9 @@ export class Vote2Repository implements IVote2Repository {
         ],
       },
     );
-    console.log(52);
+
     const userData = await this.User.findOne({ _id: userId });
-    console.log(24, userData);
+
     if (userData) {
       const diffMinutes = dayjs(arriveData.end).diff(dayjs(), 'm');
       const record = userData.studyRecord;
@@ -158,7 +159,6 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async updateResult(date: Date, userId: string, start: string, end: string) {
-    console.log(userId);
     await this.Vote2.updateMany(
       { date },
       {
@@ -174,6 +174,7 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async setComment(date: Date, userId: string, comment: string) {
+  
     await this.Vote2.updateMany(
       { date, 'participations.userId': userId },
       {

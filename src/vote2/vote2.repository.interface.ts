@@ -10,7 +10,7 @@ export interface IVote2Repository {
   setArrive(date: Date, userId: string, memo: any);
   setParticipate(date: Date, placeId, participateData: Partial<IMember>);
   findByDate(date: Date);
-  setAbsence(date: Date, message: string, userId: string);
+  setAbsence(date: Date, message: string, userId: string, fee: number);
   setComment(date: Date, userId, comment: string);
   updateResult(date: Date, userId: string, start: string, end: string);
 }
