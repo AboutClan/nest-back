@@ -12,7 +12,7 @@ export class TokenValidatorMiddleware implements NestMiddleware {
 
       const decodedToken = await decode({
         token,
-        secret: 'klajsdflksjdflkdvdssdq231e1w',
+        secret: process.env.JWT_TOKEN,
       });
 
       if (!decodedToken) next('no token');
