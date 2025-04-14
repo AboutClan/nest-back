@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Patch,
-  Post,
-  Body,
-  HttpException,
-  HttpStatus,
-  Inject,
-} from '@nestjs/common';
-import { ICOLLECTION_SERVICE } from 'src/utils/di.tokens';
+import { Controller, Get, Patch, Post, Body } from '@nestjs/common';
 import { updateCollectionDTO } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { CollectionService } from './collection.service';

@@ -1,18 +1,15 @@
-import { JWT } from 'next-auth/jwt';
 import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { DailyCheckZodSchema } from './dailycheck.entity';
-import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
-import { DailyCheckRepository } from './dailyCheck.repository.interface';
 import { DAILY_ATTEND_POINT } from 'src/Constants/point';
-import { UserService } from 'src/user/user.service';
+import { DailyCheck } from 'src/domain/entities/DailyCheck';
 import { RequestContext } from 'src/request-context';
+import { UserService } from 'src/user/user.service';
+import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
+import { IDailyCheckRepository } from './DailyCheckRepository.interface';
 
 export class DailyCheckService {
   constructor(
     @Inject(IDAILYCHECK_REPOSITORY)
-    private readonly dailyCheckRepository: DailyCheckRepository,
+    private readonly dailyCheckRepository: IDailyCheckRepository,
     private readonly userService: UserService,
   ) {}
 
@@ -21,9 +18,9 @@ export class DailyCheckService {
 
     const findDailyCheck = await this.dailyCheckRepository.findByUid(token.uid);
 
-    if (findDailyCheck?.updatedAt) {
+    if (findDailyCheck.updatedAt) {
       const today = new Date();
-      const updatedAt = findDailyCheck?.updatedAt
+      const updatedAt = findDailyCheck.updatedAt
         ? new Date(findDailyCheck.updatedAt)
         : null;
 
@@ -32,12 +29,12 @@ export class DailyCheckService {
       }
     }
 
-    const validatedDailyCheck = DailyCheckZodSchema.parse({
+    const newDailyCheck = new DailyCheck({
       uid: token.uid,
       name: token.name,
     });
 
-    await this.dailyCheckRepository.createDailyCheck(validatedDailyCheck);
+    await this.dailyCheckRepository.create(newDailyCheck);
 
     await this.userService.updatePoint(DAILY_ATTEND_POINT, '일일 출석');
     return;
@@ -46,9 +43,13 @@ export class DailyCheckService {
   async getLog() {
     const token = RequestContext.getDecodedToken();
 
-    return await this.dailyCheckRepository.findByUid(token.uid);
+    const result = await this.dailyCheckRepository.findByUid(token.uid);
+    return result.toPrimitives();
   }
+
   async getAllLog() {
-    return await this.dailyCheckRepository.findAll();
+    return (await this.dailyCheckRepository.findAll()).map((data) =>
+      data.toPrimitives(),
+    );
   }
 }

@@ -174,7 +174,6 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async setComment(date: Date, userId: string, comment: string) {
-  
     await this.Vote2.updateMany(
       { date, 'participations.userId': userId },
       {
