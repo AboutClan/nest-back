@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const secret = 'klajsdflksjdflkdvdssdq231e1w';
+      const secret = process.env.JWT_TOKEN;
       const decodedToken = await decode({ token, secret });
 
       if (!decodedToken) {
