@@ -169,6 +169,18 @@ export class Feed {
     });
   }
 
+  public toggleLike(userId) {
+    const isExist = this._like.includes(userId);
+
+    if (isExist) {
+      this._like = this._like.filter((like) => like !== userId);
+      return false;
+    } else {
+      this._like.push(userId);
+      return true;
+    }
+  }
+
   public toPrimitives(): FeedProps {
     return {
       id: this._id,

@@ -243,7 +243,10 @@ export class FeedService {
     commentId: string,
     subCommentId: string,
   ) {
-    c;
+    const feed = await this.feedRepository.findById(feedId);
+    feed.removeSubComment(commentId, subCommentId);
+    await this.feedRepository.save(feed);
+    return;
   }
 
   async updateSubComment(
@@ -260,11 +263,8 @@ export class FeedService {
 
   async toggleLike(feedId: string) {
     const token = RequestContext.getDecodedToken();
-
     const feed = await this.feedRepository.findById(feedId);
-
-    const isLikePush: boolean = await feed?.addLike(token.id);
-    await this.feedRepository.save(feed);
+    const isLikePush = feed.toggleLike(token.id);
 
     if (isLikePush) {
       await this.userService.updatePoint(FEED_LIKE_POINT, '피드 좋아요');
@@ -278,33 +278,35 @@ export class FeedService {
   }
 
   async findMyFeed(feedType: 'gather' | 'group') {
-    // const token = RequestContext.getDecodedToken();
-    // return await this.feedRepository.findMyFeed(feedType, token.id);
+    const token = RequestContext.getDecodedToken();
+    return await this.feedRepository.findMyFeed(feedType, token.id);
   }
+
   async findReceivedFeed(feedType: 'gather' | 'group') {
-    // const token = RequestContext.getDecodedToken();
-    // let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
-    //   token.id,
-    // );
-    // let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
-    // groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
-    // gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
-    // if (feedType == 'gather') {
-    //   return await this.feedRepository.findRecievedFeed(
-    //     feedType,
-    //     groupStudyIds,
-    //   );
-    // } else if (feedType == 'group') {
-    //   return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
-    // }
+    const token = RequestContext.getDecodedToken();
+    let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
+      token.id,
+    );
+    let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
+    groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
+    gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
+
+    if (feedType == 'gather') {
+      return await this.feedRepository.findRecievedFeed(
+        feedType,
+        groupStudyIds,
+      );
+    } else if (feedType == 'group') {
+      return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
+    }
   }
 
   async findWrittenReview(feedType: 'gather' | 'group') {
-    // const myFeed = await this.findMyFeed(feedType);
-    // const receivedFeed = await this.findReceivedFeed(feedType);
-    // return {
-    //   writtenReviewCnt: (myFeed || []).length,
-    //   reviewReceived: (receivedFeed || []).length,
-    // };
+    const myFeed = await this.findMyFeed(feedType);
+    const receivedFeed = await this.findReceivedFeed(feedType);
+    return {
+      writtenReviewCnt: (myFeed || []).length,
+      reviewReceived: (receivedFeed || []).length,
+    };
   }
 }

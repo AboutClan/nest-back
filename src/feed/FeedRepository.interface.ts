@@ -7,4 +7,6 @@ export interface IFeedRepository {
   findAll(opt: any): Promise<Feed[]>;
   create(doc: Feed): Promise<Feed>;
   save(doc: Feed): Promise<Feed>;
+  findMyFeed(feedType: string, userId: string): Promise<Feed[]>;
+  findRecievedFeed(feedType: string, idArr: string[]): Promise<Feed[]>;
 }

@@ -70,6 +70,24 @@ export class FeedRepository implements IFeedRepository {
     return docs.map((doc) => this.mapToDomain(doc));
   }
 
+  async findMyFeed(feedType: string, userId: string): Promise<Feed[]> {
+    const docs = await this.FeedModel.find({
+      type: feedType,
+      writer: userId,
+    }).sort({
+      createdAt: -1,
+    });
+
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
+  async findRecievedFeed(feedType: string, idArr: string[]) {
+    const docs = await this.FeedModel.find({
+      $and: [{ type: feedType }, { typeId: { $in: idArr } }],
+    });
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
   private mapToDomain(doc: IFeed): Feed {
     console.log(doc);
     return new Feed({
