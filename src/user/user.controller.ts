@@ -94,6 +94,15 @@ export class UserController {
     await this.userService.updateUser({ isPrivate });
     return { message: 'Privacy setting updated successfully' };
   }
+  @Patch('isLocationSharingDenided')
+  async patchIsLocationSharingDenided(
+    @Body() body: { isLocationSharingDenided: boolean },
+  ) {
+    const { isLocationSharingDenided } = body;
+   
+    await this.userService.updateUser({ isLocationSharingDenided });
+    return { message: 'Privacy setting updated successfully' };
+  }
 
   //todo: info의 타입
   @Patch('rest')
@@ -159,7 +168,7 @@ export class UserController {
 
   @Get('profiles')
   async getUserByUids(@Query('uids') uids: string[]) {
-    console.log(uids);
+  
     const isActive = await this.userService.getUsersWithUids(uids);
     return isActive;
   }
@@ -340,7 +349,6 @@ export class UserController {
     @Body('lat') lat,
     @Body('lon') lon,
   ) {
-    console.log(text, lat, lon);
     await this.userService?.patchLocationDetail(text, lat, lon);
     return;
   }

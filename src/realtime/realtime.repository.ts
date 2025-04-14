@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { IRealtime, IRealtimeUser } from './realtime.entity';
 import { Model } from 'mongoose';
-import { RealtimeRepository } from './realtime.repository.interface';
 import { C_simpleUser } from 'src/Constants/constants';
+import { IRealtime, IRealtimeUser } from './realtime.entity';
+import { RealtimeRepository } from './realtime.repository.interface';
 
 export class MongoRealtimeRepository implements RealtimeRepository {
   constructor(

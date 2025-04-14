@@ -28,9 +28,7 @@ export class Vote2Controller {
   @Get(':date/info')
   async getVoteInfo(@Req() req: Request): Promise<any> {
     const { date } = req;
-
     const filteredVote = await this.voteService2.getVoteInfo(date);
-
     return filteredVote;
   }
 
@@ -149,13 +147,13 @@ export class Vote2Controller {
   @Post(':date/arrive')
   async setArrive(
     @Req() req: Request,
-    @Body() arriveData: CreateArriveDTO,
+    @Body() body: CreateArriveDTO,
   ): Promise<any> {
     const { date } = req;
-    const { memo } = arriveData;
-    await this.voteService2.setArrive(date, memo);
+    const { memo, end } = body;
+    const result = await this.voteService2.setArrive(date, memo, end);
 
-    return 'success';
+    return result;
   }
 
   @Get(':date/absence')
@@ -169,12 +167,12 @@ export class Vote2Controller {
   @Post(':date/absence')
   async setAbsence(
     @Req() req: Request,
-    @Body() body: { message: string },
+    @Body() body: { message: string; fee: number },
   ): Promise<any> {
-    const { message = '' } = body; // message 값, 기본값 설정
+    const { message = '', fee } = body; // message 값, 기본값 설정
     const { date } = req; // 미들웨어에서 설정된 date 값 가져오기
 
-    const result = await this.voteService2.setAbsence(date, message);
+    const result = await this.voteService2.setAbsence(date, message, fee);
     return result;
   }
 }

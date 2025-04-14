@@ -32,4 +32,7 @@ export class CreateParticipateDTO {
 export class CreateArriveDTO {
   @IsString()
   memo: string;
+
+  @IsString()
+  end: string;
 }

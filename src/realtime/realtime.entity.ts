@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, ObjectId, Schema } from 'mongoose';
+import mongoose, { Document, Model, Schema } from 'mongoose';
 import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
@@ -24,6 +24,7 @@ export const RealtimeUserZodSchema = z.object({
   comment: z.object({ text: z.string() }).optional(),
   status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']).default('solo'),
   time: TimeSchema,
+  _id: z.string().optional(),
 });
 
 export const RealtimeAttZodSchema = z.object({
@@ -76,7 +77,7 @@ const realtimeUserSchema: Schema<IRealtimeUser> = new Schema({
   comment: commentSchema,
   status: {
     type: String,
-    enum: ['pending', 'solo', 'open', 'free', 'cancel'],
+    enum: ['solo', 'free', 'cancel'],
     required: true,
   },
   time: { type: timeSchema, required: true },

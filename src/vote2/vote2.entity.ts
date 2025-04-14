@@ -24,16 +24,29 @@ export interface IMember {
   start?: string;
   end?: string;
   absence?: boolean;
+  comment?: {
+    text: string;
+  };
 }
 
 export interface IResult {
   placeId: string | String | IPlace;
   members: IMember[];
+  center: any;
 }
 
 export interface IVoteComment {
   comment: string;
 }
+
+export const voteCommentSchema: Schema<IVoteComment> = new Schema(
+  {
+    comment: String,
+  },
+  {
+    timestamps: true,
+  },
+);
 
 export const MemberSchema: Schema<IMember> = new Schema(
   {
@@ -50,18 +63,11 @@ export const MemberSchema: Schema<IMember> = new Schema(
     },
     memo: String,
     img: String,
+    comment: voteCommentSchema,
   },
   { _id: false },
 );
 
-export const voteCommentSchema: Schema<IVoteComment> = new Schema(
-  {
-    comment: String,
-  },
-  {
-    timestamps: true,
-  },
-);
 export const ParticipationSchema: Schema<IParticipation> = new Schema(
   {
     userId: {

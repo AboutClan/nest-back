@@ -1,14 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { IPlace } from 'src/place/place.entity';
 import { PlaceRepository } from 'src/place/place.repository.interface';
+import { IRealtimeUser } from 'src/realtime/realtime.entity';
+import RealtimeService from 'src/realtime/realtime.service';
 import { RequestContext } from 'src/request-context';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { ClusterUtils, coordType } from './ClusterUtils';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
-import RealtimeService from 'src/realtime/realtime.service';
-import { IRealtimeUser } from 'src/realtime/realtime.entity';
 
 export class Vote2Service {
   constructor(
@@ -26,16 +26,30 @@ export class Vote2Service {
         start: member.start,
         end: member.end,
       },
-      attendanceInfo: {
-        time: member.arrived,
-        memo: member.memo,
-        attendanceImage: member.img,
-        type: member.absence ? 'arrived' : 'absenced',
-      },
     };
     return form;
   }
 
+  formatResultMember(member: IMember) {
+    const form = {
+      user: member.userId,
+      time: {
+        start: member.start,
+        end: member.end,
+      },
+      attendance: {
+        time: member?.arrived,
+        memo: member?.memo,
+        attendanceImage: member?.img,
+        type: member.arrived ? 'arrived' : member?.absence ? 'absenced' : null,
+      },
+      comment: {
+        text: member.comment,
+      },
+    };
+
+    return form;
+  }
   formatRealtime(member: IRealtimeUser) {
     const form = {
       user: member.user,
@@ -43,16 +57,19 @@ export class Vote2Service {
         start: member.time?.start,
         end: member.time?.end,
       },
-      attendanceInfo: {
+      attendance: {
         time: member.arrived,
         memo: member?.memo,
         attendanceImage: member.image,
-        type: member.arrived ? 'arrived' : 'absenced',
+        type: member.arrived ? 'arrived' : null,
       },
-      commentInfo: {
+      comment: {
         text: member.comment?.text,
       },
+      place: member.place,
+      status: member.status,
     };
+
     return form;
   }
 
@@ -106,10 +123,17 @@ export class Vote2Service {
     const results = voteResults.map((result) => ({
       members: result.members.map((member) => this.formatMember(member)),
       place: m.get(result.placeId.toString()),
+      center: result.center,
     }));
 
     return {
-      participations,
+      participations: participations.map((par) => {
+        const { userId, ...rest } = (par as any).toObject();
+        return {
+          ...rest,
+          user: userId,
+        };
+      }),
       results,
     };
   }
@@ -118,20 +142,23 @@ export class Vote2Service {
   private async getAfterVoteInfo(date: Date) {
     const voteData = await this.Vote2Repository.findByDate(date);
     const realtimeData = await this.RealtimeService.getTodayData(date);
-
     //results
-    //
+
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
-        members: result.members.map((who) => ({ ...who, user: who.userId })),
-      })),
-      realTimes: {
-        ...realtimeData,
-        userList: realtimeData.userList.map((user) =>
-          this.formatRealtime(user),
+        members: result.members.map((member) =>
+          this.formatResultMember(member),
         ),
-      },
+      })),
+      realTimes: realtimeData
+        ? {
+            ...realtimeData.toObject(),
+            userList: realtimeData.userList.map((user) =>
+              this.formatRealtime(user),
+            ),
+          }
+        : null,
     };
   }
 
@@ -196,7 +223,7 @@ export class Vote2Service {
     });
 
     //시작 거리
-    let eps = 0.01;
+    let eps = 0.04;
     const maxMember = 8;
 
     const { clusters, noise } = ClusterUtils.DBSCANClustering(coords, eps);
@@ -232,6 +259,7 @@ export class Vote2Service {
   }
 
   async setComment(date: Date, comment: string) {
+   
     const token = RequestContext.getDecodedToken();
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
@@ -261,13 +289,15 @@ export class Vote2Service {
     });
   }
 
-  async setArrive(date: Date, memo: string) {
+  async setArrive(date: Date, memo: string, end: string) {
     const token = RequestContext.getDecodedToken();
     const arriveData = {
       memo,
       arrived: new Date(),
+      end,
     };
-    await this.Vote2Repository.setArrive(date, token.id, arriveData);
+
+    return await this.Vote2Repository.setArrive(date, token.id, arriveData);
   }
 
   patchArrive(date: Date) {
@@ -303,9 +333,9 @@ export class Vote2Service {
     return resultArr;
   }
 
-  async setAbsence(date: Date, message: string) {
+  async setAbsence(date: Date, message: string, fee: number) {
     const token = RequestContext.getDecodedToken();
 
-    await this.Vote2Repository.setAbsence(date, message, token.id);
+    await this.Vote2Repository.setAbsence(date, message, token.id, fee);
   }
 }

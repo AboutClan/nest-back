@@ -1,23 +1,21 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  UseInterceptors,
-  UploadedFiles,
   Body,
-  Injectable,
-  Res,
-  Next,
+  Controller,
   Delete,
+  Get,
   HttpStatus,
-  Inject,
+  Injectable,
+  Next,
+  Patch,
+  Post,
+  Res,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Response, NextFunction } from 'express';
-import { memoryStorage } from 'multer';
-import { IREALTIME_SERVICE } from 'src/utils/di.tokens';
 import { ApiTags } from '@nestjs/swagger';
+import { NextFunction, Response } from 'express';
+import { memoryStorage } from 'multer';
 import RealtimeService from './realtime.service';
 
 @Injectable()

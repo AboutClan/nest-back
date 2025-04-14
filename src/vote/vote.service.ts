@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
@@ -223,7 +223,7 @@ export class VoteService {
           members: findMyParticipation.attendences?.map((who) => ({
             time: who.time,
             isMainChoice: who.firstChoice,
-            attendanceInfo: {
+            attendance: {
               attendanceImage: who?.imageUrl,
               arrived: who?.arrived,
               arrivedMessage: who?.memo,
@@ -251,7 +251,7 @@ export class VoteService {
       return {
         data: filtered?.map((props) => ({
           ...props,
-          attendanceInfo: {
+          attendance: {
             attendanceImage: props?.image,
             arrived: props?.arrived,
             arrivedMessage: props?.memo,
@@ -389,7 +389,7 @@ export class VoteService {
               par.attendences?.map((who) => ({
                 time: who.time,
                 isMainChoice: who.firstChoice,
-                attendanceInfo: {
+                attendance: {
                   attendanceImage: who?.imageUrl,
                   arrived: who?.arrived,
                   arrivedMessage: who?.memo,
@@ -408,7 +408,7 @@ export class VoteService {
       const realTime =
         data?.userList?.map((props) => ({
           ...props,
-          attendanceInfo: {
+          attendance: {
             attendanceImage: props?.image,
             arrived: props?.arrived,
             arrivedMessage: props?.memo,
@@ -539,6 +539,7 @@ export class VoteService {
 
   async setVote(date: any, studyInfo: IVoteStudyInfo) {
     const token = RequestContext.getDecodedToken();
+
     try {
       const { place, subPlace, start, end, memo }: IVoteStudyInfo = studyInfo;
       const vote = await this.getVote(date);
@@ -821,12 +822,7 @@ export class VoteService {
           ) {
             if (endHour) att.time.end = endHour;
             att.arrived = new Date();
-            if (userData) {
-              userData.weekStudyAccumulationMinutes += dayjs(att.time.end).diff(
-                dayjs(),
-                'm',
-              );
-            }
+
             //memo가 빈문자열인 경우는 출석이 아닌 개인 스터디 신청에서 사용한 경우
             if (memo) att.memo = memo;
           }

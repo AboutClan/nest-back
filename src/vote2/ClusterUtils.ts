@@ -1,6 +1,6 @@
 import clustering from 'density-clustering';
-import { IParticipation, IResult } from './vote2.entity';
 import { IPlace } from 'src/place/place.entity';
+import { IParticipation, IResult } from './vote2.entity';
 
 export interface coordType {
   lat: number;
@@ -99,12 +99,20 @@ export class ClusterUtils {
       });
 
       const memberList = cluster.map((clusterData) => {
-        return { userId: clusterData.userId as string };
+        return {
+          userId: clusterData.userId as string,
+          start: clusterData.start,
+          end: clusterData.end,
+        };
       });
 
       const voteResult: IResult = {
         placeId: places[closestPlaceIndex]._id,
         members: memberList,
+        center: {
+          lat: centerLat,
+          lon: centerLon,
+        },
       };
 
       voteResults.push(voteResult);

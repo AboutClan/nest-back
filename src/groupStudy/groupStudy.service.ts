@@ -33,7 +33,7 @@ export default class GroupStudyService {
     private readonly counterServiceInstance: CounterService,
   ) {}
   async getStatusGroupStudy(cursor: number, status: string) {
-    console.log(status);
+
     switch (status) {
       case 'isParticipating':
         return this.getMyOpenGroupStudy(cursor);
