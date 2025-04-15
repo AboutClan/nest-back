@@ -3,12 +3,14 @@ import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
 export const SubCommentZodSchema = z.object({
+  id: z.string().optional(),
   user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   likeList: z.array(z.string()).nullable().optional(),
 });
 
 export const CommentZodSchema = z.object({
+  id: z.string().optional(),
   user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   subComments: z.array(SubCommentZodSchema).optional(),
@@ -16,6 +18,7 @@ export const CommentZodSchema = z.object({
 });
 
 export const FeedZodSchema = z.object({
+  _id: z.string().optional(),
   title: z.string(),
   text: z.string(),
   images: z.array(z.string()).optional(),
@@ -32,7 +35,7 @@ export const FeedZodSchema = z.object({
 export type commentType = z.infer<typeof CommentZodSchema>;
 export type subCommentType = z.infer<typeof SubCommentZodSchema>;
 export type IFeed = z.infer<typeof FeedZodSchema> & {
-  addLike(userId: string): Promise<boolean>;
+  addLike: (userId: string) => Promise<boolean> | null;
 } & Document;
 
 export const subCommentSchema: Schema<subCommentType> = new Schema(

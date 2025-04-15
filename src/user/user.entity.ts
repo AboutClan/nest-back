@@ -60,7 +60,7 @@ export type badgeType = z.infer<typeof badgeZodSchema>;
 export type studyRecordType = z.infer<typeof studyRecordZodSchema>;
 
 // IUser Zod schema
-const userZodSchema = z.object({
+export const userZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
   location: z.enum(LOCATION_LIST).default('수원'),

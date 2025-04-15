@@ -22,15 +22,21 @@ process.on('uncaughtException', (error) => {
 });
 
 async function bootstrap() {
+  const isProd = process.env.NODE_ENV === 'production';
+
   const app = await NestFactory.create(AppModule, {
     abortOnError: false,
     bodyParser: true,
     rawBody: true,
-    logger: WinstonModule.createLogger({
-      transports: [
-        new winston.transports.Console({ format: winston.format.json() }),
-      ],
-    }),
+    logger: isProd
+      ? WinstonModule.createLogger({
+          transports: [
+            new winston.transports.Console({
+              format: winston.format.json(),
+            }),
+          ],
+        })
+      : ['log', 'error', 'warn', 'debug', 'verbose'], // 기본 Nest Logger 사용
   });
 
   //Error Handling

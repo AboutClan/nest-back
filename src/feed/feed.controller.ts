@@ -110,6 +110,7 @@ export class FeedController {
     return { status: 'success' };
   }
 
+  //todo:여기부터
   @Post('comment/like')
   async createCommentLike(
     @Body('feedId') feedId: string,

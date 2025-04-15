@@ -275,16 +275,23 @@ export class Vote2Service {
 
   async setComment(date: Date, comment: string) {
     const token = RequestContext.getDecodedToken();
+
+    console.log(comment);
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
 
   async setResult(date: Date) {
     const participations: IParticipation[] =
-      await this.Vote2Repository.findParticipationsByDate(date);
+      await this.Vote2Repository.findParticipationsByDate(
+        new Date(date.getTime() + 9 * 60 * 60 * 1000),
+      );
 
     const voteResults = await this.doAlgorithm(participations);
 
-    await this.Vote2Repository.setVoteResult(date, voteResults);
+    await this.Vote2Repository.setVoteResult(
+      new Date(date.getTime() + 9 * 60 * 60 * 1000),
+      voteResults,
+    );
   }
 
   async updateResult(date: Date, start: string, end: string) {

@@ -34,6 +34,7 @@ PORTONE_API_SECRET=$(echo "$SECRETS" | jq -r '.PORTONE_API_SECRET')
 REDIS_HOST=$(echo "$SECRETS" | jq -r '.REDIS_HOST')
 REDIS_PORT=$(echo "$SECRETS" | jq -r '.REDIS_PORT')
 REDIS_PASSWORD=$(echo "$SECRETS" | jq -r '.REDIS_PASSWORD')
+JWT_TOKEN=$(echo "$SECRETS" | jq -r '.JWT_TOKEN')
 EOF
 
 echo ".env file created successfully."
