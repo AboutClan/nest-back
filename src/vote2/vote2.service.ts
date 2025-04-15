@@ -265,11 +265,17 @@ export class Vote2Service {
 
   async setResult(date: Date) {
     const participations: IParticipation[] =
-      await this.Vote2Repository.findParticipationsByDate(date);
+      await this.Vote2Repository.findParticipationsByDate(
+        new Date(date.getTime() + 9 * 60 * 60 * 1000),
+      );
 
+    console.log(participations);
     const voteResults = await this.doAlgorithm(participations);
 
-    await this.Vote2Repository.setVoteResult(date, voteResults);
+    await this.Vote2Repository.setVoteResult(
+      new Date(date.getTime() + 9 * 60 * 60 * 1000),
+      voteResults,
+    );
   }
 
   async updateResult(date: Date, start: string, end: string) {
