@@ -12,13 +12,6 @@ export class Waiting {
   private pointType: string;
 
   constructor(props: WaitingProps) {
-    if (!props.userId) {
-      throw new Error('Waiting userId is required.');
-    }
-    if (!props.pointType) {
-      throw new Error('Waiting pointType is required.');
-    }
-
     this.userId = props.userId;
     this.answer = props.answer;
     this.pointType = props.pointType;

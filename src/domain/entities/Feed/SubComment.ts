@@ -14,9 +14,6 @@ export class SubComment {
   private _likeList: string[];
 
   constructor(props: SubCommentProps) {
-    if (!props.user) throw new Error('userId is required');
-    if (!props.comment) throw new Error('comment is required');
-
     this._id = props.id;
     this._user = props.user;
     this._comment = props.comment;

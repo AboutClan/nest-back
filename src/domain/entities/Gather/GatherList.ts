@@ -11,9 +11,6 @@ export class GatherList {
   private time: Time | null;
 
   constructor(props: GatherListProps) {
-    if (!props.text) {
-      throw new Error('GatherList text is required');
-    }
     this.text = props.text;
     this.time = props.time ? new Time(props.time) : null;
   }

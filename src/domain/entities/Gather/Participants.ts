@@ -12,9 +12,6 @@ export class Participants {
   private invited: boolean;
 
   constructor(props: ParticipantsProps) {
-    if (!props.userId) {
-      throw new Error('Participants userId is required');
-    }
     this.userId = props.userId;
     this.phase = props.phase ?? 'all';
     this.invited = props.invited ?? false;

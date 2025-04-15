@@ -8,9 +8,6 @@ export class Title {
   private subtitle: string | null;
 
   constructor(props: TitleProps) {
-    if (!props.title) {
-      throw new Error('Title is required');
-    }
     this.title = props.title;
     this.subtitle = props.subtitle ?? null;
   }

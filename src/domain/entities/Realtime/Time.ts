@@ -10,12 +10,6 @@ export class Time {
   private end: string;
 
   constructor(props: TimeProps) {
-    if (!props.start) {
-      throw new Error('Time start is required');
-    }
-    if (!props.end) {
-      throw new Error('Time end is required');
-    }
     // 추가 검증 가능 (start <= end?)
     this.start = props.start;
     this.end = props.end;

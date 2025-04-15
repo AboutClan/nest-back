@@ -33,16 +33,6 @@ export class RealtimeUser {
   private time: Time;
 
   constructor(props: RealtimeUserProps) {
-    if (!props.userId) {
-      throw new Error('RealtimeUser userId is required');
-    }
-    if (!props.place) {
-      throw new Error('RealtimeUser place is required');
-    }
-    if (!props.time) {
-      throw new Error('RealtimeUser time is required');
-    }
-
     this.userId = props.userId;
     this.place = new Place(props.place);
     this.arrived = props.arrived;
