@@ -269,7 +269,6 @@ export class Vote2Service {
         new Date(date.getTime() + 9 * 60 * 60 * 1000),
       );
 
-    console.log(participations);
     const voteResults = await this.doAlgorithm(participations);
 
     await this.Vote2Repository.setVoteResult(

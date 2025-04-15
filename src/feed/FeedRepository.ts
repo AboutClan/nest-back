@@ -89,7 +89,6 @@ export class FeedRepository implements IFeedRepository {
   }
 
   private mapToDomain(doc: IFeed): Feed {
-    console.log(doc);
     return new Feed({
       id: doc._id as string,
       title: doc.title,
