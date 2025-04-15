@@ -223,7 +223,7 @@ export class Vote2Service {
     });
 
     //시작 거리
-    let eps = 0.04;
+    let eps = 0.05;
     const maxMember = 8;
 
     const { clusters, noise } = ClusterUtils.DBSCANClustering(coords, eps);
@@ -259,7 +259,6 @@ export class Vote2Service {
   }
 
   async setComment(date: Date, comment: string) {
-   
     const token = RequestContext.getDecodedToken();
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
