@@ -90,7 +90,7 @@ export class FeedRepository implements IFeedRepository {
 
   private mapToDomain(doc: IFeed): Feed {
     return new Feed({
-      id: doc._id as string,
+      _id: doc._id as string,
       title: doc.title,
       text: doc.text,
       images: doc.images,
@@ -105,6 +105,7 @@ export class FeedRepository implements IFeedRepository {
         likeList: c.likeList,
         comment: c.comment,
         subComments: (c.subComments ?? []).map((sub) => ({
+          id: sub.id as string,
           user: sub.user as string,
           likeList: sub.likeList,
           comment: sub.comment,
@@ -119,7 +120,7 @@ export class FeedRepository implements IFeedRepository {
     const feedProps = doc.toPrimitives();
 
     return {
-      id: feedProps.id,
+      id: feedProps._id,
       title: feedProps.title,
       text: feedProps.text,
       images: feedProps.images,
