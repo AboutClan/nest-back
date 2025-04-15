@@ -3,7 +3,7 @@ import { Comment, CommentProps } from './Comment';
 import { SubComment, SubCommentProps } from './SubComment';
 
 export interface FeedProps {
-  id?: string;
+  _id?: string;
   title: string;
   text: string;
   images?: string[];
@@ -38,7 +38,7 @@ export class Feed {
     // if (!props.type) throw new Error('type is required');
     // if (!props.typeId) throw new Error('typeId is required');
 
-    this._id = props.id || '';
+    this._id = props._id || '';
     this._title = props.title;
     this._text = props.text;
     this._images = props.images ?? [];
@@ -183,7 +183,7 @@ export class Feed {
 
   public toPrimitives(): FeedProps {
     return {
-      id: this._id,
+      _id: this._id,
       title: this._title,
       text: this._text,
       images: [...this._images],
