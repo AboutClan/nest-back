@@ -14,12 +14,6 @@ export class WeekRecord {
   private attendRecordSub: string[];
 
   constructor(props: WeekRecordProps) {
-    if (!props.uid) {
-      throw new Error('WeekRecord uid is required.');
-    }
-    if (!props.name) {
-      throw new Error('WeekRecord name is required.');
-    }
     this.uid = props.uid;
     this.name = props.name;
     this.attendRecord = props.attendRecord ?? [];

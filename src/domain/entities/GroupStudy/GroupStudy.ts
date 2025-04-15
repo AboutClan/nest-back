@@ -84,14 +84,14 @@ export class GroupStudy {
   private meetingType?: MeetingType;
 
   constructor(props: GroupStudyProps) {
-    if (!props.title) throw new Error('GroupStudy title is required.');
-    if (!props.content) throw new Error('GroupStudy content is required.');
-    if (!props.period) throw new Error('period is required');
-    if (!props.guide) throw new Error('guide is required');
-    if (!props.hashTag) throw new Error('hashTag is required');
-    if (!props.location) throw new Error('location is required');
-    if (!props.memberCnt) throw new Error('memberCnt is required');
-    if (!props.category) throw new Error('category is required');
+    // if (!props.title) throw new Error('GroupStudy title is required.');
+    // if (!props.content) throw new Error('GroupStudy content is required.');
+    // if (!props.period) throw new Error('period is required');
+    // if (!props.guide) throw new Error('guide is required');
+    // if (!props.hashTag) throw new Error('hashTag is required');
+    // if (!props.location) throw new Error('location is required');
+    // if (!props.memberCnt) throw new Error('memberCnt is required');
+    // if (!props.category) throw new Error('category is required');
 
     this.title = props.title;
     this.category = new Category(props.category);

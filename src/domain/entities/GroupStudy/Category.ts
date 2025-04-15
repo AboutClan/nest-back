@@ -10,9 +10,6 @@ export class Category {
   private sub: string;
 
   constructor(props: CategoryProps) {
-    if (!props.main) {
-      throw new Error('Category main is required.');
-    }
     this.main = props.main;
     this.sub = props.sub;
   }

@@ -43,22 +43,22 @@ export class Place {
   private prefCnt: number;
 
   constructor(props: PlaceProps) {
-    // 필수값 검증
-    if (!props.fullname) {
-      throw new Error('Place fullname is required');
-    }
-    if (!props.latitude) {
-      throw new Error('Place latitude is required');
-    }
-    if (!props.longitude) {
-      throw new Error('Place longitude is required');
-    }
-    if (!props.location) {
-      throw new Error('Place location is required');
-    }
-    if (!props.mapURL) {
-      throw new Error('Place mapURL is required');
-    }
+    // // 필수값 검증
+    // if (!props.fullname) {
+    //   throw new Error('Place fullname is required');
+    // }
+    // if (!props.latitude) {
+    //   throw new Error('Place latitude is required');
+    // }
+    // if (!props.longitude) {
+    //   throw new Error('Place longitude is required');
+    // }
+    // if (!props.location) {
+    //   throw new Error('Place location is required');
+    // }
+    // if (!props.mapURL) {
+    //   throw new Error('Place mapURL is required');
+    // }
 
     this.status = props.status ?? 'active';
     this.fullname = props.fullname;

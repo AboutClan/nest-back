@@ -16,12 +16,6 @@ export class Comment {
   private likeList: string[];
 
   constructor(props: CommentProps) {
-    if (!props.userId) {
-      throw new Error('Comment userId is required');
-    }
-    if (!props.comment) {
-      throw new Error('Comment content is required');
-    }
     this.userId = props.userId;
     this.comment = props.comment;
     this.subComments = (props.subComments ?? []).map(

@@ -18,13 +18,6 @@ export class Participants {
   private weekAttendance: boolean;
 
   constructor(props: ParticipantsProps) {
-    if (!props.userId) {
-      throw new Error('Participants userId is required.');
-    }
-    if (!props.role) {
-      throw new Error('Participants role is required.');
-    }
-
     this.userId = props.userId;
     this.randomId = props.randomId;
     this.role = props.role;

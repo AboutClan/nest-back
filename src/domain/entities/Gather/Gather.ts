@@ -60,14 +60,6 @@ export class Gather {
   private isApprovalRequired: boolean | null;
 
   constructor(props: GatherProps) {
-    if (!props.title) throw new Error('Gather title is required');
-    if (!props.content) throw new Error('Gather content is required');
-    if (!props.userId) throw new Error('Gather userId is required');
-    if (!props.type) throw new Error('type is required');
-    if (!props.gatherList) throw new Error('gatherList is required');
-    if (!props.location) throw new Error('location is required');
-    if (!props.memberCnt) throw new Error('memberCnt is required');
-
     this.title = props.title;
     this.type = new Title(props.type);
     this.gatherList = props.gatherList.map((gl) => new GatherList(gl));

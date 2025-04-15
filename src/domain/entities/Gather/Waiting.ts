@@ -10,9 +10,6 @@ export class Waiting {
   private phase: string;
 
   constructor(props: WaitingProps) {
-    if (!props.userId) {
-      throw new Error('Waiting userId is required');
-    }
     this.userId = props.userId;
     this.phase = props.phase;
   }

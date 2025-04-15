@@ -14,19 +14,6 @@ export class Place {
   private address: string;
 
   constructor(props: PlaceProps) {
-    if (props.latitude === undefined) {
-      throw new Error('Place latitude is required');
-    }
-    if (props.longitude === undefined) {
-      throw new Error('Place longitude is required');
-    }
-    if (!props.name) {
-      throw new Error('Place name is required');
-    }
-    if (!props.address) {
-      throw new Error('Place address is required');
-    }
-
     this.latitude = props.latitude;
     this.longitude = props.longitude;
     this.name = props.name;

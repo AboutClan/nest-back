@@ -8,9 +8,6 @@ export class Location {
   private sub: string;
 
   constructor(props: LocationProps) {
-    if (!props.main) {
-      throw new Error('Main location is required');
-    }
     this.main = props.main;
     this.sub = props.sub ?? '';
   }
