@@ -260,6 +260,8 @@ export class Vote2Service {
 
   async setComment(date: Date, comment: string) {
     const token = RequestContext.getDecodedToken();
+
+    console.log(comment);
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
 
