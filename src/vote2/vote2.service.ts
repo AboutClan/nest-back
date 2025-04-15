@@ -144,6 +144,20 @@ export class Vote2Service {
     const realtimeData = await this.RealtimeService.getTodayData(date);
     //results
 
+    const participations = voteData?.participations;
+
+    const unmatchedUsers = [];
+
+    const resultMembers = voteData.results.flatMap((result) =>
+      result.members.map((member) => member.userId._id.toString()),
+    );
+
+    participations?.forEach((par) => {
+      if (resultMembers.includes(par.userId.toString())) {
+        unmatchedUsers.push(par.userId);
+      }
+    });
+
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
@@ -159,6 +173,7 @@ export class Vote2Service {
             ),
           }
         : null,
+      unmatchedUsers,
     };
   }
 
