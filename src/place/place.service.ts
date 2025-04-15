@@ -1,12 +1,9 @@
-import { JWT } from 'next-auth/jwt';
-import { IPlace, PlaceZodSchema } from './place.entity';
-import { ValidationError } from 'src/errors/ValidationError';
 import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
-import { PlaceRepository } from './place.repository.interface';
+import { ValidationError } from 'src/errors/ValidationError';
 import { RequestContext } from 'src/request-context';
+import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
+import { IPlace, PlaceZodSchema } from './place.entity';
+import { PlaceRepository } from './place.repository.interface';
 
 export default class PlaceService {
   constructor(
@@ -26,19 +23,17 @@ export default class PlaceService {
     try {
       const token = RequestContext.getDecodedToken();
       const {
-        status,
         fullname,
         brand,
         branch,
         image,
         latitude,
         longitude,
-        location,
         coverImage,
         locationDetail,
         time,
         registerDate,
-        registrant,
+
         mapURL,
       } = placeData;
 
@@ -54,13 +49,12 @@ export default class PlaceService {
         !image ||
         !latitude ||
         !longitude ||
-        !location ||
         !coverImage ||
         !locationDetail ||
         !mapURL
       )
         throw new ValidationError(
-          `fullname ||brand ||branch ||image ||latitude ||longitude ||location ||coverImage ||locationDetail ||mapURL not exist`,
+          `fullname ||brand ||branch ||image ||latitude ||longitude ||coverImage ||locationDetail ||mapURL not exist`,
         );
 
       const validatedPlace = PlaceZodSchema.parse(placeData);

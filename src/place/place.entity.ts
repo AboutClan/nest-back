@@ -1,5 +1,4 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/Constants/constants';
 import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
@@ -10,11 +9,10 @@ export const PlaceZodSchema = z.object({
   branch: z.string().optional(),
   image: z.string().optional(),
   coverImage: z.string().optional(),
-  latitude: z.string(),
-  longitude: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
   priority: z.number().optional(),
   _id: z.string().optional(),
-  location: z.string(),
   locationDetail: z.string().optional(),
   time: z.string().optional(),
   registerDate: z.string().optional(),
@@ -44,11 +42,11 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   coverImage: String,
 
   latitude: {
-    type: String,
+    type: Number,
     required: true,
   },
   longitude: {
-    type: String,
+    type: Number,
     required: true,
   },
   locationDetail: {
@@ -58,11 +56,6 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     type: String,
   },
   priority: Number,
-  location: {
-    type: String,
-    enum: LOCATION_LIST,
-    default: '수원',
-  },
   registerDate: {
     type: String,
   },
