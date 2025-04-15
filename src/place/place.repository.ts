@@ -1,7 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { C_simpleUser } from 'src/Constants/constants';
 import { IPlace } from './place.entity';
 import { PlaceRepository } from './place.repository.interface';
-import { Model } from 'mongoose';
 
 export class MongoPlaceReposotory implements PlaceRepository {
   constructor(
@@ -14,7 +15,10 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async findByStatus(status: string): Promise<IPlace[]> {
-    return await this.Place.find({ status });
+    return await this.Place.find({ status }).populate({
+      path: 'registrant',
+      select: C_simpleUser,
+    });
   }
   async createPlace(placeData: Partial<IPlace>): Promise<IPlace> {
     return await this.Place.create(placeData);
