@@ -88,6 +88,7 @@ export class Vote2Repository implements IVote2Repository {
     const merged = {
       ...targetMember,
       ...arriveData,
+      start: dayjs().toDate(),
     };
 
     await this.Vote2.updateOne(
@@ -174,10 +175,14 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async setComment(date: Date, userId: string, comment: string) {
+    console.log(comment);
     await this.Vote2.updateMany(
       { date, 'participations.userId': userId },
       {
-        $set: { 'participations.$.comment': { comment } },
+        $set: { 'results.$[r].members.$[m].comment': { comment } },
+      },
+      {
+        arrayFilters: [{ 'r.members.userId': userId }, { 'm.userId': userId }],
       },
     );
   }
