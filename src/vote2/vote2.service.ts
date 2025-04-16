@@ -96,7 +96,7 @@ export class Vote2Service {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-    if (targetStr === tomorrowStr && hour >= 22) {
+    if (targetStr === tomorrowStr && hour >= 23) {
       return this.getAfterVoteInfo(date);
     } else {
       return this.getBeforeVoteInfo(date);
