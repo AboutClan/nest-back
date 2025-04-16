@@ -179,7 +179,7 @@ export class Vote2Repository implements IVote2Repository {
     await this.Vote2.updateMany(
       { date, 'participations.userId': userId },
       {
-        $set: { 'results.$[r].members.$[m].comment': { comment } },
+        $set: { 'results.$[r].members.$[m].': { comment } },
       },
       {
         arrayFilters: [{ 'r.members.userId': userId }, { 'm.userId': userId }],

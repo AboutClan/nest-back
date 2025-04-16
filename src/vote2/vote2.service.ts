@@ -43,9 +43,7 @@ export class Vote2Service {
         attendanceImage: member?.img,
         type: member.arrived ? 'arrived' : member?.absence ? 'absenced' : null,
       },
-      comment: {
-        text: member.comment,
-      },
+      comment: member.comment,
     };
 
     return form;
