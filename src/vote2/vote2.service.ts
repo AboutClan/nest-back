@@ -153,7 +153,7 @@ export class Vote2Service {
     );
 
     participations?.forEach((par) => {
-      if (resultMembers.includes(par.userId.toString())) {
+      if (!resultMembers.includes(par.userId.toString())) {
         unmatchedUsers.push(par.userId);
       }
     });
