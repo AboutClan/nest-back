@@ -28,9 +28,7 @@ export class Vote2Controller {
   @Get(':date/info')
   async getVoteInfo(@Req() req: Request): Promise<any> {
     const { date } = req;
-    const filteredVote = await this.voteService2.getVoteInfo(
-      new Date(date.getTime() + 9 * 60 * 60 * 1000),
-    );
+    const filteredVote = await this.voteService2.getVoteInfo();
     return filteredVote;
   }
 
