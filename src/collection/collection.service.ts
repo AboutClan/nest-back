@@ -48,9 +48,13 @@ export class CollectionService {
 
     // stamps가 5인 경우에만 alphabet을 추가합니다
     // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
-    currentCollection.addAlphabet(updatedAlphabet);
-    currentCollection.increaseStamp();
-    currentCollection.stamps = 0;
+
+    if (updatedAlphabet) {
+      currentCollection.addAlphabet(updatedAlphabet);
+      currentCollection.stamps = 0;
+    }
+    // currentCollection.increaseStamp();
+
     await this.collectionRepository.save(currentCollection);
 
     return {
