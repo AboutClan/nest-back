@@ -58,6 +58,7 @@ export class Vote2Repository implements IVote2Repository {
         $set: {
           'results.$[].members.$[member].absence': true,
           'results.$[].members.$[member].memo': message,
+          'results.$[].members.$[member].time': new Date(),
         },
       },
       {
