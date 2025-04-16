@@ -1,9 +1,5 @@
-import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
-import { Request } from 'express';
 import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
 import { C_simpleUser } from 'src/Constants/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/user/user.entity';
@@ -21,33 +17,12 @@ type UserQueryProps = {
 export default class AdminUserService {
   constructor(@InjectModel('User') private User: Model<IUser>) {}
 
-  async getAllUser(
-    location?: string,
-    isSummary?: boolean,
-    filterType?: UserFilterType,
-  ) {
-    const query: UserQueryProps = { isActive: true };
-    if (location) query.location = location;
+  async getAllUser(type?: UserFilterType) {
+    const query: UserQueryProps = { isActive: true, monthScore: { $gt: 0 } };
 
-    switch (filterType) {
-      case 'score':
-        query.score = { $gt: 0 };
-        break;
-      case 'monthScore':
-        query.monthScore = { $gt: 0 };
-        break;
-      case 'weekStudyAccumulationMinutes':
-        query.weekStudyAccumulationMinutes = { $gt: 0 };
-      default:
-        break;
-    }
-
-    return isSummary
-      ? await this.User.find(
-          query,
-          C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
-        )
-      : await this.User.find(query);
+    const addField = type === 'study' ? 'studyRecord monthScore score' : '';
+    console.log(addField);
+    return await this.User.find(query, C_simpleUser + addField);
   }
 
   async updateProfile(profile: Partial<IUser>) {

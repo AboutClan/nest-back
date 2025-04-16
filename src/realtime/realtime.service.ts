@@ -34,9 +34,9 @@ export default class RealtimeService {
   async getTodayData(date?: Date) {
     // const date = this.getToday();
     if (!date) date = this.getToday();
-
+    console.log(12345);
     const data = await this.realtimeRepository.findByDate(date);
-
+    console.log(data);
     // if (!data) {
     //   return await this.realtimeRepository.createByDate(date);
     // }
