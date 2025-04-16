@@ -22,14 +22,14 @@ export class Vote2Repository implements IVote2Repository {
   async findByDate(date: Date) {
     let vote = await this.Vote2.findOne({ date }).populate([
       { path: 'results.placeId' },
-      { path: 'results.members.userId' },
+      { path: 'results.members.userId', select: C_simpleUser },
     ]);
 
     if (!vote) {
       await this.Vote2.create({ date, results: [], participations: [] });
       vote = await this.Vote2.findOne({ date }).populate([
         { path: 'results.placeId' },
-        { path: 'results.members.userId' },
+        { path: 'results.members.userId', select: C_simpleUser },
       ]);
     }
 
@@ -43,9 +43,10 @@ export class Vote2Repository implements IVote2Repository {
 
     if (!vote) {
       await this.Vote2.create({ date, results: [], participations: [] });
-      vote = await this.Vote2.findOne({ date }).populate(
-        'participations.userId',
-      );
+      vote = await this.Vote2.findOne({ date }).populate({
+        path: 'participations.userId',
+        select: C_simpleUser + 'isLocationSharingDenided',
+      });
     }
 
     return vote.participations;
