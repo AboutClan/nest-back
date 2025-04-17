@@ -179,7 +179,7 @@ export default class RealtimeService {
 
     try {
       todayData.userList?.forEach((userInfo) => {
-        if (userInfo.user.toString() === token.id) {
+        if ((userInfo.user as IUser)._id.toString() === token.id) {
           userInfo.status = status;
         }
       });
