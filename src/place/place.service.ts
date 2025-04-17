@@ -39,7 +39,7 @@ export default class PlaceService {
 
       if (!time) placeData.time = 'unknown';
       if (!registerDate) placeData.registerDate = new Date().toString();
-      placeData.status = 'inactive';
+      placeData.status = 'active';
       placeData.registrant = token.id as string;
 
       if (
