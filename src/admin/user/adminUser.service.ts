@@ -18,7 +18,11 @@ export default class AdminUserService {
   constructor(@InjectModel('User') private User: Model<IUser>) {}
 
   async getAllUser(type?: UserFilterType) {
-    const query: UserQueryProps = { isActive: true, monthScore: { $gt: 0 } };
+    const query: UserQueryProps = { isActive: true };
+
+    if (type === 'study') {
+      query.monthScore = { $gt: 0 };
+    }
 
     const addField = type === 'study' ? 'studyRecord monthScore score' : '';
     console.log(addField);
