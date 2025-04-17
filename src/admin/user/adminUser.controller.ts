@@ -1,25 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
-  Param,
-  Query,
-  Req,
-  Res,
+  Controller,
+  Delete,
+  Get,
   Next,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
 } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
 import { IsNotEmpty, IsNumber } from 'class-validator';
-import AdminUserService from './adminUser.service';
+import { NextFunction, Response } from 'express';
 import { IUser } from 'src/user/user.entity';
+import AdminUserService from './adminUser.service';
 
-export type UserFilterType =
-  | 'score'
-  | 'monthScore'
-  | 'weekStudyAccumulationMinutes';
+export type UserFilterType = 'study';
 
 // DTO for validation
 class ValueDto {
@@ -35,17 +31,10 @@ export class AdminUserController {
   constructor(private readonly adminUserService: AdminUserService) {}
 
   @Get('/')
-  async getAllUser(
-    @Query('location') location: string,
-    @Query('isSummary') isSummary: string,
-    @Query('filterType') filterType: UserFilterType,
-    @Res() res: Response,
-  ) {
-    const allUser = await this.adminUserService.getAllUser(
-      location,
-      isSummary === 'true',
-      filterType,
-    );
+  async getAllUser(@Query('type') type: UserFilterType, @Res() res: Response) {
+    console.log(type);
+    const allUser = await this.adminUserService.getAllUser(type);
+
     return res.status(200).json(allUser);
   }
 
