@@ -140,7 +140,7 @@ export class Vote2Service {
   private async getAfterVoteInfo(date: Date) {
     const voteData = await this.Vote2Repository.findByDate(date);
     const realtimeData = await this.RealtimeService.getTodayData(
-      new Date(date.getTime() - 24 * 60 * 60 * 1000),
+      date,
     );
     //results
 
