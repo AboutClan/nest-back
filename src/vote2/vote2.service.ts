@@ -87,7 +87,7 @@ export class Vote2Service {
       return this.getAfterVoteInfo(date);
     }
     // 오늘
-    if (targetStr === todayStr) {
+    if (targetStr === todayStr && hour >= 9) {
       return this.getAfterVoteInfo(date);
     }
 
@@ -96,11 +96,7 @@ export class Vote2Service {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-    if (targetStr === tomorrowStr && hour >= 23) {
-      return this.getAfterVoteInfo(date);
-    } else {
-      return this.getBeforeVoteInfo(date);
-    }
+    return this.getBeforeVoteInfo(date);
   }
 
   private async getBeforeVoteInfo(date: Date) {
@@ -139,9 +135,7 @@ export class Vote2Service {
   //todo: locationDetail 등록해야함
   private async getAfterVoteInfo(date: Date) {
     const voteData = await this.Vote2Repository.findByDate(date);
-    const realtimeData = await this.RealtimeService.getTodayData(
-      date,
-    );
+    const realtimeData = await this.RealtimeService.getTodayData(date);
     //results
 
     const participations = voteData?.participations;
