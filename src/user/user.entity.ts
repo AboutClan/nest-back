@@ -295,7 +295,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   isLocationSharingDenided: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   role: {
     type: String,
