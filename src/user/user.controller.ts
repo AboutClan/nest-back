@@ -94,12 +94,21 @@ export class UserController {
     await this.userService.updateUser({ isPrivate });
     return { message: 'Privacy setting updated successfully' };
   }
+
+  @Post('monthStudyTarget')
+  async setMonthStudyTarget(@Body() body: { monthStudyTarget: number }) {
+    const { monthStudyTarget } = body;
+
+    await this.userService.updateUser({ monthStudyTarget });
+    return { message: 'Privacy setting updated successfully' };
+  }
+
   @Patch('isLocationSharingDenided')
   async patchIsLocationSharingDenided(
     @Body() body: { isLocationSharingDenided: boolean },
   ) {
     const { isLocationSharingDenided } = body;
-   
+
     await this.userService.updateUser({ isLocationSharingDenided });
     return { message: 'Privacy setting updated successfully' };
   }
@@ -168,7 +177,6 @@ export class UserController {
 
   @Get('profiles')
   async getUserByUids(@Query('uids') uids: string[]) {
-  
     const isActive = await this.userService.getUsersWithUids(uids);
     return isActive;
   }

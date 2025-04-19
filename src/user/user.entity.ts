@@ -141,6 +141,7 @@ export interface IUser extends Document, IRegistered {
   instagram?: string;
   ticket: ticketType;
   badge: badgeType;
+  monthStudyTarget: number;
   studyRecord: studyRecordType;
   isLocationSharingDenided: boolean;
 }
@@ -288,6 +289,9 @@ export const UserSchema: Schema<IUser> = new Schema({
   isPrivate: {
     type: Boolean,
     default: false,
+  },
+  monthStudyTarget: {
+    type: Number,
   },
   isLocationSharingDenided: {
     type: Boolean,
