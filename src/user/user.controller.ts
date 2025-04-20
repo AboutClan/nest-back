@@ -95,7 +95,7 @@ export class UserController {
     return { message: 'Privacy setting updated successfully' };
   }
 
-  @Post('monthStudyTarget')
+  @Patch('monthStudyTarget')
   async setMonthStudyTarget(@Body() body: { monthStudyTarget: number }) {
     const { monthStudyTarget } = body;
 
