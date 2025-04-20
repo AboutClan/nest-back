@@ -14,6 +14,7 @@ import {
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { RealtimeRepository } from './realtime.repository.interface';
+import { DateUtils } from 'src/utils/Date';
 
 export default class RealtimeService {
   constructor(
@@ -26,17 +27,13 @@ export default class RealtimeService {
   ) {}
 
   private getToday() {
-    const todayMidnight = new Date();
-    todayMidnight.setHours(0, 0, 0, 0); // 시간을 0시 0분 0초 0밀리초로 설정
-    return todayMidnight;
+    return DateUtils.getTodayYYYYMMDD();
   }
 
-  async getTodayData(date?: Date) {
+  async getTodayData(date?: string) {
     // const date = this.getToday();
     if (!date) date = this.getToday();
-    console.log(12345);
     const data = await this.realtimeRepository.findByDate(date);
-    console.log(data);
     // if (!data) {
     //   return await this.realtimeRepository.createByDate(date);
     // }

@@ -10,6 +10,7 @@ import { MongoUserRepository } from './user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './user.entity';
 import { ImageModule } from 'src/imagez/image.module';
+import { CollectionModule } from 'src/collection/collection.module';
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
@@ -24,6 +25,7 @@ const userRepositoryProvider: ClassProvider = {
     LogModule,
     forwardRef(() => NoticeModule),
     ImageModule,
+    CollectionModule,
   ],
   controllers: [UserController],
   providers: [UserService, userRepositoryProvider],

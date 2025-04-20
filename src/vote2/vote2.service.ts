@@ -9,6 +9,9 @@ import { ClusterUtils, coordType } from './ClusterUtils';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
+import { DateUtils } from 'src/utils/Date';
+import { UserService } from 'src/user/user.service';
+import dayjs from 'dayjs';
 
 export class Vote2Service {
   constructor(
@@ -17,6 +20,7 @@ export class Vote2Service {
     @Inject(IPLACE_REPOSITORY)
     private readonly PlaceRepository: PlaceRepository,
     private readonly RealtimeService: RealtimeService,
+    private readonly userServiceInstance: UserService,
   ) {}
 
   formatMember(member: IMember) {
@@ -71,13 +75,13 @@ export class Vote2Service {
     return form;
   }
 
-  async getVoteInfo(date: Date) {
-    const now = new Date();
+  async getVoteInfo(date: string) {
+    const now = new Date(date);
 
-    const koreaTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    const koreaTime = DateUtils.getKoreaToday();
     const hour = koreaTime.getHours();
 
-    const targetTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+    const targetTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
 
     const todayStr = koreaTime.toISOString().split('T')[0];
     const targetStr = targetTime.toISOString().split('T')[0];
@@ -99,7 +103,7 @@ export class Vote2Service {
     return this.getBeforeVoteInfo(date);
   }
 
-  private async getBeforeVoteInfo(date: Date) {
+  private async getBeforeVoteInfo(date: string) {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
@@ -133,7 +137,7 @@ export class Vote2Service {
   }
 
   //todo: locationDetail 등록해야함
-  private async getAfterVoteInfo(date: Date) {
+  private async getAfterVoteInfo(date: string) {
     const voteData = await this.Vote2Repository.findByDate(date);
     const realtimeData = await this.RealtimeService.getTodayData(date);
     //results
@@ -200,7 +204,7 @@ export class Vote2Service {
     return result;
   }
 
-  async setVote(date: Date, createVote: CreateNewVoteDTO) {
+  async setVote(date: string, createVote: CreateNewVoteDTO) {
     const token = RequestContext.getDecodedToken();
 
     const { latitude, longitude, start, end } = createVote;
@@ -218,7 +222,7 @@ export class Vote2Service {
     return;
   }
 
-  async deleteVote(date: Date) {
+  async deleteVote(date: string) {
     const token = RequestContext.getDecodedToken();
     await this.Vote2Repository.deleteVote(date, token.id);
   }
@@ -267,33 +271,29 @@ export class Vote2Service {
     return voteResults;
   }
 
-  async setComment(date: Date, comment: string) {
+  async setComment(date: string, comment: string) {
     const token = RequestContext.getDecodedToken();
 
     console.log(comment);
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
 
-  async setResult(date: Date) {
+  async setResult(date: string) {
+    const today = DateUtils.getTodayYYYYMMDD();
     const participations: IParticipation[] =
-      await this.Vote2Repository.findParticipationsByDate(
-        new Date(date.getTime() + 9 * 60 * 60 * 1000),
-      );
+      await this.Vote2Repository.findParticipationsByDate(today);
 
     const voteResults = await this.doAlgorithm(participations);
 
-    await this.Vote2Repository.setVoteResult(
-      new Date(date.getTime() + 9 * 60 * 60 * 1000),
-      voteResults,
-    );
+    await this.Vote2Repository.setVoteResult(today, voteResults);
   }
 
-  async updateResult(date: Date, start: string, end: string) {
+  async updateResult(date: string, start: string, end: string) {
     const token = RequestContext.getDecodedToken();
     await this.Vote2Repository.updateResult(date, token.id, start, end);
   }
 
-  async getFilteredVoteOne(date: any) {
+  async getFilteredVoteOne(date: string) {
     const voteData = await this.Vote2Repository.findByDate(date);
     return voteData.results.map((result) => {
       return {
@@ -304,22 +304,42 @@ export class Vote2Service {
     });
   }
 
-  async setArrive(date: Date, memo: string, end: string) {
+  async setArrive(date: string, memo: string, end: string) {
     const token = RequestContext.getDecodedToken();
+
+    const vote = await this.Vote2Repository.findByDate(date);
+
     const arriveData = {
       memo,
       arrived: new Date(),
       end,
     };
 
-    return await this.Vote2Repository.setArrive(date, token.id, arriveData);
+    const targetMember = vote?.results
+      .flatMap((r) => r.members)
+      .find((m) => m.userId?.toString() === token.id);
+
+    if (!targetMember) return;
+
+    const merged = {
+      ...targetMember,
+      ...arriveData,
+      start: dayjs().toDate(),
+    };
+
+    await this.Vote2Repository.setArrive(date, token.id, merged);
+
+    return await this.userServiceInstance.setVoteArriveInfo(
+      token.id,
+      arriveData.end,
+    );
   }
 
-  patchArrive(date: Date) {
+  patchArrive(date: string) {
     throw new Error('Method not implemented.');
   }
 
-  async setParticipate(date: Date, createParticipate: CreateParticipateDTO) {
+  async setParticipate(date: string, createParticipate: CreateParticipateDTO) {
     const token = RequestContext.getDecodedToken();
     const { placeId, start, end } = createParticipate;
 
@@ -330,7 +350,7 @@ export class Vote2Service {
     });
   }
 
-  async getAbsence(date: Date) {
+  async getAbsence(date: string) {
     const voteData = await this.Vote2Repository.findByDate(date);
 
     const resultArr = [];
@@ -348,7 +368,7 @@ export class Vote2Service {
     return resultArr;
   }
 
-  async setAbsence(date: Date, message: string, fee: number) {
+  async setAbsence(date: string, message: string, fee: number) {
     const token = RequestContext.getDecodedToken();
 
     await this.Vote2Repository.setAbsence(date, message, token.id, fee);

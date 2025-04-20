@@ -19,7 +19,7 @@ export class Vote2Repository implements IVote2Repository {
     private userServiceInstance: UserService,
   ) {}
 
-  async findByDate(date: Date) {
+  async findByDate(date: string) {
     let vote = await this.Vote2.findOne({ date }).populate([
       { path: 'results.placeId' },
       { path: 'results.members.userId', select: C_simpleUser },
@@ -33,9 +33,10 @@ export class Vote2Repository implements IVote2Repository {
       ]);
     }
 
+    console.log(vote);
     return vote;
   }
-  async findParticipationsByDate(date: Date) {
+  async findParticipationsByDate(date: string) {
     let vote = await this.Vote2.findOne({ date }).populate({
       path: 'participations.userId',
       select: C_simpleUser + 'isLocationSharingDenided',
@@ -52,7 +53,7 @@ export class Vote2Repository implements IVote2Repository {
     return vote.participations;
   }
 
-  async setAbsence(date: Date, message: string, userId: string, fee: number) {
+  async setAbsence(date: string, message: string, userId: string, fee: number) {
     await this.Vote2.updateMany(
       { date }, // 특정 date 문서만 선택
       {
@@ -78,26 +79,12 @@ export class Vote2Repository implements IVote2Repository {
     }).populate({ path: 'results.members.userId', select: C_simpleUser });
   }
 
-  async setArrive(date: Date, userId: string, arriveData) {
-    const vote = await this.Vote2.findOne({ date }).lean();
-
-    const targetMember = vote?.results
-      .flatMap((r) => r.members)
-      .find((m) => m.userId?.toString() === userId);
-
-    if (!targetMember) return;
-
-    const merged = {
-      ...targetMember,
-      ...arriveData,
-      start: dayjs().toDate(),
-    };
-
+  async setArrive(date: string, userId: string, arriveData) {
     await this.Vote2.updateOne(
       { date, 'results.members.userId': userId },
       {
         $set: {
-          'results.$[resultElem].members.$[memberElem]': merged,
+          'results.$[resultElem].members.$[memberElem]': arriveData,
         },
       },
       {
@@ -107,40 +94,14 @@ export class Vote2Repository implements IVote2Repository {
         ],
       },
     );
-
-    const userData = await this.User.findOne({ _id: userId });
-
-    if (userData) {
-      const diffMinutes = dayjs(arriveData.end).diff(dayjs(), 'm');
-      const record = userData.studyRecord;
-
-      userData.studyRecord = {
-        ...record,
-        accumulationMinutes: record.accumulationMinutes + diffMinutes,
-        accumulationCnt: record.accumulationCnt + 1,
-        monthMinutes: record.monthMinutes + diffMinutes,
-        monthCnt: record.monthCnt + 1,
-      };
-
-      await userData.save();
-    }
-
-    await Promise.all([
-      this.userServiceInstance.updatePoint(ATTEND_STUDY_POINT, '스터디 출석'),
-      this.userServiceInstance.updateScore(ATTEND_STUDY_SCORE, '스터디 출석'),
-    ]);
-    const result =
-      await this.collectionServiceInstance.setCollectionStamp(userId);
-
-    return result;
   }
 
-  async findParticipationsByDateJoin(date: Date) {
+  async findParticipationsByDateJoin(date: string) {
     return (await this.Vote2.findOne({ date }).populate('results.placeId'))
       .participations;
   }
 
-  async setVote(date: Date, userVoteData: IParticipation) {
+  async setVote(date: string, userVoteData: IParticipation) {
     // 1. 기존 userId가 존재하면 업데이트
     const updateResult = await this.Vote2.updateOne(
       { date, 'participations.userId': userVoteData.userId },
@@ -161,7 +122,7 @@ export class Vote2Repository implements IVote2Repository {
     }
   }
 
-  async updateResult(date: Date, userId: string, start: string, end: string) {
+  async updateResult(date: string, userId: string, start: string, end: string) {
     await this.Vote2.updateMany(
       { date },
       {
@@ -176,8 +137,7 @@ export class Vote2Repository implements IVote2Repository {
     );
   }
 
-  async setComment(date: Date, userId: string, comment: string) {
-    console.log(comment);
+  async setComment(date: string, userId: string, comment: string) {
     await this.Vote2.updateMany(
       { date },
       {
@@ -189,7 +149,7 @@ export class Vote2Repository implements IVote2Repository {
     );
   }
 
-  async deleteVote(date: Date, userId: string) {
+  async deleteVote(date: string, userId: string) {
     await this.Vote2.updateOne(
       { date },
       {
@@ -200,7 +160,7 @@ export class Vote2Repository implements IVote2Repository {
     );
   }
 
-  async setVoteResult(date: Date, result: IResult[]) {
+  async setVoteResult(date: string, result: IResult[]) {
     await this.Vote2.updateOne(
       { date },
       {
@@ -209,7 +169,11 @@ export class Vote2Repository implements IVote2Repository {
     );
   }
 
-  async setParticipate(date: Date, placeId, participateData: Partial<IMember>) {
+  async setParticipate(
+    date: string,
+    placeId,
+    participateData: Partial<IMember>,
+  ) {
     const { userId } = participateData;
     await this.Vote2.updateOne(
       {

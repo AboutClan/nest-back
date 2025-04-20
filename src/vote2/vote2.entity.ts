@@ -2,7 +2,7 @@ import mongoose, { model, Model, Schema } from 'mongoose';
 import { IPlace } from 'src/place/place.entity';
 
 export interface IVote2 {
-  date: Date;
+  date: string;
   participations: IParticipation[];
   results: any[];
 }
@@ -103,7 +103,7 @@ export const ResultSchema: Schema<IResult> = new Schema(
 );
 
 export const Vote2Schema: Schema<IVote2> = new Schema({
-  date: Date,
+  date: String,
   participations: {
     type: [ParticipationSchema],
     default: [],

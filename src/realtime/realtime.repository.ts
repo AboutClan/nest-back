@@ -10,7 +10,7 @@ export class MongoRealtimeRepository implements RealtimeRepository {
     private readonly RealtimeModel: Model<IRealtime>,
   ) {}
 
-  async findByDate(date: Date): Promise<IRealtime> {
+  async findByDate(date: string): Promise<IRealtime> {
     console.log(34, date);
     const data = await this.RealtimeModel.findOne({ date }).populate({
       path: 'userList.user',
@@ -18,10 +18,10 @@ export class MongoRealtimeRepository implements RealtimeRepository {
     });
     return data;
   }
-  async createByDate(date: Date): Promise<IRealtime> {
+  async createByDate(date: string): Promise<IRealtime> {
     return await this.RealtimeModel.create({ date });
   }
-  async patchUser(date: Date, userData: any): Promise<IRealtime> {
+  async patchUser(date: string, userData: any): Promise<IRealtime> {
     return await this.RealtimeModel.findOneAndUpdate(
       { date },
       {
@@ -35,7 +35,7 @@ export class MongoRealtimeRepository implements RealtimeRepository {
     );
   }
   async patchAttendance(
-    date: Date,
+    date: string,
     userData: any,
     userId: string,
   ): Promise<null> {
@@ -68,7 +68,7 @@ export class MongoRealtimeRepository implements RealtimeRepository {
   async patchRealtime(
     userId: string,
     updateFields: Partial<IRealtimeUser>,
-    date: Date,
+    date: string,
   ) {
     return await this.RealtimeModel.findOneAndUpdate(
       {

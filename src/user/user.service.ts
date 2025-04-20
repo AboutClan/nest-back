@@ -16,6 +16,9 @@ import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../logger';
 import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
+import { ATTEND_STUDY_POINT } from 'src/Constants/point';
+import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
+import { CollectionService } from 'src/collection/collection.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -27,6 +30,7 @@ export class UserService {
     private readonly noticeService: NoticeService,
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
+    private readonly collectionServiceInstance: CollectionService,
   ) {}
 
   async decodeByAES256(encodedTel: string) {
@@ -705,6 +709,34 @@ export class UserService {
 
   async getTicketInfo(userId: string) {
     return await this.UserRepository.getTicketInfo(userId);
+  }
+
+  async setVoteArriveInfo(userId: string, end: string) {
+    const userData = await this.UserRepository.findById(userId);
+
+    if (userData) {
+      const diffMinutes = dayjs(end).diff(dayjs(), 'm');
+      const record = userData.studyRecord;
+
+      userData.studyRecord = {
+        ...record,
+        accumulationMinutes: record.accumulationMinutes + diffMinutes,
+        accumulationCnt: record.accumulationCnt + 1,
+        monthMinutes: record.monthMinutes + diffMinutes,
+        monthCnt: record.monthCnt + 1,
+      };
+
+      await userData.save();
+    }
+
+    await Promise.all([
+      this.updatePoint(ATTEND_STUDY_POINT, '스터디 출석'),
+      this.updateScore(ATTEND_STUDY_SCORE, '스터디 출석'),
+    ]);
+    const result =
+      await this.collectionServiceInstance.setCollectionStamp(userId);
+
+    return result;
   }
 
   async test() {

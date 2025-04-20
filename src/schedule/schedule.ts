@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { GatherRepository } from 'src/gather/gather.repository.interface';
 import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/user/user.entity';
+import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
@@ -58,8 +59,7 @@ export class NotificationScheduler {
   })
   async announceVoteResult() {
     try {
-      const date = dayjs().toDate();
-      await this.vote2Service.setResult(date);
+      await this.vote2Service.setResult(DateUtils.getTodayYYYYMMDD());
       this.logger.log('Vote result notifications sent successfully.');
     } catch (error) {
       this.logger.error('Error sending vote result notifications:', error);
