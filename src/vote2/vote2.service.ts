@@ -10,6 +10,8 @@ import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import { DateUtils } from 'src/utils/Date';
+import { UserService } from 'src/user/user.service';
+import dayjs from 'dayjs';
 
 export class Vote2Service {
   constructor(
@@ -18,6 +20,7 @@ export class Vote2Service {
     @Inject(IPLACE_REPOSITORY)
     private readonly PlaceRepository: PlaceRepository,
     private readonly RealtimeService: RealtimeService,
+    private readonly userServiceInstance: UserService,
   ) {}
 
   formatMember(member: IMember) {
@@ -303,13 +306,33 @@ export class Vote2Service {
 
   async setArrive(date: string, memo: string, end: string) {
     const token = RequestContext.getDecodedToken();
+
+    const vote = await this.Vote2Repository.findByDate(date);
+
     const arriveData = {
       memo,
       arrived: new Date(),
       end,
     };
 
-    return await this.Vote2Repository.setArrive(date, token.id, arriveData);
+    const targetMember = vote?.results
+      .flatMap((r) => r.members)
+      .find((m) => m.userId?.toString() === token.id);
+
+    if (!targetMember) return;
+
+    const merged = {
+      ...targetMember,
+      ...arriveData,
+      start: dayjs().toDate(),
+    };
+
+    await this.Vote2Repository.setArrive(date, token.id, merged);
+
+    return await this.userServiceInstance.setVoteArriveInfo(
+      token.id,
+      arriveData.end,
+    );
   }
 
   patchArrive(date: string) {

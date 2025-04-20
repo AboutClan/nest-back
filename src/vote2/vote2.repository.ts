@@ -33,6 +33,7 @@ export class Vote2Repository implements IVote2Repository {
       ]);
     }
 
+    console.log(vote);
     return vote;
   }
   async findParticipationsByDate(date: string) {
@@ -79,25 +80,11 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async setArrive(date: string, userId: string, arriveData) {
-    const vote = await this.Vote2.findOne({ date }).lean();
-
-    const targetMember = vote?.results
-      .flatMap((r) => r.members)
-      .find((m) => m.userId?.toString() === userId);
-
-    if (!targetMember) return;
-
-    const merged = {
-      ...targetMember,
-      ...arriveData,
-      start: dayjs().toDate(),
-    };
-
     await this.Vote2.updateOne(
       { date, 'results.members.userId': userId },
       {
         $set: {
-          'results.$[resultElem].members.$[memberElem]': merged,
+          'results.$[resultElem].members.$[memberElem]': arriveData,
         },
       },
       {
@@ -107,32 +94,6 @@ export class Vote2Repository implements IVote2Repository {
         ],
       },
     );
-
-    const userData = await this.User.findOne({ _id: userId });
-
-    if (userData) {
-      const diffMinutes = dayjs(arriveData.end).diff(dayjs(), 'm');
-      const record = userData.studyRecord;
-
-      userData.studyRecord = {
-        ...record,
-        accumulationMinutes: record.accumulationMinutes + diffMinutes,
-        accumulationCnt: record.accumulationCnt + 1,
-        monthMinutes: record.monthMinutes + diffMinutes,
-        monthCnt: record.monthCnt + 1,
-      };
-
-      await userData.save();
-    }
-
-    await Promise.all([
-      this.userServiceInstance.updatePoint(ATTEND_STUDY_POINT, '스터디 출석'),
-      this.userServiceInstance.updateScore(ATTEND_STUDY_SCORE, '스터디 출석'),
-    ]);
-    const result =
-      await this.collectionServiceInstance.setCollectionStamp(userId);
-
-    return result;
   }
 
   async findParticipationsByDateJoin(date: string) {
