@@ -15,7 +15,7 @@ declare global {
     export interface Request {
       decodedToken: decodedTokenType;
       token?: JWT;
-      date?: Date;
+      date?: Date | string;
       files?: Multer.File[];
       file?: Multer.File;
     }

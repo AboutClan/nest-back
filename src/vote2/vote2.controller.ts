@@ -20,15 +20,10 @@ import { Vote2Service } from './vote2.service';
 export class Vote2Controller {
   constructor(private readonly voteService2: Vote2Service) {}
 
-  @Get('test')
-  async test() {
-    await this.voteService2.setResult(new Date());
-  }
-
   @Get(':date/info')
   async getVoteInfo(@Req() req: Request): Promise<any> {
     const { date } = req;
-    const filteredVote = await this.voteService2.getVoteInfo(date);
+    const filteredVote = await this.voteService2.getVoteInfo(date as string);
     return filteredVote;
   }
 
@@ -36,7 +31,9 @@ export class Vote2Controller {
   async getFilteredVoteByDateOne(@Req() req: Request): Promise<any> {
     const { date } = req;
 
-    const filteredVote = await this.voteService2.getFilteredVoteOne(date);
+    const filteredVote = await this.voteService2.getFilteredVoteOne(
+      date as string,
+    );
 
     return filteredVote;
   }
@@ -54,7 +51,7 @@ export class Vote2Controller {
   async deleteVote(@Req() req: Request): Promise<any> {
     const { date } = req;
 
-    await this.voteService2.deleteVote(date);
+    await this.voteService2.deleteVote(date as string);
 
     return 'success';
   }
@@ -67,7 +64,7 @@ export class Vote2Controller {
     const { latitude, longitude, start, end } = createVoteDTO;
     const { date } = req;
 
-    await this.voteService2.setVote(date, {
+    await this.voteService2.setVote(date as string, {
       latitude,
       longitude,
       start,
@@ -85,7 +82,7 @@ export class Vote2Controller {
     const { latitude, longitude, start, end } = createVoteDTO;
     const { date } = req;
 
-    await this.voteService2.setVote(date, {
+    await this.voteService2.setVote(date as string, {
       latitude,
       longitude,
       start,
@@ -102,7 +99,7 @@ export class Vote2Controller {
   ): Promise<any> {
     const { date } = req;
 
-    await this.voteService2.setComment(date, comment);
+    await this.voteService2.setComment(date as string, comment);
 
     return 'success';
   }
@@ -115,7 +112,7 @@ export class Vote2Controller {
     const { start, end, placeId } = createParticipateDTO;
     const { date } = req;
 
-    await this.voteService2.setParticipate(date, {
+    await this.voteService2.setParticipate(date as string, {
       start,
       end,
       placeId,
@@ -127,7 +124,7 @@ export class Vote2Controller {
   @Post(':date/result')
   async setResult(@Req() req: Request): Promise<any> {
     const { date } = req;
-    await this.voteService2.setResult(date);
+    await this.voteService2.setResult(date as string);
 
     return 'success';
   }
@@ -139,7 +136,7 @@ export class Vote2Controller {
     @Body('end') end: string,
   ): Promise<any> {
     const { date } = req;
-    await this.voteService2.updateResult(date, start, end);
+    await this.voteService2.updateResult(date as string, start, end);
 
     return 'success';
   }
@@ -151,7 +148,7 @@ export class Vote2Controller {
   ): Promise<any> {
     const { date } = req;
     const { memo, end } = body;
-    const result = await this.voteService2.setArrive(date, memo, end);
+    const result = await this.voteService2.setArrive(date as string, memo, end);
 
     return result;
   }
@@ -160,7 +157,7 @@ export class Vote2Controller {
   async segetAbsence(@Req() req: Request): Promise<any> {
     const { date } = req; // 미들웨어에서 설정된 date 값 가져오기
 
-    const result = await this.voteService2.getAbsence(date);
+    const result = await this.voteService2.getAbsence(date as string);
     return result;
   }
 
@@ -172,7 +169,11 @@ export class Vote2Controller {
     const { message = '', fee } = body; // message 값, 기본값 설정
     const { date } = req; // 미들웨어에서 설정된 date 값 가져오기
 
-    const result = await this.voteService2.setAbsence(date, message, fee);
+    const result = await this.voteService2.setAbsence(
+      date as string,
+      message,
+      fee,
+    );
     return result;
   }
 }

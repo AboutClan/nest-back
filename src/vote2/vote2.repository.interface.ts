@@ -2,15 +2,15 @@ import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
 
 export interface IVote2Repository {
   getVoteByPeriod(startDay: string, endDay: string): Promise<IVote2[]>;
-  setVote(date: Date, userVoteData: IParticipation);
-  deleteVote(date: Date, userId: string);
-  setVoteResult(date: Date, result: IResult[]);
-  findParticipationsByDate(date: Date);
-  findParticipationsByDateJoin(date: Date);
-  setArrive(date: Date, userId: string, memo: any);
-  setParticipate(date: Date, placeId, participateData: Partial<IMember>);
-  findByDate(date: Date);
-  setAbsence(date: Date, message: string, userId: string, fee: number);
-  setComment(date: Date, userId, comment: string);
-  updateResult(date: Date, userId: string, start: string, end: string);
+  setVote(date: string, userVoteData: IParticipation);
+  deleteVote(date: string, userId: string);
+  setVoteResult(date: string, result: IResult[]);
+  findParticipationsByDate(date: string);
+  findParticipationsByDateJoin(date: string);
+  setArrive(date: string, userId: string, memo: any);
+  setParticipate(date: string, placeId, participateData: Partial<IMember>);
+  findByDate(date: string);
+  setAbsence(date: string, message: string, userId: string, fee: number);
+  setComment(date: string, userId, comment: string);
+  updateResult(date: string, userId: string, start: string, end: string);
 }

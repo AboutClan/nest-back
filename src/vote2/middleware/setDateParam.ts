@@ -5,10 +5,7 @@ import { strToDate } from 'src/utils/dateUtils';
 @Injectable()
 export class SetDateParamMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
-    const { date: dateStr } = req.params;
-
-    const dayjsDate = strToDate(dateStr);
-    const date = dayjsDate.toDate();
+    const { date } = req.params;
 
     if (!date) {
       return res.status(401).end(); // 날짜 변환이 실패했을 때

@@ -1,13 +1,13 @@
 import { IRealtime, IRealtimeUser } from './realtime.entity';
 
 export interface RealtimeRepository {
-  findByDate(date: Date): Promise<IRealtime>;
-  createByDate(date: Date): Promise<IRealtime>;
-  patchUser(date: Date, data: any): Promise<IRealtime>;
-  patchAttendance(date: Date, data: any, userId: string): Promise<null>;
+  findByDate(date: string): Promise<IRealtime>;
+  createByDate(date: string): Promise<IRealtime>;
+  patchUser(date: string, data: any): Promise<IRealtime>;
+  patchAttendance(date: string, data: any, userId: string): Promise<null>;
   patchRealtime(
     userId: string,
     updateFields: Partial<IRealtimeUser>,
-    data: Date,
+    data: string,
   );
 }
