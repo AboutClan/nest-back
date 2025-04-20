@@ -54,7 +54,7 @@ export class NotificationScheduler {
   // }
 
   //투표 결과 알림
-  @Cron(CronExpression.EVERY_DAY_AT_11PM, {
+  @Cron(CronExpression.EVERY_DAY_AT_9AM, {
     timeZone: 'Asia/Seoul',
   })
   async announceVoteResult() {
