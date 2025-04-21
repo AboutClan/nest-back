@@ -88,7 +88,7 @@ export class MongoGatherRepository implements GatherRepository {
   }
 
   async findThree(): Promise<IGatherData[]> {
-    const notStudy = await this.Gather.find({ 'type.title': { $ne: '스터디' } })
+    const gatherData = await this.Gather.find()
       .sort({ createdAt: -1 })
       .limit(6)
       .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
@@ -97,15 +97,7 @@ export class MongoGatherRepository implements GatherRepository {
         select: C_simpleUser,
       });
 
-    const study = await this.Gather.find({ 'type.title': '스터디' })
-      .sort({ createdAt: -1 })
-      .limit(6)
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: C_simpleUser,
-      });
-    return [...notStudy, ...study];
+    return gatherData;
   }
 
   async createGather(gatherData: Partial<IGatherData>): Promise<IGatherData> {
