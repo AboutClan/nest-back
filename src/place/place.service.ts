@@ -79,4 +79,16 @@ export default class PlaceService {
     await this.updatePrefCnt(placeId, num);
     return;
   }
+
+  async addReview(placeId: string, review: string) {
+    try {
+      const token = RequestContext.getDecodedToken();
+      const userId = token.id as string;
+
+      await this.placeRepository.addReview(placeId, userId, review);
+      return;
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 }

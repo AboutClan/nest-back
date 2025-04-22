@@ -59,4 +59,20 @@ export class PlaceController {
       );
     }
   }
+
+  @Post('review')
+  async addReview(
+    @Body('placeId') placeId: string,
+    @Body('review') review: string,
+  ) {
+    try {
+      const places = await this.placeService.addReview(placeId, review);
+      return places;
+    } catch (err) {
+      throw new HttpException(
+        'Error adding review',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

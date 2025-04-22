@@ -37,4 +37,23 @@ export class MongoPlaceReposotory implements PlaceRepository {
 
     return null;
   }
+
+  async addReview(
+    placeId: string,
+    userId: string,
+    review: string,
+  ): Promise<null> {
+    await this.Place.updateOne(
+      { _id: placeId },
+      {
+        $push: {
+          reviews: {
+            userId,
+            comment: review,
+          },
+        },
+      },
+    );
+    return null;
+  }
 }
