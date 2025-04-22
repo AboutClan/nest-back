@@ -1,5 +1,4 @@
-//일일 출석
-export const DAILY_ATTEND_POINT = 2;
+
 //피드 좋아요
 export const FEED_LIKE_POINT = 2;
 //피드 좋아요 취소

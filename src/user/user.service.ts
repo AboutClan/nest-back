@@ -3,7 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
+import { CollectionService } from 'src/collection/collection.service';
 import { C_simpleUser } from 'src/Constants/constants';
+import { ATTEND_STUDY_POINT } from 'src/Constants/point';
+import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { AppError } from 'src/errors/AppError';
 import ImageService from 'src/imagez/image.service';
 import { ILog } from 'src/logz/log.entity';
@@ -16,9 +19,6 @@ import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../logger';
 import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
-import { ATTEND_STUDY_POINT } from 'src/Constants/point';
-import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
-import { CollectionService } from 'src/collection/collection.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -737,6 +737,10 @@ export class UserService {
       await this.collectionServiceInstance.setCollectionStamp(userId);
 
     return result;
+  }
+
+  async updateAllUserInfo() {
+    this.UserRepository.updateAllUserInfo();
   }
 
   async test() {

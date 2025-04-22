@@ -228,6 +228,19 @@ export class MongoUserRepository implements UserRepository {
     return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
   }
 
+  async updateAllUserInfo() {
+    return;
+    // await this.User.updateMany({}, [
+    //   {
+    //     $set: {
+    //       point: {
+    //         $add: [{ $multiply: ['$point', 5] }, '$deposit'],
+    //       },
+    //     },
+    //   },
+    // ]);
+  }
+
   async test() {
     await this.User.updateMany(
       { 'ticket.gatherTicket': { $lt: 3 } },
