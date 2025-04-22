@@ -132,7 +132,6 @@ export class GatherService {
           ],
         },
         { date: { $lt: todayString } },
-        ,
       ],
     };
 
