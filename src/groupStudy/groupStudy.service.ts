@@ -3,10 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
-import {
-  GROUPSTUDY_FIRST_COMMENT,
-  GROUP_WEEKLY_PARTICIPATE_POINT,
-} from 'src/Constants/point';
+import { GROUPSTUDY_FIRST_COMMENT } from 'src/Constants/point';
+import { GROUP_WEEKLY_PARTICIPATE_SCORE } from 'src/Constants/score';
+
 import { CounterService } from 'src/counter/counter.service';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
@@ -33,7 +32,6 @@ export default class GroupStudyService {
     private readonly counterServiceInstance: CounterService,
   ) {}
   async getStatusGroupStudy(cursor: number, status: string) {
-
     switch (status) {
       case 'isParticipating':
         return this.getMyOpenGroupStudy(cursor);
@@ -882,9 +880,9 @@ export default class GroupStudyService {
     );
 
     if (result.modifiedCount) {
-      await this.userServiceInstance.updatePointWithUserId(
+      await this.userServiceInstance.updateScoreWithUserId(
         userId,
-        GROUP_WEEKLY_PARTICIPATE_POINT,
+        GROUP_WEEKLY_PARTICIPATE_SCORE,
         '소모임 주간 출석',
       );
     }

@@ -5,7 +5,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import dayjs from 'dayjs';
-import { PARTICIPATE_GATHER_POINT } from 'src/Constants/point';
 import {
   CANCEL_GAHTER_SCORE,
   CREATE_GATHER_SCORE,
@@ -225,10 +224,6 @@ export class GatherService {
       PARTICIPATE_GATHER_SCORE,
       '번개 모임 참여',
     );
-    await this.userServiceInstance.updatePoint(
-      PARTICIPATE_GATHER_POINT,
-      '번개 모임 참여',
-    );
 
     if (gather.user)
       await this.webPushServiceInstance.sendNotificationToXWithId(
@@ -270,12 +265,6 @@ export class GatherService {
 
     await this.userServiceInstance.updateScore(
       PARTICIPATE_GATHER_SCORE,
-      '번개 모임 참여',
-      undefined,
-      user.uid,
-    );
-    await this.userServiceInstance.updatePoint(
-      PARTICIPATE_GATHER_POINT,
       '번개 모임 참여',
       undefined,
       user.uid,

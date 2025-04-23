@@ -3,11 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/collection/collection.service';
-import {
-  ATTEND_STUDY_POINT,
-  CANCEL_VOTE_POINT,
-  VOTE_POINT,
-} from 'src/Constants/point';
 import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { convertUserToSummary } from 'src/convert';
 import { IPlace } from 'src/place/place.entity';
@@ -544,10 +539,6 @@ export class VoteService {
       const { place, subPlace, start, end, memo }: IVoteStudyInfo = studyInfo;
       const vote = await this.getVote(date);
 
-      if (!this.isVoting(date)) {
-        this.userServiceInstance.updatePoint(VOTE_POINT, '스터디 투표');
-      }
-
       await this.Realtime.updateOne(
         { date },
         {
@@ -694,10 +685,6 @@ export class VoteService {
             },
           },
         );
-        this.userServiceInstance.updatePoint(
-          CANCEL_VOTE_POINT,
-          '스터디 투표 취소',
-        );
       }
       return;
     } catch (err) {
@@ -835,10 +822,6 @@ export class VoteService {
         token.id,
       );
 
-      await this.userServiceInstance.updatePoint(
-        ATTEND_STUDY_POINT,
-        '스터디 출석',
-      );
       await this.userServiceInstance.updateScore(
         ATTEND_STUDY_SCORE,
         '스터디 출석',

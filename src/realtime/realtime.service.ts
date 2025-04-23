@@ -1,10 +1,11 @@
 import { Inject } from '@nestjs/common';
 import { CollectionService } from 'src/collection/collection.service';
-import { ATTEND_STUDY_POINT } from 'src/Constants/point';
+import { ATTEND_PRIVATE_STUDY_SCORE, ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
+import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { VoteService } from 'src/vote/vote.service';
 import { DatabaseError } from '../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
@@ -14,7 +15,6 @@ import {
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { RealtimeRepository } from './realtime.repository.interface';
-import { DateUtils } from 'src/utils/Date';
 
 export default class RealtimeService {
   constructor(
@@ -99,8 +99,8 @@ export default class RealtimeService {
         token.id,
       );
 
-      await this.userServiceInstance.updatePoint(
-        ATTEND_STUDY_POINT,
+      await this.userServiceInstance.updateScore(
+        ATTEND_PRIVATE_STUDY_SCORE,
         '스터디 출석',
       );
       return result;

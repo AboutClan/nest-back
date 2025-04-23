@@ -3,8 +3,6 @@ import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/collection/collection.service';
 import { C_simpleUser } from 'src/Constants/constants';
-import { ATTEND_STUDY_POINT } from 'src/Constants/point';
-import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { IUser } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
