@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CollectionService } from 'src/collection/collection.service';
-import { ATTEND_PRIVATE_STUDY_SCORE, ATTEND_STUDY_SCORE } from 'src/Constants/score';
+import { ATTEND_PRIVATE_STUDY_SCORE } from 'src/Constants/score';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/user/user.entity';
@@ -182,10 +182,6 @@ export default class RealtimeService {
       });
 
       await todayData.save();
-
-      if (status === 'cancel') {
-        await this.userServiceInstance.updateDeposit(-100, '개인 스터디 불참');
-      }
     } catch (err) {
       throw new Error();
     }

@@ -65,7 +65,7 @@ export class Vote2Repository implements IVote2Repository {
         arrayFilters: [{ 'member.userId': userId }],
       },
     );
-    await this.userServiceInstance.updateDeposit(fee, '스터디 당일 불참');
+    await this.userServiceInstance.updatePoint(fee, '스터디 당일 불참');
   }
 
   async getVoteByPeriod(startDay: string, endDay: string) {
