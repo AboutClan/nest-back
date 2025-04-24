@@ -27,12 +27,12 @@ export class WebPushService {
   private basePayload: Object;
 
   constructor(
+    @Inject(IWEBPUSH_REPOSITORY)
+    private readonly WebpushRepository: WebpushRepository,
     @InjectQueue('webpushQ') private readonly webpushQ: Queue,
     @InjectModel('User') private readonly User: Model<IUser>,
     @InjectModel('Vote') private readonly Vote: Model<IVote>,
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
-    @Inject(IWEBPUSH_REPOSITORY)
-    private readonly WebpushRepository: WebpushRepository,
   ) {
     // Send 201 - resource created
     this.basePayload = {

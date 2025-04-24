@@ -10,6 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationSubSchema } from './notificationsub.entity';
 import { BullModule } from '@nestjs/bull';
 import { WebPushConsumer } from './webpush.consumer';
+
 const webPushRepositoryProvider: ClassProvider = {
   provide: IWEBPUSH_REPOSITORY,
   useClass: MongoWebpushRepository,
@@ -17,6 +18,9 @@ const webPushRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
+    MongooseModule.forFeature([
+      { name: 'NotificationSub', schema: NotificationSubSchema },
+    ]),
     BullModule.registerQueue({
       name: 'webpushQ',
       defaultJobOptions: {
@@ -29,30 +33,9 @@ const webPushRepositoryProvider: ClassProvider = {
     UserModule,
     GroupStudyModule,
     VoteModule,
-    MongooseModule.forFeature([
-      { name: 'NotificationSub', schema: NotificationSubSchema },
-    ]),
   ], // Mongoose 모델 등록],
   controllers: [WebPushController],
   providers: [WebPushService, webPushRepositoryProvider, WebPushConsumer],
   exports: [WebPushService, webPushRepositoryProvider],
 })
 export class WebPushModule {}
-// @Module({
-//   imports: [
-//     UserModule,
-//     GroupStudyModule,
-//     VoteModule,
-//     MongooseModule.forFeature([
-//       { name: 'NotificationSub', schema: NotificationSubSchema },
-//     ]),
-//   ], // Mongoose 모델 등록],
-//   controllers: [WebPushController],
-//   providers: [
-//     WebPushService,
-//     webPushRepositoryProvider,
-//     webPushServiceProvider,
-//   ],
-//   exports: [WebPushService],
-// })
-// export class WebPushModuleSche {}

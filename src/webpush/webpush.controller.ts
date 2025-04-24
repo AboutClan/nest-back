@@ -10,12 +10,11 @@ export class WebPushController {
   constructor(private readonly webPushService: WebPushService) {}
 
   @Post('subscribe')
-  subscribe(
+  async subscribe(
     @Body('subscription') subscription: createSubDTO,
     @Req() req: Request,
-  ): string {
-    console.log(123, subscription);
-    this.webPushService.subscribe(
+  ): Promise<string> {
+    await this.webPushService.subscribe(
       subscription,
       req.decodedToken.uid,
       req.decodedToken.id,
@@ -23,8 +22,8 @@ export class WebPushController {
     return 'register success';
   }
   @Post('sendNotification')
-  sendNotification(): string {
-    this.webPushService.sendNotificationAllUser();
+  async sendNotification() {
+    await this.webPushService.sendNotificationAllUser();
     return 'Notification sent';
   }
   @Get('notification/:uid')
