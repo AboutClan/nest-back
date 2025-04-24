@@ -50,7 +50,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
     rating: number,
     isSecret: boolean,
   ): Promise<null> {
-    console.log(placeId, review);
+   
     await this.Place.updateOne(
       { _id: placeId },
       {

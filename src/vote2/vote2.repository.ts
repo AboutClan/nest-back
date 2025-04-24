@@ -43,7 +43,6 @@ export class Vote2Repository implements IVote2Repository {
       ]);
     }
 
-    console.log(vote);
     return vote;
   }
   async findParticipationsByDate(date: string) {
@@ -90,6 +89,7 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async setArrive(date: string, userId: string, arriveData) {
+    console.log('d', date, userId, arriveData);
     await this.Vote2.updateOne(
       { date, 'results.members.userId': userId },
       {

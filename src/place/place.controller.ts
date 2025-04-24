@@ -68,7 +68,7 @@ export class PlaceController {
     @Body('isSecret') isSecret: boolean,
   ) {
     try {
-      console.log(placeId, isSecret, review);
+     
       const places = await this.placeService.addReview(
         placeId,
         review,

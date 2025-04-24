@@ -274,7 +274,6 @@ export class Vote2Service {
   async setComment(date: string, comment: string) {
     const token = RequestContext.getDecodedToken();
 
-    console.log(comment);
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
 
@@ -308,7 +307,7 @@ export class Vote2Service {
     const token = RequestContext.getDecodedToken();
 
     const vote = await this.Vote2Repository.findByDate(date);
-
+    console.log(date, memo, vote);
     const arriveData = {
       memo,
       arrived: new Date(),
@@ -317,7 +316,8 @@ export class Vote2Service {
 
     const targetMember = vote?.results
       .flatMap((r) => r.members)
-      .find((m) => m.userId?.toString() === token.id);
+      .find((m) => m.userId?._id.toString() === token.id)
+      .toObject();
 
     if (!targetMember) return;
 
