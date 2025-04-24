@@ -6,5 +6,11 @@ export interface PlaceRepository {
   updateStatus(placeId: string, status: string): Promise<null>;
   updatePrefCnt(placeId: string, num: number);
   findByIds(placeIds: string[]): Promise<IPlace[]>;
-  addReview(placeId: string, userId: string, review: string): Promise<null>;
+  addReview(
+    placeId: string,
+    userId: string,
+    review: string,
+    rating: number,
+    isSecret: boolean,
+  ): Promise<null>;
 }

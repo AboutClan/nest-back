@@ -3,8 +3,10 @@ import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
 export const reviewSchema = z.object({
-  userId: z.string(),
-  comment: z.string(),
+  user: z.union([z.string(), z.custom<IUser>()]),
+  review: z.string(),
+  rating: z.number(),
+  isSecret: z.boolean(),
 });
 
 export const PlaceZodSchema = z.object({
@@ -32,12 +34,20 @@ export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
 
 export const ReviewSchema: Schema<IReview> = new Schema(
   {
-    userId: {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    isSecret: {
+      type: Boolean,
+      required: true,
+    },
+    review: {
       type: String,
       required: true,
     },
-    comment: {
-      type: String,
+    rating: {
+      type: Number,
       required: true,
     },
   },

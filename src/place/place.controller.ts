@@ -1,11 +1,11 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Query,
   HttpException,
   HttpStatus,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import PlaceService from './place.service';
@@ -64,9 +64,17 @@ export class PlaceController {
   async addReview(
     @Body('placeId') placeId: string,
     @Body('review') review: string,
+    @Body('rating') rating: number,
+    @Body('isSecret') isSecret: boolean,
   ) {
     try {
-      const places = await this.placeService.addReview(placeId, review);
+      console.log(placeId, isSecret, review);
+      const places = await this.placeService.addReview(
+        placeId,
+        review,
+        rating,
+        isSecret,
+      );
       return places;
     } catch (err) {
       throw new HttpException(

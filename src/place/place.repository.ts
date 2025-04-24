@@ -11,7 +11,12 @@ export class MongoPlaceReposotory implements PlaceRepository {
   ) {}
 
   async findByIds(placeIds: string[]): Promise<IPlace[]> {
-    return await this.Place.find({ _id: { $in: placeIds } });
+    return await this.Place.find({ _id: { $in: placeIds } }).populate([
+      {
+        path: 'reviews.user',
+        select: C_simpleUser,
+      },
+    ]);
   }
 
   async findByStatus(status: string): Promise<IPlace[]> {
@@ -42,14 +47,19 @@ export class MongoPlaceReposotory implements PlaceRepository {
     placeId: string,
     userId: string,
     review: string,
+    rating: number,
+    isSecret: boolean,
   ): Promise<null> {
+    console.log(placeId, review);
     await this.Place.updateOne(
       { _id: placeId },
       {
         $push: {
           reviews: {
-            userId,
-            comment: review,
+            user: userId,
+            review,
+            rating,
+            isSecret,
           },
         },
       },

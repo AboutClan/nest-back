@@ -80,12 +80,23 @@ export default class PlaceService {
     return;
   }
 
-  async addReview(placeId: string, review: string) {
+  async addReview(
+    placeId: string,
+    review: string,
+    rating: number,
+    isSecret: boolean,
+  ) {
     try {
       const token = RequestContext.getDecodedToken();
       const userId = token.id as string;
 
-      await this.placeRepository.addReview(placeId, userId, review);
+      await this.placeRepository.addReview(
+        placeId,
+        userId,
+        review,
+        rating,
+        isSecret,
+      );
       return;
     } catch (err: any) {
       throw new Error(err);
