@@ -1,17 +1,14 @@
 import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
 import dayjs from 'dayjs';
-import { Request } from 'express';
-import { JWT } from 'next-auth/jwt';
-import { IPROMOTION_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
-import { PromotionZodSchema } from './promotion.entity';
-import { PromotionRepository } from './promotion.repository';
 import {
   PROMOTION_EVENT_DOUBLE_POINT,
   PROMOTION_EVENT_POINT,
 } from 'src/Constants/point';
-import { UserService } from 'src/user/user.service';
 import { RequestContext } from 'src/request-context';
+import { UserService } from 'src/user/user.service';
+import { IPROMOTION_REPOSITORY } from 'src/utils/di.tokens';
+import { PromotionZodSchema } from './promotion.entity';
+import { PromotionRepository } from './promotion.repository';
 
 export default class PromotionService {
   constructor(

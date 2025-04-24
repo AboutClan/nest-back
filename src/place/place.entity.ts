@@ -2,6 +2,13 @@ import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { IUser } from 'src/user/user.entity';
 import { z } from 'zod';
 
+export const reviewSchema = z.object({
+  user: z.union([z.string(), z.custom<IUser>()]),
+  review: z.string(),
+  rating: z.number(),
+  isSecret: z.boolean(),
+});
+
 export const PlaceZodSchema = z.object({
   status: z.string(),
   fullname: z.string(),
@@ -18,10 +25,37 @@ export const PlaceZodSchema = z.object({
   registerDate: z.string().optional(),
   registrant: z.union([z.string(), z.custom<IUser>()]),
   mapURL: z.string(),
+  reviews: z.array(reviewSchema).optional(),
   prefCnt: z.number().optional(),
 });
 
+export type IReview = z.infer<typeof reviewSchema> & Document;
 export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
+
+export const ReviewSchema: Schema<IReview> = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    isSecret: {
+      type: Boolean,
+      required: true,
+    },
+    review: {
+      type: String,
+      required: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+    timestamps: true,
+  },
+);
 
 export const PlaceSchema: Schema<IPlace> = new Schema({
   status: {
@@ -69,6 +103,9 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   prefCnt: {
     type: Number,
     default: 0,
+  },
+  reviews: {
+    type: [ReviewSchema],
   },
 });
 

@@ -17,7 +17,7 @@ export interface UserRepository {
     queryString?: string,
   ): Promise<IUser[]>;
   increasePoint(point: number, uid: string): Promise<null>;
-  increasePointWithUserId(point: number, userId: string): Promise<null>;
+  increaseScoreWithUserId(point: number, userId: string): Promise<null>;
   increaseScore(score: number, uid: string): Promise<null>;
   increaseDeposit(deposit: number, uid: string): Promise<null>;
   updatePreference(uid: string, place: any, subPlace: any[]): Promise<null>;
@@ -33,5 +33,6 @@ export interface UserRepository {
   addbadge(uid: string, badgeIdx: number);
   selectbadge(uid: string, badgeIdx: number);
   getBadgeList(uid: string);
+  updateAllUserInfo();
   test();
 }

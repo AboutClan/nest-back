@@ -1,11 +1,11 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Query,
   HttpException,
   HttpStatus,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import PlaceService from './place.service';
@@ -55,6 +55,30 @@ export class PlaceController {
     } catch (err) {
       throw new HttpException(
         'Error updating place status',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('review')
+  async addReview(
+    @Body('placeId') placeId: string,
+    @Body('review') review: string,
+    @Body('rating') rating: number,
+    @Body('isSecret') isSecret: boolean,
+  ) {
+    try {
+     
+      const places = await this.placeService.addReview(
+        placeId,
+        review,
+        rating,
+        isSecret,
+      );
+      return places;
+    } catch (err) {
+      throw new HttpException(
+        'Error adding review',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

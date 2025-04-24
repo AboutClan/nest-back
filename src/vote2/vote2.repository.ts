@@ -3,8 +3,6 @@ import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/collection/collection.service';
 import { C_simpleUser } from 'src/Constants/constants';
-import { ATTEND_STUDY_POINT } from 'src/Constants/point';
-import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { IUser } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
@@ -21,19 +19,30 @@ export class Vote2Repository implements IVote2Repository {
 
   async findByDate(date: string) {
     let vote = await this.Vote2.findOne({ date }).populate([
-      { path: 'results.placeId' },
+      {
+        path: 'results.placeId',
+        populate: {
+          path: 'reviews.user',
+          select: C_simpleUser,
+        },
+      },
       { path: 'results.members.userId', select: C_simpleUser },
     ]);
 
     if (!vote) {
       await this.Vote2.create({ date, results: [], participations: [] });
       vote = await this.Vote2.findOne({ date }).populate([
-        { path: 'results.placeId' },
+        {
+          path: 'results.placeId',
+          populate: {
+            path: 'reviews.user',
+            select: C_simpleUser,
+          },
+        },
         { path: 'results.members.userId', select: C_simpleUser },
       ]);
     }
 
-    console.log(vote);
     return vote;
   }
   async findParticipationsByDate(date: string) {
@@ -67,7 +76,7 @@ export class Vote2Repository implements IVote2Repository {
         arrayFilters: [{ 'member.userId': userId }],
       },
     );
-    await this.userServiceInstance.updateDeposit(fee, '스터디 당일 불참');
+    await this.userServiceInstance.updatePoint(fee, '스터디 당일 불참');
   }
 
   async getVoteByPeriod(startDay: string, endDay: string) {
@@ -80,6 +89,7 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async setArrive(date: string, userId: string, arriveData) {
+    console.log('d', date, userId, arriveData);
     await this.Vote2.updateOne(
       { date, 'results.members.userId': userId },
       {

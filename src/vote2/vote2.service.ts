@@ -1,17 +1,17 @@
 import { Inject } from '@nestjs/common';
+import dayjs from 'dayjs';
 import { IPlace } from 'src/place/place.entity';
 import { PlaceRepository } from 'src/place/place.repository.interface';
 import { IRealtimeUser } from 'src/realtime/realtime.entity';
 import RealtimeService from 'src/realtime/realtime.service';
 import { RequestContext } from 'src/request-context';
+import { UserService } from 'src/user/user.service';
+import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { ClusterUtils, coordType } from './ClusterUtils';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
-import { DateUtils } from 'src/utils/Date';
-import { UserService } from 'src/user/user.service';
-import dayjs from 'dayjs';
 
 export class Vote2Service {
   constructor(
@@ -274,7 +274,6 @@ export class Vote2Service {
   async setComment(date: string, comment: string) {
     const token = RequestContext.getDecodedToken();
 
-    console.log(comment);
     await this.Vote2Repository.setComment(date, token.id, comment);
   }
 
@@ -308,7 +307,7 @@ export class Vote2Service {
     const token = RequestContext.getDecodedToken();
 
     const vote = await this.Vote2Repository.findByDate(date);
-
+    console.log(date, memo, vote);
     const arriveData = {
       memo,
       arrived: new Date(),
@@ -317,7 +316,8 @@ export class Vote2Service {
 
     const targetMember = vote?.results
       .flatMap((r) => r.members)
-      .find((m) => m.userId?.toString() === token.id);
+      .find((m) => m.userId?._id.toString() === token.id)
+      .toObject();
 
     if (!targetMember) return;
 

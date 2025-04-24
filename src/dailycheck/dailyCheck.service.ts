@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import { DAILY_ATTEND_POINT } from 'src/Constants/point';
 import { DailyCheck } from 'src/domain/entities/DailyCheck';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/user/user.service';
@@ -35,8 +34,6 @@ export class DailyCheckService {
     });
 
     await this.dailyCheckRepository.create(newDailyCheck);
-
-    await this.userService.updatePoint(DAILY_ATTEND_POINT, '일일 출석');
     return;
   }
 

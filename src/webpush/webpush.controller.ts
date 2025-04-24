@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
-import { createSubDTO } from './webpush.dto';
-import { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { createSubDTO } from './webpush.dto';
 import { WebPushService } from './webpush.service';
 
 @ApiTags('webpush')
@@ -14,6 +14,7 @@ export class WebPushController {
     @Body('subscription') subscription: createSubDTO,
     @Req() req: Request,
   ): string {
+    console.log(123, subscription);
     this.webPushService.subscribe(
       subscription,
       req.decodedToken.uid,

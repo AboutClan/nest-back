@@ -1,7 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
+
 import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
 import { Feed } from 'src/domain/entities/Feed/Feed';
+import { SubCommentProps } from 'src/domain/entities/Feed/SubComment';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 import { GatherRepository } from 'src/gather/gather.repository.interface';
@@ -15,9 +17,7 @@ import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { subCommentType } from './feed.entity';
 import { IFeedRepository } from './FeedRepository.interface';
-import { SubCommentProps } from 'src/domain/entities/Feed/SubComment';
 
 @Injectable()
 export class FeedService {

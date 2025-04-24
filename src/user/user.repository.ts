@@ -77,10 +77,10 @@ export class MongoUserRepository implements UserRepository {
 
     return null;
   }
-  async increasePointWithUserId(point: number, userId: string): Promise<null> {
+  async increaseScoreWithUserId(score: number, userId: string): Promise<null> {
     await this.User.findOneAndUpdate(
       { _id: userId }, // 검색 조건
-      { $inc: { point: point } }, // point 필드 값을 증가
+      { $inc: { score } }, // point 필드 값을 증가
       { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
     );
 
@@ -226,6 +226,19 @@ export class MongoUserRepository implements UserRepository {
 
   async getBadgeList(uid: string) {
     return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
+  }
+
+  async updateAllUserInfo() {
+    return;
+    // await this.User.updateMany({}, [
+    //   {
+    //     $set: {
+    //       point: {
+    //         $add: [{ $multiply: ['$point', 5] }, '$deposit'],
+    //       },
+    //     },
+    //   },
+    // ]);
   }
 
   async test() {
