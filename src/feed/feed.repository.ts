@@ -1,8 +1,8 @@
-import { Model } from 'mongoose';
-import { commentType, IFeed, subCommentType } from './feed.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { FeedRepository } from './feed.repository.interface';
+import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
+import { commentType, IFeed, subCommentType } from './feed.entity';
+import { FeedRepository } from './feed.repository.interface';
 
 export class MongoFeedRepository implements FeedRepository {
   constructor(
@@ -26,10 +26,10 @@ export class MongoFeedRepository implements FeedRepository {
       .limit(gap);
   }
   async findById(id: string): Promise<IFeed> {
-    return await this.Feed.findById(id);
+    return await this.Feed.findOne({ typeId: id });
   }
   async findByIdLike(id: string): Promise<IFeed> {
-    return await this.Feed.findById(id).populate({
+    return await this.Feed.findOne({ typeId: id }).populate({
       path: 'like',
       select: 'avatar name profileImage uid _id', // 필요한 필드만 선택
     });
@@ -53,15 +53,15 @@ export class MongoFeedRepository implements FeedRepository {
     return await this.Feed.create(feedData);
   }
   async createComment(feedId: string, message: commentType): Promise<IFeed> {
-    return await this.Feed.findByIdAndUpdate(
-      feedId,
+    return await this.Feed.findOneAndUpdate(
+      { typeId: feedId },
       { $push: { comments: message } },
       { new: true, useFindAndModify: false },
     );
   }
   async deleteComment(feedId: string, commentId: string): Promise<any> {
-    return await this.Feed.findByIdAndUpdate(
-      feedId,
+    return await this.Feed.findOneAndUpdate(
+      { typeId: feedId },
       { $pull: { comments: { _id: commentId } } },
       { new: true, useFindAndModify: false },
     );
@@ -72,7 +72,7 @@ export class MongoFeedRepository implements FeedRepository {
     comment: string,
   ): Promise<any> {
     return await this.Feed.findOneAndUpdate(
-      { _id: feedId, 'comments._id': commentId },
+      { typeId: feedId, 'comments._id': commentId },
       {
         $set: {
           'comments.$.comment': comment,
@@ -87,7 +87,7 @@ export class MongoFeedRepository implements FeedRepository {
   ): Promise<any> {
     return await this.Feed.findOneAndUpdate(
       {
-        _id: feedId,
+        typeId: feedId,
         'comments._id': commentId,
       },
       {
@@ -103,7 +103,7 @@ export class MongoFeedRepository implements FeedRepository {
   ): Promise<any> {
     return await this.Feed.updateOne(
       {
-        _id: feedId,
+        typeId: feedId,
         'comments._id': commentId,
       },
       { $push: { 'comments.$.subComments': message } },
@@ -116,7 +116,7 @@ export class MongoFeedRepository implements FeedRepository {
   ): Promise<any> {
     return await this.Feed.updateOne(
       {
-        _id: feedId,
+        typeId: feedId,
         'comments._id': commentId,
       },
       { $pull: { 'comments.$.subComments': { _id: subCommentId } } },
@@ -130,7 +130,7 @@ export class MongoFeedRepository implements FeedRepository {
   ): Promise<any> {
     return await this.Feed.updateOne(
       {
-        _id: feedId,
+        typeId: feedId,
         'comments._id': commentId,
         'comments.subComments._id': subCommentId,
       },
@@ -148,7 +148,7 @@ export class MongoFeedRepository implements FeedRepository {
   ): Promise<any> {
     return await this.Feed.findOneAndUpdate(
       {
-        _id: feedId,
+        typeId: feedId,
         'comments._id': commentId,
         'comments.subComments._id': subCommentId,
       },

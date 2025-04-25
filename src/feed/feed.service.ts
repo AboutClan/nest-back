@@ -38,7 +38,7 @@ export class FeedService {
 
   async findFeedByType(
     type?: string,
-    typeId?: string,
+
     cursor?: number | null,
     isRecent?: boolean,
   ) {
@@ -78,10 +78,6 @@ export class FeedService {
 
   async findFeedById(id: string) {
     const token = RequestContext.getDecodedToken();
-
-    if (!Types.ObjectId.isValid(id)) {
-      throw new ValidationError('invalid mongoDB Id type');
-    }
     const feed = await this.feedRepository.findById(id);
     if (!feed) throw new NotFoundException(`cant find feed with id ${id}`);
 

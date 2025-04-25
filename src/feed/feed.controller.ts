@@ -21,7 +21,6 @@ export class FeedController {
 
   @Get()
   async getFeed(
-    @Query('id') id?: string,
     @Query('type') type?: string,
     @Query('typeId') typeId?: string,
     @Query('cursor') cursor?: string,
@@ -29,13 +28,13 @@ export class FeedController {
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
 
-    if (id) {
-      const feed = await this.feedService.findFeedById(id);
+    if (typeId) {
+      const feed = await this.feedService.findFeedById(typeId);
       return feed;
     } else if (type) {
       const feed = await this.feedService.findFeedByType(
         type,
-        typeId,
+
         cursorNum,
         isRecent,
       );

@@ -42,12 +42,13 @@ export class FeedRepository implements IFeedRepository {
   }
 
   async findById(id: string): Promise<Feed> {
-    const doc = await this.FeedModel.findById(id);
+    console.log(3452, id);
+    const doc = await this.FeedModel.findOne({ typeId: id });
     return this.mapToDomain(doc);
   }
 
   async findByIdJoin(id: string): Promise<Feed> {
-    const doc = await this.FeedModel.findById(id).populate({
+    const doc = await this.FeedModel.findOne({ typeId: id }).populate({
       path: 'like',
       select: 'avatar name profileImage uid _id', // 필요한 필드만 선택
     });
