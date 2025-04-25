@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Patch,
   Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
   Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 import { ApiTags } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
 import { FeedService } from './feed.service';
 
 @ApiTags('feed')
@@ -25,10 +25,10 @@ export class FeedController {
     @Query('type') type?: string,
     @Query('typeId') typeId?: string,
     @Query('cursor') cursor?: string,
-    @Query('isRecent') isRecent?: string,
+    @Query('isRecent') isRecent?: boolean,
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
-
+    console.log(type, cursorNum, isRecent);
     if (id) {
       const feed = await this.feedService.findFeedById(id);
       return feed;
@@ -37,14 +37,11 @@ export class FeedController {
         type,
         typeId,
         cursorNum,
-        isRecent === 'true',
+        isRecent,
       );
       return feed;
     } else {
-      const feeds = await this.feedService.findAllFeeds(
-        cursorNum,
-        isRecent === 'true',
-      );
+      const feeds = await this.feedService.findAllFeeds(cursorNum, isRecent);
       return feeds;
     }
   }

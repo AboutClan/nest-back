@@ -33,7 +33,7 @@ export class FeedRepository implements IFeedRepository {
     let query = this.FeedModel.find();
 
     if (opt.start) query = query.skip(opt.start);
-    if (opt.limit) query = query.skip(opt.limit);
+    if (opt.gap) query = query.limit(opt.gap);
     if (opt.isRecent) query = query.sort({ createdAt: opt.isRecent ? -1 : 1 });
 
     const docs = await query;
@@ -57,7 +57,7 @@ export class FeedRepository implements IFeedRepository {
     let query = this.FeedModel.find({ type });
 
     if (opt.start) query = query.skip(opt.start);
-    if (opt.limit) query = query.limit(opt.limit);
+    if (opt.gap) query = query.limit(opt.gap);
     if (opt.sort) query = query.sort({ createdAt: opt.sort });
 
     const docs = await query

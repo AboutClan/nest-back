@@ -50,7 +50,7 @@ export class FeedService {
     const feeds = await this.feedRepository.findByType(type, {
       start,
       gap,
-      sort: !isRecent,
+      sort: isRecent ? -1 : 1,
     });
 
     return feeds?.map((feed) => {
