@@ -109,7 +109,7 @@ export class NotificationScheduler {
     try {
       await this.User.updateMany({}, { weekStudyTragetHour: 0 });
       await this.User.updateMany({}, { weekStudyAccumulationMinutes: 0 });
-      console.log('target hour init success');
+     
     } catch (err: any) {
       throw new Error(err);
     }

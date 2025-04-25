@@ -1,15 +1,13 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
   HttpException,
   HttpStatus,
-  Inject,
+  Post,
 } from '@nestjs/common';
-import { RequestCategory, RequestLocation } from './request.entity';
-import { IREQUEST_SERVICE } from 'src/utils/di.tokens';
 import { ApiTags } from '@nestjs/swagger';
+import { RequestCategory } from './request.entity';
 import RequestService from './request.service';
 
 // DTOs for request validation
@@ -17,14 +15,12 @@ class CreateRequestDto {
   request: {
     category: RequestCategory;
     title: string;
-    writer: string;
     content: string;
     rest: {
       type: '일반' | '특별';
       start: Date;
       end: Date;
     };
-    location: RequestLocation;
   };
 }
 

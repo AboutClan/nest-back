@@ -1,8 +1,8 @@
-import { DatabaseError } from '../errors/DatabaseError';
-import { IREQUEST_REPOSITORY } from 'src/utils/di.tokens';
-import { RequestRepository } from './request.repository.interface';
 import { Inject } from '@nestjs/common';
-
+import { RequestContext } from 'src/request-context';
+import { IREQUEST_REPOSITORY } from 'src/utils/di.tokens';
+import { DatabaseError } from '../errors/DatabaseError';
+import { RequestRepository } from './request.repository.interface';
 export default class RequestService {
   constructor(
     @Inject(IREQUEST_REPOSITORY)
@@ -16,8 +16,12 @@ export default class RequestService {
   }
 
   async createRequest(data: any) {
+    const token = RequestContext.getDecodedToken();
     // const validatedRequest = RequestZodSchema.parse(data);
-    const created = await this.requestRepository.create(data);
+    const created = await this.requestRepository.create({
+      ...data,
+      writer: token.id,
+    });
 
     if (!created) throw new DatabaseError('create request failed');
     return;

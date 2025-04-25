@@ -32,7 +32,6 @@ export class AdminUserController {
 
   @Get('/')
   async getAllUser(@Query('type') type: UserFilterType, @Res() res: Response) {
-    console.log(type);
     const allUser = await this.adminUserService.getAllUser(type);
 
     return res.status(200).json(allUser);

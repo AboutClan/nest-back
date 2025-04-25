@@ -307,7 +307,7 @@ export class Vote2Service {
     const token = RequestContext.getDecodedToken();
 
     const vote = await this.Vote2Repository.findByDate(date);
-    console.log(date, memo, vote);
+   
     const arriveData = {
       memo,
       arrived: new Date(),

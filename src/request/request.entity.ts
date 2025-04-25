@@ -17,7 +17,7 @@ export const RequestZodSchema = z.object({
   category: z.string(),
   title: z.string().optional(),
   location: z.string(),
-  writer: z.string(),
+  writer: z.union([z.string(), z.any()]),
   content: z.string(),
   rest: RestZodSchema.optional(),
 });
@@ -52,6 +52,7 @@ export type RequestCategory =
   | '배지'
   | '불참'
   | '조모임'
+  | '지원금'
   | '장소 추가';
 
 export type RequestLocation = (typeof LOCATION_LIST)[number];
@@ -66,6 +67,7 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
         '홍보',
         '휴식',
         '충전',
+        '지원금',
         '탈퇴',
         '출석',
         '배지',
@@ -78,7 +80,8 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
       type: String,
     },
     writer: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     content: {
       type: String,

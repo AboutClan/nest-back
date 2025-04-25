@@ -7,6 +7,7 @@ export const reviewSchema = z.object({
   review: z.string(),
   rating: z.number(),
   isSecret: z.boolean(),
+  isFixed: z.boolean(),
 });
 
 export const PlaceZodSchema = z.object({
@@ -41,6 +42,10 @@ export const ReviewSchema: Schema<IReview> = new Schema(
     isSecret: {
       type: Boolean,
       required: true,
+    },
+    isFixed: {
+      type: Boolean,
+      default: false,
     },
     review: {
       type: String,

@@ -99,6 +99,7 @@ export class FeedService {
     } else {
       modifiedLike = feed?.like.slice(0, 8);
     }
+
     return {
       ...feed,
       like: modifiedLike,
