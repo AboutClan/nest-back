@@ -34,7 +34,8 @@ export class FeedRepository implements IFeedRepository {
 
     if (opt.start) query = query.skip(opt.start);
     if (opt.gap) query = query.limit(opt.gap);
-    if (opt.isRecent) query = query.sort({ createdAt: opt.isRecent ? -1 : 1 });
+    if (opt.isRecent)
+      query = query.sort({ createdAt: opt.isRecent === 'true' ? -1 : 1 });
 
     const docs = await query;
     return docs.map((doc) => this.mapToDomain(doc));

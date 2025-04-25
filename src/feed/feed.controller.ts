@@ -28,7 +28,7 @@ export class FeedController {
     @Query('isRecent') isRecent?: boolean,
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
-    console.log(type, cursorNum, isRecent);
+
     if (id) {
       const feed = await this.feedService.findFeedById(id);
       return feed;
