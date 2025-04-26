@@ -9,6 +9,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { STUDY_VOTE_POINT } from 'src/Constants/point';
 import {
   CreateArriveDTO,
   CreateNewVoteDTO,
@@ -71,7 +72,7 @@ export class Vote2Controller {
       end,
     });
 
-    return 'success';
+    return { value: STUDY_VOTE_POINT };
   }
 
   @Patch(':date')

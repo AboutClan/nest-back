@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/collection/collection.service';
 import { C_simpleUser } from 'src/Constants/constants';
+import { STUDY_VOTE_POINT } from 'src/Constants/point';
 import { IUser } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
@@ -129,6 +130,10 @@ export class Vote2Repository implements IVote2Repository {
         { upsert: true },
       );
     }
+    await this.userServiceInstance.updatePoint(
+      STUDY_VOTE_POINT,
+      '스터디 참여 신청',
+    );
   }
 
   async updateResult(date: string, userId: string, start: string, end: string) {
@@ -166,6 +171,11 @@ export class Vote2Repository implements IVote2Repository {
           participations: { userId },
         },
       },
+    );
+
+    await this.userServiceInstance.updatePoint(
+      -STUDY_VOTE_POINT,
+      '스터디 투표 취소',
     );
   }
 
