@@ -262,6 +262,7 @@ export class FeedService {
     const token = RequestContext.getDecodedToken();
     const feed = await this.feedRepository.findById(feedId);
     const isLikePush = feed.toggleLike(token.id);
+    await this.feedRepository.save(feed);
 
     if (isLikePush) {
       await this.userService.updatePoint(FEED_LIKE_POINT, '피드 좋아요');

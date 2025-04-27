@@ -4,6 +4,7 @@ import { IChat } from './chat.entity';
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Content } from 'src/domain/entities/chat/Content';
 
 export class ChatRepository implements IChatRepository {
   constructor(
@@ -84,11 +85,13 @@ export class ChatRepository implements IChatRepository {
       user1: doc.user1,
       user2: doc.user2,
       status: doc.status,
-      contents: doc.contents.map((c) => ({
-        userId: c.userId,
-        content: c.content,
-        createdAt: c.createdAt.toString(),
-      })),
+      contents: doc.contents.map(
+        (c) =>
+          new Content({
+            userId: c.userId,
+            content: c.content,
+          }),
+      ),
     });
 
     return chat;

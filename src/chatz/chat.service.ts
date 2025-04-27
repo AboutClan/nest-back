@@ -38,7 +38,10 @@ export class ChatService {
         ? (chat.user2 as IUser)
         : (chat.user1 as IUser);
 
-    const conversationForm = { opponent, contents: chat.contents };
+    const conversationForm = {
+      opponent,
+      contents: chat.contents.map((c) => c.toPrimitives()),
+    };
     return conversationForm;
   }
 
@@ -61,7 +64,7 @@ export class ChatService {
         const chatForm = {
           user: opponent,
           content: chat.contents.length
-            ? chat.contents[chat.contents.length - 1]
+            ? chat.contents[chat.contents.length - 1].toPrimitives()
             : null,
         };
 

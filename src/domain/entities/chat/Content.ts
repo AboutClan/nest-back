@@ -22,6 +22,9 @@ export class Content {
   }
 
   toPrimitives(): ContentProps {
-    return { ...this.props };
+    return {
+      userId: this.props.userId,
+      content: this.props.content,
+    };
   }
 }
