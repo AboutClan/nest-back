@@ -273,4 +273,41 @@ export class SquareController {
       );
     }
   }
+
+  @Post('comment/like')
+  async setCommentLike( 
+    @Body('squareId') squareId: string,
+    @Body('commentId') commentId: string,
+  ) {
+    try {
+      await this.squareService.createCommentLike(squareId, commentId);
+      return { status: 'success' }
+    } catch (err) {
+      throw new HttpException(
+        'Error liking comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('subComment/like')
+  async setSubCommentLike(
+    @Body('squareId') squareId: string,
+    @Body('commentId') commentId: string,
+    @Body('subCommentId') subCommentId: string,
+  ) {
+    try {
+      await this.squareService.createSubCommentLike(
+        squareId,
+        commentId,
+        subCommentId,
+      );
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error liking sub-comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
