@@ -13,50 +13,18 @@ export interface DailyCheckProps {
  * 비즈니스 로직(검증, 메서드)을 담는 DailyCheck 엔티티
  */
 export class DailyCheck {
-  #id: string;
-  #uid: string;
-  #name: string;
-  #createdAt: Date;
-  #updatedAt: Date;
+  public id: string;
+  public uid: string;
+  public name: string;
+  public createdAt: Date;
+  public updatedAt: Date;
 
   constructor(props: DailyCheckProps) {
-    // 1) 필수값 검증
-    // if (!props.uid) {
-    //   throw new Error('DailyCheck requires a uid');
-    // }
-    // if (!props.name) {
-    //   throw new Error('DailyCheck requires a name');
-    // }
-
-    this.#id = props.id || '';
-    // 2) 상태 초기화
-    this.#uid = props.uid;
-    this.#name = props.name;
-    this.#createdAt = props.createdAt ?? new Date();
-    this.#updatedAt = props.updatedAt ?? new Date();
-  }
-
-  get id(): string {
-    return this.#id;
-  }
-
-  /** uid 조회 */
-  get uid(): string {
-    return this.#uid;
-  }
-
-  /** name 조회 */
-  get name(): string {
-    return this.#name;
-  }
-
-  /** createdAt/updatedAt 필요시 getter */
-  get createdAt(): Date {
-    return this.#createdAt;
-  }
-
-  get updatedAt(): Date {
-    return this.#updatedAt;
+    this.id = props.id || '';
+    this.uid = props.uid;
+    this.name = props.name;
+    this.createdAt = props.createdAt ?? new Date();
+    this.updatedAt = props.updatedAt ?? new Date();
   }
 
   /** 도메인 로직 예시: name 변경 */
@@ -64,8 +32,8 @@ export class DailyCheck {
     if (!newName || !newName.trim()) {
       throw new Error('Name cannot be empty');
     }
-    this.#name = newName;
-    this.#updatedAt = new Date(); // 변경 시점 반영
+    this.name = newName;
+    this.updatedAt = new Date(); // 변경 시점 반영
   }
 
   /**

@@ -52,25 +52,25 @@ export class ChatService {
     const chats = await this.chatRepository.findByUserId(token.id);
 
     //채팅 데이터가 생성돼있으면 전부 가져옴
-    const chatWithUsers = await Promise.all(
-      chats.map(async (chat) => {
-        const opponentId = chat.user1 == token.id ? chat.user2 : chat.user1;
-        const opponent = await this.UserRepository.findById(
-          opponentId as string,
-        );
-        if (!opponent)
-          throw new NotFoundException(`cant find opponent ${opponentId}`);
-
-        const chatForm = {
-          user: opponent,
-          content: chat.contents.length
-            ? chat.contents[chat.contents.length - 1].toPrimitives()
-            : null,
-        };
-
-        return chatForm;
-      }),
-    );
+    const chatWithUsers = (
+      await Promise.all(
+        chats.map(async (chat) => {
+          const opponentId = chat.user1 === token.id ? chat.user2 : chat.user1;
+          const opponent = await this.UserRepository.findById(opponentId as string);
+    
+          if (!opponent) {
+            return null; // opponent 없으면 스킵
+          }
+    
+          return {
+            user: opponent,
+            content: chat.contents.length
+              ? chat.contents[chat.contents.length - 1].toPrimitives()
+              : null,
+          };
+        }),
+      )
+    ).filter((chatForm) => chatForm !== null); // null 제거
 
     return chatWithUsers;
   }

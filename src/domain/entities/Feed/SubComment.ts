@@ -8,50 +8,30 @@ export interface SubCommentProps {
 }
 
 export class SubComment {
-  private _id: string;
-  private _user: string;
-  private _comment: string;
-  private _likeList: string[];
+  public id: string;
+  public user: string;
+  public comment: string;
+  public likeList: string[];
 
   constructor(props: SubCommentProps) {
-    this._id = props.id;
-    this._user = props.user;
-    this._comment = props.comment;
-    this._likeList = props.likeList ?? [];
-  }
-
-  public get id(): string {
-    return this._id;
-  }
-
-  public get user(): string {
-    return this._user;
-  }
-
-  public get comment(): string {
-    return this._comment;
-  }
-
-  public set comment(comment: string) {
-    this._comment = comment;
-  }
-
-  public get likeList(): string[] {
-    return this._likeList;
+    this.id = props.id || '';
+    this.user = props.user;
+    this.comment = props.comment;
+    this.likeList = props.likeList ?? [];
   }
 
   public addLike(userId: string): boolean {
-    if (!this._likeList.includes(userId)) {
-      this._likeList.push(userId);
+    if (!this.likeList.includes(userId)) {
+      this.likeList.push(userId);
       return true;
     }
     return false;
   }
 
   public removeLike(userId: string): boolean {
-    const idx = this._likeList.indexOf(userId);
+    const idx = this.likeList.indexOf(userId);
     if (idx !== -1) {
-      this._likeList.splice(idx, 1);
+      this.likeList.splice(idx, 1);
       return true;
     }
     return false;
@@ -59,10 +39,10 @@ export class SubComment {
 
   public toPrimitives(): SubCommentProps {
     return {
-      id: this._id,
-      user: this._user,
-      comment: this._comment,
-      likeList: [...this._likeList],
+      id: this.id,
+      user: this.user,
+      comment: this.comment,
+      likeList: [...this.likeList],
     };
   }
 }
