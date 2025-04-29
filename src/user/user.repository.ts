@@ -210,9 +210,9 @@ export class MongoUserRepository implements UserRepository {
   async getTicketInfo(userId: string) {
     return this.User.findOne({ _id: userId }, 'ticket');
   }
-  async addbadge(uid: string, badgeName: string) {
+  async addbadge(id: string, badgeName: string) {
     await this.User.findOneAndUpdate(
-      { uid },
+      { _id: id },
       { $addToSet: { 'badge.badgeList': badgeName } },
     );
   }
@@ -243,10 +243,27 @@ export class MongoUserRepository implements UserRepository {
 
   async test() {
     await this.User.updateMany(
-      { 'ticket.gatherTicket': { $lt: 3 } },
-      {
-        $set: { 'ticket.gatherTicket': 3 },
-      },
+      {}, // 모든 사용자 대상
+      [
+        {
+          $set: {
+            'badge.badgeIdx': {
+              $switch: {
+                branches: [
+                  { case: { $lt: ['$score', 30] }, then: 0 },
+                  { case: { $lt: ['$score', 60] }, then: 1 },
+                  { case: { $lt: ['$score', 90] }, then: 2 },
+                  { case: { $lt: ['$score', 120] }, then: 3 },
+                  { case: { $lt: ['$score', 150] }, then: 4 },
+                  { case: { $lt: ['$score', 180] }, then: 5 },
+                  { case: { $lt: ['$score', 210] }, then: 6 },
+                ],
+                default: 7
+              }
+            }
+          }
+        }
+      ]
     );
   }
 }

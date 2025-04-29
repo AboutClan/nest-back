@@ -362,8 +362,8 @@ export class UserController {
   }
 
   @Post('badgeList')
-  async addBadgeList(@Body('badgeName') badgeName) {
-    await this.userService.addBadge(badgeName);
+  async addBadgeList(@Body('badgeName') userId, @Body('badgeName') badgeName) {
+    await this.userService.addBadge(userId, badgeName);
     return;
   }
   @Patch('badge')
