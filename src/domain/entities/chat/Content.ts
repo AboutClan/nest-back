@@ -1,6 +1,7 @@
 export interface ContentProps {
   userId: string;
   content: string;
+  createdAt?: Date;
 }
 
 export class Content {
@@ -10,6 +11,7 @@ export class Content {
     this.props = {
       userId: props.userId,
       content: props.content,
+      createdAt: props?.createdAt,
     };
   }
 
@@ -20,11 +22,15 @@ export class Content {
   get content(): string {
     return this.props.content;
   }
+  get createdAt(): Date {
+    return this.props?.createdAt;
+  }
 
   toPrimitives(): ContentProps {
     return {
       userId: this.props.userId,
       content: this.props.content,
+      createdAt: this.props.createdAt,
     };
   }
 }
