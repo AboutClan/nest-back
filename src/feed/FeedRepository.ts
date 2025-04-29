@@ -30,7 +30,9 @@ export class FeedRepository implements IFeedRepository {
   }
 
   async findAll(opt: any): Promise<Feed[]> {
-    let query = this.FeedModel.find();
+    let query = this.FeedModel.find().populate([
+      { path: 'like', select: C_simpleUser },
+    ]);
 
     if (opt.start) query = query.skip(opt.start);
     if (opt.gap) query = query.limit(opt.gap);

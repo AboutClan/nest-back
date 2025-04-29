@@ -210,10 +210,10 @@ export class MongoUserRepository implements UserRepository {
   async getTicketInfo(userId: string) {
     return this.User.findOne({ _id: userId }, 'ticket');
   }
-  async addbadge(uid: string, badgeIdx: number) {
+  async addbadge(uid: string, badgeName: string) {
     await this.User.findOneAndUpdate(
       { uid },
-      { $addToSet: { 'badge.badgeList': badgeIdx } },
+      { $addToSet: { 'badge.badgeList': badgeName } },
     );
   }
 

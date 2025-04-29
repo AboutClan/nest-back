@@ -39,7 +39,7 @@ const ticketZodSchema = z.object({
 const badgeZodSchema = z
   .object({
     badgeIdx: z.number(),
-    badgeList: z.array(z.number()),
+    badgeList: z.array(z.string()),
   })
   .optional();
 
@@ -236,7 +236,7 @@ export const studyRecordSchema: Schema<studyRecordType> = new Schema(
 export const badgeSchema: Schema<badgeType> = new Schema(
   {
     badgeIdx: Number,
-    badgeList: [Number],
+    badgeList: [String],
   },
   {
     _id: false,
@@ -368,7 +368,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   badge: {
     type: badgeSchema,
-    required: false,
+    default: () => ({ badgeIdx: null, badgeList: [] }),
   },
   studyRecord: {
     type: studyRecordSchema,

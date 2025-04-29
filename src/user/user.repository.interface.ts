@@ -30,7 +30,7 @@ export interface UserRepository {
   updateGroupStudyTicket(uid: string, value: number);
   resetGatherTicket();
   getTicketInfo(userId: string);
-  addbadge(uid: string, badgeIdx: number);
+  addbadge(uid: string, badgeName: string);
   selectbadge(uid: string, badgeIdx: number);
   getBadgeList(uid: string);
   updateAllUserInfo();
