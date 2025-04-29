@@ -5,32 +5,21 @@ export interface ContentProps {
 }
 
 export class Content {
-  private props: Required<ContentProps>;
+  public userId: string;
+  public content: string;
+  public createdAt: Date;
 
   constructor(props: ContentProps) {
-    this.props = {
-      userId: props.userId,
-      content: props.content,
-      createdAt: props?.createdAt,
-    };
-  }
-
-  get userId(): string {
-    return this.props.userId;
-  }
-
-  get content(): string {
-    return this.props.content;
-  }
-  get createdAt(): Date {
-    return this.props?.createdAt;
+    this.userId = props.userId;
+    this.content = props.content;
+    this.createdAt = props.createdAt ?? new Date(); // createdAt 기본값 추가
   }
 
   toPrimitives(): ContentProps {
     return {
-      userId: this.props.userId,
-      content: this.props.content,
-      createdAt: this.props.createdAt,
+      userId: this.userId,
+      content: this.content,
+      createdAt: this.createdAt,
     };
   }
 }
