@@ -692,9 +692,9 @@ export class UserService {
     });
   }
 
-  async addBadge(badgeIdx: number) {
+  async addBadge(badgeName: string) {
     const token = RequestContext.getDecodedToken();
-    await this.UserRepository.addbadge(token.uid, badgeIdx);
+    await this.UserRepository.addbadge(token.uid, badgeName);
   }
 
   async selectBadge(badgeIdx: number) {
