@@ -692,9 +692,13 @@ export class UserService {
     });
   }
 
-  async addBadge(badgeName: string) {
+  async addBadge(id: string, badgeName: string) {
     const token = RequestContext.getDecodedToken();
-    await this.UserRepository.addbadge(token.uid, badgeName);
+    if(id){
+      await this.UserRepository.addbadge(id, badgeName);
+    }else{
+      await this.UserRepository.addbadge(token.id, badgeName);
+    }
   }
 
   async selectBadge(badgeIdx: number) {
@@ -759,6 +763,7 @@ export class UserService {
   }
 
   async test() {
+    await this.UserRepository.test()
     // const users = await this.getAllUserInfo([]);
     // const uidToId = new Map<string, string>();
     // users.forEach((user) => uidToId.set(user.id, user.uid));

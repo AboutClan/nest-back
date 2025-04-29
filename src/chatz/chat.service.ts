@@ -108,8 +108,8 @@ export class ChatService {
     );
 
     if (chat) {
-      console.log(chat);
       chat.addContent(contentFill);
+      
       await this.chatRepository.save(chat);
     } else {
       const newChat = new Chat({

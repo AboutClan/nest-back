@@ -66,7 +66,7 @@ export class ChatRepository implements IChatRepository {
   async save(chat: Chat): Promise<Chat> {
     const docToSave = this.mapToDB(chat);
     const updatedDoc = await this.ChatModel.findByIdAndUpdate(
-      docToSave._id,
+      docToSave.id,
       docToSave,
       { new: true },
     );
@@ -80,6 +80,7 @@ export class ChatRepository implements IChatRepository {
 
   private mapToDomain(doc: IChat): Chat {
     const chat = new Chat({
+      id: doc._id.toString(),
       user1: doc.user1,
       user2: doc.user2,
       status: doc.status,
@@ -98,8 +99,8 @@ export class ChatRepository implements IChatRepository {
 
   private mapToDB(chat: Chat): Partial<IChat> {
     const chatProps = chat.toPrimitives();
-
     return {
+      id: chatProps.id,
       user1: chatProps.user1,
       user2: chatProps.user2,
       status: chatProps.status,
