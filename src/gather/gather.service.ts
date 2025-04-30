@@ -225,12 +225,13 @@ export class GatherService {
       '번개 모임 참여',
     );
 
-    if (gather.user)
+    if (gather.user) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
-        `${token.name}님이 번개 모임에 합류했어요!`,
-        '접속하여 확인하세요!',
+        `번개 모임`,
+        `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 합류했어요!`,
       );
+    }
 
     return;
   }
@@ -265,11 +266,11 @@ export class GatherService {
       user.uid,
     );
 
-    if (gather.user)
+    if (userId)
       await this.webPushServiceInstance.sendNotificationToXWithId(
-        gather?.user as string,
-        `${user.name}님이 번개 모임에 합류했어요!`,
-        '접속하여 확인하세요!',
+        userId,
+        `번개 모임`,
+        `${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 초대되었어요!`,
       );
 
     return;
@@ -325,8 +326,8 @@ export class GatherService {
       if (gather.user)
         await this.webPushServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
-          `${token.name}님이 번개 모임 참여 신청을 했어요.`,
-          '접속하여 확인하세요!',
+          `번개 모임`,
+          `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임 참여를 요청했어요!`,
         );
     } catch (err) {
       throw new Error();
@@ -340,9 +341,9 @@ export class GatherService {
     status: string,
     text?: string,
   ) {
-    let message = `모임 신청이 거절되었습니다. ${text}`;
     const token = RequestContext.getDecodedToken();
 
+    const gather = await this.gatherRepository.findById(+id);
     await this.gatherRepository.deleteWaiting(id, userId);
 
     if (status === 'agree') {
@@ -372,13 +373,12 @@ export class GatherService {
       );
 
       await this.userServiceInstance.updateReduceTicket('gather', userId);
-      message = '번개 모임 참여가 승인됐어요! 일정 확인하고 함께해요.';
     }
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       token.id,
-      message,
-      '접속하여 확인하세요!',
+      '번개 모임',
+      `${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임 참여가 승인되었습니다!`,
     );
     // await this.chatServiceInstance.createChat(userId, message);
   }
@@ -403,8 +403,8 @@ export class GatherService {
     if (comment[0] && comment[0].user) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         comment[0].user as string,
-        `${token.name} 님이 내 댓글에 답글을 남겼어요.`,
-        '접속하여 확인하세요!',
+        `번개 모임`,
+        `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 답글을 남겼어요.`,
       );
     }
 
@@ -451,8 +451,8 @@ export class GatherService {
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       gather.user as string,
-      `${gather.title} 에 새로운 댓글이 달렸어요!`,
-      '접속하여 확인하세요!',
+      `번개 모임`,
+      `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 댓글을 남겼어요.`,
     );
 
     return;

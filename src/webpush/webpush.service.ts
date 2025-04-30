@@ -1,3 +1,4 @@
+import { InjectQueue } from '@nestjs/bull';
 import {
   HttpException,
   HttpStatus,
@@ -5,18 +6,17 @@ import {
   Injectable,
   Scope,
 } from '@nestjs/common';
-import { IUser } from 'src/user/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { Queue } from 'bull';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { Model } from 'mongoose';
 import { IGroupStudyData } from 'src/groupStudy/groupStudy.entity';
-import { IVote } from 'src/vote/vote.entity';
+import { IUser } from 'src/user/user.entity';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
+import { IVote } from 'src/vote/vote.entity';
 import { WebpushRepository } from './webpush.repository.interface';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
 
 // 플러그인 등록
 dayjs.extend(utc);
@@ -84,11 +84,12 @@ export class WebPushService {
       });
 
       const subscriptions = await this.WebpushRepository.findByUid(uid);
-
+      console.log(12, uid, subscriptions);
       this.webpushQ.add('sendWebpush', {
         subscriptions,
         payload,
       });
+      console.log('SUCCESS');
 
       // const results = await this.sendParallel(subscriptions, payload);
       // this.logForFailure(results);
@@ -105,6 +106,7 @@ export class WebPushService {
     description?: string,
   ) {
     try {
+      console.log(23);
       const payload = JSON.stringify({
         ...this.basePayload,
         title: title || '테스트 알림이에요',
@@ -112,6 +114,7 @@ export class WebPushService {
       });
       const subscriptions = await this.WebpushRepository.findByUserId(userId);
 
+      console.log(32, subscriptions, payload, userId, subscriptions);
       this.webpushQ.add('sendWebpush', {
         subscriptions,
         payload,
