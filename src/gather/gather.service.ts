@@ -16,6 +16,7 @@ import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/user/user.service';
+import { formatGatherDate } from 'src/utils/dateUtils';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/webpush/webpush.service';
 import {
@@ -229,7 +230,7 @@ export class GatherService {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
         `번개 모임`,
-        `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 합류했어요!`,
+        `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 합류했어요!`,
       );
     }
 
@@ -270,7 +271,7 @@ export class GatherService {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         userId,
         `번개 모임`,
-        `${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 초대되었어요!`,
+        `${formatGatherDate(gather.date)} 모임에 초대되었어요!`,
       );
 
     return;
@@ -327,7 +328,7 @@ export class GatherService {
         await this.webPushServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           `번개 모임`,
-          `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임 참여를 요청했어요!`,
+          `${token.name}님이 ${formatGatherDate(gather.date)} 모임 참여를 요청했어요!`,
         );
     } catch (err) {
       throw new Error();
@@ -378,7 +379,7 @@ export class GatherService {
     await this.webPushServiceInstance.sendNotificationToXWithId(
       token.id,
       '번개 모임',
-      `${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임 참여가 승인되었습니다!`,
+      `${formatGatherDate(gather.date)} 모임 참여가 승인되었습니다!`,
     );
     // await this.chatServiceInstance.createChat(userId, message);
   }
@@ -404,7 +405,7 @@ export class GatherService {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         comment[0].user as string,
         `번개 모임`,
-        `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 답글을 남겼어요.`,
+        `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 답글을 남겼어요.`,
       );
     }
 
@@ -452,7 +453,7 @@ export class GatherService {
     await this.webPushServiceInstance.sendNotificationToXWithId(
       gather.user as string,
       `번개 모임`,
-      `${token.name}님이 ${dayjs(gather.date).locale('ko').format('M월 D일(ddd)')} 모임에 댓글을 남겼어요.`,
+      `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 댓글을 남겼어요.`,
     );
 
     return;
