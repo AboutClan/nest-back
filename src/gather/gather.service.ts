@@ -238,11 +238,6 @@ export class GatherService {
   async inviteGather(gatherId: number, phase: string, userId: string) {
     //userId존재 => 초대로 들어온 경우임
     const token = RequestContext.getDecodedToken();
-    const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
-
-    if (ticket.gatherTicket <= 0) {
-      throw new HttpException('ticket이 부족합니다.', 500);
-    }
 
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);

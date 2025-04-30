@@ -53,7 +53,8 @@ export type RequestCategory =
   | '불참'
   | '조모임'
   | '지원금'
-  | '장소 추가';
+  | '장소 추가'
+  | '출금';
 
 export type RequestLocation = (typeof LOCATION_LIST)[number];
 
@@ -74,6 +75,7 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
         '불참',
         '조모임',
         '장소 추가',
+        '출금',
       ],
     },
     title: {
