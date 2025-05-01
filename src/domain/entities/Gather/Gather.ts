@@ -90,7 +90,7 @@ export class Gather {
 
   participate(participant: ParticipantsProps) {
     const isParticipate = this.participants.find(
-      (p) => p.user === participant.user,
+      (p) => p.user.toString() === participant.user.toString(),
     );
     if (!isParticipate) {
       this.participants.push(new Participants(participant));
@@ -98,21 +98,27 @@ export class Gather {
   }
 
   exile(userId: string) {
-    const index = this.participants.findIndex((p) => p.user === userId);
+    const index = this.participants.findIndex(
+      (p) => p.user.toString() === userId.toString(),
+    );
     if (index !== -1) {
       this.participants.splice(index, 1);
     }
   }
 
   setWaiting(waiting: WaitingProps) {
-    const isWaiting = this.waiting.find((w) => w.user === waiting.user);
+    const isWaiting = this.waiting.find(
+      (w) => w.user.toString() === waiting.user.toString(),
+    );
     if (!isWaiting) {
       this.waiting.push(new Waiting(waiting));
     }
   }
 
   removeWaiting(userId: string) {
-    const index = this.waiting.findIndex((w) => w.user === userId);
+    const index = this.waiting.findIndex(
+      (w) => w.user.toString() === userId.toString(),
+    );
     if (index !== -1) {
       this.waiting.splice(index, 1);
     }
@@ -139,12 +145,14 @@ export class Gather {
   }
 
   public removeComment(commentId: string): void {
-    this.comments = this.comments.filter((c) => c.id !== commentId);
+    this.comments = this.comments.filter(
+      (c) => c.id.toString() !== commentId.toString(),
+    );
   }
 
   public updateComment(commentId: string, content: string): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.comment = content;
+      if (c.id.toString() === commentId.toString()) c.comment = content;
     });
   }
 
@@ -159,13 +167,15 @@ export class Gather {
     subCommentProps: SubCommentProps,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.addSubComment(new SubComment(subCommentProps));
+      if (c.id.toString() === commentId.toString())
+        c.addSubComment(new SubComment(subCommentProps));
     });
   }
 
   public removeSubComment(commentId: string, subCommentId: string): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.removeSubComment(subCommentId);
+      if (c.id.toString() === commentId.toString())
+        c.removeSubComment(subCommentId);
     });
   }
 
@@ -175,7 +185,8 @@ export class Gather {
     content: string,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.updateSubComment(subCommentId, content);
+      if (c.id.toString() === commentId.toString())
+        c.updateSubComment(subCommentId, content);
     });
   }
 
@@ -185,7 +196,8 @@ export class Gather {
     writerId: string,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.addSubCommentLike(subCommentId, writerId);
+      if (c.id.toString() === commentId.toString())
+        c.addSubCommentLike(subCommentId, writerId);
     });
   }
 

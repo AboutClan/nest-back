@@ -49,7 +49,7 @@ export class Comment {
 
   public updateSubComment(subCommentId: string, comment: string) {
     this.subComments.forEach((subComment) => {
-      if (subComment.id === subCommentId) {
+      if (subComment.id.toString() === subCommentId.toString()) {
         subComment.comment = comment;
       }
     });
@@ -57,7 +57,7 @@ export class Comment {
 
   public addSubCommentLike(subCommentId: string, writer: string) {
     this.subComments.forEach((subComment) => {
-      if (subComment.id === subCommentId) {
+      if (subComment.id.toString() === subCommentId.toString()) {
         subComment.addLike(writer);
       }
     });
@@ -65,7 +65,7 @@ export class Comment {
 
   public removeSubComment(subCommentId: string) {
     this.subComments = this.subComments.filter(
-      (subComment) => subComment.id !== subCommentId,
+      (subComment) => subComment.id.toString() !== subCommentId.toString(),
     );
   }
 

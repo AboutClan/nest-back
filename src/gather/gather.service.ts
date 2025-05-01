@@ -489,6 +489,7 @@ export class GatherService {
 
     gather.updateComment(commentId, comment);
 
+    console.log(gather);
     await this.gatherRepository.save(gather);
     return;
   }

@@ -149,7 +149,7 @@ export class GatherRepository implements IGatherRepository {
     const docToSave = this.mapToDB(doc);
 
     const updatedDoc = await this.Gather.findByIdAndUpdate(
-      docToSave.id,
+      docToSave._id,
       docToSave,
       { new: true },
     );
@@ -163,6 +163,7 @@ export class GatherRepository implements IGatherRepository {
 
   private mapToDomain(doc: IGatherData): Gather {
     return new Gather({
+      _id: doc._id as string,
       title: doc.title,
       type: {
         title: doc.type.title,
@@ -197,10 +198,12 @@ export class GatherRepository implements IGatherRepository {
       user: doc.user as string,
       // comments는 하위 도메인 엔티티로 매핑할 수 있지만, 여기서는 간단하게 plain object로 전달
       comments: doc.comments.map((c: any) => ({
+        id: c._id as string,
         user: c.user as string,
         comment: c.comment as string,
         likeList: c.likeList || [],
         subComments: (c.subComments || []).map((sc: any) => ({
+          id: sc._id as string,
           userId: sc.user,
           comment: sc.comment,
           likeList: sc.likeList || [],
@@ -224,6 +227,7 @@ export class GatherRepository implements IGatherRepository {
   private mapToDB(gather: Gather): Partial<IGatherData> {
     const props = gather.toPrimitives();
     return {
+      _id: props._id,
       title: props.title,
       type: {
         title: props.type.title,
@@ -257,10 +261,12 @@ export class GatherRepository implements IGatherRepository {
       })),
       user: props.user,
       comments: props.comments.map((c) => ({
+        _id: c.id,
         user: c.user,
         comment: c.comment,
         likeList: c.likeList,
         subComments: c.subComments?.map((sc) => ({
+          id: sc.id,
           user: sc.user,
           comment: sc.comment,
           likeList: sc.likeList,
