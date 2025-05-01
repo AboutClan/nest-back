@@ -18,6 +18,7 @@ import {
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { IFeedRepository } from './FeedRepository.interface';
+import { WebPushService } from 'src/webpush/webpush.service';
 
 @Injectable()
 export class FeedService {
@@ -28,10 +29,11 @@ export class FeedService {
     private readonly groupStudyRepository: GroupStudyRepository,
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: GatherRepository,
-
     @Inject(IFEED_REPOSITORY)
     private readonly feedRepository: IFeedRepository,
+
     private readonly userService: UserService,
+    private readonly webPushServiceInstance: WebPushService,
   ) {
     this.imageServiceInstance = new ImageService();
   }
@@ -185,6 +187,14 @@ export class FeedService {
 
     const newComment = await this.feedRepository.save(feed);
     if (!newComment) throw new DatabaseError('create comment failed');
+
+    //noti
+    this.webPushServiceInstance.sendNotificationToXWithId(
+      feed.writer,
+      '댓글이 달렸어요',
+      `${token.name}님이 ${feed.title}에 댓글을 달았어요.`,
+    );
+
     return;
   }
 
@@ -231,8 +241,15 @@ export class FeedService {
     };
 
     const feed = await this.feedRepository.findById(feedId);
-    feed.addSubComment(commentId, message);
+    const commentWriter = feed.addSubComment(commentId, message);
     await this.feedRepository.save(feed);
+
+    //noti
+    this.webPushServiceInstance.sendNotificationToXWithId(
+      commentWriter,
+      '댓글이 달렸어요',
+      `${token.name}님이 ${feed.title}에 댓글을 달았어요.`,
+    );
   }
 
   async deleteSubComment(

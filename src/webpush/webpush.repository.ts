@@ -38,6 +38,7 @@ export class MongoWebpushRepository implements WebpushRepository {
       throw new Error('no subscription info');
     }
   }
+
   async findAll(): Promise<INotificationSub[]> {
     return await this.NotificationSub.find();
   }
