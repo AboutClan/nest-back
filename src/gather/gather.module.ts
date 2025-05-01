@@ -5,13 +5,13 @@ import { GatherSchema } from './gather.entity';
 import { UserModule } from 'src/user/user.module';
 import { CounterModule } from 'src/counter/couter.module';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
-import { MongoGatherRepository } from './gather.repository';
 import { WebPushModule } from 'src/webpush/webpush.module';
 import { GatherService } from './gather.service';
+import { GatherRepository } from './GatherRepository';
 
 const gatherRepositoryProvider: ClassProvider = {
   provide: IGATHER_REPOSITORY,
-  useClass: MongoGatherRepository,
+  useClass: GatherRepository,
 };
 
 @Module({

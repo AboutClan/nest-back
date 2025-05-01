@@ -1,29 +1,22 @@
 // src/domain/entities/gather/Waiting.ts
 
 export interface WaitingProps {
-  userId: string;
+  user: string;
   phase: string;
 }
 
 export class Waiting {
-  private userId: string;
-  private phase: string;
+  public user: string;
+  public phase: string;
 
   constructor(props: WaitingProps) {
-    this.userId = props.userId;
+    this.user = props.user;
     this.phase = props.phase;
-  }
-
-  getUserId(): string {
-    return this.userId;
-  }
-  getPhase(): string {
-    return this.phase;
   }
 
   toPrimitives(): WaitingProps {
     return {
-      userId: this.userId,
+      user: this.user,
       phase: this.phase,
     };
   }
