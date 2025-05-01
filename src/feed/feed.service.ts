@@ -250,6 +250,11 @@ export class FeedService {
       '댓글이 달렸어요',
       `${token.name}님이 ${feed.title}에 댓글을 달았어요.`,
     );
+    this.webPushServiceInstance.sendNotificationToXWithId(
+      feed.writer,
+      '댓글이 달렸어요',
+      `${token.name}님이 ${feed.title}에 댓글을 달았어요.`,
+    );
   }
 
   async deleteSubComment(

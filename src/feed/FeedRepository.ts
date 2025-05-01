@@ -93,7 +93,7 @@ export class FeedRepository implements IFeedRepository {
 
   private mapToDomain(doc: IFeed): Feed {
     return new Feed({
-      _id: doc._id as string,
+      id: doc._id as string,
       title: doc.title,
       text: doc.text,
       images: doc.images,
@@ -123,7 +123,7 @@ export class FeedRepository implements IFeedRepository {
     const feedProps = doc.toPrimitives();
 
     return {
-      id: feedProps._id,
+      id: feedProps.id,
       title: feedProps.title,
       text: feedProps.text,
       images: feedProps.images,

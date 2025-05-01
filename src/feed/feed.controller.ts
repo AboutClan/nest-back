@@ -52,7 +52,7 @@ export class FeedController {
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     const { title, text, type, typeId, isAnonymous, subCategory } = body;
-    const buffers = files.map((file) => file.buffer);
+    const buffers = files?.map((file) => file.buffer);
 
     await this.feedService.createFeed({
       title,
