@@ -25,7 +25,7 @@ export class MongoWebpushRepository implements WebpushRepository {
       }
 
       await this.NotificationSub.findOneAndUpdate(
-        { uid, 'endpoint': subscription.endpoint },
+        { uid },
         {
           ...subscription,
           uid,
@@ -38,7 +38,7 @@ export class MongoWebpushRepository implements WebpushRepository {
       throw new Error('no subscription info');
     }
   }
-  
+
   async findAll(): Promise<INotificationSub[]> {
     return await this.NotificationSub.find();
   }
