@@ -84,12 +84,10 @@ export class WebPushService {
       });
 
       const subscriptions = await this.WebpushRepository.findByUid(uid);
-      console.log(12, uid, subscriptions);
       this.webpushQ.add('sendWebpush', {
         subscriptions,
         payload,
       });
-      console.log('SUCCESS');
 
       // const results = await this.sendParallel(subscriptions, payload);
       // this.logForFailure(results);
@@ -106,7 +104,6 @@ export class WebPushService {
     description?: string,
   ) {
     try {
-      console.log(23);
       const payload = JSON.stringify({
         ...this.basePayload,
         title: title || '테스트 알림이에요',
@@ -114,13 +111,10 @@ export class WebPushService {
       });
       const subscriptions = await this.WebpushRepository.findByUserId(userId);
 
-      console.log(32, subscriptions, payload, userId, subscriptions);
       this.webpushQ.add('sendWebpush', {
         subscriptions,
         payload,
       });
-      // const results = await this.sendParallel(subscriptions, payload);
-      // this.logForFailure(results);
 
       return;
     } catch (err: any) {
