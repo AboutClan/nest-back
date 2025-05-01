@@ -560,8 +560,9 @@ export default class GroupStudyService {
       }
       await groupStudy?.save();
 
-      await this.webPushServiceInstance.sendNotificationGroupStudy(
-        id,
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        groupStudy.user,
+        '소모임',
         `${token.name}님이 [${groupStudy.title}] 소모임 가입을 요청했어요!`,
       );
     } catch (err) {
