@@ -190,18 +190,18 @@ export class GatherRepository implements IGatherRepository {
       password: doc.password ?? null,
       status: doc.status,
       participants: doc.participants.map((p: any) => ({
-        user: p.user.toString(), // ObjectId → string
+        user: p.user, // ObjectId → string
         phase: p.phase,
         invited: p.invited,
       })),
-      user: doc.user.toString(), // 작성자
+      user: doc.user as string,
       // comments는 하위 도메인 엔티티로 매핑할 수 있지만, 여기서는 간단하게 plain object로 전달
       comments: doc.comments.map((c: any) => ({
-        user: c.user.toString(),
-        comment: c.comment,
+        user: c.user as string,
+        comment: c.comment as string,
         likeList: c.likeList || [],
         subComments: (c.subComments || []).map((sc: any) => ({
-          userId: sc.user.toString(),
+          userId: sc.user,
           comment: sc.comment,
           likeList: sc.likeList || [],
         })),
@@ -213,7 +213,7 @@ export class GatherRepository implements IGatherRepository {
       image: doc.image ?? null,
       kakaoUrl: doc.kakaoUrl ?? null,
       waiting: doc.waiting.map((w: any) => ({
-        user: w.user.toString(),
+        user: w.user,
         phase: w.phase,
       })),
       isApprovalRequired: doc.isApprovalRequired ?? null,
@@ -277,7 +277,6 @@ export class GatherRepository implements IGatherRepository {
         phase: w.phase,
       })),
       isApprovalRequired: props.isApprovalRequired,
-      // createdAt, updatedAt는 timestamps 옵션에 의해 자동 관리되므로 별도 세팅하지 않습니다.
     };
   }
 }
