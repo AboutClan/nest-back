@@ -417,6 +417,12 @@ export class GatherService {
         `번개 모임`,
         `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 답글을 남겼어요.`,
       );
+      // 모임장 알림
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        gather.user as string,
+        `번개 모임`,
+        `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 답글을 남겼어요.`,
+      );
     }
 
     return;

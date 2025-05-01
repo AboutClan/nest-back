@@ -2,7 +2,7 @@ import { Comment, CommentProps } from './Comment';
 import { SubComment, SubCommentProps } from './SubComment';
 
 export interface FeedProps {
-  _id?: string;
+  id?: string;
   title: string;
   text: string;
   images?: string[];
@@ -31,7 +31,7 @@ export class Feed {
   public createdAt: string;
 
   constructor(props: FeedProps) {
-    this.id = props._id || '';
+    this.id = props.id || '';
     this.title = props.title;
     this.text = props.text;
     this.images = props.images ?? [];
@@ -123,7 +123,7 @@ export class Feed {
 
   public toPrimitives(): FeedProps {
     return {
-      _id: this.id,
+      id: this.id,
       title: this.title,
       text: this.text,
       images: [...this.images],
