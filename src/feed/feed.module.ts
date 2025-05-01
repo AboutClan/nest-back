@@ -8,6 +8,7 @@ import { FeedController } from './feed.controller';
 import { FeedSchema } from './feed.entity';
 import { FeedService } from './feed.service';
 import { FeedRepository } from './FeedRepository';
+import { WebPushModule } from 'src/webpush/webpush.module';
 
 const feedRepositoryProvider: ClassProvider = {
   provide: IFEED_REPOSITORY,
@@ -20,6 +21,7 @@ const feedRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'Feed', schema: FeedSchema }]),
     GatherModule,
     GroupStudyModule,
+    WebPushModule,
   ],
   controllers: [FeedController],
   providers: [FeedService, feedRepositoryProvider],
