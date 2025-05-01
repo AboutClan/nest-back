@@ -562,7 +562,7 @@ export default class GroupStudyService {
 
       await this.webPushServiceInstance.sendNotificationGroupStudy(
         id,
-        `${token.name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
+        `${token.name}님이 [${groupStudy.title}] 소모임 가입을 요청했어요!`,
       );
     } catch (err) {
       throw new Error();
@@ -572,14 +572,17 @@ export default class GroupStudyService {
   //randomId 중복가능성
   async agreeWaitingPerson(id: string, userId: string, status: string) {
     const groupStudy = await this.groupStudyRepository.findById(id);
+
     const groupStudyWithWaiting =
       await this.groupStudyRepository.findByIdWithWaiting(id);
+
     if (!groupStudy) throw new Error();
 
     try {
-      const user = groupStudyWithWaiting?.waiting.find(
-        (who) => who.user.toString() === userId,
-      );
+      const user = groupStudyWithWaiting?.waiting.find((who) => {
+        return (who.user as IUser)._id.toString() === userId;
+      });
+
       groupStudy.waiting = groupStudy.waiting.filter(
         (who) => who.user.toString() !== userId,
       );
