@@ -561,7 +561,7 @@ export default class GroupStudyService {
       await groupStudy?.save();
 
       await this.webPushServiceInstance.sendNotificationToXWithId(
-        groupStudy.user,
+        groupStudy.organizer,
         '소모임',
         `${token.name}님이 [${groupStudy.title}] 소모임 가입을 요청했어요!`,
       );
