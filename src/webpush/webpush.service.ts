@@ -63,11 +63,21 @@ export class WebPushService {
     return;
   }
 
-  async sendNotificationAllUser() {
+  async sendNotificationAllUser(title?: string, description?: string) {
+    let payload = this.basePayload;
+
+    if (title && description) {
+      payload = JSON.stringify({
+        ...this.basePayload,
+        title: title || '테스트 알림이에요',
+        body: description || '테스트 알림이에요',
+      });
+    }
+
     const subscriptions = await this.WebpushRepository.findAll();
     this.webpushQ.add('sendWebpush', {
       subscriptions,
-      payload: this.basePayload,
+      payload,
     });
 
     // const results = await this.sendParallel(subscriptions, this.basePayload);
