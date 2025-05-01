@@ -109,7 +109,7 @@ export class ChatService {
 
     if (chat) {
       chat.addContent(contentFill);
-      
+
       await this.chatRepository.save(chat);
     } else {
       const newChat = new Chat({
@@ -123,7 +123,7 @@ export class ChatService {
     //알림 보내기
     await this.webPushServiceInstance.sendNotificationToXWithId(
       toUserId,
-      '쪽지를 받았어요!',
+      `${token.name}님의 쪽지 도착!`,
       message,
     );
   }

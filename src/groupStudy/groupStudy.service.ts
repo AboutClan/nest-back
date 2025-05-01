@@ -447,12 +447,7 @@ export default class GroupStudyService {
 
     await this.webPushServiceInstance.sendNotificationGroupStudy(
       id,
-      `${token.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
-    );
-    await this.webPushServiceInstance.sendNotificationToXWithId(
-      groupStudy.organizer,
-      `${token.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
-      '접속하여 확인하세요!',
+      `${token.name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
     );
 
     return;
@@ -484,12 +479,7 @@ export default class GroupStudyService {
 
     await this.webPushServiceInstance.sendNotificationGroupStudy(
       id,
-      `${user.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
-    );
-    await this.webPushServiceInstance.sendNotificationToXWithId(
-      groupStudy.organizer,
-      `${user.name} 님이 소모임에 가입했어요! 환영해 주세요!`,
-      '접속하여 확인하세요!',
+      `${user.name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
     );
 
     return;
@@ -570,10 +560,9 @@ export default class GroupStudyService {
       }
       await groupStudy?.save();
 
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        groupStudy.organizer,
-        '누군가 소모임에 가입했어요',
-        '접속하여 확인하세요!',
+      await this.webPushServiceInstance.sendNotificationGroupStudy(
+        id,
+        `${token.name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
       );
     } catch (err) {
       throw new Error();
@@ -583,9 +572,14 @@ export default class GroupStudyService {
   //randomId 중복가능성
   async agreeWaitingPerson(id: string, userId: string, status: string) {
     const groupStudy = await this.groupStudyRepository.findById(id);
+    const groupStudyWithWaiting =
+      await this.groupStudyRepository.findByIdWithWaiting(id);
     if (!groupStudy) throw new Error();
 
     try {
+      const user = groupStudyWithWaiting?.waiting.find(
+        (who) => who.user.toString() === userId,
+      );
       groupStudy.waiting = groupStudy.waiting.filter(
         (who) => who.user.toString() !== userId,
       );
@@ -612,13 +606,13 @@ export default class GroupStudyService {
         //알림
         await this.webPushServiceInstance.sendNotificationGroupStudy(
           id,
-          `누군가 소모임에 가입했어요! 환영해 주세요!`,
+          `${(user.user as IUser).name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
         );
 
         await this.webPushServiceInstance.sendNotificationToXWithId(
           userId,
-          '소모임 참여가 승인됐어요! 이제 함께할 수 있어요.',
-          '접속하여 확인하세요!',
+          '소모임',
+          `[${groupStudy.title}] 소모임 가입이 승인되었어요!`,
         );
       }
       await groupStudy?.save();
@@ -738,8 +732,8 @@ export default class GroupStudyService {
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
-      `[${groupStudy.title}] 게시글에 새로운 댓글이 달렸어요.`,
-      '접속하여 확인하세요!',
+      '소모임',
+      `[${groupStudy.title}]에 새로운 댓글이 달렸어요!`,
     );
 
     await groupStudy.save();

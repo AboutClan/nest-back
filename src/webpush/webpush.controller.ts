@@ -29,7 +29,7 @@ export class WebPushController {
   @Get('notification/:uid')
   sendNotificationToX(@Param() param: { uid: string }): string {
     const { uid } = param;
-    console.log(34, uid);
+   
     this.webPushService.sendNotificationToX(uid);
     return 'Notification sent';
   }

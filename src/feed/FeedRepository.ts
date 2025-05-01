@@ -44,7 +44,6 @@ export class FeedRepository implements IFeedRepository {
   }
 
   async findById(id: string): Promise<Feed> {
-    console.log(3452, id);
     const doc = await this.FeedModel.findOne({ typeId: id });
     return this.mapToDomain(doc);
   }

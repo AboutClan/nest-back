@@ -25,7 +25,6 @@ export default class AdminUserService {
     }
 
     const addField = type === 'study' ? 'studyRecord monthScore score' : '';
-    console.log(addField);
     return await this.User.find(query, C_simpleUser + addField);
   }
 
