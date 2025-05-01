@@ -147,9 +147,10 @@ export class WebPushService {
         id: groupStudyId,
       }).populate(['participants.user']);
 
-      const memberUids = groupStudy.participants?.map(
-        (participant) => (participant.user as IUser).uid,
-      );
+      const memberUids = groupStudy.participants?.map((participant, idx) => {
+        return (participant?.user as IUser)?.uid;
+      });
+
       const memberArray = Array.from(new Set(memberUids));
 
       const subscriptions =
@@ -159,6 +160,7 @@ export class WebPushService {
         subscriptions,
         payload,
       });
+
       // const results = await this.sendParallel(subscriptions, payload);
       // this.logForFailure(results);
       return;
