@@ -4,20 +4,12 @@ export interface TitleProps {
 }
 
 export class Title {
-  private title: string;
-  private subtitle: string | null;
+  public title: string;
+  public subtitle: string | null;
 
   constructor(props: TitleProps) {
     this.title = props.title;
     this.subtitle = props.subtitle ?? null;
-  }
-
-  getTitle(): string {
-    return this.title;
-  }
-
-  getSubtitle(): string | null {
-    return this.subtitle;
   }
 
   toPrimitives(): TitleProps {

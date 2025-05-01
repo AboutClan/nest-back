@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Patch,
   Post,
   Query,
@@ -36,19 +34,12 @@ export class GatherController {
     const cursorNum = cursor ? parseInt(cursor) : null;
     const gatherIdNum = gatherId ? parseInt(gatherId) : null;
 
-    try {
-      if (gatherIdNum) {
-        return await this.gatherService.getGatherById(gatherIdNum);
-      } else if (cursorNum === -1) {
-        return await this.gatherService.getThreeGather();
-      } else {
-        return await this.gatherService.getGather(cursorNum, category, sortBy);
-      }
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching gather data',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    if (gatherIdNum) {
+      return await this.gatherService.getGatherById(gatherIdNum);
+    } else if (cursorNum === -1) {
+      return await this.gatherService.getThreeGather();
+    } else {
+      return await this.gatherService.getGather(cursorNum, category, sortBy);
     }
   }
 
@@ -59,30 +50,15 @@ export class GatherController {
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
 
-    try {
-      return await this.gatherService.getStatusGather(status, cursorNum);
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching gather data',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return await this.gatherService.getStatusGather(status, cursorNum);
   }
 
   @Post()
   async createGather(@Body() createGatherDto: CreateGatherDto) {
-    try {
-      const gatherId = await this.gatherService.createGather(
-        createGatherDto.gather,
-      );
-      return { gatherId };
-    } catch (err) {
-      console.log(err);
-      throw new HttpException(
-        'Error creating gather',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const gatherId = await this.gatherService.createGather(
+      createGatherDto.gather,
+    );
+    return { gatherId };
   }
 
   @Post('exile')
@@ -94,46 +70,25 @@ export class GatherController {
 
   @Delete()
   async deleteGather(@Body() deleteGatherDto: DeleteGatherDto) {
-    try {
-      const gatherData = await this.gatherService.deleteGather(
-        deleteGatherDto.gatherId,
-      );
-      return gatherData;
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting gather',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const gatherData = await this.gatherService.deleteGather(
+      deleteGatherDto.gatherId,
+    );
+    return gatherData;
   }
 
   @Patch()
   async updateGather(@Body() updateGatherDto: any) {
-    try {
-      await this.gatherService.updateGather(updateGatherDto.gather);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error updating gather',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.updateGather(updateGatherDto.gather);
+    return { status: 'success' };
   }
 
   @Post('waiting')
   async setWaitingPerson(@Body() setWaitingPersonDto: SetWaitingPersonDto) {
-    try {
-      await this.gatherService.setWaitingPerson(
-        parseInt(setWaitingPersonDto.id),
-        setWaitingPersonDto.phase,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error setting waiting person',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.setWaitingPerson(
+      parseInt(setWaitingPersonDto.id),
+      setWaitingPersonDto.phase,
+    );
+    return { status: 'success' };
   }
 
   @Post('waiting/status')
@@ -167,94 +122,52 @@ export class GatherController {
 
   @Delete('participate')
   async deleteParticipate(@Body() body: { gatherId: number }) {
-    try {
-      await this.gatherService.deleteParticipate(body.gatherId);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.deleteParticipate(body.gatherId);
+    return { status: 'success' };
   }
 
   @Post('comment')
   async createComment(@Body() body: { id: string; comment: string }) {
-    try {
-      await this.gatherService.createComment(body.id, body.comment);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error creating comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.createComment(body.id, body.comment);
+    return { status: 'success' };
   }
 
   @Delete('comment')
   async deleteComment(@Body() body: { id: string; commentId: string }) {
-    try {
-      await this.gatherService.deleteComment(body.id, body.commentId);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.deleteComment(body.id, body.commentId);
+    return { status: 'success' };
   }
 
   @Patch('comment')
   async patchComment(
     @Body() body: { id: string; commentId: string; comment: string },
   ) {
-    try {
-      await this.gatherService.patchComment(
-        body.id,
-        body.commentId,
-        body.comment,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error patching comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.patchComment(
+      body.id,
+      body.commentId,
+      body.comment,
+    );
+    return { status: 'success' };
   }
 
   @Post('comment/like')
   async createCommentLike(
     @Body() body: { gatherId: number; commentId: string },
   ) {
-    try {
-      await this.gatherService.createCommentLike(body.gatherId, body.commentId);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error liking comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.createCommentLike(body.gatherId, body.commentId);
+    return { status: 'success' };
   }
 
   @Post('subComment/like')
   async createSubCommentLike(
     @Body() body: { gatherId: string; commentId: string; subCommentId: string },
   ) {
-    try {
-      await this.gatherService.createSubCommentLike(
-        body.gatherId,
-        body.commentId,
-        body.subCommentId,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error liking sub-comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.createSubCommentLike(
+      body.gatherId,
+      body.commentId,
+      body.subCommentId,
+    );
+    return { status: 'success' };
   }
 
   @Post('subComment')
@@ -266,19 +179,12 @@ export class GatherController {
       comment: string;
     },
   ) {
-    try {
-      await this.gatherService.createSubComment(
-        body.gatherId,
-        body.commentId,
-        body.comment,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error updating sub-comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.createSubComment(
+      body.gatherId,
+      body.commentId,
+      body.comment,
+    );
+    return { status: 'success' };
   }
 
   @Patch('subComment')
@@ -291,63 +197,35 @@ export class GatherController {
       comment: string;
     },
   ) {
-    try {
-      await this.gatherService.updateSubComment(
-        body.gatherId,
-        body.commentId,
-        body.subCommentId,
-        body.comment,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error updating sub-comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.updateSubComment(
+      body.gatherId,
+      body.commentId,
+      body.subCommentId,
+      body.comment,
+    );
+    return { status: 'success' };
   }
 
   @Delete('subComment')
   async deleteSubComment(
     @Body() body: { gatherId: string; commentId: string; subCommentId: string },
   ) {
-    try {
-      await this.gatherService.deleteSubComment(
-        body.gatherId,
-        body.commentId,
-        body.subCommentId,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting sub-comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.deleteSubComment(
+      body.gatherId,
+      body.commentId,
+      body.subCommentId,
+    );
+    return { status: 'success' };
   }
 
   @Patch('status')
   async setStatus(@Body() body: { gatherId: number; status: gatherStatus }) {
-    try {
-      await this.gatherService.setStatus(body.gatherId, body.status);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error setting status',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.gatherService.setStatus(body.gatherId, body.status);
+    return { status: 'success' };
   }
 
   @Get('enthMembers')
   async getEnthMembers() {
-    try {
-      return await this.gatherService.getEnthMembers();
-    } catch (err) {
-      throw new HttpException(
-        'Error setting status',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return await this.gatherService.getEnthMembers();
   }
 }

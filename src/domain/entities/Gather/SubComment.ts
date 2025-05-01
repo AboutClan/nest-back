@@ -1,32 +1,23 @@
 // src/domain/entities/gather/SubComment.ts
 
 export interface SubCommentProps {
-  userId: string; // DB에선 ObjectId, domain에선 string
+  id?: string;
+  user: string; // DB에선 ObjectId, domain에선 string
   comment: string;
   likeList?: string[];
 }
 
 export class SubComment {
-  private userId: string;
-  private comment: string;
-  private likeList: string[];
+  public id: string;
+  public user: string;
+  public comment: string;
+  public likeList: string[];
 
   constructor(props: SubCommentProps) {
-    this.userId = props.userId;
+    this.id = props.id || '';
+    this.user = props.user;
     this.comment = props.comment;
     this.likeList = props.likeList ?? [];
-  }
-
-  getUserId(): string {
-    return this.userId;
-  }
-
-  getComment(): string {
-    return this.comment;
-  }
-
-  getLikeList(): string[] {
-    return this.likeList;
   }
 
   addLike(userId: string): boolean {
@@ -48,7 +39,8 @@ export class SubComment {
 
   toPrimitives(): SubCommentProps {
     return {
-      userId: this.userId,
+      id: this.id,
+      user: this.user,
       comment: this.comment,
       likeList: [...this.likeList],
     };

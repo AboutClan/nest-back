@@ -7,27 +7,29 @@ import { MemberCnt, MemberCntProps } from './MemberCnt';
 import { Participants, ParticipantsProps } from './Participants';
 import { Comment, CommentProps } from './Comment';
 import { Waiting, WaitingProps } from './Waiting';
+import { SubComment, SubCommentProps } from './SubComment';
 
 export type GatherStatus = 'pending' | 'open' | 'close' | 'end';
 
 export interface GatherProps {
-  title: string;
-  type: TitleProps;
-  gatherList: GatherListProps[];
-  content: string;
-  location: LocationProps;
-  memberCnt: MemberCntProps;
+  _id?: string;
+  title?: string;
+  type?: TitleProps;
+  gatherList?: GatherListProps[];
+  content?: string;
+  location?: LocationProps;
+  memberCnt?: MemberCntProps;
   age?: number[] | null;
   preCnt?: number | null;
-  genderCondition: boolean;
+  genderCondition?: boolean;
   password?: string | null;
   status?: GatherStatus;
-  participants: ParticipantsProps[];
-  userId: string; // DB에선 user: ObjectId
-  comments: CommentProps[];
-  id: number;
-  date: string;
-  waiting: WaitingProps[];
+  participants?: ParticipantsProps[];
+  user?: string; // DB에선 user: ObjectId
+  comments?: CommentProps[];
+  id?: number;
+  date?: string;
+  waiting?: WaitingProps[];
   place?: string | null;
   isAdminOpen?: boolean | null;
   image?: string | null;
@@ -36,30 +38,32 @@ export interface GatherProps {
 }
 
 export class Gather {
-  private title: string;
-  private type: Title;
-  private gatherList: GatherList[];
-  private content: string;
-  private location: Location;
-  private memberCnt: MemberCnt;
-  private age: number[] | null;
-  private preCnt: number | null;
-  private genderCondition: boolean;
-  private password: string | null;
-  private status: GatherStatus;
-  private participants: Participants[];
-  private userId: string;
-  private comments: Comment[];
-  private id: number;
-  private date: string;
-  private waiting: Waiting[];
-  private place: string | null;
-  private isAdminOpen: boolean | null;
-  private image: string | null;
-  private kakaoUrl: string | null;
-  private isApprovalRequired: boolean | null;
+  public _id?: string;
+  public title: string;
+  public type: Title;
+  public gatherList: GatherList[];
+  public content: string;
+  public location: Location;
+  public memberCnt: MemberCnt;
+  public age: number[] | null;
+  public preCnt: number | null;
+  public genderCondition: boolean;
+  public password: string | null;
+  public status: GatherStatus;
+  public participants: Participants[];
+  public user: string;
+  public comments: Comment[];
+  public id: number;
+  public date: string;
+  public waiting: Waiting[];
+  public place: string | null;
+  public isAdminOpen: boolean | null;
+  public image: string | null;
+  public kakaoUrl: string | null;
+  public isApprovalRequired: boolean | null;
 
   constructor(props: GatherProps) {
+    this._id = props._id ?? null;
     this.title = props.title;
     this.type = new Title(props.type);
     this.gatherList = props.gatherList.map((gl) => new GatherList(gl));
@@ -72,11 +76,11 @@ export class Gather {
     this.password = props.password ?? null;
     this.status = props.status ?? 'pending';
     this.participants = props.participants.map((p) => new Participants(p));
-    this.userId = props.userId;
+    this.user = props.user;
     this.comments = props.comments.map((c) => new Comment(c));
     this.id = props.id;
     this.date = props.date;
-    this.waiting = props.waiting.map((w) => new Waiting(w));
+    this.waiting = props.waiting.map((w) => new Waiting(w)) || [];
     this.place = props.place ?? null;
     this.isAdminOpen = props.isAdminOpen ?? null;
     this.image = props.image ?? null;
@@ -84,75 +88,42 @@ export class Gather {
     this.isApprovalRequired = props.isApprovalRequired ?? null;
   }
 
-  // getters
-  getTitle(): string {
-    return this.title;
-  }
-  getType(): Title {
-    return this.type;
-  }
-  getGatherList(): GatherList[] {
-    return this.gatherList;
-  }
-  getContent(): string {
-    return this.content;
-  }
-  getLocation(): Location {
-    return this.location;
-  }
-  getMemberCnt(): MemberCnt {
-    return this.memberCnt;
-  }
-  getAge(): number[] | null {
-    return this.age;
-  }
-  getPreCnt(): number | null {
-    return this.preCnt;
-  }
-  getGenderCondition(): boolean {
-    return this.genderCondition;
-  }
-  getPassword(): string | null {
-    return this.password;
-  }
-  getStatus(): GatherStatus {
-    return this.status;
-  }
-  getParticipants(): Participants[] {
-    return this.participants;
-  }
-  getUserId(): string {
-    return this.userId;
-  }
-  getComments(): Comment[] {
-    return this.comments;
-  }
-  getId(): number {
-    return this.id;
-  }
-  getDate(): string {
-    return this.date;
-  }
-  getWaiting(): Waiting[] {
-    return this.waiting;
-  }
-  getPlace(): string | null {
-    return this.place;
-  }
-  getIsAdminOpen(): boolean | null {
-    return this.isAdminOpen;
-  }
-  getImage(): string | null {
-    return this.image;
-  }
-  getKakaoUrl(): string | null {
-    return this.kakaoUrl;
-  }
-  getIsApprovalRequired(): boolean | null {
-    return this.isApprovalRequired;
+  participate(participant: ParticipantsProps) {
+    const isParticipate = this.participants.find(
+      (p) => p.user.toString() === participant.user.toString(),
+    );
+    if (!isParticipate) {
+      this.participants.push(new Participants(participant));
+    }
   }
 
-  // 예: 상태 변경 로직
+  exile(userId: string) {
+    const index = this.participants.findIndex(
+      (p) => p.user.toString() === userId.toString(),
+    );
+    if (index !== -1) {
+      this.participants.splice(index, 1);
+    }
+  }
+
+  setWaiting(waiting: WaitingProps) {
+    const isWaiting = this.waiting.find(
+      (w) => w.user.toString() === waiting.user.toString(),
+    );
+    if (!isWaiting) {
+      this.waiting.push(new Waiting(waiting));
+    }
+  }
+
+  removeWaiting(userId: string) {
+    const index = this.waiting.findIndex(
+      (w) => w.user.toString() === userId.toString(),
+    );
+    if (index !== -1) {
+      this.waiting.splice(index, 1);
+    }
+  }
+
   openGather() {
     if (this.status === 'pending') {
       this.status = 'open';
@@ -169,11 +140,70 @@ export class Gather {
     this.status = 'end';
   }
 
-  // 좋아요/대댓글 등 다른 도메인 로직이 필요하다면 메서드 추가
+  public addComment(commentProps: CommentProps): void {
+    this.comments.push(new Comment(commentProps));
+  }
 
-  // toPrimitives: Domain Entity -> DTO
+  public removeComment(commentId: string): void {
+    this.comments = this.comments.filter(
+      (c) => c.id.toString() !== commentId.toString(),
+    );
+  }
+
+  public updateComment(commentId: string, content: string): void {
+    this.comments.forEach((c) => {
+      if (c.id.toString() === commentId.toString()) c.comment = content;
+    });
+  }
+
+  public addCommentLike(commentId: string, writerId: string): void {
+    this.comments.forEach((c) => {
+      if (c.id === commentId) c.addLike(writerId);
+    });
+  }
+
+  public addSubComment(
+    commentId: string,
+    subCommentProps: SubCommentProps,
+  ): void {
+    this.comments.forEach((c) => {
+      if (c.id.toString() === commentId.toString())
+        c.addSubComment(new SubComment(subCommentProps));
+    });
+  }
+
+  public removeSubComment(commentId: string, subCommentId: string): void {
+    this.comments.forEach((c) => {
+      if (c.id.toString() === commentId.toString())
+        c.removeSubComment(subCommentId);
+    });
+  }
+
+  public updateSubComment(
+    commentId: string,
+    subCommentId: string,
+    content: string,
+  ): void {
+    this.comments.forEach((c) => {
+      if (c.id.toString() === commentId.toString())
+        c.updateSubComment(subCommentId, content);
+    });
+  }
+
+  public addSubCommentLike(
+    commentId: string,
+    subCommentId: string,
+    writerId: string,
+  ): void {
+    this.comments.forEach((c) => {
+      if (c.id.toString() === commentId.toString())
+        c.addSubCommentLike(subCommentId, writerId);
+    });
+  }
+
   toPrimitives(): GatherProps {
     return {
+      _id: this._id,
       title: this.title,
       type: this.type.toPrimitives(),
       gatherList: this.gatherList.map((gl) => gl.toPrimitives()),
@@ -186,7 +216,7 @@ export class Gather {
       password: this.password,
       status: this.status,
       participants: this.participants.map((p) => p.toPrimitives()),
-      userId: this.userId,
+      user: this.user,
       comments: this.comments.map((c) => c.toPrimitives()),
       id: this.id,
       date: this.date,
