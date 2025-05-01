@@ -25,13 +25,17 @@ import {
   ParticipantsZodSchema,
   subCommentType,
 } from './gather.entity';
-import { GatherRepository } from './gather.repository.interface';
+import { IGatherRepository } from './GatherRepository.interface';
+import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
+import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
+import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
+
 //commit
 @Injectable()
 export class GatherService {
   constructor(
     @Inject(IGATHER_REPOSITORY)
-    private readonly gatherRepository: GatherRepository,
+    private readonly gatherRepository: IGatherRepository,
     private readonly userServiceInstance: UserService,
     private readonly counterServiceInstance: CounterService,
     private readonly webPushServiceInstance: WebPushService,
@@ -176,7 +180,8 @@ export class GatherService {
       id: nextId,
     };
 
-    const gatherData = gatherInfo;
+    const gatherData = new Gather(gatherInfo as GatherProps);
+    // const gatherData = gatherInfo;
     const created = await this.gatherRepository.createGather(gatherData);
 
     if (!created) throw new DatabaseError('create gather failed');
@@ -189,8 +194,8 @@ export class GatherService {
     return;
   }
 
-  async updateGather(gather: IGatherData) {
-    const updated = await this.gatherRepository.updateGather(gather.id, gather);
+  async updateGather(gatherData: Partial<IGatherData>) {
+    await this.gatherRepository.updateGather(gatherData.id, gatherData);
     return;
   }
 
@@ -213,7 +218,10 @@ export class GatherService {
         invited: !!isFree,
       };
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
-      await this.gatherRepository.participate(gatherId, validatedParticipate);
+
+      gather.participate(validatedParticipate as ParticipantsProps);
+
+      await this.gatherRepository.save(gather);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
     }
@@ -253,7 +261,10 @@ export class GatherService {
       };
 
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
-      await this.gatherRepository.participate(gatherId, validatedParticipate);
+
+      gather.participate(validatedParticipate as ParticipantsProps);
+
+      await this.gatherRepository.save(gather);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
     }
@@ -278,22 +289,26 @@ export class GatherService {
   }
 
   async exileGather(gatherId: number, userId: string) {
-    await this.gatherRepository.exileUser(gatherId, userId);
+    const gather = await this.gatherRepository.findById(gatherId);
+    if (!gather) throw new Error();
+    gather.exile(userId);
+    await this.gatherRepository.save(gather);
   }
 
   async deleteParticipate(gatherId: number) {
     const token = RequestContext.getDecodedToken();
-    const oldData = await this.gatherRepository.deleteParticipants(
-      gatherId,
-      token.id,
-    );
+
+    const gather = await this.gatherRepository.findById(gatherId);
+    if (!gather) throw new Error();
+    gather.exile(token.id);
+    await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScore(
       CANCEL_GAHTER_SCORE,
       '번개 모임 참여 취소',
     );
 
-    const myData = oldData.participants.filter((data) => data.user == token.id);
+    const myData = gather.participants.filter((data) => data.user == token.id);
     if (!myData[0].invited)
       await this.userServiceInstance.updateAddTicket('gather', token.id);
     return;
@@ -314,15 +329,10 @@ export class GatherService {
 
     try {
       const user = { user: token.id, phase };
-      if (gather?.waiting) {
-        if (gather.waiting.includes(user)) {
-          return;
-        }
-        gather.waiting.push(user);
-      } else {
-        gather.waiting = [user];
-      }
-      await gather?.save();
+
+      gather.setWaiting(user);
+
+      await this.gatherRepository.save(gather);
 
       if (gather.user)
         await this.webPushServiceInstance.sendNotificationToXWithId(
@@ -345,7 +355,8 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
 
     const gather = await this.gatherRepository.findById(+id);
-    await this.gatherRepository.deleteWaiting(id, userId);
+
+    gather.removeWaiting(userId);
 
     if (status === 'agree') {
       const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
@@ -359,10 +370,7 @@ export class GatherService {
         phase: 'first',
       });
 
-      await this.gatherRepository.participate(
-        parseInt(id),
-        validatedParticipate,
-      );
+      gather.participate(validatedParticipate as ParticipantsProps);
 
       const targetUser =
         await this.userServiceInstance.getUserWithUserId(userId);
@@ -375,6 +383,8 @@ export class GatherService {
 
       await this.userServiceInstance.updateReduceTicket('gather', userId);
     }
+
+    await this.gatherRepository.save(gather);
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       token.id,
@@ -391,19 +401,25 @@ export class GatherService {
       comment: content,
     };
 
-    const gather = await this.gatherRepository.createSubComment(
-      gatherId,
-      commentId,
-      message,
-    );
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    if (!gather) throw new Error('gather not found');
+
+    gather.addSubComment(commentId, message as SubCommentProps);
+    await this.gatherRepository.save(gather);
 
     const comment = gather.comments.filter(
-      (comment) => comment._id == commentId,
+      (comment) => comment.id == commentId,
     );
 
     if (comment[0] && comment[0].user) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         comment[0].user as string,
+        `번개 모임`,
+        `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 답글을 남겼어요.`,
+      );
+      // 모임장 알림
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        gather.user as string,
         `번개 모임`,
         `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 답글을 남겼어요.`,
       );
@@ -417,11 +433,10 @@ export class GatherService {
     commentId: string,
     subCommentId: string,
   ) {
-    await this.gatherRepository.deleteSubComment(
-      gatherId,
-      commentId,
-      subCommentId,
-    );
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    if (!gatherId) throw new Error('gather not found');
+
+    gather.removeSubComment(commentId, subCommentId);
     return;
   }
 
@@ -431,12 +446,11 @@ export class GatherService {
     subCommentId: string,
     comment: string,
   ) {
-    await this.gatherRepository.updateSubComment(
-      gatherId,
-      commentId,
-      subCommentId,
-      comment,
-    );
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    if (!gatherId) throw new Error('gather not found');
+
+    gather.updateSubComment(commentId, subCommentId, comment);
+    await this.gatherRepository.save(gather);
 
     return;
   }
@@ -444,11 +458,15 @@ export class GatherService {
   //수정필요
   async createComment(gatherId: string, comment: string) {
     const token = RequestContext.getDecodedToken();
-    const gather = await this.gatherRepository.createComment(
-      gatherId,
-      token.id,
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    if (!gather) throw new Error('gather not found');
+
+    gather.addComment({
+      user: token.id,
       comment,
-    );
+    } as SubCommentProps);
+
+    await this.gatherRepository.save(gather);
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       gather.user as string,
@@ -461,29 +479,35 @@ export class GatherService {
 
   //수정필요
   async deleteComment(gatherId: string, commentId: string) {
-    await this.gatherRepository.deleteComment(gatherId, commentId);
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    if (!gather) throw new Error('gather not found');
+
+    gather.removeComment(commentId);
+    await this.gatherRepository.save(gather);
 
     return;
   }
 
   //수정필요
   async patchComment(gatherId: string, commentId: string, comment: string) {
-    await this.gatherRepository.updateComment(gatherId, commentId, comment);
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    if (!gather) throw new Error('gather not found');
+
+    gather.updateComment(commentId, comment);
+
+    console.log(gather);
+    await this.gatherRepository.save(gather);
     return;
   }
 
   async createCommentLike(gatherId: number, commentId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const gather = await this.gatherRepository.createCommentLike(
-      gatherId,
-      commentId,
-      token.id,
-    );
+    const gather = await this.gatherRepository.findById(gatherId, true);
+    if (!gather) throw new Error('gather not found');
 
-    if (!gather) {
-      throw new DatabaseError('cant find gather');
-    }
+    gather.addCommentLike(commentId, token.id);
+    await this.gatherRepository.save(gather);
   }
 
   async createSubCommentLike(
@@ -493,12 +517,11 @@ export class GatherService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const gather = await this.gatherRepository.createSubCommentLike(
-      gatherId,
-      commentId,
-      subCommentId,
-      token.id,
-    );
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    if (!gather) throw new Error('gather not found');
+
+    gather.addSubCommentLike(commentId, subCommentId, token.id);
+    await this.gatherRepository.save(gather);
 
     if (!gather) {
       throw new DatabaseError('cant find gather');

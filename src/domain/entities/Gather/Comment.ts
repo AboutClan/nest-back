@@ -2,20 +2,23 @@
 import { SubComment, SubCommentProps } from './SubComment';
 
 export interface CommentProps {
-  userId: string;
+  id?: string;
+  user: string;
   comment: string;
   subComments?: SubCommentProps[];
   likeList?: string[];
 }
 
 export class Comment {
-  private userId: string;
-  private comment: string;
-  private subComments: SubComment[];
-  private likeList: string[];
+  public id: string;
+  public user: string;
+  public comment: string;
+  public subComments: SubComment[];
+  public likeList: string[];
 
   constructor(props: CommentProps) {
-    this.userId = props.userId;
+    this.id = props.id || '';
+    this.user = props.user;
     this.comment = props.comment;
     this.subComments = (props.subComments ?? []).map(
       (sc) => new SubComment(sc),
@@ -23,20 +26,7 @@ export class Comment {
     this.likeList = props.likeList ?? [];
   }
 
-  getUserId(): string {
-    return this.userId;
-  }
-  getComment(): string {
-    return this.comment;
-  }
-  getSubComments(): SubComment[] {
-    return this.subComments;
-  }
-  getLikeList(): string[] {
-    return this.likeList;
-  }
-
-  addLike(userId: string): boolean {
+  public addLike(userId: string): boolean {
     if (!this.likeList.includes(userId)) {
       this.likeList.push(userId);
       return true;
@@ -44,7 +34,7 @@ export class Comment {
     return false;
   }
 
-  removeLike(userId: string): boolean {
+  public removeLike(userId: string): boolean {
     const idx = this.likeList.indexOf(userId);
     if (idx !== -1) {
       this.likeList.splice(idx, 1);
@@ -53,13 +43,36 @@ export class Comment {
     return false;
   }
 
-  addSubComment(subCommentProps: SubCommentProps) {
+  public addSubComment(subCommentProps: SubCommentProps) {
     this.subComments.push(new SubComment(subCommentProps));
+  }
+
+  public updateSubComment(subCommentId: string, comment: string) {
+    this.subComments.forEach((subComment) => {
+      if (subComment.id.toString() === subCommentId.toString()) {
+        subComment.comment = comment;
+      }
+    });
+  }
+
+  public addSubCommentLike(subCommentId: string, writer: string) {
+    this.subComments.forEach((subComment) => {
+      if (subComment.id.toString() === subCommentId.toString()) {
+        subComment.addLike(writer);
+      }
+    });
+  }
+
+  public removeSubComment(subCommentId: string) {
+    this.subComments = this.subComments.filter(
+      (subComment) => subComment.id.toString() !== subCommentId.toString(),
+    );
   }
 
   toPrimitives(): CommentProps {
     return {
-      userId: this.userId,
+      id: this.id,
+      user: this.user,
       comment: this.comment,
       subComments: this.subComments.map((sc) => sc.toPrimitives()),
       likeList: [...this.likeList],

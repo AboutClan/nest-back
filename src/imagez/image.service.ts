@@ -22,9 +22,11 @@ export default class ImageService {
   async uploadImgCom(path: string, buffers: Buffer[]) {
     const imageUrls: string[] = [];
 
-    for (let i = 0; i < buffers.length; i++) {
-      const url = await this.uploadSingleImage(path, buffers[i], i);
-      imageUrls.push(url);
+    if (buffers) {
+      for (let i = 0; i < buffers.length; i++) {
+        const url = await this.uploadSingleImage(path, buffers[i], i);
+        imageUrls.push(url);
+      }
     }
 
     return imageUrls;
