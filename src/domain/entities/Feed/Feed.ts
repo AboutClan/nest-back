@@ -82,10 +82,17 @@ export class Feed {
   public addSubComment(
     commentId: string,
     subCommentProps: SubCommentProps,
-  ): void {
+  ): string {
+    let commentWriter = '';
+
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.addSubComment(new SubComment(subCommentProps));
+      if (c.id === commentId) {
+        commentWriter = c.user;
+        c.addSubComment(new SubComment(subCommentProps));
+      }
     });
+
+    return commentWriter;
   }
 
   public removeSubComment(commentId: string, subCommentId: string): void {

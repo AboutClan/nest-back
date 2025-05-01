@@ -21,11 +21,16 @@ export class WebPushController {
     );
     return 'register success';
   }
+
   @Post('sendNotification')
-  async sendNotification() {
-    await this.webPushService.sendNotificationAllUser();
+  async sendNotification(
+    @Body('title') title: string,
+    @Body('description') description: string,
+  ): Promise<string> {
+    await this.webPushService.sendNotificationAllUser(title, description);
     return 'Notification sent';
   }
+
   @Get('notification/:uid')
   sendNotificationToX(@Param() param: { uid: string }): string {
     const { uid } = param;
