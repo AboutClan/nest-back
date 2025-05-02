@@ -51,6 +51,7 @@ import { ZodExceptionFilter } from './zod-exception.filter';
 import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
+import { AnnouncementModule } from './announcement/announcement.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -121,6 +122,7 @@ const corsOptions = {
     AdminManageModule,
     Vote2Module,
     PaymentModule,
+    AnnouncementModule,
   ],
   controllers: [AppController],
   providers: [
