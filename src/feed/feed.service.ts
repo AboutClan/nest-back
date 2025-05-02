@@ -17,8 +17,8 @@ import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { IFeedRepository } from './FeedRepository.interface';
 import { WebPushService } from 'src/webpush/webpush.service';
+import { IFeedRepository } from './FeedRepository.interface';
 
 @Injectable()
 export class FeedService {
@@ -122,7 +122,7 @@ export class FeedService {
     const start = gap * (cursor || 0);
 
     const feeds = await this.feedRepository.findAll({ start, gap, isRecent });
-
+    console.log(52, feeds);
     return feeds?.map((feed) => {
       const myLike = (feed?.like as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
@@ -169,7 +169,7 @@ export class FeedService {
       type,
       typeId,
       images,
-      isAnonymous: Boolean(isAnonymous),
+      isAnonymous,
       subCategory,
     });
     await this.feedRepository.create(newFeed);
