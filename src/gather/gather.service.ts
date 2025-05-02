@@ -192,7 +192,7 @@ export class GatherService {
       '번개 모임 개설',
     );
 
-    return;
+    return gatherData.id;
   }
 
   async updateGather(gatherData: Partial<IGatherData>) {
