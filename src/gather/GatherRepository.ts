@@ -14,7 +14,7 @@ export class GatherRepository implements IGatherRepository {
 
   async findById(gatherId: number, pop?: boolean): Promise<Gather | null> {
     let query = this.Gather.findOne({ id: gatherId });
-   
+
     if (pop) {
       query = query
         .populate([
@@ -29,7 +29,7 @@ export class GatherRepository implements IGatherRepository {
         });
     }
     const result = await query.exec();
-    
+
     return result ? this.mapToDomain(result) : null;
   }
 
