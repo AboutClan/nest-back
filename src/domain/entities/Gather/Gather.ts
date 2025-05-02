@@ -1,13 +1,13 @@
 // src/domain/entities/gather/Gather.ts
 
-import { Title, TitleProps } from './Title';
+import { Comment, CommentProps } from './Comment';
 import { GatherList, GatherListProps } from './GatherList';
 import { Location, LocationProps } from './Location';
 import { MemberCnt, MemberCntProps } from './MemberCnt';
 import { Participants, ParticipantsProps } from './Participants';
-import { Comment, CommentProps } from './Comment';
-import { Waiting, WaitingProps } from './Waiting';
 import { SubComment, SubCommentProps } from './SubComment';
+import { Title, TitleProps } from './Title';
+import { Waiting, WaitingProps } from './Waiting';
 
 export type GatherStatus = 'pending' | 'open' | 'close' | 'end';
 
@@ -63,6 +63,7 @@ export class Gather {
   public isApprovalRequired: boolean | null;
 
   constructor(props: GatherProps) {
+  
     this._id = props._id ?? null;
     this.title = props.title;
     this.type = new Title(props.type);
@@ -75,12 +76,13 @@ export class Gather {
     this.genderCondition = props.genderCondition;
     this.password = props.password ?? null;
     this.status = props.status ?? 'pending';
-    this.participants = props.participants.map((p) => new Participants(p));
+    this.participants =
+      props.participants?.map((p) => new Participants(p)) || [];
     this.user = props.user;
-    this.comments = props.comments.map((c) => new Comment(c));
+    this.comments = props.comments?.map((c) => new Comment(c)) || [];
     this.id = props.id;
     this.date = props.date;
-    this.waiting = props.waiting.map((w) => new Waiting(w)) || [];
+    this.waiting = props.waiting?.map((w) => new Waiting(w)) || [];
     this.place = props.place ?? null;
     this.isAdminOpen = props.isAdminOpen ?? null;
     this.image = props.image ?? null;
@@ -141,7 +143,9 @@ export class Gather {
   }
 
   public addComment(commentProps: CommentProps): void {
+    console.log(12, this.comments, commentProps);
     this.comments.push(new Comment(commentProps));
+    console.log(123, this.comments);
   }
 
   public removeComment(commentId: string): void {

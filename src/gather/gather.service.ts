@@ -12,6 +12,9 @@ import {
   REMOVE_GAHTER_SCORE,
 } from 'src/Constants/score';
 import { CounterService } from 'src/counter/counter.service';
+import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
+import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
+import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
@@ -26,9 +29,6 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
-import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
-import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
 
 //commit
 @Injectable()
@@ -181,6 +181,7 @@ export class GatherService {
     };
 
     const gatherData = new Gather(gatherInfo as GatherProps);
+
     // const gatherData = gatherInfo;
     const created = await this.gatherRepository.createGather(gatherData);
 
@@ -465,9 +466,10 @@ export class GatherService {
       user: token.id,
       comment,
     } as SubCommentProps);
-
+    console.log(2, gather);
     await this.gatherRepository.save(gather);
-
+    console.log(33);
+    console.log(gather.user);
     await this.webPushServiceInstance.sendNotificationToXWithId(
       gather.user as string,
       `번개 모임`,
@@ -494,8 +496,6 @@ export class GatherService {
     if (!gather) throw new Error('gather not found');
 
     gather.updateComment(commentId, comment);
-
-    console.log(gather);
     await this.gatherRepository.save(gather);
     return;
   }
