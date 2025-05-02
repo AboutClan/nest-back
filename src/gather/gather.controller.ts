@@ -58,6 +58,7 @@ export class GatherController {
     const gatherId = await this.gatherService.createGather(
       createGatherDto.gather,
     );
+
     return { gatherId };
   }
 
@@ -73,6 +74,7 @@ export class GatherController {
     const gatherData = await this.gatherService.deleteGather(
       deleteGatherDto.gatherId,
     );
+  
     return gatherData;
   }
 

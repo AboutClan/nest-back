@@ -33,6 +33,7 @@ export interface GatherProps {
   place?: string | null;
   isAdminOpen?: boolean | null;
   image?: string | null;
+  coverImage?: string | null;
   kakaoUrl?: string | null;
   isApprovalRequired?: boolean | null;
 }
@@ -59,11 +60,11 @@ export class Gather {
   public place: string | null;
   public isAdminOpen: boolean | null;
   public image: string | null;
+  public coverImage: string | null;
   public kakaoUrl: string | null;
   public isApprovalRequired: boolean | null;
 
   constructor(props: GatherProps) {
-  
     this._id = props._id ?? null;
     this.title = props.title;
     this.type = new Title(props.type);
@@ -86,6 +87,7 @@ export class Gather {
     this.place = props.place ?? null;
     this.isAdminOpen = props.isAdminOpen ?? null;
     this.image = props.image ?? null;
+    this.coverImage = props.coverImage ?? null;
     this.kakaoUrl = props.kakaoUrl ?? null;
     this.isApprovalRequired = props.isApprovalRequired ?? null;
   }
@@ -228,6 +230,7 @@ export class Gather {
       place: this.place,
       isAdminOpen: this.isAdminOpen,
       image: this.image,
+      coverImage: this.coverImage,
       kakaoUrl: this.kakaoUrl,
       isApprovalRequired: this.isApprovalRequired,
     };

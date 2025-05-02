@@ -46,6 +46,7 @@ export class GatherService {
 
   async getGatherById(gatherId: number) {
     const gatherData = await this.gatherRepository.findById(gatherId, true);
+  
     return gatherData;
   }
 

@@ -1,10 +1,10 @@
+import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';
-import { IGatherData } from './gather.entity';
-import { Gather } from 'src/domain/entities/Gather/Gather';
-import { IGatherRepository } from './GatherRepository.interface';
 import { C_simpleUser } from 'src/Constants/constants';
-import { HttpException } from '@nestjs/common';
+import { Gather } from 'src/domain/entities/Gather/Gather';
+import { IGatherData } from './gather.entity';
+import { IGatherRepository } from './GatherRepository.interface';
 
 export class GatherRepository implements IGatherRepository {
   constructor(
@@ -14,6 +14,7 @@ export class GatherRepository implements IGatherRepository {
 
   async findById(gatherId: number, pop?: boolean): Promise<Gather | null> {
     let query = this.Gather.findOne({ id: gatherId });
+   
     if (pop) {
       query = query
         .populate([
@@ -28,7 +29,7 @@ export class GatherRepository implements IGatherRepository {
         });
     }
     const result = await query.exec();
-
+    
     return result ? this.mapToDomain(result) : null;
   }
 
@@ -162,6 +163,7 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDomain(doc: IGatherData): Gather {
+    console.log(54, doc);
     return new Gather({
       _id: doc._id as string,
       title: doc.title,
@@ -214,6 +216,7 @@ export class GatherRepository implements IGatherRepository {
       place: doc.place ?? null,
       isAdminOpen: doc.isAdminOpen ?? null,
       image: doc.image ?? null,
+      coverImage: doc.coverImage ?? null,
       kakaoUrl: doc.kakaoUrl ?? null,
       waiting: doc.waiting.map((w: any) => ({
         user: w.user,
@@ -277,6 +280,7 @@ export class GatherRepository implements IGatherRepository {
       place: props.place,
       isAdminOpen: props.isAdminOpen,
       image: props.image,
+      coverImage: props.coverImage,
       kakaoUrl: props.kakaoUrl,
       waiting: props.waiting.map((w) => ({
         user: w.user,

@@ -71,6 +71,7 @@ export class MongoGatherRepository implements GatherRepository {
   }
   async findById(gatherId: number, pop?: boolean): Promise<IGatherData> {
     let query = this.Gather.findOne({ id: gatherId });
+  
     if (pop) {
       query = query
         .populate([
