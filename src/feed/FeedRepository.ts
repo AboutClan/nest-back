@@ -47,7 +47,14 @@ export class FeedRepository implements IFeedRepository {
   }
 
   async findById(id: string): Promise<Feed> {
-    const doc = await this.FeedModel.findOne({ typeId: id });
+    const doc = await (
+      await this.FeedModel.findOne({ typeId: id })
+    ).populate([
+      { path: 'like', select: C_simpleUser },
+      { path: 'writer', select: C_simpleUser },
+      { path: 'comments.user', select: C_simpleUser },
+      { path: 'comments.subComments.user', select: C_simpleUser },
+    ]);
     return this.mapToDomain(doc);
   }
 
