@@ -216,7 +216,7 @@ export class GatherRepository implements IGatherRepository {
         likeList: c.likeList || [],
         subComments: (c.subComments || []).map((sc: any) => ({
           id: sc._id as string,
-          userId: sc.user,
+          user: sc.user,
           comment: sc.comment,
           likeList: sc.likeList || [],
         })),
