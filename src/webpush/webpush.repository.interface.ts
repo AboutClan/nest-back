@@ -11,4 +11,5 @@ export interface WebpushRepository {
   findByUid(uid: string): Promise<INotificationSub[]>;
   findByUserId(userId: string): Promise<INotificationSub[]>;
   findByArray(targetArr: string[]): Promise<INotificationSub[]>;
+  findByArrayUserId(targetArr: string[]): Promise<INotificationSub[]>;
 }

@@ -172,7 +172,20 @@ export class FeedService {
       isAnonymous,
       subCategory,
     });
+
     await this.feedRepository.create(newFeed);
+
+    if (type === 'gather') {
+      const gather = await this.gatherRepository.findById(typeId);
+      if (!gather)
+        throw new NotFoundException(`cant find gather with id ${typeId}`);
+
+      await this.webPushServiceInstance.sendNotificationGather(
+        gather.id,
+        '누군가 피드를 작성했어요',
+      );
+    }
+
     return;
   }
 

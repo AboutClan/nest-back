@@ -17,6 +17,7 @@ import { IUser } from 'src/user/user.entity';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { IVote } from 'src/vote/vote.entity';
 import { WebpushRepository } from './webpush.repository.interface';
+import { IGatherData } from 'src/gather/gather.entity';
 
 // 플러그인 등록
 dayjs.extend(utc);
@@ -33,6 +34,7 @@ export class WebPushService {
     @InjectModel('User') private readonly User: Model<IUser>,
     @InjectModel('Vote') private readonly Vote: Model<IVote>,
     @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
+    @InjectModel('Gather') private Gather: Model<IGatherData>,
   ) {
     // Send 201 - resource created
     this.basePayload = {
@@ -128,6 +130,41 @@ export class WebPushService {
 
       return;
     } catch (err: any) {
+      throw new HttpException(
+        'Error deleting comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async sendNotificationGather(gatherId: string, description: string) {
+    try {
+      const payload = JSON.stringify({
+        ...this.basePayload,
+        title: '번개 모임 알림',
+        body: description,
+      });
+
+      const gather = await this.Gather.findOne({
+        id: gatherId,
+      });
+
+      const memberUids = gather.participants?.map((participant, idx) => {
+        return participant?.user as string;
+      });
+
+      const memberArray = Array.from(new Set(memberUids));
+
+      const subscriptions =
+        await this.WebpushRepository.findByArrayUserId(memberArray);
+
+      this.webpushQ.add('sendWebpush', {
+        subscriptions,
+        payload,
+      });
+
+      return;
+    } catch (err) {
       throw new HttpException(
         'Error deleting comment',
         HttpStatus.INTERNAL_SERVER_ERROR,

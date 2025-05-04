@@ -53,4 +53,9 @@ export class MongoWebpushRepository implements WebpushRepository {
       uid: { $in: targetArr },
     });
   }
+  async findByArrayUserId(targetArr: string[]): Promise<INotificationSub[]> {
+    return await this.NotificationSub.find({
+      userId: { $in: targetArr },
+    });
+  }
 }
