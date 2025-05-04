@@ -1,18 +1,13 @@
 //전자는 스터디 참여에 투표를 해 놓고 OPEN도 되어 있어서 와야만 하는 상황에서,
 //출석체크도 안하고, 불참버튼도 안 누른 인원(말 그대로 잠수한 인원)을 체크해서 보증금에서 -1000원을 하면 되는거예요!
 
-import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
-import { Request } from 'express';
 import { Model } from 'mongoose';
-import { JWT } from 'next-auth/jwt';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/user.entity';
-import { UserService } from 'src/user/user.service';
+import { IUser } from 'src/routes/user/user.entity';
+import { UserService } from 'src/routes/user/user.service';
 import { strToDate } from 'src/utils/dateUtils';
-import { IVOTE_SERVICE } from 'src/utils/di.tokens';
 import { VoteService } from 'src/vote/vote.service';
 const logger = require('../../logger');
 

@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ILog } from 'src/logz/log.entity';
+import { ILog } from 'src/routes/logz/log.entity';
 import { now } from 'src/vote/util';
 
 export default class AdminLogService {

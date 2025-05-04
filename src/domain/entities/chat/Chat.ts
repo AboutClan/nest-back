@@ -1,4 +1,4 @@
-import { IUser } from 'src/user/user.entity';
+import { IUser } from 'src/routes/user/user.entity';
 import { Content, ContentProps } from './Content';
 
 export type ChatStatus = 'normal' | 'inactive' | 'deleted';
