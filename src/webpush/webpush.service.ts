@@ -209,6 +209,36 @@ export class WebPushService {
     }
   }
 
+  async sendNotificationUserIds(
+    userIds: string[],
+    title: string,
+    description: string,
+  ) {
+    try {
+      const payload = JSON.stringify({
+        ...this.basePayload,
+        title: title,
+        body: description,
+      });
+
+      const memberArray = Array.from(new Set(userIds));
+
+      const subscriptions =
+        await this.WebpushRepository.findByArrayUserId(memberArray);
+
+      this.webpushQ.add('sendWebpush', {
+        subscriptions,
+        payload,
+      });
+      return;
+    } catch (err) {
+      throw new HttpException(
+        'Error deleting comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   //Todo: and 사용하도록 수정
   async sendNotificationToManager(location: string) {
     const managerUidList = (

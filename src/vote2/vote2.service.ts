@@ -12,6 +12,8 @@ import { ClusterUtils, coordType } from './ClusterUtils';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
+import { IUser } from 'src/user/user.entity';
+import { WebPushService } from 'src/webpush/webpush.service';
 
 export class Vote2Service {
   constructor(
@@ -21,6 +23,7 @@ export class Vote2Service {
     private readonly PlaceRepository: PlaceRepository,
     private readonly RealtimeService: RealtimeService,
     private readonly userServiceInstance: UserService,
+    private readonly webPushServiceInstance: WebPushService,
   ) {}
 
   formatMember(member: IMember) {
@@ -107,7 +110,7 @@ export class Vote2Service {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
-    const voteResults = await this.doAlgorithm(participations);
+    const { voteResults } = await this.doAlgorithm(participations);
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
     //todo: {placeId, members}로 오도록
@@ -260,6 +263,12 @@ export class Vote2Service {
       participations,
     );
 
+    // 2) 전체 성공 데이터(flat)만 뽑고 싶다면
+    const successParticipations: (typeof participations)[] = clusters
+      .flat()
+      .map((idx) => participations[idx]);
+    const failedParticipations = noise.map((idx) => participations[idx]);
+
     const places: IPlace[] = await this.PlaceRepository.findByStatus('active');
 
     //클러스터링 결과 계산
@@ -268,7 +277,7 @@ export class Vote2Service {
       places,
     );
 
-    return voteResults;
+    return { voteResults, successParticipations, failedParticipations };
   }
 
   async setComment(date: string, comment: string) {
@@ -279,11 +288,32 @@ export class Vote2Service {
 
   async setResult(date: string) {
     const today = DateUtils.getTodayYYYYMMDD();
+
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(today);
 
-    const voteResults = await this.doAlgorithm(participations);
+    const { voteResults, successParticipations, failedParticipations } =
+      await this.doAlgorithm(participations);
 
+    const successUserIds = successParticipations.map(
+      (par) => (par.userId as IUser)._id,
+    );
+
+    const failedUserIds = failedParticipations.map(
+      (par) => (par.userId as IUser)._id,
+    );
+
+    this.webPushServiceInstance.sendNotificationUserIds(
+      successUserIds,
+      '스터디 매칭이 성공했어요',
+      '결과를 확인하세요',
+    );
+
+    this.webPushServiceInstance.sendNotificationUserIds(
+      failedUserIds,
+      '스터디 매칭이 실패했어요',
+      '다음번에 또 참여해주세요',
+    );
     await this.Vote2Repository.setVoteResult(today, voteResults);
   }
 
@@ -307,7 +337,7 @@ export class Vote2Service {
     const token = RequestContext.getDecodedToken();
 
     const vote = await this.Vote2Repository.findByDate(date);
-   
+
     const arriveData = {
       memo,
       arrived: new Date(),

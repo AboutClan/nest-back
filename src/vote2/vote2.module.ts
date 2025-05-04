@@ -10,6 +10,7 @@ import { Vote2Controller } from './vote2.controller';
 import { Vote2Schema } from './vote2.entity';
 import { Vote2Repository } from './vote2.repository';
 import { Vote2Service } from './vote2.service';
+import { WebPushModule } from 'src/webpush/webpush.module';
 
 const vote2RepositoryProvider: ClassProvider = {
   provide: IVOTE2_REPOSITORY,
@@ -23,6 +24,7 @@ const vote2RepositoryProvider: ClassProvider = {
     RealtimeModule,
     CollectionModule,
     UserModule,
+    WebPushModule,
   ],
 
   controllers: [Vote2Controller],
