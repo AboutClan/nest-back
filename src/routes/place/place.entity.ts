@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -37,7 +38,7 @@ export const ReviewSchema: Schema<IReview> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     isSecret: {
       type: Boolean,
@@ -100,7 +101,7 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   },
   registrant: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: DB_SCHEMA.USER,
   },
   mapURL: {
     type: String,
@@ -116,4 +117,4 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
 
 export const Place =
   (mongoose.models.Place as Model<IPlace, {}, {}, {}>) ||
-  model<IPlace>('Place', PlaceSchema);
+  model<IPlace>(DB_SCHEMA.PLACE, PlaceSchema);

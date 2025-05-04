@@ -2,10 +2,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { IPromotion } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoPromotionRepository implements PromotionRepository {
   constructor(
-    @InjectModel('Promotion')
+    @InjectModel(DB_SCHEMA.PROMOTION)
     private readonly Promotion: Model<IPromotion>,
   ) {}
   async findAll(): Promise<IPromotion[]> {

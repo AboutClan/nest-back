@@ -2,10 +2,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { NoticeRepository } from './notice.repository.interface';
 import { Model } from 'mongoose';
 import { INotice } from './notice.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoNoticeRepository implements NoticeRepository {
   constructor(
-    @InjectModel('Notice')
+    @InjectModel(DB_SCHEMA.NOTICE)
     private readonly Notice: Model<INotice>,
   ) {}
   async findActiveLog(uid: string): Promise<INotice[]> {

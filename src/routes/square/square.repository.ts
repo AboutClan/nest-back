@@ -2,10 +2,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { SecretSquareItem } from './square.entity';
 import { Model } from 'mongoose';
 import { SquareRepository } from './square.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoSquareRepository implements SquareRepository {
   constructor(
-    @InjectModel('SecretSquare')
+    @InjectModel(DB_SCHEMA.SQUARE)
     private readonly SecretSquare: Model<SecretSquareItem>,
   ) {}
   async findSquareByCategory(

@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -69,7 +70,7 @@ const timeSchema: Schema<ITime> = new Schema({
 });
 
 const realtimeUserSchema: Schema<IRealtimeUser> = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: Schema.Types.ObjectId, ref: DB_SCHEMA.USER, required: true },
   place: { type: placeSchema, required: true },
   arrived: { type: Date },
   image: { type: String },
@@ -93,4 +94,4 @@ export const RealtimeSchema: Schema<IRealtime> = new Schema({
 
 export const RealtimeModel: Model<IRealtime> =
   mongoose.models.Realtime ||
-  mongoose.model<IRealtime>('Realtime', RealtimeSchema);
+  mongoose.model<IRealtime>(DB_SCHEMA.REALTIME, RealtimeSchema);

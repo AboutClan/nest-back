@@ -11,6 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './user.entity';
 import { ImageModule } from 'src/imagez/image.module';
 import { CollectionModule } from 'src/routes/collection/collection.module';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
@@ -19,7 +20,7 @@ const userRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: DB_SCHEMA.USER, schema: UserSchema }]),
     forwardRef(() => VoteModule),
     PlaceModule,
     LogModule,

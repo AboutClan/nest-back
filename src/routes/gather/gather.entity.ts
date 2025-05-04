@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/Constants/constants';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -155,7 +156,7 @@ export const participantsSchema: Schema<participantsType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     phase: {
       type: String,
@@ -173,7 +174,7 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     phase: {
       type: String,
@@ -186,7 +187,7 @@ export const subCommentSchema: Schema<subCommentType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comment: {
       type: String,
@@ -205,7 +206,7 @@ export const commentSchema: Schema<commentType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comment: {
       type: String,
@@ -258,11 +259,11 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     participants: {
       type: [participantsSchema],
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     status: {
       type: String,
@@ -282,7 +283,7 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     waiting: {
       type: [waitingSchema],
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
       default: [],
     },
     place: {
@@ -310,4 +311,4 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
 
 export const Gather =
   (mongoose.models.Gather as Model<IGatherData, {}, {}, {}>) ||
-  model<IGatherData>('Gather', GatherSchema);
+  model<IGatherData>(DB_SCHEMA.GATHER, GatherSchema);

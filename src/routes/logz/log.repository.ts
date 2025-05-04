@@ -2,10 +2,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { LogRepository } from './log.repository.interface';
 import { ILog } from './log.entity';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoLogRepository implements LogRepository {
   constructor(
-    @InjectModel('Log')
+    @InjectModel(DB_SCHEMA.LOG)
     private readonly Log: Model<ILog>,
   ) {}
   async findScoreTimestamp(

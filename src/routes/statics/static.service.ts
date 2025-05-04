@@ -4,11 +4,12 @@ import { Model } from 'mongoose';
 import { IUser } from 'src/routes/user/user.entity';
 import { ILog } from 'src/routes/logz/log.entity';
 import { RequestContext } from 'src/request-context';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export default class StaticService {
   constructor(
-    @InjectModel('User') private User: Model<IUser>,
-    @InjectModel('Log') private Log: Model<ILog>,
+    @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.LOG) private Log: Model<ILog>,
   ) {}
 
   async roleCheck() {

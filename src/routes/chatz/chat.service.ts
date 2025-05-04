@@ -7,7 +7,7 @@ import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { IChatRepository } from './ChatRepository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/webpush';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 @Injectable()
 export class ChatService {

@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 export const NoticeZodSchema = z.object({
@@ -33,4 +34,4 @@ export const noticeSchema: Schema<INotice> = new Schema(
 
 export const Notice =
   (mongoose.models.Notice as Model<INotice, {}, {}, {}>) ||
-  mongoose.model<INotice>('Notice', noticeSchema);
+  mongoose.model<INotice>(DB_SCHEMA.NOTICE, noticeSchema);

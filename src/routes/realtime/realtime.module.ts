@@ -9,6 +9,7 @@ import { CollectionModule } from 'src/routes/collection/collection.module';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoRealtimeRepository } from './realtime.repository';
 import { UserModule } from 'src/routes/user/user.module';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 const realtimeRepositoryProvider: ClassProvider = {
   provide: IREALTIME_REPOSITORY,
   useClass: MongoRealtimeRepository,
@@ -19,7 +20,9 @@ const realtimeRepositoryProvider: ClassProvider = {
     ImageModule,
     forwardRef(() => VoteModule),
     CollectionModule,
-    MongooseModule.forFeature([{ name: 'Realtime', schema: RealtimeSchema }]),
+    MongooseModule.forFeature([
+      { name: DB_SCHEMA.REALTIME, schema: RealtimeSchema },
+    ]),
     forwardRef(() => UserModule),
   ],
   controllers: [RealtimeController],

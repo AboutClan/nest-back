@@ -14,7 +14,7 @@ import { IVote2Repository } from './vote2.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
-import { WEBPUSH_MSG } from 'src/Constants/webpush';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 export class Vote2Service {
   constructor(

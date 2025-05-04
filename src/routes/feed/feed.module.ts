@@ -9,6 +9,7 @@ import { FeedSchema } from './feed.entity';
 import { FeedService } from './feed.service';
 import { FeedRepository } from './FeedRepository';
 import { WebPushModule } from 'src/routes/webpush/webpush.module';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const feedRepositoryProvider: ClassProvider = {
   provide: IFEED_REPOSITORY,
@@ -18,7 +19,7 @@ const feedRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     UserModule,
-    MongooseModule.forFeature([{ name: 'Feed', schema: FeedSchema }]),
+    MongooseModule.forFeature([{ name: DB_SCHEMA.FEED, schema: FeedSchema }]),
     GatherModule,
     GroupStudyModule,
     WebPushModule,

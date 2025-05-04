@@ -3,10 +3,11 @@ import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
 import { commentType, IFeed, subCommentType } from './feed.entity';
 import { FeedRepository } from './feed.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoFeedRepository implements FeedRepository {
   constructor(
-    @InjectModel('Feed')
+    @InjectModel(DB_SCHEMA.FEED)
     private readonly Feed: Model<IFeed>,
   ) {}
   async findWithQuery(

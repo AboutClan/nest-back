@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { secretSquareSchema } from './square.entity';
 import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { MongoSquareRepository } from './square.repository';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const squareRepositoryProvider: ClassProvider = {
   provide: ISQUARE_REPOSITORY,
@@ -15,7 +16,7 @@ const squareRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'SecretSquare', schema: secretSquareSchema },
+      { name: DB_SCHEMA.SQUARE, schema: secretSquareSchema },
     ]),
   ],
   controllers: [SquareController],

@@ -3,10 +3,12 @@ import { Model } from 'mongoose';
 import { DailyCheck } from 'src/domain/entities/DailyCheck';
 import { IDailyCheck } from './dailycheck.entity';
 import { IDailyCheckRepository } from './DailyCheckRepository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class DailyCheckRepository implements IDailyCheckRepository {
   constructor(
-    @InjectModel('DailyCheck') private readonly DailyCheck: Model<IDailyCheck>,
+    @InjectModel(DB_SCHEMA.DAILYCHECK)
+    private readonly DailyCheck: Model<IDailyCheck>,
   ) {}
 
   async findByUid(uid: string): Promise<DailyCheck> {

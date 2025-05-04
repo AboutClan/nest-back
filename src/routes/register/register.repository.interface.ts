@@ -2,10 +2,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { RegisterRepository } from './register.repository';
 import { Model } from 'mongoose';
 import { IRegistered } from './register.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoRegisterRepository implements RegisterRepository {
   constructor(
-    @InjectModel('Registered')
+    @InjectModel(DB_SCHEMA.REGISTER)
     private readonly Registered: Model<IRegistered>,
   ) {}
   async updateByUid(uid: string, data: any): Promise<null> {

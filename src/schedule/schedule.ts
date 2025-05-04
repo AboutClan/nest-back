@@ -12,6 +12,7 @@ import {
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { Vote2Service } from 'src/routes/vote2/vote2.service';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 @Injectable()
 export class NotificationScheduler {
@@ -22,7 +23,7 @@ export class NotificationScheduler {
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
     private readonly vote2Service: Vote2Service,
-    @InjectModel('User') private readonly User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
   ) {}
 
   //투표 결과 알림

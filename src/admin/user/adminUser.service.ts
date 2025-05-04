@@ -4,6 +4,7 @@ import { C_simpleUser } from 'src/Constants/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserFilterType } from './adminUser.controller';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const logger = require('../../logger');
 
@@ -15,7 +16,7 @@ type UserQueryProps = {
   weekStudyAccumulationMinutes?: { $gt: number };
 };
 export default class AdminUserService {
-  constructor(@InjectModel('User') private User: Model<IUser>) {}
+  constructor(@InjectModel(DB_SCHEMA.USER) private User: Model<IUser>) {}
 
   async getAllUser(type?: UserFilterType) {
     const query: UserQueryProps = { isActive: true };

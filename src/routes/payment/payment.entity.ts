@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 export const PaymentZodSchema = z.object({
@@ -15,4 +16,4 @@ export const paymentSchema: Schema<IPayment> = new Schema({
 
 export const Payment =
   (mongoose.models.Payment as Model<IPayment, {}, {}, {}>) ||
-  mongoose.model<IPayment>('Payment', paymentSchema);
+  mongoose.model<IPayment>(DB_SCHEMA.PAYMENT, paymentSchema);

@@ -12,7 +12,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import NoticeService from './notice.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
-import { WEBPUSH_MSG } from 'src/Constants/webpush';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 //todo: Notice 전반적인 수정 필요해보임
 @ApiTags('notice')

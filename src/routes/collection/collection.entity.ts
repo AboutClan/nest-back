@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -39,4 +40,4 @@ export const CollectionSchema: Schema<ICollection> = new Schema(
 
 export const Collection =
   (mongoose.models.Collection as Model<ICollection, {}, {}, {}>) ||
-  mongoose.model<ICollection>('collection', CollectionSchema);
+  mongoose.model<ICollection>(DB_SCHEMA.COLLECTION, CollectionSchema);

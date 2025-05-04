@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 export const PromotionZodSchema = z.object({
@@ -17,4 +18,4 @@ export const promotionSchema: Schema<IPromotion> = new Schema({
 
 export const Promotion =
   (mongoose.models.Promotion as Model<IPromotion, {}, {}, {}>) ||
-  mongoose.model<IPromotion>('Promotion', promotionSchema);
+  mongoose.model<IPromotion>(DB_SCHEMA.PROMOTION, promotionSchema);

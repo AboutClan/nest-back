@@ -5,10 +5,11 @@ import { Chat } from 'src/domain/entities/chat/Chat';
 import { Content } from 'src/domain/entities/chat/Content';
 import { IChat } from './chat.entity';
 import { IChatRepository } from './ChatRepository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class ChatRepository implements IChatRepository {
   constructor(
-    @InjectModel('Chat')
+    @InjectModel(DB_SCHEMA.CHAT)
     private readonly ChatModel: Model<IChat>,
   ) {}
 

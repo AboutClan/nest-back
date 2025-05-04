@@ -1,4 +1,5 @@
 import mongoose, { model, Schema, Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 const MetaZodSchema = z.object({
@@ -36,4 +37,4 @@ export const LogSchema: Schema<ILog> = new Schema({
 
 export const Log =
   (mongoose.models.Log as Model<ILog, {}, {}, {}>) ||
-  model<ILog>('Log', LogSchema);
+  model<ILog>(DB_SCHEMA.LOG, LogSchema);

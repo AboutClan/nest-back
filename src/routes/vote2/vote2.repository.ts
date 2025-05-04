@@ -8,13 +8,12 @@ import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
-    @InjectModel('Vote2')
+    @InjectModel(DB_SCHEMA.VOTE)
     private readonly Vote2: Model<IVote2>,
-    @InjectModel('User') private User: Model<IUser>,
-    private readonly collectionServiceInstance: CollectionService,
     private userServiceInstance: UserService,
   ) {}
 

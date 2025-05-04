@@ -29,7 +29,7 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/webpush';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 //commit
 @Injectable()

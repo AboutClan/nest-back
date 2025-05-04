@@ -9,6 +9,7 @@ import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoGroupStudyInterface } from './groupStudy.repository';
 import { RedisModule } from 'src/redis/redis.module';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
@@ -22,7 +23,7 @@ const groupStudyRepositoryProvider: ClassProvider = {
     CounterModule,
     forwardRef(() => WebPushModule),
     MongooseModule.forFeature([
-      { name: 'GroupStudy', schema: GroupStudySchema },
+      { name: DB_SCHEMA.GROUPSTUDY, schema: GroupStudySchema },
     ]),
   ],
   controllers: [GroupStudyController],

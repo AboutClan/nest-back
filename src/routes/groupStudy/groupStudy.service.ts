@@ -18,7 +18,8 @@ import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/webpush';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 //test
 export default class GroupStudyService {
@@ -28,7 +29,7 @@ export default class GroupStudyService {
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
     private readonly userServiceInstance: UserService,
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     private webPushServiceInstance: WebPushService,
     private readonly counterServiceInstance: CounterService,
   ) {}

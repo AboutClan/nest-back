@@ -18,7 +18,8 @@ import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { IVote } from 'src/vote/vote.entity';
 import { WebpushRepository } from './webpush.repository.interface';
 import { IGatherData } from 'src/routes/gather/gather.entity';
-import { WEBPUSH_MSG } from 'src/Constants/webpush';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 // 플러그인 등록
 dayjs.extend(utc);
@@ -32,10 +33,10 @@ export class WebPushService {
     @Inject(IWEBPUSH_REPOSITORY)
     private readonly WebpushRepository: WebpushRepository,
     @InjectQueue('webpushQ') private readonly webpushQ: Queue,
-    @InjectModel('User') private readonly User: Model<IUser>,
-    @InjectModel('Vote') private readonly Vote: Model<IVote>,
-    @InjectModel('GroupStudy') private GroupStudy: Model<IGroupStudyData>,
-    @InjectModel('Gather') private Gather: Model<IGatherData>,
+    @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.GROUPSTUDY)
+    private GroupStudy: Model<IGroupStudyData>,
+    @InjectModel(DB_SCHEMA.GATHER) private Gather: Model<IGatherData>,
   ) {
     // Send 201 - resource created
     this.basePayload = {

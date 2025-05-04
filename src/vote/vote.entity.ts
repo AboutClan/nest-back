@@ -1,5 +1,6 @@
 import { Dayjs } from 'dayjs';
 import mongoose, { model, Schema, Model, Document } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 const TimeStartToEndHMZodSchema = z.object({
@@ -118,7 +119,7 @@ const AttendanceSchema: Schema<IAttendance> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     time: ParticipantTimeSchema,
 
@@ -140,7 +141,7 @@ const AbsenceSchema: Schema<IAbsence> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     noShow: {
       type: Schema.Types.Boolean,
@@ -155,7 +156,7 @@ const ParticipationSchema: Schema<IParticipation> = new Schema(
   {
     place: {
       type: Schema.Types.ObjectId,
-      ref: 'Place',
+      ref: DB_SCHEMA.PLACE,
     },
 
     attendences: [AttendanceSchema],

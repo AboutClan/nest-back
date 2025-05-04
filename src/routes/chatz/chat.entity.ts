@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -41,12 +42,12 @@ export const ChatSchema: Schema<IChat> = new Schema({
   user1: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User',
+    ref: DB_SCHEMA.USER,
   },
   user2: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User',
+    ref: DB_SCHEMA.USER,
   },
   status: {
     type: String,
@@ -62,4 +63,4 @@ export const ChatSchema: Schema<IChat> = new Schema({
 
 export const Chat =
   (mongoose.models.Chat as Model<IChat, {}, {}, {}>) ||
-  model<IChat>('Chat', ChatSchema);
+  model<IChat>(DB_SCHEMA.CHAT, ChatSchema);

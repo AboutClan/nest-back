@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema, model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 export const StoreZodSchema = z.object({
@@ -12,8 +13,8 @@ export type IStoreApplicant = z.infer<typeof StoreZodSchema>;
 
 export const giftSchema: Schema = new Schema(
   {
-    uid: { type: String, ref: 'User' },
-    name: { type: String, ref: 'User' },
+    uid: { type: String, ref: DB_SCHEMA.USER },
+    name: { type: String, ref: DB_SCHEMA.USER },
     cnt: { type: Number, default: 0 },
     giftId: { type: Number },
   },
@@ -31,4 +32,4 @@ export const giftSchema: Schema = new Schema(
 
 export const GiftModel =
   (mongoose.models.GiftModel as Model<IStoreApplicant, {}, {}, {}>) ||
-  mongoose.model<IStoreApplicant>('GiftModel', giftSchema);
+  mongoose.model<IStoreApplicant>(DB_SCHEMA.GIFT, giftSchema);

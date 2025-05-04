@@ -4,6 +4,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
@@ -15,7 +16,7 @@ export default class AdminManageService {
   constructor(
     private readonly userServiceInstance: UserService,
     private readonly voteServiceInstance: VoteService,
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
   ) {}
 
   async absenceManage() {

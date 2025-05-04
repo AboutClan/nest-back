@@ -5,6 +5,7 @@ import { PaymentRepository } from './payment.repository';
 import { PaymentService } from './payment.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { paymentSchema } from './payment.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const paymentRepositoryProvider: ClassProvider = {
   provide: IPAYMENT_REPOSITORY,
@@ -13,7 +14,9 @@ const paymentRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Payment', schema: paymentSchema }]),
+    MongooseModule.forFeature([
+      { name: DB_SCHEMA.PAYMENT, schema: paymentSchema },
+    ]),
   ],
   controllers: [PaymentController],
   providers: [PaymentService, paymentRepositoryProvider],

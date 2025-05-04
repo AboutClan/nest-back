@@ -11,6 +11,7 @@ import { NotificationSubSchema } from './notificationsub.entity';
 import { BullModule } from '@nestjs/bull';
 import { WebPushConsumer } from './webpush.consumer';
 import { GatherSchema } from 'src/routes/gather/gather.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const webPushRepositoryProvider: ClassProvider = {
   provide: IWEBPUSH_REPOSITORY,
@@ -20,9 +21,11 @@ const webPushRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'NotificationSub', schema: NotificationSubSchema },
+      { name: DB_SCHEMA.WEBPUSH, schema: NotificationSubSchema },
     ]),
-    MongooseModule.forFeature([{ name: 'Gather', schema: GatherSchema }]),
+    MongooseModule.forFeature([
+      { name: DB_SCHEMA.GATHER, schema: GatherSchema },
+    ]),
     BullModule.registerQueue({
       name: 'webpushQ',
       defaultJobOptions: {

@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 export const DailyCheckZodSchema = z.object({
@@ -21,4 +22,4 @@ export const dailyCheckSchema: Schema<IDailyCheck> = new Schema(
 
 export const DailyCheck =
   (mongoose.models.DailyCheck as Model<IDailyCheck, {}, {}, {}>) ||
-  mongoose.model<IDailyCheck>('DailyCheck', dailyCheckSchema);
+  mongoose.model<IDailyCheck>(DB_SCHEMA.DAILYCHECK, dailyCheckSchema);

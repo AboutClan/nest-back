@@ -19,7 +19,7 @@ import {
 } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { IFeedRepository } from './FeedRepository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/webpush';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 @Injectable()
 export class FeedService {

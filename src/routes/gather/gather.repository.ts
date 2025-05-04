@@ -3,10 +3,11 @@ import { Model, SortOrder } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
 import { IGatherData, participantsType, subCommentType } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoGatherRepository implements GatherRepository {
   constructor(
-    @InjectModel('Gather')
+    @InjectModel(DB_SCHEMA.GATHER)
     private readonly Gather: Model<IGatherData>,
   ) {}
   async getEnthMembers() {
@@ -71,7 +72,7 @@ export class MongoGatherRepository implements GatherRepository {
   }
   async findById(gatherId: number, pop?: boolean): Promise<IGatherData> {
     let query = this.Gather.findOne({ id: gatherId });
-  
+
     if (pop) {
       query = query
         .populate([
