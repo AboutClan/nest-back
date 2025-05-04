@@ -190,4 +190,31 @@ export class NoticeController {
       );
     }
   }
+
+  @Get('temperature')
+  async getTemperature() {
+    try {
+      const result = await this.noticeService.getTemperature();
+      return result;
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching friend requests',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('temperature')
+  async createTemperature(
+    @Body('toUid') toUid: string,
+    @Body('message') message: string,
+    @Body('sub') rating: string,
+  ) {
+    try {
+      await this.noticeService.createTemperature(toUid, message, rating);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

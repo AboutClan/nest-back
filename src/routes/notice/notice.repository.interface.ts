@@ -12,4 +12,5 @@ export interface NoticeRepository {
     type: string,
     status: string,
   ): Promise<INotice>;
+  findTemperature(uid: string): Promise<INotice[]>;
 }

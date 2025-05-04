@@ -6,7 +6,7 @@ export const NoticeZodSchema = z.object({
   from: z.string(),
   to: z.string(),
   type: z.string().nullable().optional(),
-  message: z.string(),
+  message: z.string().optional(),
   status: z.string().nullable().optional(),
   sub: z.string().nullable().optional(),
 });
@@ -19,7 +19,7 @@ export const noticeSchema: Schema<INotice> = new Schema(
     to: String,
     type: {
       type: String,
-      enum: ['like', 'friend', 'alphabet'],
+      enum: ['like', 'friend', 'alphabet', 'temperature'],
       default: 'like',
     },
     message: String,
