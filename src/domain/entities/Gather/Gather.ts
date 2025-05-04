@@ -145,9 +145,7 @@ export class Gather {
   }
 
   public addComment(commentProps: CommentProps): void {
-    console.log(12, this.comments, commentProps);
     this.comments.push(new Comment(commentProps));
-    console.log(123, this.comments);
   }
 
   public removeComment(commentId: string): void {

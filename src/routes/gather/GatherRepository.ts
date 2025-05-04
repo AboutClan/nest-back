@@ -174,7 +174,6 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDomain(doc: IGatherData): Gather {
-    console.log(54, doc);
     return new Gather({
       _id: doc._id as string,
       title: doc.title,

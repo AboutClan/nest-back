@@ -123,7 +123,6 @@ export class FeedService {
     const start = gap * (cursor || 0);
 
     const feeds = await this.feedRepository.findAll({ start, gap, isRecent });
-    console.log(52, feeds);
     return feeds?.map((feed) => {
       const myLike = (feed?.like as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
