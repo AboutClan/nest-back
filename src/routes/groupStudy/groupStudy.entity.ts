@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/Constants/constants';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -169,7 +170,7 @@ export const participantsSchema: Schema<participantsType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     role: {
       type: String,
@@ -193,7 +194,7 @@ export const subCommentSchema: Schema<subCommentType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comment: {
       type: String,
@@ -212,7 +213,7 @@ export const commentSchema: Schema<commentType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comment: {
       type: String,
@@ -235,7 +236,7 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     answer: {
       type: String,
@@ -304,16 +305,16 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     waiting: {
       type: [waitingSchema],
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
       default: [],
     },
     participants: {
       type: [participantsSchema],
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     organizer: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     status: {
       type: String,
@@ -355,4 +356,4 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
 
 export const GroupStudy =
   (mongoose.models.GroupStudy as Model<IGroupStudyData, {}, {}, {}>) ||
-  model<IGroupStudyData>('GroupStudy', GroupStudySchema);
+  model<IGroupStudyData>(DB_SCHEMA.GROUPSTUDY, GroupStudySchema);

@@ -12,11 +12,12 @@ import { IRequestData } from 'src/routes/request/request.entity';
 import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ICollectionRepository } from './CollectionRepository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 @Injectable()
 export class CollectionService {
   constructor(
-    @InjectModel('Request') private Request: Model<IRequestData>,
+    @InjectModel(DB_SCHEMA.REQUEST) private Request: Model<IRequestData>,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
     @Inject(ICOLLECTION_REPOSITORY)

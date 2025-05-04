@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/Constants/constants';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IPlace } from 'src/routes/place/place.entity';
 import {
   ILocationDetail,
@@ -192,11 +193,11 @@ export const preferenceSchema: Schema<preferenceType> = new Schema(
   {
     subPlace: {
       type: [Schema.Types.ObjectId],
-      ref: 'Place',
+      ref: DB_SCHEMA.PLACE,
     },
     place: {
       type: Schema.Types.ObjectId,
-      ref: 'Place',
+      ref: DB_SCHEMA.PLACE,
     },
   },
   {
@@ -383,4 +384,4 @@ export const UserSchema: Schema<IUser> = new Schema({
 
 export const User =
   (mongoose.models.User as Model<IUser, {}, {}, {}>) ||
-  model<IUser>('User', UserSchema);
+  model<IUser>(DB_SCHEMA.USER, UserSchema);

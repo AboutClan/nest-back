@@ -5,10 +5,11 @@ import { C_simpleUser } from 'src/Constants/constants';
 import { Gather } from 'src/domain/entities/Gather/Gather';
 import { IGatherData } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class GatherRepository implements IGatherRepository {
   constructor(
-    @InjectModel('Gather')
+    @InjectModel(DB_SCHEMA.GATHER)
     private readonly Gather: Model<IGatherData>,
   ) {}
 
@@ -173,7 +174,6 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDomain(doc: IGatherData): Gather {
-    console.log(54, doc);
     return new Gather({
       _id: doc._id as string,
       title: doc.title,

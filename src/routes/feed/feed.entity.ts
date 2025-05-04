@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -42,7 +43,7 @@ export const subCommentSchema: Schema<subCommentType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comment: {
       type: String,
@@ -61,7 +62,7 @@ export const commentSchema: Schema<commentType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comment: {
       type: String,
@@ -93,7 +94,7 @@ export const FeedSchema: Schema<IFeed> = new Schema(
     },
     writer: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     type: {
       type: String,
@@ -115,7 +116,7 @@ export const FeedSchema: Schema<IFeed> = new Schema(
     like: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: DB_SCHEMA.USER,
       },
     ],
   },
@@ -137,4 +138,4 @@ FeedSchema.methods.addLike = async function (userId: string): Promise<boolean> {
 
 export const Feed =
   (mongoose.models.Feed as Model<IFeed, {}, {}, {}>) ||
-  model<IFeed>('Feed', FeedSchema);
+  model<IFeed>(DB_SCHEMA.FEED, FeedSchema);

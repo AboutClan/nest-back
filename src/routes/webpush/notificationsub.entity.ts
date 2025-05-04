@@ -1,4 +1,5 @@
 import mongoose, { model, Schema, Document, Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -41,4 +42,4 @@ export const NotificationSubSchema: Schema<INotificationSub> = new Schema({
 
 export const NotificationSub: Model<INotificationSub> =
   mongoose.models.NotificationSub ||
-  model<INotificationSub>('NotificationSub', NotificationSubSchema);
+  model<INotificationSub>(DB_SCHEMA.WEBPUSH, NotificationSubSchema);

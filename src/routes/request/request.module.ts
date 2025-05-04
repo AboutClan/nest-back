@@ -5,6 +5,7 @@ import { RequestSchema } from './request.entity';
 import { MongooseModule } from '@nestjs/mongoose';
 import { IREQUEST_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoRequestRepository } from './request.repository';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const requestRepositoryProvider: ClassProvider = {
   provide: IREQUEST_REPOSITORY,
@@ -13,7 +14,9 @@ const requestRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Request', schema: RequestSchema }]),
+    MongooseModule.forFeature([
+      { name: DB_SCHEMA.REQUEST, schema: RequestSchema },
+    ]),
   ],
   controllers: [RequestController],
   providers: [RequestService, requestRepositoryProvider],

@@ -5,9 +5,12 @@ import { C_simpleUser } from 'src/Constants/constants';
 import { Feed } from 'src/domain/entities/Feed/Feed';
 import { IFeed } from './feed.entity';
 import { IFeedRepository } from './FeedRepository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class FeedRepository implements IFeedRepository {
-  constructor(@InjectModel('Feed') private readonly FeedModel: Model<IFeed>) {}
+  constructor(
+    @InjectModel(DB_SCHEMA.FEED) private readonly FeedModel: Model<IFeed>,
+  ) {}
 
   async create(doc: Feed): Promise<Feed> {
     const docToCreate = this.mapToDB(doc);

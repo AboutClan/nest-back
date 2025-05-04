@@ -11,13 +11,14 @@ import { RegisterRepository } from './register.repository';
 import { IAccount } from 'src/routes/account/account.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export default class RegisterService {
   constructor(
     @Inject(IREGISTER_REPOSITORY)
     private readonly registerRepository: RegisterRepository,
-    @InjectModel('User') private User: Model<IUser>,
-    @InjectModel('Account') private Account: Model<IAccount>,
+    @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.ACCOUNT) private Account: Model<IAccount>,
     private readonly webPushServiceInstance: WebPushService,
   ) {}
 

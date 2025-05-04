@@ -6,6 +6,7 @@ import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { DailyCheckService } from './dailyCheck.service';
 import { UserModule } from 'src/routes/user/user.module';
 import { DailyCheckRepository } from './DailyCheckRepository';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const dailyCheckRepositoryProvider: ClassProvider = {
   provide: IDAILYCHECK_REPOSITORY,
@@ -15,7 +16,7 @@ const dailyCheckRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'DailyCheck', schema: dailyCheckSchema },
+      { name: DB_SCHEMA.DAILYCHECK, schema: dailyCheckSchema },
     ]),
     UserModule,
   ],

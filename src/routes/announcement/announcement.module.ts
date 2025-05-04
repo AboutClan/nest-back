@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AnnouncementController } from './announcement.controller';
 import { AnnouncementService } from './announcement.service';
 import { AnnouncementSchema } from './announcement.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const announcementRepositoryProvider: ClassProvider = {
   provide: IANNOUNCEMENT_REPOSITORY,
@@ -14,7 +15,7 @@ const announcementRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'Announcement', schema: AnnouncementSchema },
+      { name: DB_SCHEMA.ACCOUNCEMENT, schema: AnnouncementSchema },
     ]),
   ],
   controllers: [AnnouncementController],

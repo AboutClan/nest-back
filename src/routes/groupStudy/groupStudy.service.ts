@@ -18,6 +18,8 @@ import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 //test
 export default class GroupStudyService {
@@ -27,7 +29,7 @@ export default class GroupStudyService {
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
     private readonly userServiceInstance: UserService,
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     private webPushServiceInstance: WebPushService,
     private readonly counterServiceInstance: CounterService,
   ) {}
@@ -447,7 +449,7 @@ export default class GroupStudyService {
 
     await this.webPushServiceInstance.sendNotificationGroupStudy(
       id,
-      `${token.name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
+      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
     );
 
     return;
@@ -479,7 +481,7 @@ export default class GroupStudyService {
 
     await this.webPushServiceInstance.sendNotificationGroupStudy(
       id,
-      `${user.name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
+      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(user.name, groupStudy.title),
     );
 
     return;
@@ -562,8 +564,8 @@ export default class GroupStudyService {
 
       await this.webPushServiceInstance.sendNotificationToXWithId(
         groupStudy.organizer,
-        '소모임',
-        `${token.name}님이 [${groupStudy.title}] 소모임 가입을 요청했어요!`,
+        WEBPUSH_MSG.GROUPSTUDY.TITLE,
+        WEBPUSH_MSG.GROUPSTUDY.REQUEST(token.name, groupStudy.title),
       );
     } catch (err) {
       throw new Error();
@@ -610,13 +612,16 @@ export default class GroupStudyService {
         //알림
         await this.webPushServiceInstance.sendNotificationGroupStudy(
           id,
-          `${(user.user as IUser).name}님이 [${groupStudy.title}] 소모임에 합류했어요!`,
+          WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(
+            (user.user as IUser).name,
+            groupStudy.title,
+          ),
         );
 
         await this.webPushServiceInstance.sendNotificationToXWithId(
           userId,
-          '소모임',
-          `[${groupStudy.title}] 소모임 가입이 승인되었어요!`,
+          WEBPUSH_MSG.GROUPSTUDY.TITLE,
+          WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
         );
       }
       await groupStudy?.save();
@@ -736,8 +741,8 @@ export default class GroupStudyService {
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
-      '소모임',
-      `[${groupStudy.title}]에 새로운 댓글이 달렸어요!`,
+      WEBPUSH_MSG.GROUPSTUDY.TITLE,
+      WEBPUSH_MSG.GROUPSTUDY.COMMENT_CREATE(groupStudy.title),
     );
 
     await groupStudy.save();

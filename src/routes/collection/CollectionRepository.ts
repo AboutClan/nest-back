@@ -4,10 +4,12 @@ import { Model } from 'mongoose';
 import { Collection } from 'src/domain/entities/Collection';
 import { ICollection } from './collection.entity';
 import { ICollectionRepository } from './CollectionRepository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class CollectionRepository implements ICollectionRepository {
   constructor(
-    @InjectModel('collection') private readonly Collection: Model<ICollection>,
+    @InjectModel(DB_SCHEMA.COLLECTION)
+    private readonly Collection: Model<ICollection>,
   ) {}
 
   async findByUser(userId: string): Promise<Collection | null> {

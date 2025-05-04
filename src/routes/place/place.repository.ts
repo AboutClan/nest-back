@@ -3,10 +3,11 @@ import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
 import { IPlace } from './place.entity';
 import { PlaceRepository } from './place.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoPlaceReposotory implements PlaceRepository {
   constructor(
-    @InjectModel('Place')
+    @InjectModel(DB_SCHEMA.PLACE)
     private readonly Place: Model<IPlace>,
   ) {}
 

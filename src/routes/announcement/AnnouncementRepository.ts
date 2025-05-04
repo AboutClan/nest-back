@@ -3,10 +3,11 @@ import { IAnnouncement } from './announcement.entity';
 import { AnnouncementRepositoryInterface } from './AnnouncementRepository.interface';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class AnnouncementRepository implements AnnouncementRepositoryInterface {
   constructor(
-    @InjectModel('Announcement')
+    @InjectModel(DB_SCHEMA.ACCOUNCEMENT)
     private readonly AnnouncementModel: Model<AnnouncementRepositoryInterface>,
   ) {}
 

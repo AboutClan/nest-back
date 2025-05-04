@@ -1,6 +1,7 @@
 import { Dayjs, isDayjs } from 'dayjs';
 import mongoose, { model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/Constants/constants';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 const dayjsSchema = z.custom<Dayjs>((value) => isDayjs(value), {
@@ -83,7 +84,7 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
     },
     writer: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     content: {
       type: String,
@@ -103,4 +104,4 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
 );
 export const Request =
   (mongoose.models.Request as Model<IRequestData, {}, {}, {}>) ||
-  model<IRequestData>('Request', RequestSchema);
+  model<IRequestData>(DB_SCHEMA.REQUEST, RequestSchema);

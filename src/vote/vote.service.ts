@@ -18,14 +18,15 @@ import {
   IVote,
   IVoteStudyInfo,
 } from './vote.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 @Injectable()
 export class VoteService {
   constructor(
     @InjectModel('Vote') private Vote: Model<IVote>,
-    @InjectModel('User') private User: Model<IUser>,
-    @InjectModel('Place') private Place: Model<IPlace>,
-    @InjectModel('Realtime') private Realtime: Model<IRealtime>,
+    @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.PLACE) private Place: Model<IPlace>,
+    @InjectModel(DB_SCHEMA.REALTIME) private Realtime: Model<IRealtime>,
     private readonly collectionServiceInstance: CollectionService,
     private userServiceInstance: UserService,
   ) {}

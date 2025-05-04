@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { locationSchema } from 'src/routes/gather/gather.entity';
 import { z } from 'zod';
 
@@ -118,4 +119,4 @@ export const RegisteredSchema: Schema<IRegistered> = new Schema(
 
 export const Registered =
   (mongoose.models.REgistered as Model<IRegistered, {}, {}, {}>) ||
-  model<IRegistered>('Registered', RegisteredSchema);
+  model<IRegistered>(DB_SCHEMA.REGISTER, RegisteredSchema);

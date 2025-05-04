@@ -3,10 +3,11 @@ import { Model, UpdateWriteOpResult } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 //commit
 export class MongoGroupStudyInterface implements GroupStudyRepository {
   constructor(
-    @InjectModel('GroupStudy')
+    @InjectModel(DB_SCHEMA.GROUPSTUDY)
     private readonly GroupStudy: Model<IGroupStudyData>,
   ) {}
 

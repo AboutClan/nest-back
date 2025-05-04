@@ -9,6 +9,7 @@ import {
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { UserService } from './user.service';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const mockUser = {
   _id: {
@@ -122,7 +123,7 @@ describe('UserService', () => {
           useValue: Model,
         },
         {
-          provide: getModelToken('Log'),
+          provide: getModelToken(DB_SCHEMA.LOG),
           useValue: Model,
         },
         {

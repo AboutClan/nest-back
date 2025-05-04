@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { giftSchema } from './gift.entity';
 import { IGIFT_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoGiftRepository } from './gift.repository';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const giftRepositoryProvider: ClassProvider = {
   provide: IGIFT_REPOSITORY,
@@ -13,7 +14,7 @@ const giftRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'GiftModel', schema: giftSchema }]),
+    MongooseModule.forFeature([{ name: DB_SCHEMA.GIFT, schema: giftSchema }]),
   ],
   controllers: [GiftController],
   providers: [GiftService, giftRepositoryProvider],

@@ -8,12 +8,13 @@ import * as logger from '../../logger';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
 import { RequestContext } from 'src/request-context';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export default class NoticeService {
   constructor(
     @Inject(INOTICE_REPOSITORY)
     private readonly noticeRepository: NoticeRepository,
-    @InjectModel('User') private User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
   ) {}
 
   async createNotice(noticeData: Partial<INotice>) {

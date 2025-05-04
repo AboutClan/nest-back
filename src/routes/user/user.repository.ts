@@ -2,9 +2,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IUser } from './user.entity';
 import { UserRepository } from './user.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoUserRepository implements UserRepository {
-  constructor(@InjectModel('User') private readonly User: Model<IUser>) {}
+  constructor(
+    @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
+  ) {}
 
   async findById(userId: string): Promise<IUser> {
     return await this.User.findById(userId);
@@ -258,12 +261,12 @@ export class MongoUserRepository implements UserRepository {
                   { case: { $lt: ['$score', 180] }, then: 5 },
                   { case: { $lt: ['$score', 210] }, then: 6 },
                 ],
-                default: 7
-              }
-            }
-          }
-        }
-      ]
+                default: 7,
+              },
+            },
+          },
+        },
+      ],
     );
   }
 }

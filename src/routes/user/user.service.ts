@@ -18,6 +18,7 @@ import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../../logger';
 import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -25,7 +26,7 @@ export class UserService {
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
     @InjectModel('Vote') private Vote: Model<IVote>,
-    @InjectModel('Log') private Log: Model<ILog>,
+    @InjectModel(DB_SCHEMA.LOG) private Log: Model<ILog>,
     private readonly noticeService: NoticeService,
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,

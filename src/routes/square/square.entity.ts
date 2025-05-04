@@ -1,4 +1,5 @@
 import mongoose, { Document, model, Model, Schema, Types } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -53,7 +54,7 @@ export const subCommentSchema: Schema<subCommentType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comment: {
       type: String,
@@ -72,7 +73,7 @@ export const commentSchema = new Schema<Comment>(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
       required: true,
     },
     comment: {
@@ -100,7 +101,7 @@ const pollItemSchema = new Schema<PollItem>({
   },
   users: {
     type: [Schema.Types.ObjectId],
-    ref: 'User',
+    ref: DB_SCHEMA.USER,
     default: [],
   },
 });
@@ -146,7 +147,7 @@ export const secretSquareSchema = new Schema<SecretSquareItem>(
     },
     author: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
       required: true,
     },
     images: {
@@ -155,12 +156,12 @@ export const secretSquareSchema = new Schema<SecretSquareItem>(
     },
     viewers: {
       type: [Schema.Types.ObjectId],
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
       default: [],
     },
     like: {
       type: [Schema.Types.ObjectId],
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     comments: {
       type: [commentSchema],
@@ -174,4 +175,4 @@ export const secretSquareSchema = new Schema<SecretSquareItem>(
 
 export const SecretSquare =
   (mongoose.models.Square as Model<SecretSquareItem>) ||
-  model<SecretSquareItem>('SecretSquare', secretSquareSchema);
+  model<SecretSquareItem>(DB_SCHEMA.SQUARE, secretSquareSchema);

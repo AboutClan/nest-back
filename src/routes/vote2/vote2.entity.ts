@@ -1,4 +1,5 @@
 import mongoose, { model, Model, Schema } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IPlace } from 'src/routes/place/place.entity';
 
 export interface IVote2 {
@@ -52,7 +53,7 @@ export const MemberSchema: Schema<IMember> = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     start: String,
     end: String,
@@ -72,7 +73,7 @@ export const ParticipationSchema: Schema<IParticipation> = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: DB_SCHEMA.USER,
     },
     latitude: String,
     longitude: String,
@@ -95,7 +96,7 @@ export const ResultSchema: Schema<IResult> = new Schema(
   {
     placeId: {
       type: Schema.Types.ObjectId,
-      ref: 'Place',
+      ref: DB_SCHEMA.PLACE,
     },
     members: [MemberSchema],
   },
@@ -113,4 +114,4 @@ export const Vote2Schema: Schema<IVote2> = new Schema({
 
 export const Vote2 =
   (mongoose.models.Vote2 as Model<IVote2, {}, {}, {}>) ||
-  model<IVote2>('Vote2', Vote2Schema);
+  model<IVote2>(DB_SCHEMA.VOTE, Vote2Schema);

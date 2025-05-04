@@ -6,6 +6,7 @@ import { promotionSchema } from './promotion.entity';
 import { UserModule } from 'src/routes/user/user.module';
 import { IPROMOTION_REPOSITORY, IPROMOTION_SERVICE } from 'src/utils/di.tokens';
 import { MongoPromotionRepository } from './promotion.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const promotionRepositoryProvider: ClassProvider = {
   provide: IPROMOTION_REPOSITORY,
@@ -14,7 +15,9 @@ const promotionRepositoryProvider: ClassProvider = {
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Promotion', schema: promotionSchema }]),
+    MongooseModule.forFeature([
+      { name: DB_SCHEMA.PROMOTION, schema: promotionSchema },
+    ]),
     forwardRef(() => UserModule),
   ],
   controllers: [PromotionController],

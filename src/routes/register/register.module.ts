@@ -8,6 +8,7 @@ import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { IREGISTER_REPOSITORY, IREGISTER_SERVICE } from 'src/utils/di.tokens';
 import { MongoRegisterRepository } from './register.repository.interface';
 import { AccountModule } from 'src/routes/account/account.module';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const registerRepositoryProvider: ClassProvider = {
   provide: IREGISTER_REPOSITORY,
@@ -19,7 +20,7 @@ const registerRepositoryProvider: ClassProvider = {
     UserModule,
     WebPushModule,
     MongooseModule.forFeature([
-      { name: 'Registered', schema: RegisteredSchema },
+      { name: DB_SCHEMA.REGISTER, schema: RegisteredSchema },
     ]),
     AccountModule,
   ],

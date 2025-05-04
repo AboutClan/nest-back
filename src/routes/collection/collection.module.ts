@@ -8,6 +8,7 @@ import { UserModule } from 'src/routes/user/user.module';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoUserRepository } from 'src/routes/user/user.repository';
 import { CollectionRepository } from './CollectionRepository';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const collectionRepositoryProvider: ClassProvider = {
   provide: ICOLLECTION_REPOSITORY,
@@ -24,7 +25,7 @@ const userRepositoryProvider: ClassProvider = {
     forwardRef(() => UserModule),
     RequestModule,
     MongooseModule.forFeature([
-      { name: 'collection', schema: CollectionSchema },
+      { name: DB_SCHEMA.COLLECTION, schema: CollectionSchema },
     ]),
   ],
   controllers: [CollectionController],

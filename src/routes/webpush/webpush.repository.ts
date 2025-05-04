@@ -4,13 +4,14 @@ import { Model } from 'mongoose';
 import { IUser } from 'src/routes/user/user.entity';
 import { INotificationSub } from './notificationsub.entity';
 import { WebpushRepository } from './webpush.repository.interface';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 @Injectable()
 export class MongoWebpushRepository implements WebpushRepository {
   constructor(
-    @InjectModel('NotificationSub')
+    @InjectModel(DB_SCHEMA.WEBPUSH)
     private readonly NotificationSub: Model<INotificationSub>,
-    @InjectModel('User')
+    @InjectModel(DB_SCHEMA.USER)
     private readonly User: Model<IUser>,
   ) {}
 
