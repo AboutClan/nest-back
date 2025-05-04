@@ -1,8 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { JWT } from 'next-auth/jwt';
 import { Dayjs } from 'dayjs';
-import { User } from 'src/user/user.entity';
-import { Account } from 'src/account/account.entity';
+import { User } from 'src/routes/user/user.entity';
+import { Account } from 'src/routes/account/account.entity';
 import dbConnect from 'src/conn';
 
 export interface kakaoProfileInfo {

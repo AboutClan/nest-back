@@ -3,15 +3,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
-import { GatherRepository } from 'src/gather/gather.repository.interface';
-import { GroupStudyRepository } from 'src/groupStudy/groupStudy.repository.interface';
-import { IUser } from 'src/user/user.entity';
+import { GatherRepository } from 'src/routes/gather/gather.repository.interface';
+import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
+import { IUser } from 'src/routes/user/user.entity';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { Vote2Service } from 'src/vote2/vote2.service';
+import { Vote2Service } from 'src/routes/vote2/vote2.service';
 
 @Injectable()
 export class NotificationScheduler {
@@ -109,7 +109,6 @@ export class NotificationScheduler {
     try {
       await this.User.updateMany({}, { weekStudyTragetHour: 0 });
       await this.User.updateMany({}, { weekStudyAccumulationMinutes: 0 });
-     
     } catch (err: any) {
       throw new Error(err);
     }

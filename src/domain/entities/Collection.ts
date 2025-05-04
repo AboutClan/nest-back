@@ -1,4 +1,4 @@
-import { IUser } from 'src/user/user.entity';
+import { IUser } from 'src/routes/user/user.entity';
 
 export interface CollectionPrimitives {
   id?: string;

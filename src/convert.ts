@@ -1,4 +1,4 @@
-import { avatarType, IUser } from './user/user.entity';
+import { avatarType, IUser } from './routes/user/user.entity';
 
 export interface IUserSummary {
   uid: string;

@@ -1,13 +1,5 @@
 import { Dayjs } from 'dayjs';
-import mongoose, {
-  model,
-  Schema,
-  Model,
-  Document,
-  InferSchemaType,
-} from 'mongoose';
-import { IPlace } from 'src/place/place.entity';
-import { IUser } from 'src/user/user.entity';
+import mongoose, { model, Schema, Model, Document } from 'mongoose';
 import { z } from 'zod';
 
 const TimeStartToEndHMZodSchema = z.object({

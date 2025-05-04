@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { C_simpleUser } from 'src/Constants/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/user/user.entity';
+import { IUser } from 'src/routes/user/user.entity';
 import { UserFilterType } from './adminUser.controller';
 
 const logger = require('../../logger');
