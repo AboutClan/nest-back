@@ -208,7 +208,7 @@ export class NoticeController {
   async createTemperature(
     @Body('toUid') toUid: string,
     @Body('message') message: string,
-    @Body('sub') rating: string,
+    @Body('rating') rating: string,
   ) {
     try {
       await this.noticeService.createTemperature(toUid, message, rating);
