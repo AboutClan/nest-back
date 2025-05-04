@@ -12,6 +12,7 @@ import { IAccount } from 'src/routes/account/account.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { DateUtils } from 'src/utils/Date';
 
 export default class RegisterService {
   constructor(
@@ -78,7 +79,7 @@ export default class RegisterService {
     userForm = {
       ...user.toObject(),
       role: 'human',
-      registerDate: new Date(),
+      registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
       deposit: 3000,
       ticket: {
