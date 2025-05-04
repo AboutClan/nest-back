@@ -475,16 +475,18 @@ export class GatherService {
       user: token.id,
       comment,
     } as SubCommentProps);
+
+    console.log(gather);
     await this.gatherRepository.save(gather);
 
-    await this.webPushServiceInstance.sendNotificationToXWithId(
-      gather.user as string,
-      WEBPUSH_MSG.GATHER.TITLE,
-      WEBPUSH_MSG.GATHER.COMMENT_CREATE(
-        token.name,
-        formatGatherDate(gather.date),
-      ),
-    );
+    // await this.webPushServiceInstance.sendNotificationToXWithId(
+    //   gather.user as string,
+    //   WEBPUSH_MSG.GATHER.TITLE,
+    //   WEBPUSH_MSG.GATHER.COMMENT_CREATE(
+    //     token.name,
+    //     formatGatherDate(gather.date),
+    //   ),
+    // );
 
     return;
   }

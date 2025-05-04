@@ -274,7 +274,6 @@ export class GatherRepository implements IGatherRepository {
       })),
       user: props.user,
       comments: props.comments.map((c) => ({
-        _id: c.id,
         user: c.user,
         comment: c.comment,
         likeList: c.likeList,
