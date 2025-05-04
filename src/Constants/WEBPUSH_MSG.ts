@@ -50,4 +50,9 @@ export const WEBPUSH_MSG = {
     FAILURE_TITLE: '스터디 매칭이 실패했어요',
     FAILURE_DESC: '다음번에 또 참여해주세요',
   },
+
+  SQUARE: {
+    TITLE: '비밀 게시판',
+    COMMENT_CREATE: (name) => `${name}님이 댓글을 남겼어요!`,
+  },
 };

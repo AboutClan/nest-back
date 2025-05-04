@@ -14,13 +14,13 @@ export interface SquareRepository {
     squareId: string,
     userId: string,
     comment: string,
-  ): Promise<null>;
+  ): Promise<SecretSquareItem>;
   deleteComment(squareId: string, commentId: string): Promise<null>;
   createSubComment(
     squareId: string,
     commentId: string,
     message: any,
-  ): Promise<null>;
+  ): Promise<SecretSquareItem>;
   deleteSubComment(
     squareId: string,
     commentId: string,

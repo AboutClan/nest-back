@@ -108,12 +108,16 @@ export class MongoSquareRepository implements SquareRepository {
     squareId: string,
     userId: string,
     comment: string,
-  ): Promise<null> {
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $push: { comments: { user: userId, comment } },
-    });
+  ): Promise<SecretSquareItem> {
+    const updatedSquare = await this.SecretSquare.findByIdAndUpdate(
+      squareId,
+      {
+        $push: { comments: { user: userId, comment } },
+      },
+      { new: true }, // 업데이트된 문서 반환
+    );
 
-    return null;
+    return updatedSquare;
   }
   async deleteComment(squareId: string, commentId: string): Promise<null> {
     await this.SecretSquare.findByIdAndUpdate(squareId, {
@@ -125,15 +129,17 @@ export class MongoSquareRepository implements SquareRepository {
     squareId: string,
     commentId: string,
     message: any,
-  ): Promise<null> {
-    await this.SecretSquare.updateOne(
+  ): Promise<SecretSquareItem> {
+    const updated = await this.SecretSquare.findOneAndUpdate(
       {
         _id: squareId,
         'comments._id': commentId,
       },
       { $push: { 'comments.$.subComments': message } },
+      { new: true },
     );
-    return null;
+
+    return updated;
   }
   async deleteSubComment(
     squareId: string,
