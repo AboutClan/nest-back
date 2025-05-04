@@ -12,6 +12,16 @@ export class GatherRepository implements IGatherRepository {
     private readonly Gather: Model<IGatherData>,
   ) {}
 
+  async findMyGatherId(userId: string) {
+    const result = await this.Gather.find({
+      participants: {
+        $elemMatch: { user: userId },
+      },
+    }).select('-_id id');
+
+    return result;
+  }
+
   async findById(gatherId: number, pop?: boolean): Promise<Gather | null> {
     let query = this.Gather.findOne({ id: gatherId });
 
