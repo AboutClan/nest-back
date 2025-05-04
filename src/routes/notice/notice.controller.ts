@@ -9,10 +9,10 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import { IWEBPUSH_SERVICE } from 'src/utils/di.tokens';
 import { ApiTags } from '@nestjs/swagger';
 import NoticeService from './notice.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
+import { WEBPUSH_MSG } from 'src/Constants/webpush';
 
 //todo: Notice 전반적인 수정 필요해보임
 @ApiTags('notice')
@@ -70,14 +70,9 @@ export class NoticeController {
       await this.noticeService.setLike(to, message);
       await this.webPushService.sendNotificationToX(
         to,
-        '좋아요를 받았어요!',
-        `님이 좋아요를 보냈어요!`,
+        WEBPUSH_MSG.NOTICE.LIKE_TITLE,
+        WEBPUSH_MSG.NOTICE.LIKE_RECIEVE('', ''),
       );
-      // await this.fcmService.sendNotificationToX(
-      //   to,
-      //   '좋아요를 받았어요!',
-      //   `님이 좋아요를 보냈어요!`,
-      // );
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(
@@ -134,11 +129,6 @@ export class NoticeController {
     try {
       await this.noticeService.requestNotice('friend', toUid, message);
       // await this.webPushService.sendNotificationToX(
-      //   toUid,
-      //   '친구 요청을 받았어요!',
-      //   `님이 친구 요청을 보냈어요!`,
-      // );
-      // await this.fcmService.sendNotificationToX(
       //   toUid,
       //   '친구 요청을 받았어요!',
       //   `님이 친구 요청을 보냈어요!`,

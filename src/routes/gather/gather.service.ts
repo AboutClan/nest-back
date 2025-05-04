@@ -29,6 +29,7 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import { WEBPUSH_MSG } from 'src/Constants/webpush';
 
 //commit
 @Injectable()
@@ -239,8 +240,11 @@ export class GatherService {
     if (gather.user) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
-        `번개 모임`,
-        `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 합류했어요!`,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.PARTICIPATE(
+          token.name,
+          formatGatherDate(gather.date),
+        ),
       );
     }
 
@@ -283,8 +287,8 @@ export class GatherService {
     if (userId)
       await this.webPushServiceInstance.sendNotificationToXWithId(
         userId,
-        `번개 모임`,
-        `${formatGatherDate(gather.date)} 모임에 초대되었어요!`,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.INVITE(formatGatherDate(gather.date)),
       );
 
     return;
@@ -339,8 +343,8 @@ export class GatherService {
       if (gather.user)
         await this.webPushServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
-          `번개 모임`,
-          `${token.name}님이 ${formatGatherDate(gather.date)} 모임 참여를 요청했어요!`,
+          WEBPUSH_MSG.GATHER.TITLE,
+          WEBPUSH_MSG.GATHER.REQUEST(token.name, formatGatherDate(gather.date)),
         );
     } catch (err) {
       throw new Error();
@@ -390,10 +394,9 @@ export class GatherService {
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       token.id,
-      '번개 모임',
-      `${formatGatherDate(gather.date)} 모임 참여가 승인되었습니다!`,
+      WEBPUSH_MSG.GATHER.TITLE,
+      WEBPUSH_MSG.GATHER.ACCEPT(formatGatherDate(gather.date)),
     );
-    // await this.chatServiceInstance.createChat(userId, message);
   }
 
   async createSubComment(gatherId: string, commentId: string, content: string) {
@@ -416,14 +419,19 @@ export class GatherService {
     if (comment[0] && comment[0].user) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         comment[0].user as string,
-        `번개 모임`,
-        `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 답글을 남겼어요.`,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.COMMENT_CREATE(
+          token.name,
+          formatGatherDate(gather.date),
+        ),
       );
       // 모임장 알림
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather.user as string,
-        `번개 모임`,
-        `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 답글을 남겼어요.`,
+        WEBPUSH_MSG.GATHER.COMMENT_CREATE(
+          token.name,
+          formatGatherDate(gather.date),
+        ),
       );
     }
 
@@ -467,14 +475,15 @@ export class GatherService {
       user: token.id,
       comment,
     } as SubCommentProps);
-    console.log(2, gather);
     await this.gatherRepository.save(gather);
-    console.log(33);
-    console.log(gather.user);
+
     await this.webPushServiceInstance.sendNotificationToXWithId(
       gather.user as string,
-      `번개 모임`,
-      `${token.name}님이 ${formatGatherDate(gather.date)} 모임에 댓글을 남겼어요.`,
+      WEBPUSH_MSG.GATHER.TITLE,
+      WEBPUSH_MSG.GATHER.COMMENT_CREATE(
+        token.name,
+        formatGatherDate(gather.date),
+      ),
     );
 
     return;

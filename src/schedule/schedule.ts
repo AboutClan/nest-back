@@ -24,34 +24,6 @@ export class NotificationScheduler {
     private readonly vote2Service: Vote2Service,
     @InjectModel('User') private readonly User: Model<IUser>,
   ) {}
-  // @Cron('0 18 * * 2,3,5,6', {
-  //   timeZone: 'Asia/Seoul',
-  // })
-  // async sendNotification() {
-  //   try {
-  //     await this.webPushService.sendNotificationAllUser();
-  //     this.logger.log('Notifications sent successfully to all users.');
-  //   } catch (error) {
-  //     this.logger.error('Error sending notifications:', error);
-  //     throw new Error(error);
-  //   }
-  // }
-
-  // //투표 결과 알림
-  // @Cron(CronExpression.EVERY_DAY_AT_9AM, {
-  //   timeZone: 'Asia/Seoul',
-  // })
-  // async announceVoteResult() {
-  //   try {
-  //     const date = dayjs().format('YYYY-MM-DD');
-  //     await this.adminVoteService.confirm(date);
-  //     await this.webPushService.sendNotificationVoteResult();
-  //     this.logger.log('Vote result notifications sent successfully.');
-  //   } catch (error) {
-  //     this.logger.error('Error sending vote result notifications:', error);
-  //     throw new Error(error);
-  //   }
-  // }
 
   //투표 결과 알림
   @Cron(CronExpression.EVERY_DAY_AT_9AM, {

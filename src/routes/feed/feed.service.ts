@@ -19,6 +19,7 @@ import {
 } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { IFeedRepository } from './FeedRepository.interface';
+import { WEBPUSH_MSG } from 'src/Constants/webpush';
 
 @Injectable()
 export class FeedService {
@@ -182,7 +183,7 @@ export class FeedService {
 
       await this.webPushServiceInstance.sendNotificationGather(
         gather.id,
-        '누군가 피드를 작성했어요',
+        WEBPUSH_MSG.FEED.CREATE,
       );
     }
 
@@ -204,8 +205,8 @@ export class FeedService {
     //noti
     this.webPushServiceInstance.sendNotificationToXWithId(
       feed.writer,
-      '댓글이 달렸어요',
-      `${token.name}님이 ${feed.title}에 댓글을 달았어요.`,
+      WEBPUSH_MSG.FEED.COMMENT_TITLE,
+      content,
     );
 
     return;
@@ -260,13 +261,13 @@ export class FeedService {
     //noti
     this.webPushServiceInstance.sendNotificationToXWithId(
       commentWriter,
-      '댓글이 달렸어요',
-      `${token.name}님이 ${feed.title}에 댓글을 달았어요.`,
+      WEBPUSH_MSG.FEED.COMMENT_TITLE,
+      content,
     );
     this.webPushServiceInstance.sendNotificationToXWithId(
       feed.writer,
-      '댓글이 달렸어요',
-      `${token.name}님이 ${feed.title}에 댓글을 달았어요.`,
+      WEBPUSH_MSG.FEED.COMMENT_TITLE,
+      content,
     );
   }
 

@@ -14,6 +14,7 @@ import { IVote2Repository } from './vote2.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
+import { WEBPUSH_MSG } from 'src/Constants/webpush';
 
 export class Vote2Service {
   constructor(
@@ -305,14 +306,14 @@ export class Vote2Service {
 
     this.webPushServiceInstance.sendNotificationUserIds(
       successUserIds,
-      '스터디 매칭이 성공했어요',
-      '결과를 확인하세요',
+      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
     );
 
     this.webPushServiceInstance.sendNotificationUserIds(
       failedUserIds,
-      '스터디 매칭이 실패했어요',
-      '다음번에 또 참여해주세요',
+      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+      WEBPUSH_MSG.VOTE.FAILURE_DESC,
     );
     await this.Vote2Repository.setVoteResult(today, voteResults);
   }

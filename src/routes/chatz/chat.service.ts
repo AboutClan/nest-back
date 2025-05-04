@@ -7,6 +7,7 @@ import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { IChatRepository } from './ChatRepository.interface';
+import { WEBPUSH_MSG } from 'src/Constants/webpush';
 
 @Injectable()
 export class ChatService {
@@ -123,7 +124,7 @@ export class ChatService {
     //알림 보내기
     await this.webPushServiceInstance.sendNotificationToXWithId(
       toUserId,
-      `${token.name}님의 쪽지 도착!`,
+      WEBPUSH_MSG.CHAT.ARRIVE(token.name),
       message,
     );
   }
