@@ -42,4 +42,11 @@ export class MongoNoticeRepository implements NoticeRepository {
       { sort: { _id: -1 }, new: true },
     );
   }
+
+  async findTemperature(uid: string): Promise<INotice[]> {
+    return await this.Notice.find(
+      { to: uid, type: 'temperature' },
+      '-_id -__v',
+    );
+  }
 }

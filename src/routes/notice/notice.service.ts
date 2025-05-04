@@ -126,4 +126,27 @@ export default class NoticeService {
 
     return;
   }
+
+  async getTemperature() {
+    const token = RequestContext.getDecodedToken();
+    const result = await this.noticeRepository.findTemperature(token.uid);
+    return result;
+  }
+
+  async createTemperature(toUid: string, message: string, rating: string) {
+    const token = RequestContext.getDecodedToken();
+    try {
+      const validatedNotice = NoticeZodSchema.parse({
+        from: token.uid,
+        type: 'temperature',
+        to: toUid,
+        message,
+        sub: rating,
+      });
+
+      await this.noticeRepository.createNotice(validatedNotice);
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 }
