@@ -13,12 +13,15 @@ import {
 } from './square.entity';
 import { SquareRepository } from './square.repository.interface';
 import { RequestContext } from 'src/request-context';
+import { WebPushService } from '../webpush/webpush.service';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 export default class SquareService {
   constructor(
     @Inject(ISQUARE_REPOSITORY)
     private readonly squareRepository: SquareRepository,
     private readonly imageServiceInstance: ImageService,
+    private readonly webPushServiceInstance: WebPushService,
   ) {}
 
   async getSquareList({
@@ -113,7 +116,17 @@ export default class SquareService {
     squareId: string;
   }) {
     const token = RequestContext.getDecodedToken();
-    await this.squareRepository.updateComment(squareId, token.id, comment);
+    const updated = await this.squareRepository.updateComment(
+      squareId,
+      token.id,
+      comment,
+    );
+
+    await this.webPushServiceInstance.sendNotificationToXWithId(
+      updated.author.toString(),
+      WEBPUSH_MSG.SQUARE.TITLE,
+      WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+    );
   }
 
   async deleteSquareComment({
@@ -133,10 +146,27 @@ export default class SquareService {
         user: token.id,
         comment: content,
       };
-      await this.squareRepository.createSubComment(
+      const updated = await this.squareRepository.createSubComment(
         squareId,
         commentId,
         message,
+      );
+
+      //댓글 알림
+      updated.comments.forEach((comment) => {
+        if (comment._id.toString() === commentId.toString()) {
+          this.webPushServiceInstance.sendNotificationToXWithId(
+            comment.user.toString(),
+            WEBPUSH_MSG.SQUARE.TITLE,
+            WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+          );
+        }
+      });
+
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        updated.author.toString(),
+        WEBPUSH_MSG.SQUARE.TITLE,
+        WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
       );
 
       return;

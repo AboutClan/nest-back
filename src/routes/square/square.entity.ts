@@ -10,6 +10,7 @@ export const SubCommentZodSchema = z.object({
 });
 
 export const CommentZodSchema = z.object({
+  _id: z.custom<Types.ObjectId>().optional(),
   user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   subComments: z.array(SubCommentZodSchema).optional(),
@@ -42,7 +43,7 @@ export const SecretSquareZodSchema = z.object({
 });
 
 export type subCommentType = z.infer<typeof SubCommentZodSchema>;
-export type Comment = z.infer<typeof CommentZodSchema>;
+export type Comment = z.infer<typeof CommentZodSchema> & Document;
 export type PollItem = z.infer<typeof PollItemZodSchema>;
 export type SecretSquareItem = z.infer<typeof SecretSquareZodSchema> & Document;
 
