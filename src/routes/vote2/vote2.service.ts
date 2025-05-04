@@ -8,12 +8,12 @@ import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
-import { ClusterUtils, coordType } from './ClusterUtils';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
+import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 
 export class Vote2Service {
   constructor(
