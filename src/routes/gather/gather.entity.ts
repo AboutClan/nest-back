@@ -1,5 +1,4 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
@@ -291,7 +290,7 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     place: {
       type: String,
-      enum: LOCATION_LIST,
+      enum: ENTITY.USER.ENUM_LOCATION,
     },
     isAdminOpen: {
       type: Boolean,

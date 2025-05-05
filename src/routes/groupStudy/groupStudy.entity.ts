@@ -1,5 +1,4 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
@@ -84,7 +83,7 @@ const groupStudyZodSchema = z.object({
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
   comments: z.array(commentZodSchema).optional(),
   id: z.number(),
-  location: z.enum(LOCATION_LIST),
+  location: z.enum(ENTITY.USER.ENUM_LOCATION),
   image: z.string().optional(),
   isFree: z.boolean(),
   feeText: z.string().optional(),
@@ -338,7 +337,7 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     location: {
       type: String,
-      enum: LOCATION_LIST,
+      enum: ENTITY.USER.ENUM_LOCATION,
     },
 
     image: {

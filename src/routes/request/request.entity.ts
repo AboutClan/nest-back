@@ -1,6 +1,5 @@
 import { Dayjs, isDayjs } from 'dayjs';
 import mongoose, { model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { z } from 'zod';
@@ -44,7 +43,7 @@ export const restSchema: Schema<restType> = new Schema(
 );
 
 export type RequestCategory = (typeof ENTITY.REQUEST.ENUM_CATEGORY)[number];
-export type RequestLocation = (typeof LOCATION_LIST)[number];
+export type RequestLocation = (typeof ENTITY.USER.ENUM_LOCATION)[number];
 
 export const RequestSchema: Schema<IRequestData> = new Schema(
   {
@@ -67,7 +66,7 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
     },
     location: {
       type: String,
-      enum: LOCATION_LIST,
+      enum: ENTITY.USER.ENUM_LOCATION,
       default: '수원',
     },
   },

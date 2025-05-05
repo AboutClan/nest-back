@@ -1,5 +1,4 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { IPlace } from 'src/routes/place/place.entity';
