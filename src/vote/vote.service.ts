@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/routes/collection/collection.service';
-import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { convertUserToSummary } from 'src/convert';
 import { IPlace } from 'src/routes/place/place.entity';
 import { IRealtime } from 'src/routes/realtime/realtime.entity';
@@ -19,6 +18,7 @@ import {
   IVoteStudyInfo,
 } from './vote.entity';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 @Injectable()
 export class VoteService {
@@ -824,7 +824,7 @@ export class VoteService {
       );
 
       await this.userServiceInstance.updateScore(
-        ATTEND_STUDY_SCORE,
+        CONST.SCORE.ATTEND_STUDY,
         '스터디 출석',
       );
 

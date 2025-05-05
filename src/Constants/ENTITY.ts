@@ -8,6 +8,10 @@ export const ENTITY = {
     DEFAULT_STATUS: 'normal' as const,
   },
 
+  COLLECTION: {
+    ENUM_ALPHABET: ['A', 'B', 'O', 'U', 'T'] as const,
+  },
+
   GAHTER: {
     ENUM_STATUS: ['pending', 'open', 'close', 'end'] as const,
     DEFAULT_STATUS: 'pending' as const,

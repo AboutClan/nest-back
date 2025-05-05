@@ -4,7 +4,6 @@ import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/routes/collection/collection.service';
-import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { AppError } from 'src/errors/AppError';
 import ImageService from 'src/imagez/image.service';
 import { ILog } from 'src/routes/logz/log.entity';
@@ -19,6 +18,7 @@ import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -756,7 +756,7 @@ export class UserService {
       await userData.save();
     }
 
-    await this.updateScore(ATTEND_STUDY_SCORE, '스터디 출석');
+    await this.updateScore(CONST.SCORE.ATTEND_STUDY, '스터디 출석');
 
     const result =
       await this.collectionServiceInstance.setCollectionStamp(userId);

@@ -1,6 +1,5 @@
 import { Inject } from '@nestjs/common';
 import { CollectionService } from 'src/routes/collection/collection.service';
-import { ATTEND_PRIVATE_STUDY_SCORE } from 'src/Constants/score';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
@@ -15,6 +14,7 @@ import {
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { RealtimeRepository } from './realtime.repository.interface';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 export default class RealtimeService {
   constructor(
@@ -100,7 +100,7 @@ export default class RealtimeService {
       );
 
       await this.userServiceInstance.updateScore(
-        ATTEND_PRIVATE_STUDY_SCORE,
+        CONST.SCORE.ATTEND_PRIVATE_STUDY,
         '스터디 출석',
       );
       return result;

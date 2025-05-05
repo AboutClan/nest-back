@@ -1,10 +1,10 @@
 import { Inject } from '@nestjs/common';
-import { STUDY_PLACE_POINT } from 'src/Constants/point';
 import { ValidationError } from 'src/errors/ValidationError';
 import { RequestContext } from 'src/request-context';
 import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
 import { IPlace, PlaceZodSchema } from './place.entity';
 import { PlaceRepository } from './place.repository.interface';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 export default class PlaceService {
   constructor(
@@ -14,7 +14,7 @@ export default class PlaceService {
   async getActivePlace(status: 'active' | 'inactive') {
     try {
       await this.placeRepository.findByStatus(status);
-      return { value: STUDY_PLACE_POINT };
+      return { value: CONST.POINT.STUDY_PLACE };
     } catch (err: any) {
       throw new Error(err);
     }

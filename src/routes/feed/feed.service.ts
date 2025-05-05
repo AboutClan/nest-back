@@ -1,7 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
-import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
 import { Feed } from 'src/domain/entities/Feed/Feed';
 import { SubCommentProps } from 'src/domain/entities/Feed/SubComment';
 import { DatabaseError } from 'src/errors/DatabaseError';
@@ -21,6 +20,7 @@ import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { IFeedRepository } from './FeedRepository.interface';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { IGatherRepository } from '../gather/GatherRepository.interface';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 @Injectable()
 export class FeedService {
@@ -301,10 +301,10 @@ export class FeedService {
     await this.feedRepository.save(feed);
 
     if (isLikePush) {
-      await this.userService.updatePoint(FEED_LIKE_POINT, '피드 좋아요');
+      await this.userService.updatePoint(CONST.POINT.FEED_LIKE, '피드 좋아요');
     } else {
       await this.userService.updatePoint(
-        CANCEL_FEED_LIKE_POINT,
+        CONST.POINT.CANCEL_FEED_LIKE,
         '피드 좋아요 취소',
       );
     }

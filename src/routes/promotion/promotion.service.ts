@@ -1,14 +1,11 @@
 import { Inject } from '@nestjs/common';
 import dayjs from 'dayjs';
-import {
-  PROMOTION_EVENT_DOUBLE_POINT,
-  PROMOTION_EVENT_POINT,
-} from 'src/Constants/point';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
 import { IPROMOTION_REPOSITORY } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 export default class PromotionService {
   constructor(
@@ -44,14 +41,14 @@ export default class PromotionService {
           );
 
           await this.userServiceInstance.updatePoint(
-            PROMOTION_EVENT_POINT,
+            CONST.POINT.PROMOTION_EVENT,
             '홍보 이벤트 참여',
           );
         }
       } else {
         await this.promotionRepository.createPromotion(validatedPromotion);
         await this.userServiceInstance.updatePoint(
-          PROMOTION_EVENT_DOUBLE_POINT,
+          CONST.POINT.PROMOTION_EVENT_DOUBLE,
           '홍보 이벤트 참여',
         );
       }

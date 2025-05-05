@@ -1,10 +1,30 @@
-export const C_simpleUser =
-  '_id name profileImage uid score avatar comment location isActive birth badge ';
-
-export const ALPHABET_COLLECTION = ['A', 'B', 'O', 'U', 'T'];
-
 export const CONST = {
-  C_simpleUser:
-    '_id name profileImage uid score avatar comment location isActive birth badge ',
-  ALPHABET_COLLECTION: ['A', 'B', 'O', 'U', 'T'],
+  SCORE: {
+    //번개 모임 개설
+    CREATE_GATHER: 10,
+    //번개 모임 참여
+    PARTICIPATE_GATHER: 5,
+    //번개 모임 참여 취소
+    CANCEL_GAHTER: -5,
+    //번개 모임 삭제
+    REMOVE_GAHTER: -10,
+    //스터디 출석
+    ATTEND_STUDY: 5,
+    //스터디 출석
+    ATTEND_PRIVATE_STUDY: 3,
+
+    GROUP_WEEKLY_PARTICIPATE: 2,
+  },
+
+  POINT: {
+    STUDY_VOTE: 50,
+    STUDY_PLACE: 100,
+    GROUPSTUDY_FIRST_COMMENT: 200,
+    PROMOTION_EVENT: 100,
+    //홍보 이벤트 참여 두배
+    PROMOTION_EVENT_DOUBLE: 100,
+    FEED_LIKE: 2,
+    //피드 좋아요 취소
+    CANCEL_FEED_LIKE: -2,
+  },
 };

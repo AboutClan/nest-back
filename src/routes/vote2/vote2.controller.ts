@@ -9,13 +9,13 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { STUDY_VOTE_POINT } from 'src/Constants/point';
 import {
   CreateArriveDTO,
   CreateNewVoteDTO,
   CreateParticipateDTO,
 } from './vote2.dto';
 import { Vote2Service } from './vote2.service';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 @Controller('vote2')
 export class Vote2Controller {
@@ -72,7 +72,7 @@ export class Vote2Controller {
       end,
     });
 
-    return { value: STUDY_VOTE_POINT };
+    return { value: CONST.POINT.STUDY_VOTE };
   }
 
   @Patch(':date')

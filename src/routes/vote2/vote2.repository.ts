@@ -1,12 +1,12 @@
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
-import { STUDY_VOTE_POINT } from 'src/Constants/point';
 import { UserService } from 'src/routes/user/user.service';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
@@ -131,7 +131,7 @@ export class Vote2Repository implements IVote2Repository {
       );
     }
     await this.userServiceInstance.updatePoint(
-      STUDY_VOTE_POINT,
+      CONST.POINT.STUDY_VOTE,
       '스터디 참여 신청',
     );
   }
@@ -174,7 +174,7 @@ export class Vote2Repository implements IVote2Repository {
     );
 
     await this.userServiceInstance.updatePoint(
-      -STUDY_VOTE_POINT,
+      -CONST.POINT.STUDY_VOTE,
       '스터디 투표 취소',
     );
   }
