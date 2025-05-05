@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ALPHABET_COLLECTION } from 'src/Constants/constants';
 import { Collection } from 'src/domain/entities/Collection';
 import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/routes/request/request.entity';
@@ -13,6 +12,7 @@ import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ICollectionRepository } from './CollectionRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 @Injectable()
 export class CollectionService {
@@ -44,7 +44,7 @@ export class CollectionService {
     const updatedStamps = currentStamps < 4 ? currentStamps + 1 : 0;
     const updatedAlphabet =
       currentStamps === 4
-        ? ALPHABET_COLLECTION[Math.floor(Math.random() * 5)]
+        ? ENTITY.COLLECTION.ENUM_ALPHABET[Math.floor(Math.random() * 5)]
         : null;
 
     // stamps가 5인 경우에만 alphabet을 추가합니다
@@ -135,8 +135,12 @@ export class CollectionService {
 
     const myAlphabets = [...collection?.collects];
 
-    if (ALPHABET_COLLECTION.every((item) => myAlphabets?.includes(item))) {
-      ALPHABET_COLLECTION.forEach((item) => {
+    if (
+      ENTITY.COLLECTION.ENUM_ALPHABET.every((item) =>
+        myAlphabets?.includes(item),
+      )
+    ) {
+      ENTITY.COLLECTION.ENUM_ALPHABET.forEach((item) => {
         collection.removeAlphabet(item);
         // const idx = myAlphabets?.indexOf(item);
         // if (idx !== -1) myAlphabets?.splice(idx as number, 1);

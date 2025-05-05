@@ -1,9 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
-import { C_simpleUser } from 'src/Constants/constants';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 //commit
 export class MongoGroupStudyInterface implements GroupStudyRepository {
   constructor(
@@ -28,19 +28,19 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       })
       .populate({
         path: 'participants.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'waiting.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'comments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'comments.subComments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
   }
 
@@ -91,15 +91,15 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
       })
       .populate({
         path: 'participants.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'waiting.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'comments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'comments.subComments.user',

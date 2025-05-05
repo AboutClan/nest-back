@@ -1,5 +1,6 @@
 import mongoose, { model, Schema, Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { z } from 'zod';
 
 const MetaZodSchema = z.object({
@@ -31,7 +32,7 @@ export const LogSchema: Schema<ILog> = new Schema({
   message: String,
   meta: {
     type: metaSchema,
-    enum: ['score', 'point', 'deposit'],
+    enum: ENTITY.LOG.ENUM_META,
   },
 });
 

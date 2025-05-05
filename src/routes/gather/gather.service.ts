@@ -5,12 +5,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import dayjs from 'dayjs';
-import {
-  CANCEL_GAHTER_SCORE,
-  CREATE_GATHER_SCORE,
-  PARTICIPATE_GATHER_SCORE,
-  REMOVE_GAHTER_SCORE,
-} from 'src/Constants/score';
 import { CounterService } from 'src/counter/counter.service';
 import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
 import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
@@ -30,6 +24,7 @@ import {
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 //commit
 @Injectable()
@@ -190,7 +185,7 @@ export class GatherService {
     if (!created) throw new DatabaseError('create gather failed');
 
     await this.userServiceInstance.updateScore(
-      CREATE_GATHER_SCORE,
+      CONST.SCORE.CREATE_GATHER,
       '번개 모임 개설',
     );
 
@@ -233,7 +228,7 @@ export class GatherService {
       await this.userServiceInstance.updateReduceTicket('gather', token.id);
     }
     await this.userServiceInstance.updateScore(
-      PARTICIPATE_GATHER_SCORE,
+      CONST.SCORE.PARTICIPATE_GATHER,
       '번개 모임 참여',
     );
 
@@ -278,7 +273,7 @@ export class GatherService {
     const user = await this.userServiceInstance.getUserWithUserId(userId);
 
     await this.userServiceInstance.updateScore(
-      PARTICIPATE_GATHER_SCORE,
+      CONST.SCORE.PARTICIPATE_GATHER,
       '번개 모임 참여',
       undefined,
       user.uid,
@@ -310,7 +305,7 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScore(
-      CANCEL_GAHTER_SCORE,
+      CONST.SCORE.CANCEL_GAHTER,
       '번개 모임 참여 취소',
     );
 
@@ -381,7 +376,7 @@ export class GatherService {
       const targetUser =
         await this.userServiceInstance.getUserWithUserId(userId);
       await this.userServiceInstance.updateScore(
-        PARTICIPATE_GATHER_SCORE,
+        CONST.SCORE.PARTICIPATE_GATHER,
         '번개 모임 참여',
         undefined,
         targetUser.uid,
@@ -544,7 +539,7 @@ export class GatherService {
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
     await this.userServiceInstance.updateScore(
-      REMOVE_GAHTER_SCORE,
+      CONST.SCORE.REMOVE_GAHTER,
       '번개 모임 삭제',
     );
     return;

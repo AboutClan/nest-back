@@ -1,7 +1,7 @@
 import { Dayjs, isDayjs } from 'dayjs';
 import mongoose, { model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { z } from 'zod';
 
 const dayjsSchema = z.custom<Dayjs>((value) => isDayjs(value), {
@@ -34,7 +34,7 @@ export const restSchema: Schema<restType> = new Schema(
   {
     type: {
       type: String,
-      enum: ['일반', '특별'],
+      enum: ENTITY.REQUEST.ENUM_REST,
     },
     start: Date,
     end: Date,
@@ -42,42 +42,14 @@ export const restSchema: Schema<restType> = new Schema(
   { _id: false },
 );
 
-export type RequestCategory =
-  | '건의'
-  | '신고'
-  | '홍보'
-  | '휴식'
-  | '충전'
-  | '탈퇴'
-  | '출석'
-  | '배지'
-  | '불참'
-  | '조모임'
-  | '지원금'
-  | '장소 추가'
-  | '출금';
-
-export type RequestLocation = (typeof LOCATION_LIST)[number];
+export type RequestCategory = (typeof ENTITY.REQUEST.ENUM_CATEGORY)[number];
+export type RequestLocation = (typeof ENTITY.USER.ENUM_LOCATION)[number];
 
 export const RequestSchema: Schema<IRequestData> = new Schema(
   {
     category: {
       type: String,
-      enum: [
-        '건의',
-        '신고',
-        '홍보',
-        '휴식',
-        '충전',
-        '지원금',
-        '탈퇴',
-        '출석',
-        '배지',
-        '불참',
-        '조모임',
-        '장소 추가',
-        '출금',
-      ],
+      enum: ENTITY.REQUEST.ENUM_CATEGORY,
     },
     title: {
       type: String,
@@ -94,7 +66,7 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
     },
     location: {
       type: String,
-      enum: LOCATION_LIST,
+      enum: ENTITY.USER.ENUM_LOCATION,
       default: '수원',
     },
   },

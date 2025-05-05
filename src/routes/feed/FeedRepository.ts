@@ -1,11 +1,11 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { C_simpleUser } from 'src/Constants/constants';
 import { Feed } from 'src/domain/entities/Feed/Feed';
 import { IFeed } from './feed.entity';
 import { IFeedRepository } from './FeedRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class FeedRepository implements IFeedRepository {
   constructor(
@@ -34,10 +34,10 @@ export class FeedRepository implements IFeedRepository {
 
   async findAll(opt: any): Promise<Feed[]> {
     let query = this.FeedModel.find().populate([
-      { path: 'like', select: C_simpleUser },
-      { path: 'writer', select: C_simpleUser },
-      { path: 'comments.user', select: C_simpleUser },
-      { path: 'comments.subComments.user', select: C_simpleUser },
+      { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'comments.subComments.user', select: ENTITY.USER.C_SIMPLE_USER },
     ]);
 
     if (opt.start) query = query.skip(opt.start);
@@ -53,10 +53,10 @@ export class FeedRepository implements IFeedRepository {
     const doc = await (
       await this.FeedModel.findOne({ typeId: id })
     ).populate([
-      { path: 'like', select: C_simpleUser },
-      { path: 'writer', select: C_simpleUser },
-      { path: 'comments.user', select: C_simpleUser },
-      { path: 'comments.subComments.user', select: C_simpleUser },
+      { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'comments.subComments.user', select: ENTITY.USER.C_SIMPLE_USER },
     ]);
     return this.mapToDomain(doc);
   }
@@ -80,7 +80,7 @@ export class FeedRepository implements IFeedRepository {
       .populate(['writer', 'like', 'comments.user'])
       .populate({
         path: 'comments.subComments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     return docs.map((doc) => this.mapToDomain(doc));

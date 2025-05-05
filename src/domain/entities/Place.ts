@@ -12,11 +12,11 @@ export interface PlaceProps {
   latitude: string;
   longitude: string;
   priority?: number;
-  location: string; // e.g. enum(LOCATION_LIST)
+  location: string;
   locationDetail?: string;
   time?: string;
   registerDate?: string;
-  registrantId?: string; // DB 에선 ref User => domain에서는 string
+  registrantId?: string;
   mapURL: string;
   prefCnt?: number;
 }

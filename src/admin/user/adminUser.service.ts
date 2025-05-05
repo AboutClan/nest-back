@@ -1,10 +1,10 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { C_simpleUser } from 'src/Constants/constants';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserFilterType } from './adminUser.controller';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 const logger = require('../../logger');
 
@@ -26,7 +26,7 @@ export default class AdminUserService {
     }
 
     const addField = type === 'study' ? 'studyRecord monthScore score' : '';
-    return await this.User.find(query, C_simpleUser + addField);
+    return await this.User.find(query, ENTITY.USER.C_SIMPLE_USER + addField);
   }
 
   async updateProfile(profile: Partial<IUser>) {

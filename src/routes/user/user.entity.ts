@@ -1,6 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
-import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { IPlace } from 'src/routes/place/place.entity';
 import {
   ILocationDetail,
@@ -33,8 +33,8 @@ const preferenceZodSchema = z.object({
 });
 
 const ticketZodSchema = z.object({
-  gatherTicket: z.number().default(2),
-  groupStudyTicket: z.number().default(4),
+  gatherTicket: z.number().default(ENTITY.USER.DEFAULT_GATHER_TICKET),
+  groupStudyTicket: z.number().default(ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET),
 });
 
 const badgeZodSchema = z
@@ -64,31 +64,19 @@ export type studyRecordType = z.infer<typeof studyRecordZodSchema>;
 export const userZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
-  location: z.enum(LOCATION_LIST).default('수원'),
+  location: z
+    .enum(ENTITY.USER.ENUM_LOCATION)
+    .default(ENTITY.USER.DEFAULT_LOCATION),
   mbti: z.string().default(''),
   gender: z.string().default(''),
   belong: z.string().optional(),
-  profileImage: z
-    .string()
-    .default(
-      'https://user-images.githubusercontent.com/48513798/173180642-8fc5948e-a437-45f3-91d0-3f0098a38195.png',
-    )
-    .optional(),
+  profileImage: z.string().default(ENTITY.USER.DEAFULT_IMAGE).optional(),
   registerDate: z.string().default(''),
   isActive: z.boolean().default(false).optional(),
   birth: z.string().default(''),
   role: z
-    .enum([
-      'noMember',
-      'waiting',
-      'human',
-      'member',
-      'manager',
-      'previliged',
-      'resting',
-      'enthusiastic',
-    ])
-    .default('member')
+    .enum(ENTITY.USER.ENUM_ROLE)
+    .default(ENTITY.USER.DEFAULT_ROLE)
     .optional(),
   score: z.number().default(0),
   monthScore: z.number().default(0),
@@ -106,10 +94,10 @@ export const userZodSchema = z.object({
     lon: z.number(),
   }),
   telephone: z.string().default(''),
-  comment: z.string().default('안녕하세요! 잘 부탁드립니다~!'),
+  comment: z.string().default(ENTITY.USER.DEFAULT_COMMENT),
   rest: restZodSchema,
   avatar: avatarZodSchema,
-  deposit: z.number().default(3000),
+  deposit: z.number().default(ENTITY.USER.DEFAULT_DEPOSIT),
   friend: z.array(z.string()).default([]),
   like: z.number().default(0),
   isPrivate: z.boolean().default(false).optional(),
@@ -120,7 +108,7 @@ export const userZodSchema = z.object({
   ticket: ticketZodSchema,
   badge: badgeZodSchema,
   isLocationSharingDenided: z.boolean().default(false).optional(),
-  temperature: z.number().default(36.5),
+  temperature: z.number().default(ENTITY.USER.DEAFULT_TEMPERATURE),
 });
 
 export interface IUser extends Document, IRegistered {
@@ -212,11 +200,11 @@ export const ticketSchema: Schema<ticketType> = new Schema(
   {
     gatherTicket: {
       type: Number,
-      default: 2,
+      default: ENTITY.USER.DEFAULT_GATHER_TICKET,
     },
     groupStudyTicket: {
       type: Number,
-      default: 4,
+      default: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
     },
   },
   {
@@ -258,8 +246,8 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   location: {
     type: String,
-    enum: LOCATION_LIST,
-    default: '수원',
+    enum: ENTITY.USER.ENUM_LOCATION,
+    default: ENTITY.USER.DEFAULT_LOCATION,
   },
   mbti: {
     type: String,
@@ -274,8 +262,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   profileImage: {
     type: String,
-    default:
-      'https://user-images.githubusercontent.com/48513798/173180642-8fc5948e-a437-45f3-91d0-3f0098a38195.png',
+    default: ENTITY.USER.DEAFULT_IMAGE,
   },
   registerDate: {
     type: String,
@@ -302,17 +289,8 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   role: {
     type: String,
-    enum: [
-      'noMember',
-      'waiting',
-      'human',
-      'member',
-      'manager',
-      'previliged',
-      'resting',
-      'enthusiastic',
-    ],
-    default: 'member',
+    enum: ENTITY.USER.ENUM_ROLE,
+    default: ENTITY.USER.DEFAULT_ROLE,
   },
   score: {
     type: Number,
@@ -328,7 +306,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   comment: {
     type: String,
-    default: '안녕하세요! 잘 부탁드립니다~!',
+    default: ENTITY.USER.DEFAULT_COMMENT,
   },
   rest: restSchema,
   avatar: avatarSchema,
@@ -346,7 +324,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   deposit: {
     type: Number,
-    default: 3000,
+    default: ENTITY.USER.DEFAULT_DEPOSIT,
   },
   friend: {
     type: [String],
@@ -367,7 +345,10 @@ export const UserSchema: Schema<IUser> = new Schema({
 
   ticket: {
     type: ticketSchema,
-    default: () => ({ gatherTicket: 2, groupStudyTicket: 4 }),
+    default: () => ({
+      gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
+      groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
+    }),
   },
   badge: {
     type: badgeSchema,
@@ -384,7 +365,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   temperature: {
     type: Number,
-    default: 36.5,
+    default: ENTITY.USER.DEAFULT_TEMPERATURE,
   },
 });
 
