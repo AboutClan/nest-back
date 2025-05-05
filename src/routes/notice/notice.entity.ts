@@ -1,5 +1,6 @@
 import mongoose, { Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { z } from 'zod';
 
 export const NoticeZodSchema = z.object({
@@ -19,14 +20,14 @@ export const noticeSchema: Schema<INotice> = new Schema(
     to: String,
     type: {
       type: String,
-      enum: ['like', 'friend', 'alphabet', 'temperature'],
-      default: 'like',
+      enum: ENTITY.NOTICE.ENUM_TYPE,
+      default: ENTITY.NOTICE.DEFAULT_TYPE,
     },
     message: String,
     sub: String,
     status: {
       type: String,
-      enum: ['pending', 'refusal', 'approval', 'response'],
+      enum: ENTITY.NOTICE.ENUM_STATUS,
     },
   },
   { timestamps: true },

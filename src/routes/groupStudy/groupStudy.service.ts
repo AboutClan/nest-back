@@ -3,8 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
-import { GROUPSTUDY_FIRST_COMMENT } from 'src/Constants/point';
-import { GROUP_WEEKLY_PARTICIPATE_SCORE } from 'src/Constants/score';
 
 import { CounterService } from 'src/counter/counter.service';
 import { DatabaseError } from 'src/errors/DatabaseError';
@@ -20,6 +18,7 @@ import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 //test
 export default class GroupStudyService {
@@ -727,7 +726,7 @@ export default class GroupStudyService {
       });
     } else {
       await this.userServiceInstance.updatePoint(
-        GROUPSTUDY_FIRST_COMMENT,
+        CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
         '소모임 최초 리뷰 작성',
         token.uid,
       );
@@ -885,7 +884,7 @@ export default class GroupStudyService {
     if (result.modifiedCount) {
       await this.userServiceInstance.updateScoreWithUserId(
         userId,
-        GROUP_WEEKLY_PARTICIPATE_SCORE,
+        CONST.SCORE.GROUP_WEEKLY_PARTICIPATE,
         '소모임 주간 출석',
       );
     }

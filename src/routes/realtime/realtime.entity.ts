@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -23,7 +24,9 @@ export const RealtimeUserZodSchema = z.object({
   image: z.union([z.custom<Buffer[]>(), z.string()]).optional(),
   memo: z.string().optional(),
   comment: z.object({ text: z.string() }).optional(),
-  status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']).default('solo'),
+  status: z
+    .enum(ENTITY.REALTIME.ENUM_STATUS)
+    .default(ENTITY.REALTIME.DEFAULT_STATUS),
   time: TimeSchema,
   _id: z.string().optional(),
 });
@@ -31,7 +34,7 @@ export const RealtimeUserZodSchema = z.object({
 export const RealtimeAttZodSchema = z.object({
   image: z.custom<Buffer[]>(),
   memo: z.string().optional(),
-  status: z.enum(['pending', 'solo', 'open', 'free', 'cancel']),
+  status: z.enum(ENTITY.REALTIME.ENUM_STATUS),
 });
 
 export type IPlace = z.infer<typeof PlaceSchema>;
@@ -78,7 +81,7 @@ const realtimeUserSchema: Schema<IRealtimeUser> = new Schema({
   comment: commentSchema,
   status: {
     type: String,
-    enum: ['solo', 'free', 'cancel'],
+    enum: ENTITY.REALTIME.ENUM_STATUS,
     required: true,
   },
   time: { type: timeSchema, required: true },

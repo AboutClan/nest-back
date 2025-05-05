@@ -1,14 +1,12 @@
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
-import { CollectionService } from 'src/routes/collection/collection.service';
-import { C_simpleUser } from 'src/Constants/constants';
-import { STUDY_VOTE_POINT } from 'src/Constants/point';
-import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
 import { IVote2Repository } from './vote2.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
@@ -23,10 +21,10 @@ export class Vote2Repository implements IVote2Repository {
         path: 'results.placeId',
         populate: {
           path: 'reviews.user',
-          select: C_simpleUser,
+          select: ENTITY.USER.C_SIMPLE_USER,
         },
       },
-      { path: 'results.members.userId', select: C_simpleUser },
+      { path: 'results.members.userId', select: ENTITY.USER.C_SIMPLE_USER },
     ]);
 
     if (!vote) {
@@ -36,10 +34,10 @@ export class Vote2Repository implements IVote2Repository {
           path: 'results.placeId',
           populate: {
             path: 'reviews.user',
-            select: C_simpleUser,
+            select: ENTITY.USER.C_SIMPLE_USER,
           },
         },
-        { path: 'results.members.userId', select: C_simpleUser },
+        { path: 'results.members.userId', select: ENTITY.USER.C_SIMPLE_USER },
       ]);
     }
 
@@ -48,14 +46,14 @@ export class Vote2Repository implements IVote2Repository {
   async findParticipationsByDate(date: string) {
     let vote = await this.Vote2.findOne({ date }).populate({
       path: 'participations.userId',
-      select: C_simpleUser + 'isLocationSharingDenided',
+      select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
     });
 
     if (!vote) {
       await this.Vote2.create({ date, results: [], participations: [] });
       vote = await this.Vote2.findOne({ date }).populate({
         path: 'participations.userId',
-        select: C_simpleUser + 'isLocationSharingDenided',
+        select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
       });
     }
 
@@ -85,7 +83,10 @@ export class Vote2Repository implements IVote2Repository {
         $gte: dayjs(startDay).toDate(),
         $lt: dayjs(endDay).toDate(),
       },
-    }).populate({ path: 'results.members.userId', select: C_simpleUser });
+    }).populate({
+      path: 'results.members.userId',
+      select: ENTITY.USER.C_SIMPLE_USER,
+    });
   }
 
   async setArrive(date: string, userId: string, arriveData) {
@@ -130,7 +131,7 @@ export class Vote2Repository implements IVote2Repository {
       );
     }
     await this.userServiceInstance.updatePoint(
-      STUDY_VOTE_POINT,
+      CONST.POINT.STUDY_VOTE,
       '스터디 참여 신청',
     );
   }
@@ -173,7 +174,7 @@ export class Vote2Repository implements IVote2Repository {
     );
 
     await this.userServiceInstance.updatePoint(
-      -STUDY_VOTE_POINT,
+      -CONST.POINT.STUDY_VOTE,
       '스터디 투표 취소',
     );
   }

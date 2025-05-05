@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -15,7 +16,7 @@ export const ContentZodSchema = z.object({
 export const ChatZodSchema = z.object({
   user1: z.union([z.string(), z.custom<IUser>()]), // 여기서는 ObjectId를 문자열로 표현
   user2: z.union([z.string(), z.custom<IUser>()]),
-  status: z.enum(['normal', 'inactive', 'deleted']).default('normal'), // status 필드에 제한 추가
+  status: z.enum(ENTITY.CHAT.ENUM_STATUS).default(ENTITY.CHAT.DEFAULT_STATUS), // status 필드에 제한 추가
   contents: z.array(z.custom<IContent>()).optional(), // Content 배열
 });
 

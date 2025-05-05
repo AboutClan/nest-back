@@ -1,9 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { C_simpleUser } from 'src/Constants/constants';
 import { IRealtime, IRealtimeUser } from './realtime.entity';
 import { RealtimeRepository } from './realtime.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class MongoRealtimeRepository implements RealtimeRepository {
   constructor(
@@ -14,7 +14,7 @@ export class MongoRealtimeRepository implements RealtimeRepository {
   async findByDate(date: string): Promise<IRealtime> {
     const data = await this.RealtimeModel.findOne({ date }).populate({
       path: 'userList.user',
-      select: C_simpleUser,
+      select: ENTITY.USER.C_SIMPLE_USER,
     });
     return data;
   }

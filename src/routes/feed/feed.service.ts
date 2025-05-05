@@ -1,12 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
-import { CANCEL_FEED_LIKE_POINT, FEED_LIKE_POINT } from 'src/Constants/point';
 import { Feed } from 'src/domain/entities/Feed/Feed';
 import { SubCommentProps } from 'src/domain/entities/Feed/SubComment';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
-import { GatherRepository } from 'src/routes/gather/gather.repository.interface';
+
 import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
@@ -20,6 +19,8 @@ import {
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { IFeedRepository } from './FeedRepository.interface';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { IGatherRepository } from '../gather/GatherRepository.interface';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 @Injectable()
 export class FeedService {
@@ -29,7 +30,7 @@ export class FeedService {
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: GroupStudyRepository,
     @Inject(IGATHER_REPOSITORY)
-    private readonly gatherRepository: GatherRepository,
+    private readonly gatherRepository: IGatherRepository,
     @Inject(IFEED_REPOSITORY)
     private readonly feedRepository: IFeedRepository,
 
@@ -181,7 +182,7 @@ export class FeedService {
         throw new NotFoundException(`cant find gather with id ${typeId}`);
 
       await this.webPushServiceInstance.sendNotificationGather(
-        gather.id,
+        gather.id.toString(),
         WEBPUSH_MSG.FEED.CREATE,
       );
     }
@@ -300,10 +301,10 @@ export class FeedService {
     await this.feedRepository.save(feed);
 
     if (isLikePush) {
-      await this.userService.updatePoint(FEED_LIKE_POINT, '피드 좋아요');
+      await this.userService.updatePoint(CONST.POINT.FEED_LIKE, '피드 좋아요');
     } else {
       await this.userService.updatePoint(
-        CANCEL_FEED_LIKE_POINT,
+        CONST.POINT.CANCEL_FEED_LIKE,
         '피드 좋아요 취소',
       );
     }
@@ -317,19 +318,20 @@ export class FeedService {
 
   async findReceivedFeed(feedType: 'gather' | 'group') {
     const token = RequestContext.getDecodedToken();
-    let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
-      token.id,
-    );
-    let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
-    groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
-    gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
 
-    if (feedType == 'gather') {
+    if (feedType == 'group') {
+      let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
+        token.id,
+      );
+      groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
       return await this.feedRepository.findRecievedFeed(
         feedType,
         groupStudyIds,
       );
-    } else if (feedType == 'group') {
+    } else if (feedType == 'gather') {
+      let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
+
+      gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
       return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
     }
   }

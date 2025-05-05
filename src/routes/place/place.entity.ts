@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -66,8 +67,8 @@ export const ReviewSchema: Schema<IReview> = new Schema(
 export const PlaceSchema: Schema<IPlace> = new Schema({
   status: {
     type: String,
-    enum: ['active', 'inactive', 'pending'],
-    default: 'active',
+    enum: ENTITY.PLACE.ENUM_STATUS,
+    default: ENTITY.PLACE.DEFAULT_STATUS,
   },
   fullname: {
     type: String,
