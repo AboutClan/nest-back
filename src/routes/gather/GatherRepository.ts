@@ -1,11 +1,11 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';
-import { C_simpleUser } from 'src/Constants/constants';
 import { Gather } from 'src/domain/entities/Gather/Gather';
 import { IGatherData } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class GatherRepository implements IGatherRepository {
   constructor(
@@ -36,7 +36,7 @@ export class GatherRepository implements IGatherRepository {
         ])
         .populate({
           path: 'comments.subComments.user',
-          select: C_simpleUser,
+          select: ENTITY.USER.C_SIMPLE_USER,
         });
     }
     const result = await query.exec();
@@ -67,7 +67,7 @@ export class GatherRepository implements IGatherRepository {
       .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
       .populate({
         path: 'comments.subComments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     return result.map((doc) => this.mapToDomain(doc));
@@ -80,7 +80,7 @@ export class GatherRepository implements IGatherRepository {
       .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
       .populate({
         path: 'comments.subComments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     return gatherData.map((doc) => this.mapToDomain(doc));

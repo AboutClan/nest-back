@@ -1,9 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';
-import { C_simpleUser } from 'src/Constants/constants';
 import { IGatherData, participantsType, subCommentType } from './gather.entity';
 import { GatherRepository } from './gather.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class MongoGatherRepository implements GatherRepository {
   constructor(
@@ -83,7 +83,7 @@ export class MongoGatherRepository implements GatherRepository {
         ])
         .populate({
           path: 'comments.subComments.user',
-          select: C_simpleUser,
+          select: ENTITY.USER.C_SIMPLE_USER,
         });
     }
     return await query;
@@ -96,7 +96,7 @@ export class MongoGatherRepository implements GatherRepository {
       .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
       .populate({
         path: 'comments.subComments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     return gatherData;
@@ -320,7 +320,7 @@ export class MongoGatherRepository implements GatherRepository {
       .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
       .populate({
         path: 'comments.subComments.user',
-        select: C_simpleUser,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     return result;

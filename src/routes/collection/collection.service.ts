@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ALPHABET_COLLECTION } from 'src/Constants/constants';
+import { ALPHABET_COLLECTION } from 'src/Constants/CONSTANTS';
 import { Collection } from 'src/domain/entities/Collection';
 import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/routes/request/request.entity';

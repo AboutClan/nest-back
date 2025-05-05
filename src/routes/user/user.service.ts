@@ -4,7 +4,6 @@ import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/routes/collection/collection.service';
-import { C_simpleUser } from 'src/Constants/constants';
 import { ATTEND_STUDY_SCORE } from 'src/Constants/score';
 import { AppError } from 'src/errors/AppError';
 import ImageService from 'src/imagez/image.service';
@@ -19,6 +18,7 @@ import * as logger from '../../logger';
 import { IUser, restType } from './user.entity';
 import { UserRepository } from './user.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -119,13 +119,16 @@ export class UserService {
 
   async getSimpleUserInfo() {
     const token = RequestContext.getDecodedToken();
-    const result = await this.UserRepository.findByUid(token.uid, C_simpleUser);
+    const result = await this.UserRepository.findByUid(
+      token.uid,
+      ENTITY.USER.C_SIMPLE_USER,
+    );
 
     return result;
   }
 
   async getAllSimpleUserInfo() {
-    const users = await this.UserRepository.findAll(C_simpleUser);
+    const users = await this.UserRepository.findAll(ENTITY.USER.C_SIMPLE_USER);
 
     return users;
   }
@@ -149,12 +152,14 @@ export class UserService {
       const allUser = all
         ? await this.UserRepository.findByIsActive(
             true,
-            C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
+            ENTITY.USER.C_SIMPLE_USER +
+              'monthScore weekStudyAccumulationMinutes',
           )
         : await this.UserRepository.findByIsActiveUid(
             token.uid,
             true,
-            C_simpleUser + 'monthScore weekStudyAccumulationMinutes',
+            ENTITY.USER.C_SIMPLE_USER +
+              'monthScore weekStudyAccumulationMinutes',
           );
 
       let attendForm = allUser.map((user) => ({
