@@ -1,5 +1,6 @@
 import mongoose, { Document, model, Model, Schema, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -25,10 +26,10 @@ export const PollItemZodSchema = z.object({
 
 export const SecretSquareZodSchema = z.object({
   _id: z.string().optional(),
-  category: z.enum(['일상', '고민', '정보', '같이해요']),
+  category: z.enum(ENTITY.SQUARE.ENUM_CATEGORY),
   title: z.string(),
   content: z.string(),
-  type: z.enum(['general', 'poll']),
+  type: z.enum(ENTITY.SQUARE.ENUM_TYPE),
   poll: z
     .object({
       pollItems: z.array(PollItemZodSchema),
@@ -47,9 +48,8 @@ export type Comment = z.infer<typeof CommentZodSchema> & Document;
 export type PollItem = z.infer<typeof PollItemZodSchema>;
 export type SecretSquareItem = z.infer<typeof SecretSquareZodSchema> & Document;
 
-export type SecretSquareCategory = '일상' | '고민' | '정보' | '같이해요';
-
-export type SecretSquareType = 'general' | 'poll';
+export type SecretSquareCategory = (typeof ENTITY.SQUARE.ENUM_CATEGORY)[number];
+export type SecretSquareType = (typeof ENTITY.SQUARE.ENUM_TYPE)[number];
 
 export const subCommentSchema: Schema<subCommentType> = new Schema(
   {

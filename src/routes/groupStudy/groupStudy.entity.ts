@@ -1,11 +1,12 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
 // UserRole enum
-const userRoleZodSchema = z.enum(['admin', 'manager', 'member', 'outsider']);
+const userRoleZodSchema = z.enum(ENTITY.GROUPSTUDY.ENUM_USER_ROLE);
 
 // ICategory Zod schema
 const categoryZodSchema = z.object({
@@ -78,7 +79,7 @@ const groupStudyZodSchema = z.object({
   organizer: z.any(), // IUser type should be handled appropriately
   memberCnt: memberCntZodSchema,
   password: z.string().optional(),
-  status: z.enum(['end', 'pending', 'planned']),
+  status: z.enum(ENTITY.GROUPSTUDY.ENUM_STATUS),
   participants: z.array(participantsZodSchema),
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
   comments: z.array(commentZodSchema).optional(),
@@ -95,7 +96,7 @@ const groupStudyZodSchema = z.object({
   isSecret: z.boolean().optional(),
   waiting: z.array(waitingZodSchema).optional().default([]),
   squareImage: z.string().optional(),
-  meetingType: z.enum(['online', 'offline', 'hybrid']).optional(),
+  meetingType: z.enum(ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE).optional(),
 });
 
 export type GroupStudyStatus = 'end' | 'pending';
@@ -109,7 +110,7 @@ export type IAttendance = z.infer<typeof attendanceZodSchema>;
 export type IWeekRecord = z.infer<typeof weekRecordZodSchema>;
 export type IGroupStudyData = z.infer<typeof groupStudyZodSchema> & Document;
 
-type UserRole = 'admin' | 'manager' | 'member' | 'outsider';
+type UserRole = (typeof ENTITY.GROUPSTUDY.ENUM_USER_ROLE)[number];
 
 export const weekSchema: Schema<IWeekRecord> = new Schema(
   {
@@ -174,7 +175,7 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
     role: {
       type: String,
-      enum: ['admin', 'member', 'manager', 'human', 'outsider'],
+      enum: ENTITY.GROUPSTUDY.ENUM_USER_ROLE,
     },
     attendCnt: {
       type: Number,
@@ -318,8 +319,8 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'open', 'close', 'end', 'gathering', 'study'],
-      default: 'pending',
+      enum: ENTITY.GROUPSTUDY.ENUM_STATUS,
+      default: ENTITY.GROUPSTUDY.DEFAULT_STATUS,
       required: true,
     },
     id: {
@@ -348,7 +349,7 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     meetingType: {
       type: String,
-      enum: ['online', 'offline', 'hybrid'],
+      enum: ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE,
     },
   },
   { timestamps: true },

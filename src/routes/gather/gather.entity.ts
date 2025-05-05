@@ -1,6 +1,7 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { LOCATION_LIST } from 'src/Constants/constants';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
@@ -63,7 +64,9 @@ export const GatherZodSchema = z.object({
   preCnt: z.number().nullable().optional(),
   genderCondition: z.boolean(),
   password: z.string().nullable().optional(),
-  status: z.enum(['pending', 'open', 'close', 'end']).default('pending'),
+  status: z
+    .enum(ENTITY.GAHTER.ENUM_STATUS)
+    .default(ENTITY.GAHTER.DEFAULT_STATUS),
   participants: z.array(ParticipantsZodSchema),
   user: z.union([z.string(), z.custom<IUser>()]),
   comments: z.array(CommentZodSchema),
@@ -160,7 +163,7 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
     phase: {
       type: String,
-      enum: ['all', 'first', 'second'],
+      enum: ENTITY.GAHTER.ENUM_PART_PHASE,
     },
     invited: {
       type: Boolean,
@@ -267,8 +270,8 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'open', 'close', 'end'],
-      default: 'pending',
+      enum: ENTITY.GAHTER.ENUM_STATUS,
+      default: ENTITY.GAHTER.DEFAULT_STATUS,
       required: true,
     },
     comments: {

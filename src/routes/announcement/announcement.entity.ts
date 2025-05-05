@@ -1,9 +1,10 @@
 import mongoose, { Document, Model, model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { z } from 'zod';
 
 export const AnnouncementZodSchema = z.object({
-  type: z.enum(['main', 'sub', 'event', 'update']),
+  type: z.enum(ENTITY.ANNOUNCEMENT.ENUM_TYPE),
   title: z.string().min(1, 'Title is required'),
   content: z.string().min(1, 'Content is required'),
 });
@@ -14,7 +15,7 @@ export const AnnouncementSchema = new Schema<IAnnouncement>(
   {
     type: {
       type: String,
-      enum: ['main', 'sub', 'event', 'update'],
+      enum: ENTITY.ANNOUNCEMENT.ENUM_TYPE,
       required: true,
     },
     title: {
