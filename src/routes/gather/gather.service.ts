@@ -11,6 +11,7 @@ import {
   PARTICIPATE_GATHER_SCORE,
   REMOVE_GAHTER_SCORE,
 } from 'src/Constants/score';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { CounterService } from 'src/counter/counter.service';
 import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
 import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
@@ -19,9 +20,9 @@ import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
+import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { formatGatherDate } from 'src/utils/dateUtils';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
 import {
   gatherStatus,
   IGatherData,
@@ -29,7 +30,6 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 //commit
 @Injectable()
@@ -124,7 +124,7 @@ export class GatherService {
 
   async getMyFinishGather(cursor: number | null) {
     const token = RequestContext.getDecodedToken();
-
+    console.log(cursor);
     const gap = 12;
     let start = gap * (cursor || 0);
 
@@ -146,6 +146,9 @@ export class GatherService {
       start,
       gap,
     );
+
+    if (cursor === -1) {
+    }
 
     return gatherData;
   }
@@ -393,7 +396,7 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
-      token.id,
+      userId,
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.ACCEPT(formatGatherDate(gather.date)),
     );
