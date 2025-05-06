@@ -36,6 +36,7 @@ export const ParticipantsZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
   phase: z.string(),
   invited: z.boolean().default(false),
+  reviewed: z.boolean().default(false),
 });
 
 export const SubCommentZodSchema = z.object({
@@ -165,6 +166,10 @@ export const participantsSchema: Schema<participantsType> = new Schema(
       enum: ENTITY.GAHTER.ENUM_PART_PHASE,
     },
     invited: {
+      type: Boolean,
+      default: false,
+    },
+    reviewed: {
       type: Boolean,
       default: false,
     },

@@ -119,7 +119,6 @@ export class GatherService {
 
   async getMyFinishGather(cursor: number | null) {
     const token = RequestContext.getDecodedToken();
-    console.log(cursor);
     const gap = 12;
     let start = gap * (cursor || 0);
 
@@ -164,6 +163,24 @@ export class GatherService {
     );
 
     return gatherData;
+  }
+
+  async getReviewGather() {
+    const token = RequestContext.getDecodedToken();
+
+    const myGathers = (
+      await this.gatherRepository.findMyGather(token.id)
+    ).slice(0, 3);
+
+    const notReviewedGathers = myGathers.filter((gather) =>
+      gather.participants.some(
+        (participant) =>
+          participant.user.toString() === token.id.toString() &&
+          !participant.reviewed,
+      ),
+    );
+
+    return notReviewedGathers[0] || [];
   }
 
   //todo: 타입 수정 필요
