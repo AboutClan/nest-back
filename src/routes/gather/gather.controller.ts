@@ -53,6 +53,11 @@ export class GatherController {
     return await this.gatherService.getStatusGather(status, cursorNum);
   }
 
+  @Get('review')
+  async getReviewGather() {
+    return await this.gatherService.getReviewGather();
+  }
+
   @Post()
   async createGather(@Body() createGatherDto: CreateGatherDto) {
     const gatherId = await this.gatherService.createGather(
@@ -74,7 +79,7 @@ export class GatherController {
     const gatherData = await this.gatherService.deleteGather(
       deleteGatherDto.gatherId,
     );
-  
+
     return gatherData;
   }
 

@@ -166,6 +166,26 @@ export class GatherService {
     return gatherData;
   }
 
+  async getReviewGather() {
+    const token = RequestContext.getDecodedToken();
+
+    const myGathers = (
+      await this.gatherRepository.findMyGather(token.id)
+    ).slice(0, 3);
+
+    console.log(myGathers.length);
+
+    const notReviewedGathers = myGathers.filter((gather) =>
+      gather.participants.some(
+        (participant) =>
+          participant.user.toString() === token.id.toString() &&
+          !participant.reviewed,
+      ),
+    );
+
+    return notReviewedGathers[0] || [];
+  }
+
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
   async createGather(data: Partial<IGatherData>) {
