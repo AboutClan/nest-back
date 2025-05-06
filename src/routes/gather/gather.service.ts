@@ -119,7 +119,6 @@ export class GatherService {
 
   async getMyFinishGather(cursor: number | null) {
     const token = RequestContext.getDecodedToken();
-    console.log(cursor);
     const gap = 12;
     let start = gap * (cursor || 0);
 
@@ -172,8 +171,6 @@ export class GatherService {
     const myGathers = (
       await this.gatherRepository.findMyGather(token.id)
     ).slice(0, 3);
-
-    console.log(myGathers.length);
 
     const notReviewedGathers = myGathers.filter((gather) =>
       gather.participants.some(
