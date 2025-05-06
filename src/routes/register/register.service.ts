@@ -13,6 +13,7 @@ import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { RequestContext } from 'src/request-context';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { DateUtils } from 'src/utils/Date';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export default class RegisterService {
   constructor(
@@ -81,10 +82,10 @@ export default class RegisterService {
       role: 'human',
       registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
-      deposit: 3000,
+      point: 3000,
       ticket: {
-        gatherTicket: 2,
-        groupStudyTicket: 4,
+        gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
+        groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
       },
     };
 
