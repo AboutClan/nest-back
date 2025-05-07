@@ -3,17 +3,20 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
-import { INOTICE_REPOSITORY } from 'src/utils/di.tokens';
+import { IGATHER_REPOSITORY, INOTICE_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from '../../logger';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
 import { RequestContext } from 'src/request-context';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { IGatherRepository } from '../gather/GatherRepository.interface';
 
 export default class NoticeService {
   constructor(
     @Inject(INOTICE_REPOSITORY)
     private readonly noticeRepository: NoticeRepository,
+    @Inject(IGATHER_REPOSITORY)
+    private readonly gatherRepository: IGatherRepository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
   ) {}
 
@@ -133,18 +136,29 @@ export default class NoticeService {
     return result;
   }
 
-  async createTemperature(toUid: string, message: string, rating: string) {
+  async createTemperature(
+    infos: { toUid: string; message: string; rating: string }[],
+    gatherId: string,
+  ) {
     const token = RequestContext.getDecodedToken();
     try {
-      const validatedNotice = NoticeZodSchema.parse({
-        from: token.uid,
-        type: 'temperature',
-        to: toUid,
-        message,
-        sub: rating,
-      });
+      for (let info of infos) {
+        const validatedNotice = NoticeZodSchema.parse({
+          from: token.uid,
+          type: 'temperature',
+          to: info.toUid,
+          message: info.message,
+          sub: info.rating,
+        });
+        await this.noticeRepository.createNotice(validatedNotice);
+      }
 
-      await this.noticeRepository.createNotice(validatedNotice);
+      const gather = await this.gatherRepository.findById(parseInt(gatherId));
+      gather.participants.forEach((participant) => {
+        if (participant.user.toString() === token.id.toString())
+          participant.reviewed = true;
+      });
+      await this.gatherRepository.save(gather);
     } catch (err: any) {
       throw new Error(err);
     }

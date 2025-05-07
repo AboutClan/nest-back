@@ -206,12 +206,11 @@ export class NoticeController {
 
   @Post('temperature')
   async createTemperature(
-    @Body('toUid') toUid: string,
-    @Body('message') message: string,
-    @Body('rating') rating: string,
+    @Body('infos') infos: { toUid: string; message: string; rating: string }[],
+    @Body('gatherId') gatherId: string,
   ) {
     try {
-      await this.noticeService.createTemperature(toUid, message, rating);
+      await this.noticeService.createTemperature(infos, gatherId);
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
