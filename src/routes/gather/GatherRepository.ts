@@ -6,6 +6,7 @@ import { IGatherData } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { Types } from 'mongoose';
 
 export class GatherRepository implements IGatherRepository {
   constructor(
@@ -15,9 +16,10 @@ export class GatherRepository implements IGatherRepository {
 
   async findMyGather(userId: string): Promise<Gather[] | null> {
     const result = await this.Gather.find({
-      participants: {
-        $elemMatch: { user: userId },
-      },
+      $or: [
+        { user: new Types.ObjectId(userId) },
+        { participants: { $elemMatch: { user: userId } } },
+      ],
     }).sort({ createdAt: -1 });
 
     return result.map((doc) => this.mapToDomain(doc));
@@ -183,6 +185,35 @@ export class GatherRepository implements IGatherRepository {
     }
 
     return this.mapToDomain(updatedDoc);
+  }
+
+  async updateNotOpened(current: Date) {
+    await this.Gather.updateMany(
+      {
+        $and: [
+          { status: { $eq: 'pending' } },
+          { date: { $lt: current.toISOString() } },
+        ],
+      },
+      [
+        {
+          $set: {
+            status: {
+              $cond: {
+                if: {
+                  $lt: [
+                    { $add: [{ $size: '$participants' }, 1] },
+                    '$memberCnt.min',
+                  ],
+                },
+                then: 'close',
+                else: 'open',
+              },
+            },
+          },
+        },
+      ],
+    );
   }
 
   private mapToDomain(doc: IGatherData): Gather {

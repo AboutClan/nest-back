@@ -18,6 +18,7 @@ export interface IGatherRepository {
     gatherData: Partial<IGatherData>,
   ): Promise<null>;
   save(doc: Gather): Promise<Gather>;
+  updateNotOpened(current: Date);
   deleteById(gatherId: string): Promise<any>;
   getEnthMembers();
 }

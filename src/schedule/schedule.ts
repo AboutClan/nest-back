@@ -13,13 +13,15 @@ import {
 } from 'src/utils/di.tokens';
 import { Vote2Service } from 'src/routes/vote2/vote2.service';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
 
 @Injectable()
 export class NotificationScheduler {
   private readonly logger = new Logger(NotificationScheduler.name);
 
   constructor(
-    @Inject(IGATHER_REPOSITORY) private gatherRepository: GatherRepository,
+    @Inject(IGATHER_REPOSITORY)
+    private readonly gatherRepository: IGatherRepository,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
     private readonly vote2Service: Vote2Service,
