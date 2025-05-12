@@ -20,7 +20,12 @@ export class GatherRepository implements IGatherRepository {
         { user: new Types.ObjectId(userId) },
         { participants: { $elemMatch: { user: userId } } },
       ],
-    }).sort({ createdAt: -1 });
+    })
+      .populate([
+        { path: 'user', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'participants.user', select: ENTITY.USER.C_SIMPLE_USER },
+      ])
+      .sort({ createdAt: -1 });
 
     return result.map((doc) => this.mapToDomain(doc));
   }
