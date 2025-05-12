@@ -25,6 +25,7 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import { IUser } from '../user/user.entity';
 
 //commit
 @Injectable()
@@ -172,12 +173,10 @@ export class GatherService {
       await this.gatherRepository.findMyGather(token.id)
     ).slice(0, 3);
 
-    console.log(myGathers[0].participants[0].user);
-
     const notReviewedGathers = myGathers.filter((gather) =>
       gather.participants.some(
         (participant) =>
-          participant.user.toString() === token.id.toString() &&
+          (participant.user as any)._id.toString() === token.id.toString() &&
           !participant.reviewed,
       ),
     );
