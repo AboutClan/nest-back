@@ -17,7 +17,7 @@ export class DailyCheckService {
 
     const findDailyCheck = await this.dailyCheckRepository.findByUid(token.uid);
 
-    if (findDailyCheck.updatedAt) {
+    if (findDailyCheck?.updatedAt) {
       const today = new Date();
       const updatedAt = findDailyCheck.updatedAt
         ? new Date(findDailyCheck.updatedAt)
