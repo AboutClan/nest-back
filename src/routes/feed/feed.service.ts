@@ -6,21 +6,21 @@ import { SubCommentProps } from 'src/domain/entities/Feed/SubComment';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 
-import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
+import { CONST } from 'src/Constants/CONSTANTS';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
+import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
+import { WebPushService } from 'src/routes/webpush/webpush.service';
 import {
   IFEED_REPOSITORY,
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
-import { IFeedRepository } from './FeedRepository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { IGatherRepository } from '../gather/GatherRepository.interface';
-import { CONST } from 'src/Constants/CONSTANTS';
+import { IFeedRepository } from './FeedRepository.interface';
 
 @Injectable()
 export class FeedService {
@@ -297,7 +297,7 @@ export class FeedService {
   async toggleLike(feedId: string) {
     const token = RequestContext.getDecodedToken();
     const feed = await this.feedRepository.findById(feedId);
-    const isLikePush = feed.toggleLike(token.id);
+    const isLikePush = await feed.toggleLike(token.id);
     await this.feedRepository.save(feed);
 
     if (isLikePush) {
