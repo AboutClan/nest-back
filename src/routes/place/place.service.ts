@@ -4,7 +4,6 @@ import { RequestContext } from 'src/request-context';
 import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
 import { IPlace, PlaceZodSchema } from './place.entity';
 import { PlaceRepository } from './place.repository.interface';
-import { CONST } from 'src/Constants/CONSTANTS';
 
 export default class PlaceService {
   constructor(
@@ -13,8 +12,8 @@ export default class PlaceService {
   ) {}
   async getActivePlace(status: 'active' | 'inactive') {
     try {
-      await this.placeRepository.findByStatus(status);
-      return { value: CONST.POINT.STUDY_PLACE };
+      const places = await this.placeRepository.findByStatus(status);
+      return places;
     } catch (err: any) {
       throw new Error(err);
     }
