@@ -42,19 +42,18 @@ export class FeedService {
 
   async findFeedByType(
     type?: string,
-
     cursor?: number | null,
-    isRecent?: boolean,
+    isRecent?: 'true' | 'false',
   ) {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
     const start = gap * (cursor || 0);
-
+    console.log(13, typeof isRecent);
     const feeds = await this.feedRepository.findByType(type, {
       start,
       gap,
-      sort: isRecent ? -1 : 1,
+      sort: isRecent === 'true' ? -1 : 1,
     });
 
     return feeds?.map((feed) => {
@@ -117,13 +116,17 @@ export class FeedService {
     return feed?.like as unknown as IUser[];
   }
 
-  async findAllFeeds(cursor: number | null, isRecent?: boolean) {
+  async findAllFeeds(cursor: number | null, isRecent?: 'true' | 'false') {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
     const start = gap * (cursor || 0);
-
-    const feeds = await this.feedRepository.findAll({ start, gap, isRecent });
+    console.log(25, isRecent === 'true');
+    const feeds = await this.feedRepository.findAll({
+      start,
+      gap,
+      isRecent,
+    });
     return feeds?.map((feed) => {
       const myLike = (feed?.like as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,

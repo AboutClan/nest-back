@@ -1,11 +1,11 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { Feed } from 'src/domain/entities/Feed/Feed';
 import { IFeed } from './feed.entity';
 import { IFeedRepository } from './FeedRepository.interface';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ENTITY } from 'src/Constants/ENTITY';
 
 export class FeedRepository implements IFeedRepository {
   constructor(
@@ -75,7 +75,7 @@ export class FeedRepository implements IFeedRepository {
     if (opt.start) query = query.skip(opt.start);
     if (opt.gap) query = query.limit(opt.gap);
     if (opt.sort) query = query.sort({ createdAt: opt.sort });
-
+   
     const docs = await query
       .populate(['writer', 'like', 'comments.user'])
       .populate({

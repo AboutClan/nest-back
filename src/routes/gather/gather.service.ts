@@ -25,7 +25,6 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import { IUser } from '../user/user.entity';
 
 //commit
 @Injectable()
@@ -181,7 +180,7 @@ export class GatherService {
       ),
     );
 
-    return notReviewedGathers[0] || [];
+    return notReviewedGathers[0] || null;
   }
 
   //todo: 타입 수정 필요

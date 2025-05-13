@@ -9,7 +9,11 @@ export interface FeedRepository {
   ): Promise<IFeed[]>;
   findById(id: string): Promise<IFeed>;
   findByIdLike(id: string): Promise<IFeed>;
-  findAll(start: number, gap: number, isRecent: boolean): Promise<IFeed[]>;
+  findAll(
+    start: number,
+    gap: number,
+    isRecent: 'true' | 'false',
+  ): Promise<IFeed[]>;
   createFeed(feedData): Promise<IFeed>;
   createComment(feedId: string, message: commentType): Promise<IFeed>;
   deleteComment(feedId: string, commentId: string): Promise<any>;

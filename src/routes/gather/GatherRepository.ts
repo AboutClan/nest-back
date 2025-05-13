@@ -1,12 +1,12 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, SortOrder } from 'mongoose';
+import dayjs from 'dayjs';
+import { Model, SortOrder, Types } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { Gather } from 'src/domain/entities/Gather/Gather';
 import { IGatherData } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ENTITY } from 'src/Constants/ENTITY';
-import { Types } from 'mongoose';
 
 export class GatherRepository implements IGatherRepository {
   constructor(
@@ -27,7 +27,9 @@ export class GatherRepository implements IGatherRepository {
       ])
       .sort({ createdAt: -1 });
 
-    return result.map((doc) => this.mapToDomain(doc));
+    return result
+      .filter((props) => dayjs(props.date).isBefore(dayjs()))
+      .map((doc) => this.mapToDomain(doc));
   }
 
   async findMyGatherId(userId: string) {

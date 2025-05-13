@@ -1,9 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { commentType, IFeed, subCommentType } from './feed.entity';
-import { FeedRepository } from './feed.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { commentType, IFeed, subCommentType } from './feed.entity';
+import { FeedRepository } from './feed.repository.interface';
 
 export class MongoFeedRepository implements FeedRepository {
   constructor(
@@ -38,7 +38,7 @@ export class MongoFeedRepository implements FeedRepository {
   async findAll(
     start: number,
     gap: number,
-    isRecent: boolean,
+    isRecent: 'true' | 'false',
   ): Promise<IFeed[]> {
     return await this.Feed.find()
       .populate(['writer', 'like', 'comments.user'])
@@ -46,7 +46,7 @@ export class MongoFeedRepository implements FeedRepository {
         path: 'comments.subComments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       })
-      .sort({ createdAt: isRecent ? -1 : 1 })
+      .sort({ createdAt: isRecent === 'true' ? -1 : 1 })
       .skip(start)
       .limit(gap);
   }
