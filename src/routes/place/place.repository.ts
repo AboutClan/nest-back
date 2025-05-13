@@ -1,9 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IPlace } from './place.entity';
-import { PlaceRepository } from './place.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { IPlace } from './place.entity';
+import { PlaceRepository } from './place.repository.interface';
 
 export class MongoPlaceReposotory implements PlaceRepository {
   constructor(
@@ -21,7 +21,8 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async findByStatus(status: string): Promise<IPlace[]> {
-    return await this.Place.find({ status }).populate({
+    //임시로 status 제거
+    return await this.Place.find({}).populate({
       path: 'registrant',
       select: ENTITY.USER.C_SIMPLE_USER,
     });
