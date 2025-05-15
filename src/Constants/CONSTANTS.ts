@@ -8,10 +8,12 @@ export const CONST = {
     CANCEL_GAHTER: -5,
     //번개 모임 삭제
     REMOVE_GAHTER: -10,
+    //스터디 투표
+    VOTE_STUDY: 3,
     //스터디 출석
     ATTEND_STUDY: 5,
     //스터디 출석
-    ATTEND_PRIVATE_STUDY: 3,
+    ATTEND_PRIVATE_STUDY: 2,
 
     GROUP_WEEKLY_PARTICIPATE: 2,
   },
