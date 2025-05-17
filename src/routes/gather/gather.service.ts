@@ -57,7 +57,7 @@ export class GatherService {
     category: '취미' | '스터디',
     sortBy: 'createdAt' | 'date',
   ) {
-    const gap = 12;
+    const gap = 20;
     let start = gap * (cursor || 0);
     const query =
       category === '스터디'
@@ -172,12 +172,14 @@ export class GatherService {
       await this.gatherRepository.findMyGather(token.id)
     ).slice(0, 2);
     console.log(3, myGathers);
-    const notReviewedGathers = myGathers.filter((gather) =>
-      gather.participants.some(
-        (participant) =>
-          (participant.user as any)._id.toString() === token.id.toString() &&
-          !participant.reviewed,
-      ),
+    const notReviewedGathers = myGathers.filter(
+      (gather) =>
+        dayjs(gather.date).isBefore(dayjs()) &&
+        gather.participants.some(
+          (participant) =>
+            (participant.user as any)._id.toString() === token.id.toString() &&
+            !participant.reviewed,
+        ),
     );
 
     return notReviewedGathers[0] || null;
