@@ -36,6 +36,7 @@ export interface GatherProps {
   coverImage?: string | null;
   kakaoUrl?: string | null;
   isApprovalRequired?: boolean | null;
+  reviewers: string[];
 }
 
 export class Gather {
@@ -63,6 +64,7 @@ export class Gather {
   public coverImage: string | null;
   public kakaoUrl: string | null;
   public isApprovalRequired: boolean | null;
+  public reviewers: string[];
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -90,6 +92,7 @@ export class Gather {
     this.coverImage = props.coverImage ?? null;
     this.kakaoUrl = props.kakaoUrl ?? null;
     this.isApprovalRequired = props.isApprovalRequired ?? null;
+    this.reviewers = props.reviewers || [];
   }
 
   participate(participant: ParticipantsProps) {
@@ -205,6 +208,10 @@ export class Gather {
     });
   }
 
+  public addReviewers(reviewer: string) {
+    this.reviewers.push(reviewer);
+  }
+
   toPrimitives(): GatherProps {
     return {
       _id: this._id,
@@ -231,6 +238,7 @@ export class Gather {
       coverImage: this.coverImage,
       kakaoUrl: this.kakaoUrl,
       isApprovalRequired: this.isApprovalRequired,
+      reviewers: this.reviewers,
     };
   }
 }
