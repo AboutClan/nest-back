@@ -171,7 +171,7 @@ export class GatherService {
 
     const myGathers = (
       await this.gatherRepository.findMyGather(token.id)
-    ).slice(0, 1);
+    ).slice(0, 2);
 
     const notReviewed = myGathers.filter((g) => {
       const reviewerIds = g.reviewers.map((r) => r.toString());
