@@ -165,22 +165,26 @@ export class GatherService {
     return gatherData;
   }
 
-  async getReviewGather() {
+  async getReviewGather(): Promise<Gather | null> {
     const token = RequestContext.getDecodedToken();
+    const userIdString = token.id.toString();
 
     const myGathers = (
       await this.gatherRepository.findMyGather(token.id)
     ).slice(0, 2);
+    const notReviewed = myGathers.filter((g) => {
+      const reviewerIds = g.reviewers.map((r) => r.toString());
+      const isReviewed = reviewerIds.includes(userIdString);
 
-    const notReviewedGathers = myGathers.filter((gather) =>
-      gather.participants.some(
-        (participant) =>
-          (participant.user as any)._id.toString() === token.id.toString() &&
-          !gather.reviewers.includes(token.id.toString()),
-      ),
-    );
+      const isParticipant = g.participants.some(
+        (p) => (p.user as any)._id.toString() === userIdString,
+      );
+      const isOwner = (g.user as any).toString() === userIdString;
 
-    return notReviewedGathers[0] || null;
+      return !isReviewed && (isParticipant || isOwner);
+    });
+
+    return notReviewed[0] ?? null;
   }
 
   //todo: 타입 수정 필요

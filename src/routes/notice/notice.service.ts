@@ -162,7 +162,7 @@ export default class NoticeService {
       }
 
       const gather = await this.gatherRepository.findById(parseInt(gatherId));
-      gather.addReviewers(token.id.toString());
+      gather.addReviewers(token.id);
       await this.gatherRepository.save(gather);
     } catch (err: any) {
       throw new Error(err);
