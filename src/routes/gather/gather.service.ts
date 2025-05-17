@@ -171,12 +171,12 @@ export class GatherService {
     const myGathers = (
       await this.gatherRepository.findMyGather(token.id)
     ).slice(0, 2);
-    console.log(3, myGathers);
+
     const notReviewedGathers = myGathers.filter((gather) =>
       gather.participants.some(
         (participant) =>
           (participant.user as any)._id.toString() === token.id.toString() &&
-          !participant.reviewed,
+          !gather.reviewers.includes(token.id.toString()),
       ),
     );
 
