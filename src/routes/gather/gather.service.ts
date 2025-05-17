@@ -172,6 +172,7 @@ export class GatherService {
     const myGathers = (
       await this.gatherRepository.findMyGather(token.id)
     ).slice(0, 2);
+
     const notReviewed = myGathers.filter((g) => {
       const reviewerIds = g.reviewers.map((r) => r.toString());
       const isReviewed = reviewerIds.includes(userIdString);
@@ -179,7 +180,7 @@ export class GatherService {
       const isParticipant = g.participants.some(
         (p) => (p.user as any)._id.toString() === userIdString,
       );
-      const isOwner = (g.user as any).toString() === userIdString;
+      const isOwner = (g.user as any)._id.toString() === userIdString;
 
       return !isReviewed && (isParticipant || isOwner);
     });

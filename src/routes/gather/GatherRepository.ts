@@ -27,9 +27,11 @@ export class GatherRepository implements IGatherRepository {
       ])
       .sort({ createdAt: -1 });
 
-    return result
-      .filter((props) => dayjs(props.date).isBefore(dayjs()))
-      .map((doc) => this.mapToDomain(doc));
+    return (
+      result
+        // .filter((props) => dayjs(props.date).isBefore(dayjs()))
+        .map((doc) => this.mapToDomain(doc))
+    );
   }
 
   async findMyGatherId(userId: string) {
