@@ -15,6 +15,7 @@ import { IUser } from 'src/routes/user/user.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { CONST } from 'src/Constants/CONSTANTS';
 
 export class Vote2Service {
   constructor(
@@ -223,12 +224,22 @@ export class Vote2Service {
     if (end !== null) voteData.end = end;
 
     await this.Vote2Repository.setVote(date, voteData);
+
+    await this.userServiceInstance.updateScore(
+      CONST.SCORE.VOTE_STUDY,
+      '스터디 투표',
+    );
     return;
   }
 
   async deleteVote(date: string) {
     const token = RequestContext.getDecodedToken();
     await this.Vote2Repository.deleteVote(date, token.id);
+
+    await this.userServiceInstance.updateScore(
+      -CONST.SCORE.VOTE_STUDY,
+      '스터디 투표 취소',
+    );
   }
 
   private async doAlgorithm(participations) {

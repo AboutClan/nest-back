@@ -165,24 +165,31 @@ export class GatherService {
     return gatherData;
   }
 
-  async getReviewGather() {
+  async getReviewGather(): Promise<Gather | null> {
     const token = RequestContext.getDecodedToken();
+    const userIdString = token.id.toString();
 
     const myGathers = (
       await this.gatherRepository.findMyGather(token.id)
     ).slice(0, 2);
-    console.log(3, myGathers);
-    const notReviewedGathers = myGathers.filter(
-      (gather) =>
-        dayjs(gather.date).isBefore(dayjs()) &&
-        gather.participants.some(
-          (participant) =>
-            (participant.user as any)._id.toString() === token.id.toString() &&
-            !participant.reviewed,
-        ),
-    );
 
-    return notReviewedGathers[0] || null;
+    const notReviewed = myGathers.filter((g) => {
+      const reviewerIds = g.reviewers.map((r) => r.toString());
+      const isReviewed = reviewerIds.includes(userIdString);
+
+      const isParticipant = g.participants.some(
+        (p) => (p.user as any)._id.toString() === userIdString,
+      );
+      const isOwner = (g.user as any)._id.toString() === userIdString;
+
+      return (
+        dayjs(g.date).isBefore(dayjs()) &&
+        !isReviewed &&
+        (isParticipant || isOwner)
+      );
+    });
+
+    return notReviewed[0] ?? null;
   }
 
   //todo: 타입 수정 필요

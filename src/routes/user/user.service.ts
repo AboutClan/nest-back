@@ -768,6 +768,39 @@ export class UserService {
     this.UserRepository.updateAllUserInfo();
   }
 
+  async processTemperature() {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 30);
+
+    const allTemps = await this.noticeService.getTemperatureByPeriod(
+      start,
+      end,
+    );
+
+    const tempMap = new Map<string, number>();
+
+    for (let temp of allTemps) {
+      const to = temp.to;
+      const degree = temp.sub;
+
+      let score = 0;
+
+      switch (degree) {
+        case 'great':
+          score += 0.2;
+          break;
+        case 'good':
+          score += 0.1;
+          break;
+        default:
+          break;
+      }
+
+      tempMap[to] += score;
+    }
+  }
+
   async test() {
     await this.UserRepository.test();
     // const users = await this.getAllUserInfo([]);

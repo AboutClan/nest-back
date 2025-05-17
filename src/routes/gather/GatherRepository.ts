@@ -27,9 +27,11 @@ export class GatherRepository implements IGatherRepository {
       ])
       .sort({ createdAt: -1 });
 
-    return result
-      .filter((props) => dayjs(props.date).isBefore(dayjs()))
-      .map((doc) => this.mapToDomain(doc));
+    return (
+      result
+        // .filter((props) => dayjs(props.date).isBefore(dayjs()))
+        .map((doc) => this.mapToDomain(doc))
+    );
   }
 
   async findMyGatherId(userId: string) {
@@ -256,7 +258,6 @@ export class GatherRepository implements IGatherRepository {
         user: p.user, // ObjectId → string
         phase: p.phase,
         invited: p.invited,
-        reviewed: p.reviewed,
       })),
       user: doc.user as string,
       // comments는 하위 도메인 엔티티로 매핑할 수 있지만, 여기서는 간단하게 plain object로 전달
@@ -284,6 +285,7 @@ export class GatherRepository implements IGatherRepository {
         phase: w.phase,
       })),
       isApprovalRequired: doc.isApprovalRequired ?? null,
+      reviewers: doc.reviewers ?? [],
     });
   }
 
@@ -322,7 +324,6 @@ export class GatherRepository implements IGatherRepository {
         user: p.user, // Mongoose가 문자열을 ObjectId로 변환할 수 있음
         phase: p.phase,
         invited: p.invited,
-        reviewed: p.reviewed,
       })),
       user: props.user,
       comments: props.comments.map((c) => ({
@@ -348,6 +349,7 @@ export class GatherRepository implements IGatherRepository {
         phase: w.phase,
       })),
       isApprovalRequired: props.isApprovalRequired,
+      reviewers: props.reviewers,
     };
   }
 }

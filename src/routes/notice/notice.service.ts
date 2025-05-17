@@ -136,6 +136,14 @@ export default class NoticeService {
     return result;
   }
 
+  async getTemperatureByPeriod(start: Date, end: Date) {
+    const result = await this.noticeRepository.findTemperatureByPeriod(
+      start,
+      end,
+    );
+    return result;
+  }
+
   async createTemperature(
     infos: { toUid: string; message: string; rating: string }[],
     gatherId: string,
@@ -154,10 +162,7 @@ export default class NoticeService {
       }
 
       const gather = await this.gatherRepository.findById(parseInt(gatherId));
-      gather.participants.forEach((participant) => {
-        if (participant.user.toString() === token.id.toString())
-          participant.reviewed = true;
-      });
+      gather.addReviewers(token.id);
       await this.gatherRepository.save(gather);
     } catch (err: any) {
       throw new Error(err);
