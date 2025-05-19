@@ -169,9 +169,13 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
     const userIdString = token.id.toString();
 
-    const myGathers = (
-      await this.gatherRepository.findMyGather(token.id)
-    ).slice(0, 2);
+    const myGathers = (await this.gatherRepository.findMyGather(token.id))
+      .filter(
+        (g) =>
+          dayjs(g.date).isBefore(dayjs()) &&
+          dayjs(g.date).isAfter(dayjs().subtract(2, 'week')),
+      )
+      .slice(0, 2);
 
     const notReviewed = myGathers.filter((g) => {
       const reviewerIds = g.reviewers.map((r) => r.toString());
@@ -181,7 +185,7 @@ export class GatherService {
         (p) => (p.user as any)._id.toString() === userIdString,
       );
       const isOwner = (g.user as any)._id.toString() === userIdString;
-
+      console.log(isReviewed, isParticipant, isOwner);
       return (
         dayjs(g.date).isBefore(dayjs()) &&
         !isReviewed &&
@@ -339,7 +343,7 @@ export class GatherService {
     );
 
     const myData = gather.participants.filter((data) => data.user == token.id);
-    if (!myData[0].invited)
+    if (!myData[0]?.invited)
       await this.userServiceInstance.updateAddTicket('gather', token.id);
     return;
   }

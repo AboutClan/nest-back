@@ -1,6 +1,5 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
 import { Model, SortOrder, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
@@ -71,7 +70,9 @@ export class GatherRepository implements IGatherRepository {
     gatherId: number,
     gatherData: Partial<IGatherData>,
   ): Promise<null> {
-    await this.Gather.updateOne({ id: gatherId }, gatherData);
+    const updateData = { ...gatherData };
+    delete updateData._id;
+    await this.Gather.updateOne({ id: gatherId }, { $set: updateData });
     return null;
   }
 
