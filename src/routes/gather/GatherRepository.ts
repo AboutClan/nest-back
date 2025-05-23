@@ -106,8 +106,16 @@ export class GatherRepository implements IGatherRepository {
         path: 'comments.subComments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
-
-    return gatherData.map((doc) => this.mapToDomain(doc));
+    const gatherData2 = await this.Gather.find({ status: 'pending' })
+      .sort({ createdAt: 1 })
+      .limit(6)
+      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'comments.subComments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+    console.log(15, gatherData, gatherData2);
+    return [...gatherData, ...gatherData2].map((doc) => this.mapToDomain(doc));
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {

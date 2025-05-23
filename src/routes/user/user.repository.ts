@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from './user.entity';
 import { UserRepository } from './user.repository.interface';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class MongoUserRepository implements UserRepository {
   constructor(
@@ -231,18 +231,7 @@ export class MongoUserRepository implements UserRepository {
     return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
   }
 
-  async updateAllUserInfo() {
-    return;
-    // await this.User.updateMany({}, [
-    //   {
-    //     $set: {
-    //       point: {
-    //         $add: [{ $multiply: ['$point', 5] }, '$deposit'],
-    //       },
-    //     },
-    //   },
-    // ]);
-  }
+  async updateAllUserInfo() {}
 
   async test() {
     await this.User.updateMany(

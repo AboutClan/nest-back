@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { LogRepository } from './log.repository.interface';
-import { ILog } from './log.entity';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ILog } from './log.entity';
+import { LogRepository } from './log.repository.interface';
 
 export class MongoLogRepository implements LogRepository {
   constructor(
@@ -38,6 +38,21 @@ export class MongoLogRepository implements LogRepository {
     )
       .sort({ timestamp: -1 })
       .limit(30);
+  }
+  async findByUidAndSubType(
+    uid: string,
+    type: string,
+    sub: string,
+  ): Promise<ILog[]> {
+    console.log(type, sub);
+    return await this.Log.findOne(
+      {
+        'meta.uid': uid,
+        'meta.type': type,
+        'meta.sub': sub,
+      },
+      '-_id timestamp message meta',
+    );
   }
   async findAllByType(type: string): Promise<ILog[]> {
     return await this.Log.find(

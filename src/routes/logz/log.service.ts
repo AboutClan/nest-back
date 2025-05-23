@@ -1,10 +1,7 @@
-import { JWT } from 'next-auth/jwt';
 import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { RequestContext } from 'src/request-context';
 import { ILOG_REPOSITORY } from 'src/utils/di.tokens';
 import { LogRepository } from './log.repository.interface';
-import { RequestContext } from 'src/request-context';
 
 export default class LogService {
   constructor(
@@ -41,10 +38,20 @@ export default class LogService {
     const logs = await this.logRepository.findByUidType(token.uid, type);
     return logs;
   }
+  async getCuoponLog(type: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const log = await this.logRepository.findByUidAndSubType(
+      token.uid,
+      type,
+      'coupon',
+    );
+   
+    return log;
+  }
 
   async getAllLog(type: string) {
     const logs = await this.logRepository.findAllByType(type);
-
     return logs;
   }
 

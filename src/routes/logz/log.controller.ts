@@ -3,7 +3,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Inject,
   Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -58,6 +57,19 @@ export class LogController {
     try {
       const logs = await this.logService.getLog('point');
       return logs;
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching point logs',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Get('point/coupon')
+  async getPointCouponLog() {
+    try {
+      const log = await this.logService.getCuoponLog('point');
+      if (log) return true;
+      else return false;
     } catch (err) {
       throw new HttpException(
         'Error fetching point logs',

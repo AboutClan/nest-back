@@ -7,6 +7,7 @@ export interface LogRepository {
     endOfMonth: Date,
   ): Promise<ILog[]>;
   findByUidType(uid: string, type: string): Promise<ILog[]>;
+  findByUidAndSubType(uid: string, type: string, sub: string): Promise<ILog[]>;
   findAllByType(type: string): Promise<ILog[]>;
   findTicketLog(userId: String, type: string[]): Promise<ILog[]>;
 }
