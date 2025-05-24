@@ -7,14 +7,10 @@ import { CounterRepository } from './counter.repository.interface';
 
 @Injectable()
 export class CounterService {
-  private token;
   constructor(
     @Inject(ICOUNTER_REPOSITORY)
     private readonly counterRepository: CounterRepository,
-    @Inject(REQUEST) private readonly request: Request, // Request 객체 주입
-  ) {
-    this.token = this.request.decodedToken;
-  }
+  ) {}
   async setCounter(key: string, location: string) {
     const findData = await this.counterRepository.findByKeyAndLoc(
       key,

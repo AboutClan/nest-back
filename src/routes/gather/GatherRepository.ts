@@ -42,7 +42,26 @@ export class GatherRepository implements IGatherRepository {
       .select('-_id id')
       .sort({ createdAt: -1 });
 
-    return result;
+    result
+      // .filter((props) => dayjs(props.date).isBefore(dayjs()))
+      .map((doc) => this.mapToDomain(doc));
+  }
+
+  async findByPeriod(firstDay, secondDay): Promise<Gather[] | null> {
+    const result = await this.Gather.find({
+      date: {
+        $lt: firstDay, // 현재보다 이전
+        $gt: secondDay, // 24시간 전보다 이후
+      },
+    })
+      .select('-_id id')
+      .sort({ createdAt: -1 });
+
+    return (
+      result
+        // .filter((props) => dayjs(props.date).isBefore(dayjs()))
+        .map((doc) => this.mapToDomain(doc))
+    );
   }
 
   async findById(gatherId: number, pop?: boolean): Promise<Gather | null> {

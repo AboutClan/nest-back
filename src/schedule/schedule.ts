@@ -14,6 +14,7 @@ import {
 import { Vote2Service } from 'src/routes/vote2/vote2.service';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
+import { GatherService } from 'src/routes/gather/gather.service';
 
 @Injectable()
 export class NotificationScheduler {
@@ -25,6 +26,7 @@ export class NotificationScheduler {
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: GroupStudyRepository,
     private readonly vote2Service: Vote2Service,
+    private readonly gatherService: GatherService,
     @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
   ) {}
 
@@ -103,7 +105,6 @@ export class NotificationScheduler {
   }
 
   //매시간 groupStudy 상태 변경
-
   @Cron(CronExpression.EVERY_6_HOURS, {
     timeZone: 'Asia/Seoul',
   })
@@ -111,6 +112,18 @@ export class NotificationScheduler {
     try {
       const current = new Date();
       await this.gatherRepository.updateNotOpened(current);
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  //gather 정산
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+    timeZone: 'Asia/Seoul',
+  })
+  async distributeGatherDeposit() {
+    try {
+      await this.gatherService.distributeDeposit();
     } catch (err: any) {
       throw new Error(err);
     }
