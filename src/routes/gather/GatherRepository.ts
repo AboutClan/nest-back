@@ -69,14 +69,24 @@ export class GatherRepository implements IGatherRepository {
 
     if (pop) {
       query = query
-        .populate([
-          'user',
-          'participants.user',
-          'waiting.user',
-          'comments.user',
-        ])
+        .populate({
+          path: 'participants.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
         .populate({
           path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'comments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'waiting.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'user',
           select: ENTITY.USER.C_SIMPLE_USER,
         });
     }
@@ -107,9 +117,24 @@ export class GatherRepository implements IGatherRepository {
       .skip(start)
       .limit(gap)
       .select('-_id')
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'waiting.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
       .populate({
         path: 'comments.subComments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'comments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
 
@@ -120,17 +145,47 @@ export class GatherRepository implements IGatherRepository {
     const gatherData = await this.Gather.find()
       .sort({ createdAt: -1 })
       .limit(6)
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'waiting.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
       .populate({
         path: 'comments.subComments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'comments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
     const gatherData2 = await this.Gather.find({ status: 'pending' })
       .sort({ createdAt: 1 })
       .limit(6)
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'waiting.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
       .populate({
         path: 'comments.subComments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'comments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
     return [...gatherData, ...gatherData2].map((doc) => this.mapToDomain(doc));
@@ -300,6 +355,8 @@ export class GatherRepository implements IGatherRepository {
           comment: sc.comment,
           likeList: sc.likeList || [],
         })),
+        createdAt: c?.createdAt || '',
+        updatedAt: c?.updatedAt || '',
       })),
       id: doc.id,
       date: doc.date,
