@@ -42,20 +42,20 @@ export class GatherRepository implements IGatherRepository {
       .select('-_id id')
       .sort({ createdAt: -1 });
 
-    result
-      // .filter((props) => dayjs(props.date).isBefore(dayjs()))
-      .map((doc) => this.mapToDomain(doc));
+    result;
+    // .filter((props) => dayjs(props.date).isBefore(dayjs()))
   }
 
-  async findByPeriod(firstDay, secondDay): Promise<Gather[] | null> {
+  async findByPeriod(
+    firstDay: Date,
+    secondDay: Date,
+  ): Promise<Gather[] | null> {
     const result = await this.Gather.find({
       date: {
-        $lt: firstDay, // 현재보다 이전
-        $gt: secondDay, // 24시간 전보다 이후
+        $gte: firstDay.toISOString(), // 현재보다 이전
+        $lte: secondDay.toISOString(), // 24시간 전보다 이후
       },
-    })
-      .select('-_id id')
-      .sort({ createdAt: -1 });
+    }).sort({ createdAt: -1 });
 
     return (
       result
@@ -133,7 +133,6 @@ export class GatherRepository implements IGatherRepository {
         path: 'comments.subComments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
-    console.log(15, gatherData, gatherData2);
     return [...gatherData, ...gatherData2].map((doc) => this.mapToDomain(doc));
   }
 
@@ -258,8 +257,8 @@ export class GatherRepository implements IGatherRepository {
       _id: doc._id as string,
       title: doc.title,
       type: {
-        title: doc.type.title,
-        subtitle: doc.type.subtitle ?? null,
+        title: doc.type?.title ?? null,
+        subtitle: doc.type?.subtitle ?? null,
       },
       gatherList: doc.gatherList.map((g: any) => ({
         text: g.text,

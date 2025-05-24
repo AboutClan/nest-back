@@ -432,8 +432,8 @@ export class GatherService {
     const twoDayAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
     const gathers = await this.gatherRepository.findByPeriod(
-      oneDayAgo,
       twoDayAgo,
+      oneDayAgo,
     );
 
     for (let gather of gathers) {
@@ -445,6 +445,7 @@ export class GatherService {
       gather.participants.forEach((participant) => {
         if (!participant.absence) {
           distributeList.push(participant.user);
+
           distributeDeposit += -CONST.POINT.PARTICIPATE_GATHER;
           gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
 
