@@ -354,6 +354,7 @@ export class GatherRepository implements IGatherRepository {
           user: sc.user,
           comment: sc.comment,
           likeList: sc.likeList || [],
+          createdAt: sc.createdAt || '',
         })),
         createdAt: c?.createdAt || '',
         updatedAt: c?.updatedAt || '',
