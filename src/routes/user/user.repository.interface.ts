@@ -21,6 +21,7 @@ export interface UserRepository {
   increaseScoreWithUserId(point: number, userId: string): Promise<null>;
   increaseScore(score: number, uid: string): Promise<null>;
   increaseDeposit(deposit: number, uid: string): Promise<null>;
+  increaseTemperature(temperature: number, uid: string): Promise<null>;
   updatePreference(uid: string, place: any, subPlace: any[]): Promise<null>;
   setRest(info: any, uid: string, dayDiff: any): Promise<IUser>;
   deleteFriend(uid: string, toUid: string): Promise<null>;

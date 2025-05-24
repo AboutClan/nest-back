@@ -810,22 +810,28 @@ export class UserService {
 
       switch (degree) {
         case 'great':
-          score += 2;
+          score += 0.5;
           break;
         case 'good':
-          score += 1;
+          score += 0.3;
           break;
         case 'soso':
-          score += -0.5;
+          score += -0.3;
           break;
         case 'block':
-          score += -5;
+          score += -1;
           break;
         default:
           break;
       }
 
-      tempMap[to] += score;
+      const prev = tempMap.get(to) ?? 0;
+
+      tempMap.set(to, prev + score);
+    }
+
+    for (const [key, value] of tempMap) {
+      await this.UserRepository.increaseTemperature(value, key);
     }
   }
 

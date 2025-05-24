@@ -52,7 +52,7 @@ export class MongoNoticeRepository implements NoticeRepository {
 
   async findTemperatureByPeriod(start: Date, end: Date) {
     return await this.Notice.find(
-      { type: 'temperature', createdAt: { $gte: start, $lte: end } },
+      { type: 'temperature', createdAt: { $gt: start, $lte: end } },
       '-_id -__v',
     );
   }

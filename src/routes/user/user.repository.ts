@@ -108,6 +108,13 @@ export class MongoUserRepository implements UserRepository {
     await this.User.updateOne({ uid }, { locationDetail: { text, lat, lon } });
   }
 
+  async increaseTemperature(temperature: number, uid: string): Promise<null> {
+    return await this.User.findOneAndUpdate(
+      { uid }, // 검색 조건
+      { $inc: { temperature } }, // score와 monthScore 필드를 동시에 증가
+      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+    );
+  }
   async increaseScore(score: number, uid: string): Promise<null> {
     return await this.User.findOneAndUpdate(
       { uid }, // 검색 조건
