@@ -384,6 +384,28 @@ export class UserService {
     return;
   }
 
+  async updatePointById(
+    point: number,
+    message: string,
+    sub?: string,
+    userId?: string,
+  ) {
+    const token = RequestContext.getDecodedToken();
+
+    await this.UserRepository.increasePointWithUserId(
+      point,
+      userId ?? token.id,
+    );
+
+    logger.logger.info(message, {
+      type: 'point',
+      sub,
+      uid: userId ?? token.id,
+      value: point,
+    });
+    return;
+  }
+
   async updateScoreWithUserId(
     userId: string,
     score: number,
@@ -788,10 +810,16 @@ export class UserService {
 
       switch (degree) {
         case 'great':
-          score += 0.2;
+          score += 2;
           break;
         case 'good':
-          score += 0.1;
+          score += 1;
+          break;
+        case 'soso':
+          score += -0.5;
+          break;
+        case 'block':
+          score += -5;
           break;
         default:
           break;

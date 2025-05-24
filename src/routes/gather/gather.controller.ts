@@ -127,6 +127,15 @@ export class GatherController {
     return { status: 'success' };
   }
 
+  @Post('absence')
+  async setAbsence(
+    @Body('userId') userId: string,
+    @Body('gatherId') gatherId: number,
+  ) {
+    await this.gatherService.setAbsence(userId, gatherId);
+    return { status: 'success' };
+  }
+
   @Delete('participate')
   async deleteParticipate(@Body() body: { gatherId: number }) {
     await this.gatherService.deleteParticipate(body.gatherId);

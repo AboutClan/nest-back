@@ -37,6 +37,7 @@ export interface GatherProps {
   kakaoUrl?: string | null;
   isApprovalRequired?: boolean | null;
   reviewers: string[];
+  deposit: number;
 }
 
 export class Gather {
@@ -65,6 +66,7 @@ export class Gather {
   public kakaoUrl: string | null;
   public isApprovalRequired: boolean | null;
   public reviewers: string[];
+  public deposit: number;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -93,6 +95,7 @@ export class Gather {
     this.kakaoUrl = props.kakaoUrl ?? null;
     this.isApprovalRequired = props.isApprovalRequired ?? null;
     this.reviewers = props.reviewers || [];
+    this.deposit = props.deposit || 0;
   }
 
   participate(participant: ParticipantsProps) {
@@ -128,6 +131,15 @@ export class Gather {
     );
     if (index !== -1) {
       this.waiting.splice(index, 1);
+    }
+  }
+
+  setAbsence(userId: string) {
+    const index = this.participants.findIndex(
+      (w) => w.user.toString() === userId.toString(),
+    );
+    if (index !== -1) {
+      this.participants[index].absence = true;
     }
   }
 
@@ -239,6 +251,7 @@ export class Gather {
       kakaoUrl: this.kakaoUrl,
       isApprovalRequired: this.isApprovalRequired,
       reviewers: this.reviewers,
+      deposit: this.deposit,
     };
   }
 }
