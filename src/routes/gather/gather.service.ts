@@ -25,6 +25,7 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import { logger } from 'src/logger';
 
 //commit
 @Injectable()
@@ -212,6 +213,8 @@ export class GatherService {
 
     const gatherData = new Gather(gatherInfo as GatherProps);
 
+    await this.useDepositToParticipateGather(gatherData, token.id);
+
     // const gatherData = gatherInfo;
     const created = await this.gatherRepository.createGather(gatherData);
 
@@ -227,6 +230,23 @@ export class GatherService {
 
   async updateGather(gatherData: Partial<IGatherData>) {
     await this.gatherRepository.updateGather(gatherData.id, gatherData);
+    return;
+  }
+
+  async useDepositToParticipateGather(gather: Gather, userId: string) {
+    gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
+
+    try {
+      await this.userServiceInstance.updatePointById(
+        CONST.POINT.PARTICIPATE_GATHER,
+        '번개 모임 참여',
+        '',
+        userId,
+      );
+    } catch (err) {
+      logger.error(err);
+    }
+
     return;
   }
 
@@ -251,6 +271,8 @@ export class GatherService {
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
 
       gather.participate(validatedParticipate as ParticipantsProps);
+
+      await this.useDepositToParticipateGather(gather, token.id);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -280,9 +302,6 @@ export class GatherService {
   }
 
   async inviteGather(gatherId: number, phase: string, userId: string) {
-    //userId존재 => 초대로 들어온 경우임
-    const token = RequestContext.getDecodedToken();
-
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
@@ -293,10 +312,11 @@ export class GatherService {
         phase,
         invited: true,
       };
-
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
 
       gather.participate(validatedParticipate as ParticipantsProps);
+
+      await this.useDepositToParticipateGather(gather, userId);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -329,12 +349,56 @@ export class GatherService {
     await this.gatherRepository.save(gather);
   }
 
+  getDaysDifferenceFromNowKST(isoDate: string): number {
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    const KST_OFFSET_MS = 9 * 60 * 60 * 1000; // UTC+9
+
+    // 입력값과 현재 시각을 UTC 타임스탬프로 가져오기
+    const inputTs = new Date(isoDate).getTime();
+    const nowTs = Date.now();
+
+    /**
+     * 타임스탬프(ts)를 받아서
+     *   1) KST 시각으로 변환 (ts + 9시간)
+     *   2) 그 값을 일 단위로 내림(floor)하여 ‘몇 번째 날짜’인지 구함
+     *   3) 다시 KST 기준 자정의 UTC 타임스탬프로 되돌림
+     */
+    function startOfKSTDay(ts: number): number {
+      const kstTs = ts + KST_OFFSET_MS;
+      const dayIndex = Math.floor(kstTs / MS_PER_DAY);
+      return dayIndex * MS_PER_DAY - KST_OFFSET_MS;
+    }
+
+    const inputDayStart = startOfKSTDay(inputTs);
+    const todayDayStart = startOfKSTDay(nowTs);
+
+    // 두 자정 타임스탬프 차이를 하루(ms)로 나누어 일수 계산
+    return Math.floor((inputDayStart - todayDayStart) / MS_PER_DAY);
+  }
+
   async deleteParticipate(gatherId: number) {
     const token = RequestContext.getDecodedToken();
 
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
     gather.exile(token.id);
+
+    try {
+      const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
+      if (diffDay > 2) {
+        await this.userServiceInstance.updatePoint(
+          -CONST.POINT.PARTICIPATE_GATHER,
+          '번개 모임 참여 취소',
+        );
+        gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+      } else if (diffDay === 1) {
+        await this.userServiceInstance.updatePoint(
+          -CONST.POINT.PARTICIPATE_GATHER / 2,
+          '번개 모임 참여 취소',
+        );
+        gather.deposit += CONST.POINT.PARTICIPATE_GATHER / 2;
+      }
+    } catch (err) {}
     await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScore(
@@ -355,6 +419,52 @@ export class GatherService {
 
     return;
   }
+
+  async setAbsence(userId: string, gatherId: number) {
+    const gather = await this.gatherRepository.findById(gatherId);
+
+    gather.setAbsence(userId);
+
+    await this.gatherRepository.save(gather);
+  }
+
+  async distributeDeposit(gatherId: number) {
+    const gather = await this.gatherRepository.findById(gatherId);
+
+    let distributeDeposit = 0;
+    const distributeList = [];
+
+    gather.participants.forEach((participant) => {
+      if (!participant.absence) {
+        distributeList.push(participant);
+        distributeDeposit += -CONST.POINT.PARTICIPATE_GATHER;
+        gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+      }
+    });
+
+    for (let userId of distributeList) {
+      await this.userServiceInstance.updatePoint(
+        CONST.POINT.PARTICIPATE_GATHER,
+        '번개 모임 보증금 반환',
+        '',
+        userId,
+      );
+    }
+
+    if (gather.deposit !== 0) {
+      await this.userServiceInstance.updatePoint(
+        (gather.deposit * 8) / 10,
+        '번개 모임 보증금 반환',
+        '',
+        gather.user,
+      );
+
+      gather.deposit = 0;
+    }
+
+    await this.gatherRepository.save(gather);
+  }
+
   async setWaitingPerson(id: number, phase: 'first' | 'second') {
     const token = RequestContext.getDecodedToken();
 

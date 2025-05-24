@@ -36,6 +36,7 @@ export const ParticipantsZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
   phase: z.string(),
   invited: z.boolean().default(false),
+  absence: z.boolean().default(false),
 });
 
 export const SubCommentZodSchema = z.object({
@@ -79,6 +80,7 @@ export const GatherZodSchema = z.object({
   waiting: z.array(WaitingZodSchema).default([]),
   isApprovalRequired: z.boolean().nullable().optional(),
   reviewers: z.array(z.string()).default([]),
+  deposit: z.number().default(0),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;
@@ -166,6 +168,10 @@ export const participantsSchema: Schema<participantsType> = new Schema(
       enum: ENTITY.GAHTER.ENUM_PART_PHASE,
     },
     invited: {
+      type: Boolean,
+      default: false,
+    },
+    absence: {
       type: Boolean,
       default: false,
     },
@@ -310,6 +316,10 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     reviewers: {
       type: [String],
+    },
+    deposit: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true, strict: false },

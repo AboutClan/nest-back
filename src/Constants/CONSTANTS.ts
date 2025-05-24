@@ -28,5 +28,6 @@ export const CONST = {
     FEED_LIKE: 2,
     //피드 좋아요 취소
     CANCEL_FEED_LIKE: -2,
+    PARTICIPATE_GATHER: -2000,
   },
 };
