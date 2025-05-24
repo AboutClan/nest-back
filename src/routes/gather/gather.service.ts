@@ -213,8 +213,6 @@ export class GatherService {
 
     const gatherData = new Gather(gatherInfo as GatherProps);
 
-    await this.useDepositToParticipateGather(gatherData, token.id);
-
     // const gatherData = gatherInfo;
     const created = await this.gatherRepository.createGather(gatherData);
 
@@ -428,41 +426,56 @@ export class GatherService {
     await this.gatherRepository.save(gather);
   }
 
-  async distributeDeposit(gatherId: number) {
-    const gather = await this.gatherRepository.findById(gatherId);
+  async distributeDeposit() {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const twoDayAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
-    let distributeDeposit = 0;
-    const distributeList = [];
+    const gathers = await this.gatherRepository.findByPeriod(
+      oneDayAgo,
+      twoDayAgo,
+    );
 
-    gather.participants.forEach((participant) => {
-      if (!participant.absence) {
-        distributeList.push(participant);
-        distributeDeposit += -CONST.POINT.PARTICIPATE_GATHER;
-        gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+    for (let gather of gathers) {
+      if (gather.deposit <= 0) continue;
+
+      let distributeDeposit = 0;
+      const distributeList = [];
+
+      gather.participants.forEach((participant) => {
+        if (!participant.absence) {
+          distributeList.push(participant.user);
+          distributeDeposit += -CONST.POINT.PARTICIPATE_GATHER;
+          gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+
+          if (gather.deposit < 0) {
+            throw new AppError('보증금이 부족합니다.', 500);
+          }
+        }
+      });
+
+      for (let userId of distributeList) {
+        await this.userServiceInstance.updatePointById(
+          distributeDeposit / distributeList.length,
+          '번개 모임 보증금 반환',
+          '',
+          userId,
+        );
       }
-    });
 
-    for (let userId of distributeList) {
-      await this.userServiceInstance.updatePoint(
-        CONST.POINT.PARTICIPATE_GATHER,
-        '번개 모임 보증금 반환',
-        '',
-        userId,
-      );
+      if (gather.deposit !== 0) {
+        await this.userServiceInstance.updatePointById(
+          (gather.deposit * 8) / 10,
+          '번개 모임 보증금 반환',
+          '',
+          gather.user,
+        );
+
+        gather.deposit = 0;
+      }
+
+      await this.gatherRepository.save(gather);
     }
-
-    if (gather.deposit !== 0) {
-      await this.userServiceInstance.updatePoint(
-        (gather.deposit * 8) / 10,
-        '번개 모임 보증금 반환',
-        '',
-        gather.user,
-      );
-
-      gather.deposit = 0;
-    }
-
-    await this.gatherRepository.save(gather);
   }
 
   async setWaitingPerson(id: number, phase: 'first' | 'second') {
