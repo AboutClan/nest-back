@@ -213,8 +213,6 @@ export class GatherService {
 
     const gatherData = new Gather(gatherInfo as GatherProps);
 
-    await this.useDepositToParticipateGather(gatherData, token.id);
-
     // const gatherData = gatherInfo;
     const created = await this.gatherRepository.createGather(gatherData);
 
