@@ -213,6 +213,8 @@ export class GatherService {
 
     const gatherData = new Gather(gatherInfo as GatherProps);
 
+    await this.useDepositToParticipateGather(gatherData, token.id);
+
     // const gatherData = gatherInfo;
     const created = await this.gatherRepository.createGather(gatherData);
 
@@ -228,6 +230,23 @@ export class GatherService {
 
   async updateGather(gatherData: Partial<IGatherData>) {
     await this.gatherRepository.updateGather(gatherData.id, gatherData);
+    return;
+  }
+
+  async useDepositToParticipateGather(gather: Gather, userId: string) {
+    gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
+
+    try {
+      await this.userServiceInstance.updatePointById(
+        CONST.POINT.PARTICIPATE_GATHER,
+        '번개 모임 참여',
+        '',
+        userId,
+      );
+    } catch (err) {
+      logger.error(err);
+    }
+
     return;
   }
 
