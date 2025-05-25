@@ -1,12 +1,11 @@
 import { IsString, IsDateString, IsOptional } from 'class-validator';
-import { Dayjs } from 'dayjs';
 
 export class CreateQuickVoteDTO {
   @IsString()
-  start: Dayjs;
+  start: string;
 
   @IsString()
-  end: Dayjs;
+  end: string;
 
   @IsString()
   @IsOptional() // 선택적 필드로 설정

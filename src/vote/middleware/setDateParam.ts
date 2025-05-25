@@ -7,8 +7,7 @@ export class SetDateParamMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const { date: dateStr } = req.params;
 
-    const dayjsDate = DateUtils.strToDate(dateStr);
-    const date = dayjsDate.toDate();
+    const date = DateUtils.strToDate(dateStr);
 
     if (!date) {
       return res.status(401).end(); // 날짜 변환이 실패했을 때

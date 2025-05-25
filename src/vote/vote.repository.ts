@@ -283,8 +283,8 @@ export class MongoVoteRepository implements VoteRepository {
         {
           $match: {
             date: {
-              $gte: DateUtils.strToDate('2023-12-03').toDate(),
-              $lte: DateUtils.strToDate('2023-12-04').toDate(),
+              $gte: DateUtils.strToDate('2023-12-03'),
+              $lte: DateUtils.strToDate('2023-12-04'),
             },
           },
         },

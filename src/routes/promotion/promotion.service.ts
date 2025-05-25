@@ -1,11 +1,11 @@
 import { Inject } from '@nestjs/common';
-import dayjs from 'dayjs';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
 import { IPROMOTION_REPOSITORY } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { DateUtils } from 'src/utils/Date';
 
 export default class PromotionService {
   constructor(
@@ -24,7 +24,7 @@ export default class PromotionService {
 
     try {
       const previousData = await this.promotionRepository.findByName(name);
-      const now = dayjs().format('YYYY-MM-DD');
+      const now = DateUtils.getKoreaTimeYYYYDDMM();
 
       const validatedPromotion = PromotionZodSchema.parse({
         name,
@@ -33,7 +33,7 @@ export default class PromotionService {
       });
 
       if (previousData) {
-        const dayDiff = dayjs(now).diff(dayjs(previousData?.lastDate), 'day');
+        const dayDiff = DateUtils.getDayDiff(now, previousData?.lastDate);
         if (dayDiff > 2) {
           await this.promotionRepository.updatePromotion(
             name,

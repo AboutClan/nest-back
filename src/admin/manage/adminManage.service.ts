@@ -20,7 +20,7 @@ export default class AdminManageService {
   ) {}
 
   async absenceManage() {
-    const date = DateUtils.strToDate(dayjs().format('YYYY-MM-DD').toString());
+    const date = DateUtils.strToDate(DateUtils.getTodayYYYYMMDD().toString());
 
     const vote = await this.voteServiceInstance.getVote(date);
     if (!vote) throw new DatabaseError('Vote date Error');

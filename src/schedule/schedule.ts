@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { GatherRepository } from 'src/routes/gather/gather.repository.interface';
 import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';

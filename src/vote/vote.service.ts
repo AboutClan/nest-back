@@ -421,7 +421,7 @@ export class VoteService {
 
   //todo: 어디에 위치시킬지 고민
   async getWeekDates(date: any) {
-    const startOfWeek = dayjs(date).startOf('isoWeek' as dayjs.OpUnitType); // ISO 8601 기준 주의 시작 (월요일)
+    const startOfWeek = DateUtils.getFirstDayOfWeek(date);
     const weekDates = [];
 
     for (let i = 0; i < 7; i++) {
@@ -561,7 +561,7 @@ export class VoteService {
       const attendance = {
         time: { start: start, end: end },
         user: token.id,
-      } as IAttendance;
+      } as any;
 
       //todo: 조금 신중히 수정
       //todo: free open 분리
@@ -993,8 +993,8 @@ export class VoteService {
           {
             $match: {
               date: {
-                $gte: DateUtils.strToDate('2023-12-03').toDate(),
-                $lte: DateUtils.strToDate('2023-12-04').toDate(),
+                $gte: DateUtils.strToDate('2023-12-03'),
+                $lte: DateUtils.strToDate('2023-12-04'),
               },
             },
           },

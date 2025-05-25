@@ -27,8 +27,8 @@ const PlaceStatusZodSchema = z.object({
 
 // TimeStartToEnd schema
 const TimeStartToEndZodSchema = z.object({
-  start: z.custom<Dayjs>().optional(), // Or use dayjs instance check if needed
-  end: z.custom<Dayjs>().optional(),
+  start: z.date().optional(), // Or use dayjs instance check if needed
+  end: z.date().optional(),
 });
 
 // Attendance schema
@@ -76,8 +76,8 @@ const VoteZodSchema = z.object({
 export interface IVoteStudyInfo {
   place?: string;
   subPlace?: string[];
-  start: Dayjs;
-  end: Dayjs;
+  start: string;
+  end: string;
   memo?: string;
 }
 export type ITimeStartToEndHM = z.infer<typeof TimeStartToEndHMZodSchema>;

@@ -26,11 +26,7 @@ export class GatherRepository implements IGatherRepository {
       ])
       .sort({ createdAt: -1 });
 
-    return (
-      result
-        // .filter((props) => dayjs(props.date).isBefore(dayjs()))
-        .map((doc) => this.mapToDomain(doc))
-    );
+    return result.map((doc) => this.mapToDomain(doc));
   }
 
   async findMyGatherId(userId: string) {
@@ -43,7 +39,6 @@ export class GatherRepository implements IGatherRepository {
       .sort({ createdAt: -1 });
 
     result;
-    // .filter((props) => dayjs(props.date).isBefore(dayjs()))
   }
 
   async findByPeriod(
@@ -57,11 +52,7 @@ export class GatherRepository implements IGatherRepository {
       },
     }).sort({ createdAt: -1 });
 
-    return (
-      result
-        // .filter((props) => dayjs(props.date).isBefore(dayjs()))
-        .map((doc) => this.mapToDomain(doc))
-    );
+    return result.map((doc) => this.mapToDomain(doc));
   }
 
   async findById(gatherId: number, pop?: boolean): Promise<Gather | null> {

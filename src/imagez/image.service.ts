@@ -63,9 +63,7 @@ export default class ImageService {
   async saveImage(imageUrl: string) {
     const token = RequestContext.getDecodedToken();
 
-    const vote = await findOneVote(
-      DateUtils.strToDate(this.getToday()).toDate(),
-    );
+    const vote = await findOneVote(DateUtils.strToDate(this.getToday()));
     if (!vote) throw new Error();
 
     vote?.participations.forEach((participation) => {

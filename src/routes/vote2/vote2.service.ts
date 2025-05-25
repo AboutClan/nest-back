@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import dayjs from 'dayjs';
 import { IPlace } from 'src/routes/place/place.entity';
 import { PlaceRepository } from 'src/routes/place/place.repository.interface';
 import { IRealtimeUser } from 'src/routes/realtime/realtime.entity';
@@ -181,7 +180,13 @@ export class Vote2Service {
   }
 
   async getArrivedPeriod(startDay: string, endDay: string) {
-    const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
+    const formattedStartDay = DateUtils.getDayJsDate(startDay);
+    const formattedEndDay = DateUtils.getDayJsDate(endDay);
+
+    const votes = await this.Vote2Repository.getVoteByPeriod(
+      formattedStartDay,
+      formattedEndDay,
+    );
 
     const result = [];
     votes.forEach((vote) => {
@@ -366,7 +371,7 @@ export class Vote2Service {
     const merged = {
       ...targetMember,
       ...arriveData,
-      start: dayjs().toDate(),
+      start: DateUtils.getNowDate(),
     };
 
     await this.Vote2Repository.setArrive(date, token.id, merged);

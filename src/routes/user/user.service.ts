@@ -1,7 +1,6 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
-import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/routes/collection/collection.service';
 import { AppError } from 'src/errors/AppError';
@@ -19,6 +18,7 @@ import { UserRepository } from './user.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { DateUtils } from 'src/utils/Date';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -174,8 +174,8 @@ export class UserService {
           {
             $match: {
               date: {
-                $gte: dayjs(startDay).toDate(),
-                $lt: dayjs(endDay).toDate(),
+                $gte: DateUtils.getDayJsDate(startDay),
+                $lt: DateUtils.getDayJsDate(endDay),
               },
             },
           },
@@ -264,8 +264,8 @@ export class UserService {
           {
             $match: {
               date: {
-                $gte: dayjs(startDay).toDate(),
-                $lt: dayjs(endDay).toDate(),
+                $gte: DateUtils.getDayJsDate(startDay),
+                $lt: DateUtils.getDayJsDate(endDay),
               },
             },
           },
@@ -547,8 +547,8 @@ export class UserService {
       const user = await this.UserRepository.findByUid(token.uid);
       if (!user) throw new Error();
 
-      const startDay = dayjs(startDate, 'YYYY-MM-DD');
-      const endDay = dayjs(endDate, 'YYYY-MM-DD');
+      const startDay = DateUtils.getDayJsYYYYMMDD(startDate);
+      const endDay = DateUtils.getDayJsYYYYMMDD(endDate);
       const dayDiff = endDay.diff(startDay, 'day');
 
       const result = await this.UserRepository.setRest(
@@ -764,7 +764,7 @@ export class UserService {
     const userData = await this.UserRepository.findById(userId);
 
     if (userData) {
-      const diffMinutes = dayjs(end).diff(dayjs(), 'm');
+      const diffMinutes = DateUtils.getMinutesDiffFromNow(end);
       const record = userData.studyRecord;
 
       userData.studyRecord = {

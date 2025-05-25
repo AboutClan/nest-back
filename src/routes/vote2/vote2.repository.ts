@@ -1,5 +1,4 @@
 import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { UserService } from 'src/routes/user/user.service';
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
@@ -77,11 +76,11 @@ export class Vote2Repository implements IVote2Repository {
     await this.userServiceInstance.updatePoint(fee, '스터디 당일 불참');
   }
 
-  async getVoteByPeriod(startDay: string, endDay: string) {
+  async getVoteByPeriod(startDay: Date, endDay: Date) {
     return this.Vote2.find({
       date: {
-        $gte: dayjs(startDay).toDate(),
-        $lt: dayjs(endDay).toDate(),
+        $gte: startDay,
+        $lt: endDay,
       },
     }).populate({
       path: 'results.members.userId',

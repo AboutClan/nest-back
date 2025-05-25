@@ -1,12 +1,8 @@
-import { Dayjs, isDayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import mongoose, { model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { z } from 'zod';
-
-const dayjsSchema = z.custom<Dayjs>((value) => isDayjs(value), {
-  message: 'Invalid Dayjs object',
-});
 
 export const RestZodSchema = z.object({
   type: z.string(),

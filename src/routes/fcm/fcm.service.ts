@@ -105,7 +105,6 @@ export class FcmService {
 
     try {
       user.devices.forEach(async (device) => {
-
         const newPayload = {
           ...this.payload,
           token: device.token,
@@ -114,7 +113,7 @@ export class FcmService {
             body,
           },
         };
-      
+
         await admin.messaging().send(newPayload);
       });
     } catch (err: any) {
@@ -138,7 +137,7 @@ export class FcmService {
               body,
             },
           };
-        
+
           const response = await admin.messaging().send(newPayload);
         });
       });
