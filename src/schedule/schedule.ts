@@ -2,7 +2,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
-import { GatherRepository } from 'src/routes/gather/gather.repository.interface';
 import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { DateUtils } from 'src/utils/Date';
@@ -130,7 +129,7 @@ export class NotificationScheduler {
     }
   }
 
-  //gather 정산
+  //temperature 정산
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
     timeZone: 'Asia/Seoul',
   })
@@ -141,4 +140,16 @@ export class NotificationScheduler {
       throw new Error(err);
     }
   }
+
+  // //monthScore 정산
+  // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async processMonthScore() {
+  //   try {
+  //     await this.userService.processMonthScore();
+  //   } catch (err: any) {
+  //     throw new Error(err);
+  //   }
+  // }
 }

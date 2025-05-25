@@ -36,5 +36,7 @@ export interface UserRepository {
   selectbadge(uid: string, badgeIdx: number);
   getBadgeList(uid: string);
   updateAllUserInfo();
+  resetPointByMonthScore();
+  resetMonthScore();
   test();
 }

@@ -835,6 +835,11 @@ export class UserService {
     }
   }
 
+  async processMonthScore() {
+    await this.UserRepository.resetPointByMonthScore();
+    await this.UserRepository.resetMonthScore();
+  }
+
   async test() {
     await this.UserRepository.test();
     // const users = await this.getAllUserInfo([]);

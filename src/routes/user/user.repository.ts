@@ -243,6 +243,17 @@ export class MongoUserRepository implements UserRepository {
     );
   }
 
+  //잘못실행되지 않도록 막아야함
+  async resetPointByMonthScore() {
+    await this.User.updateMany(
+      { monthScore: { $lte: 10 } },
+      { $inc: { point: -1000 } },
+    );
+  }
+  async resetMonthScore() {
+    await this.User.updateMany({}, { monthScore: 0 });
+  }
+
   async getBadgeList(uid: string) {
     return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
   }
