@@ -2,7 +2,6 @@
 //출석체크도 안하고, 불참버튼도 안 누른 인원(말 그대로 잠수한 인원)을 체크해서 보증금에서 -1000원을 하면 되는거예요!
 
 import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { DatabaseError } from 'src/errors/DatabaseError';
