@@ -7,6 +7,22 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Seoul');
 
 export class DateUtils {
+  static getStartOfMonth(date?: string): Dayjs {
+    return dayjs().subtract(1, 'month').startOf('month');
+  }
+
+  static getEndOfMonth(date?: string): Dayjs {
+    return dayjs().subtract(1, 'month').endOf('month');
+  }
+
+  static getMonth(date?: string) {
+    if (date) {
+      return dayjs(date).get('M') + 1; // dayjs returns month as 0-indexed, so we add 1
+    } else {
+      return dayjs().get('M') + 1; // current month
+    }
+  }
+
   static getLatestMonday() {
     return dayjs()
       .subtract(1, 'day')

@@ -53,20 +53,14 @@ export default class AdminManageService {
       });
 
       const fUsers = users.filter((user) => {
-        const thisMonth = dayjs().get('M') + 1;
-        const regMonth = dayjs(user.registerDate).get('M') + 1;
+        const thisMonth = DateUtils.getMonth();
+        const regMonth = DateUtils.getMonth(user.registerDate);
 
         return thisMonth - regMonth !== 1;
       });
 
-      const lastMonthStart = dayjs()
-        .subtract(1, 'month')
-        .startOf('month')
-        .toString();
-      const lastMonthEnd = dayjs()
-        .subtract(1, 'month')
-        .endOf('month')
-        .toString();
+      const lastMonthStart = DateUtils.getStartOfMonth().toString();
+      const lastMonthEnd = DateUtils.getEndOfMonth().toString();
 
       const participationRate =
         await this.userServiceInstance.getParticipationRate(
