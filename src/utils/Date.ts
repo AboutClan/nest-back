@@ -1,4 +1,30 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export class DateUtils {
+  //'2023-12-03'
+  static strToDate(dateStr: string) {
+    return dayjs(dateStr, 'YYYY-MM-DD').startOf('day');
+  }
+
+  static formatGatherDate(date: Date | string) {
+    return `${dayjs(date).locale('ko').format('M월 D일(ddd)')}`;
+  }
+
+  static getKoreaTime(): string {
+    const nowInSeoul = dayjs().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
+    return nowInSeoul;
+  }
+
+  static getKoreaTimeYYYYDDMM(): string {
+    const nowInSeoul = dayjs().tz('Asia/Seoul').format('YYYY-MM-DD');
+    return nowInSeoul;
+  }
+
   static getKoreaToday(): Date {
     const today = new Date();
     const koreaToday = new Date(

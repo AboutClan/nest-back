@@ -1,10 +1,10 @@
 import { JWT } from 'next-auth/jwt';
 import { S3Client } from '@aws-sdk/client-s3';
 import { findOneVote } from 'src/vote/util';
-import { strToDate } from 'src/utils/dateUtils';
 import { IUser } from 'src/routes/user/user.entity';
 import { Upload } from '@aws-sdk/lib-storage';
 import { RequestContext } from 'src/request-context';
+import { DateUtils } from 'src/utils/Date';
 
 export default class ImageService {
   private s3: S3Client;
@@ -63,7 +63,9 @@ export default class ImageService {
   async saveImage(imageUrl: string) {
     const token = RequestContext.getDecodedToken();
 
-    const vote = await findOneVote(strToDate(this.getToday()).toDate());
+    const vote = await findOneVote(
+      DateUtils.strToDate(this.getToday()).toDate(),
+    );
     if (!vote) throw new Error();
 
     vote?.participations.forEach((participation) => {

@@ -8,7 +8,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
-import { strToDate } from 'src/utils/dateUtils';
+import { DateUtils } from 'src/utils/Date';
 import { VoteService } from 'src/vote/vote.service';
 const logger = require('../../logger');
 
@@ -20,7 +20,7 @@ export default class AdminManageService {
   ) {}
 
   async absenceManage() {
-    const date = strToDate(dayjs().format('YYYY-MM-DD').toString());
+    const date = DateUtils.strToDate(dayjs().format('YYYY-MM-DD').toString());
 
     const vote = await this.voteServiceInstance.getVote(date);
     if (!vote) throw new DatabaseError('Vote date Error');

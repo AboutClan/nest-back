@@ -9,7 +9,6 @@ import { IRealtime } from 'src/routes/realtime/realtime.entity';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
-import { strToDate } from 'src/utils/dateUtils';
 import { now } from './util';
 import {
   IAttendance,
@@ -19,6 +18,7 @@ import {
 } from './vote.entity';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { DateUtils } from 'src/utils/Date';
 
 @Injectable()
 export class VoteService {
@@ -993,8 +993,8 @@ export class VoteService {
           {
             $match: {
               date: {
-                $gte: strToDate('2023-12-03').toDate(),
-                $lte: strToDate('2023-12-04').toDate(),
+                $gte: DateUtils.strToDate('2023-12-03').toDate(),
+                $lte: DateUtils.strToDate('2023-12-04').toDate(),
               },
             },
           },

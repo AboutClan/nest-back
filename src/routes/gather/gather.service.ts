@@ -16,7 +16,6 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
-import { formatGatherDate } from 'src/utils/dateUtils';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import {
   gatherStatus,
@@ -26,6 +25,7 @@ import {
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
 import { logger } from 'src/logger';
+import { DateUtils } from 'src/utils/Date';
 
 //commit
 @Injectable()
@@ -291,7 +291,7 @@ export class GatherService {
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.PARTICIPATE(
           token.name,
-          formatGatherDate(gather.date),
+          DateUtils.formatGatherDate(gather.date),
         ),
       );
     }
@@ -334,7 +334,7 @@ export class GatherService {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(formatGatherDate(gather.date)),
+        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
       );
 
     return;
@@ -496,7 +496,10 @@ export class GatherService {
         await this.webPushServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           WEBPUSH_MSG.GATHER.TITLE,
-          WEBPUSH_MSG.GATHER.REQUEST(token.name, formatGatherDate(gather.date)),
+          WEBPUSH_MSG.GATHER.REQUEST(
+            token.name,
+            DateUtils.formatGatherDate(gather.date),
+          ),
         );
     } catch (err) {
       throw new Error();
@@ -547,7 +550,7 @@ export class GatherService {
     await this.webPushServiceInstance.sendNotificationToXWithId(
       userId,
       WEBPUSH_MSG.GATHER.TITLE,
-      WEBPUSH_MSG.GATHER.ACCEPT(formatGatherDate(gather.date)),
+      WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
     );
   }
 
@@ -574,7 +577,7 @@ export class GatherService {
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
-          formatGatherDate(gather.date),
+          DateUtils.formatGatherDate(gather.date),
         ),
       );
       // 모임장 알림
@@ -582,7 +585,7 @@ export class GatherService {
         gather.user as string,
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
-          formatGatherDate(gather.date),
+          DateUtils.formatGatherDate(gather.date),
         ),
       );
     }
@@ -635,7 +638,7 @@ export class GatherService {
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.COMMENT_CREATE(
         token.name,
-        formatGatherDate(gather.date),
+        DateUtils.formatGatherDate(gather.date),
       ),
     );
 
