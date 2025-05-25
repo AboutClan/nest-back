@@ -8,13 +8,13 @@ export interface SubCommentProps {
 }
 
 export class SubComment {
-  public id: string;
+  public _id: string;
   public user: string;
   public comment: string;
   public likeList: string[];
 
   constructor(props: SubCommentProps) {
-    this.id = props.id || '';
+    this._id = props.id || '';
     this.user = props.user;
     this.comment = props.comment;
     this.likeList = props.likeList ?? [];
@@ -39,7 +39,7 @@ export class SubComment {
 
   toPrimitives(): SubCommentProps {
     return {
-      id: this.id,
+      id: this._id,
       user: this.user,
       comment: this.comment,
       likeList: [...this.likeList],

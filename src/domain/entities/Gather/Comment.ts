@@ -10,14 +10,14 @@ export interface CommentProps {
 }
 
 export class Comment {
-  public id: string;
+  public _id: string;
   public user: string;
   public comment: string;
   public subComments: SubComment[];
   public likeList: string[];
 
   constructor(props: CommentProps) {
-    this.id = props.id || '';
+    this._id = props.id || '';
     this.user = props.user;
     this.comment = props.comment;
     this.subComments = (props.subComments ?? []).map(
@@ -49,7 +49,7 @@ export class Comment {
 
   public updateSubComment(subCommentId: string, comment: string) {
     this.subComments.forEach((subComment) => {
-      if (subComment.id.toString() === subCommentId.toString()) {
+      if (subComment._id.toString() === subCommentId.toString()) {
         subComment.comment = comment;
       }
     });
@@ -57,7 +57,7 @@ export class Comment {
 
   public addSubCommentLike(subCommentId: string, writer: string) {
     this.subComments.forEach((subComment) => {
-      if (subComment.id.toString() === subCommentId.toString()) {
+      if (subComment._id.toString() === subCommentId.toString()) {
         subComment.addLike(writer);
       }
     });
@@ -65,13 +65,13 @@ export class Comment {
 
   public removeSubComment(subCommentId: string) {
     this.subComments = this.subComments.filter(
-      (subComment) => subComment.id.toString() !== subCommentId.toString(),
+      (subComment) => subComment._id.toString() !== subCommentId.toString(),
     );
   }
 
   toPrimitives(): CommentProps {
     return {
-      id: this.id,
+      id: this._id,
       user: this.user,
       comment: this.comment,
       subComments: this.subComments.map((sc) => sc.toPrimitives()),

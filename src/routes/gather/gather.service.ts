@@ -441,7 +441,7 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     const comment = gather.comments.filter(
-      (comment) => comment.id == commentId,
+      (comment) => comment._id == commentId,
     );
 
     if (comment[0] && comment[0].user) {

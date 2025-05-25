@@ -17,7 +17,7 @@ export interface FeedProps {
 }
 
 export class Feed {
-  public id: string;
+  public _id: string;
   public title: string;
   public text: string;
   public images: string[];
@@ -31,7 +31,7 @@ export class Feed {
   public createdAt: string;
 
   constructor(props: FeedProps) {
-    this.id = props.id || '';
+    this._id = props.id || '';
     this.title = props.title;
     this.text = props.text;
     this.images = props.images ?? [];
@@ -64,18 +64,18 @@ export class Feed {
   }
 
   public removeComment(commentId: string): void {
-    this.comments = this.comments.filter((c) => c.id !== commentId);
+    this.comments = this.comments.filter((c) => c._id !== commentId);
   }
 
   public updateComment(commentId: string, content: string): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.comment = content;
+      if (c._id === commentId) c.comment = content;
     });
   }
 
   public addCommentLike(commentId: string, writerId: string): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.addLike(writerId);
+      if (c._id === commentId) c.addLike(writerId);
     });
   }
 
@@ -86,7 +86,7 @@ export class Feed {
     let commentWriter = '';
 
     this.comments.forEach((c) => {
-      if (c.id === commentId) {
+      if (c._id === commentId) {
         commentWriter = c.user;
         c.addSubComment(new SubComment(subCommentProps));
       }
@@ -97,7 +97,7 @@ export class Feed {
 
   public removeSubComment(commentId: string, subCommentId: string): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.removeSubComment(subCommentId);
+      if (c._id === commentId) c.removeSubComment(subCommentId);
     });
   }
 
@@ -107,7 +107,7 @@ export class Feed {
     content: string,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.updateSubComment(subCommentId, content);
+      if (c._id === commentId) c.updateSubComment(subCommentId, content);
     });
   }
 
@@ -117,13 +117,13 @@ export class Feed {
     writerId: string,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.addSubCommentLike(subCommentId, writerId);
+      if (c._id === commentId) c.addSubCommentLike(subCommentId, writerId);
     });
   }
 
   public toPrimitives(): FeedProps {
     return {
-      id: this.id,
+      id: this._id,
       title: this.title,
       text: this.text,
       images: [...this.images],

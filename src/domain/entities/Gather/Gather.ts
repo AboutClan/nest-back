@@ -153,19 +153,19 @@ export class Gather {
 
   public removeComment(commentId: string): void {
     this.comments = this.comments.filter(
-      (c) => c.id.toString() !== commentId.toString(),
+      (c) => c._id.toString() !== commentId.toString(),
     );
   }
 
   public updateComment(commentId: string, content: string): void {
     this.comments.forEach((c) => {
-      if (c.id.toString() === commentId.toString()) c.comment = content;
+      if (c._id.toString() === commentId.toString()) c.comment = content;
     });
   }
 
   public addCommentLike(commentId: string, writerId: string): void {
     this.comments.forEach((c) => {
-      if (c.id === commentId) c.addLike(writerId);
+      if (c._id === commentId) c.addLike(writerId);
     });
   }
 
@@ -174,14 +174,14 @@ export class Gather {
     subCommentProps: SubCommentProps,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id.toString() === commentId.toString())
+      if (c._id.toString() === commentId.toString())
         c.addSubComment(new SubComment(subCommentProps));
     });
   }
 
   public removeSubComment(commentId: string, subCommentId: string): void {
     this.comments.forEach((c) => {
-      if (c.id.toString() === commentId.toString())
+      if (c._id.toString() === commentId.toString())
         c.removeSubComment(subCommentId);
     });
   }
@@ -192,7 +192,7 @@ export class Gather {
     content: string,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id.toString() === commentId.toString())
+      if (c._id.toString() === commentId.toString())
         c.updateSubComment(subCommentId, content);
     });
   }
@@ -203,7 +203,7 @@ export class Gather {
     writerId: string,
   ): void {
     this.comments.forEach((c) => {
-      if (c.id.toString() === commentId.toString())
+      if (c._id.toString() === commentId.toString())
         c.addSubCommentLike(subCommentId, writerId);
     });
   }

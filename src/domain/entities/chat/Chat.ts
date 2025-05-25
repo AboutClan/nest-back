@@ -12,14 +12,14 @@ export interface ChatProps {
 }
 
 export class Chat {
-  public id: string;
+  public _id: string;
   public user1: string | IUser;
   public user2: string | IUser;
   public status: ChatStatus;
   public contents: Content[];
 
   constructor(props: ChatProps) {
-    this.id = props.id ?? '';
+    this._id = props.id ?? '';
     this.user1 = props.user1;
     this.user2 = props.user2;
     this.status = props.status ?? 'normal';
@@ -33,7 +33,7 @@ export class Chat {
 
   toPrimitives(): ChatProps {
     return {
-      id: this.id,
+      id: this._id,
       user1: this.user1,
       user2: this.user2,
       status: this.status,
