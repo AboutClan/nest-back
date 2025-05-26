@@ -81,6 +81,7 @@ export const GatherZodSchema = z.object({
   isApprovalRequired: z.boolean().nullable().optional(),
   reviewers: z.array(z.string()).default([]),
   deposit: z.number().default(0),
+  notionUrl: z.string(),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;
@@ -320,6 +321,9 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     deposit: {
       type: Number,
       default: 0,
+    },
+    notionUrl: {
+      type: String,
     },
   },
   { timestamps: true, strict: false },
