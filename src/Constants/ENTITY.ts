@@ -33,6 +33,7 @@ export const ENTITY = {
       'end',
       'gathering',
       'study',
+      'resting',
     ] as const,
     DEFAULT_STATUS: 'pending' as const,
     ENUM_MEETING_TYPE: ['online', 'offline', 'hybrid'] as const,
