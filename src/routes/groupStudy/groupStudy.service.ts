@@ -4,21 +4,21 @@ import dayjs from 'dayjs';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
 
+import { CONST } from 'src/Constants/CONSTANTS';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { CounterService } from 'src/counter/counter.service';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
-import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
+import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { CONST } from 'src/Constants/CONSTANTS';
 
 //test
 export default class GroupStudyService {
@@ -218,11 +218,16 @@ export default class GroupStudyService {
     const gap = 8;
     const start = gap * (cursor || 0);
 
-    const filterQuery = {
-      status: filter,
+    const filterQuery: any = {
       'category.main': category,
     };
 
+    if (filter === 'pending') {
+      filterQuery.status = { $in: ['pending', 'resting'] };
+    } else {
+      filterQuery.status = filter;
+    }
+    console.log(filter);
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
@@ -252,7 +257,12 @@ export default class GroupStudyService {
     const start = gap * (cursor || 0);
 
     const filterQuery = {
-      status: filter === 'planned' ? 'pending' : filter,
+      status:
+        filter === 'planned'
+          ? 'pending'
+          : filter === 'pending'
+            ? { $in: ['pending', 'resting'] }
+            : filter,
 
       ...((filter === 'planned' || filter === 'pending') && {
         $expr: {
@@ -263,7 +273,7 @@ export default class GroupStudyService {
         },
       }), // 배열 길이 조건 추가
     };
-
+    console.log(123);
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
