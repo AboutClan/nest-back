@@ -245,7 +245,7 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
       type: String,
     },
   },
-  { _id: false },
+  { _id: false, timestamps: true },
 );
 
 export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(

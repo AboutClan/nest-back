@@ -360,6 +360,7 @@ export class GatherRepository implements IGatherRepository {
       waiting: doc.waiting.map((w: any) => ({
         user: w.user,
         phase: w.phase,
+        createdAt: w.createdAt || new Date(),
       })),
       isApprovalRequired: doc.isApprovalRequired ?? null,
       reviewers: doc.reviewers ?? [],
