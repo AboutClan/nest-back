@@ -28,7 +28,7 @@ export const WEBPUSH_MSG = {
     ACCEPT: (date) => `${date} 모임 참여가 승인되었습니다!`,
 
     COMMENT_CREATE: (name, date) =>
-      `${name}님이 ${date} 모임에 답글을 남겼어요.`,
+      `${name}님이 ${date} 모임에 댓글을 남겼어요.`,
   },
 
   GROUPSTUDY: {
