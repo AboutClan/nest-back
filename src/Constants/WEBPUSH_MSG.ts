@@ -36,7 +36,7 @@ export const WEBPUSH_MSG = {
     PARTICIPATE: (user, name) => `${user}님이 [${name}] 소모임에 합류했어요!`,
     REQUEST: (user, name) => `${user}님이 [${name}] 소모임 가입을 요청했어요!`,
     AGREE: (name) => `[${name}] 소모임 가입이 승인되었어요!`,
-    COMMENT_CREATE: (name) => `[${name}]에 새로운 댓글이 달렸어요!`,
+    COMMENT_CREATE: (name) => `[${name}]에 새로운 리뷰가 달렸어요!`,
   },
 
   NOTICE: {
