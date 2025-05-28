@@ -6,11 +6,6 @@ import { FcmTokenSchema } from './fcmToken.entity';
 import { IFCM_REPOSITORY, IFCM_SERVICE } from 'src/utils/di.tokens';
 import { MongoFcmRepository } from './fcm.repository';
 
-const fcmServiceProvider: ClassProvider = {
-  provide: IFCM_SERVICE,
-  useClass: FcmService,
-};
-
 const fcmRepositoryProvider: ClassProvider = {
   provide: IFCM_REPOSITORY,
   useClass: MongoFcmRepository,
@@ -21,7 +16,7 @@ const fcmRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: 'FcmToken', schema: FcmTokenSchema }]),
   ],
   controllers: [FcmController],
-  providers: [fcmServiceProvider, fcmRepositoryProvider],
-  exports: [fcmServiceProvider, MongooseModule, fcmRepositoryProvider],
+  providers: [FcmService, fcmRepositoryProvider],
+  exports: [MongooseModule, fcmRepositoryProvider],
 })
 export class FcmAModule {}

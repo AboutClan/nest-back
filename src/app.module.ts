@@ -52,6 +52,7 @@ import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
 import { AnnouncementModule } from './routes/announcement/announcement.module';
+import { FcmAModule } from './routes/fcm/fcm.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -123,6 +124,7 @@ const corsOptions = {
     Vote2Module,
     PaymentModule,
     AnnouncementModule,
+    FcmAModule,
   ],
   controllers: [AppController],
   providers: [

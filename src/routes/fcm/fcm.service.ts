@@ -3,13 +3,10 @@ import { Inject, Injectable, Scope } from '@nestjs/common';
 import { FcmTokenZodSchema, IFcmToken } from './fcmToken.entity';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { AppError } from 'src/errors/AppError';
-import dayjs from 'dayjs';
-import { findOneVote } from 'src/vote/util';
-import { IUser } from 'src/routes/user/user.entity';
 import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmRepository } from './fcm.repository.interfae';
 
-@Injectable({ scope: Scope.DEFAULT })
+@Injectable()
 export class FcmService {
   private payload: any;
   static MongooseModule: any;
