@@ -12,14 +12,13 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { IGatherData } from 'src/routes/gather/gather.entity';
 import { IGroupStudyData } from 'src/routes/groupStudy/groupStudy.entity';
 import { IUser } from 'src/routes/user/user.entity';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
-import { IVote } from 'src/vote/vote.entity';
 import { WebpushRepository } from './webpush.repository.interface';
-import { IGatherData } from 'src/routes/gather/gather.entity';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 // 플러그인 등록
 dayjs.extend(utc);
@@ -43,8 +42,8 @@ export class WebPushService {
       title: WEBPUSH_MSG.BASE.TITLE,
       body: WEBPUSH_MSG.BASE.DESC,
       badge:
-        'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/ALogo.png',
-      icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
+        'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/%EC%B1%85_100px_%ED%88%AC%EB%AA%85.png',
+      icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/256.png',
 
       data: {
         url: 'https://study-about.club/',
