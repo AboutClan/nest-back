@@ -265,6 +265,44 @@ export class GatherService {
     return;
   }
 
+  async useDepositToParticipateGather(gather: Gather, userId: string) {
+    gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
+
+    try {
+      await this.userServiceInstance.updatePointById(
+        CONST.POINT.PARTICIPATE_GATHER,
+        '번개 모임 참여',
+        '',
+        userId,
+      );
+    } catch (err) {
+      logger.error(err);
+    }
+
+    return;
+  }
+
+  async returnDepositToRemoveGather(gather: Gather) {
+    const participants = gather.participants;
+
+    for (const participant of participants) {
+      gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+
+      await this.userServiceInstance.updatePointById(
+        -CONST.POINT.PARTICIPATE_GATHER,
+        '번개 모임 취소',
+        '',
+        participant.user,
+      );
+
+      if (gather.deposit < 0) {
+        throw new AppError('보증금이 부족합니다.', 500);
+      }
+    }
+
+    return;
+  }
+
   async participateGather(gatherId: number, phase: string, isFree: boolean) {
     const token = RequestContext.getDecodedToken();
     const { ticket } = await this.userServiceInstance.getTicketInfo(token.id);
@@ -428,9 +466,14 @@ export class GatherService {
   }
 
   async setStatus(gatherId: number, status: gatherStatus) {
-    await this.gatherRepository.updateGather(gatherId, {
-      status,
-    });
+    const gather = await this.gatherRepository.findById(gatherId);
+
+    if (status === 'close') {
+      await this.returnDepositToRemoveGather(gather);
+    }
+
+    gather.status = status;
+    await this.gatherRepository.save(gather);
 
     return;
   }
@@ -712,6 +755,9 @@ export class GatherService {
   }
 
   async deleteGather(gatherId: string) {
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    await this.returnDepositToRemoveGather(gather);
+
     const deleted = await this.gatherRepository.deleteById(gatherId);
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
