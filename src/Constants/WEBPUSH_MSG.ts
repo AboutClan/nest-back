@@ -52,7 +52,7 @@ export const WEBPUSH_MSG = {
   },
 
   SQUARE: {
-    TITLE: '비밀 게시판',
-    COMMENT_CREATE: (name) => `${name}님이 댓글을 남겼어요!`,
+    TITLE: '커뮤니티',
+    COMMENT_CREATE: (name) => `누군가 댓글을 남겼어요!`,
   },
 };
