@@ -101,12 +101,11 @@ export class FcmService {
 
   async sendNotificationToX(uid: string, title: string, body: string) {
     const user = await this.fcmRepository.findByUid(uid);
-    console.log('user', user);
     if (!user) throw new DatabaseError("can't find toUser");
 
     try {
       user.devices.forEach(async (device) => {
-        console.log(2, device);
+
         const newPayload = {
           ...this.payload,
           token: device.token,
@@ -115,7 +114,7 @@ export class FcmService {
             body,
           },
         };
-        console.log(24, newPayload);
+      
         await admin.messaging().send(newPayload);
       });
     } catch (err: any) {
@@ -139,7 +138,7 @@ export class FcmService {
               body,
             },
           };
-          console.log(this.payload);
+        
           const response = await admin.messaging().send(newPayload);
         });
       });

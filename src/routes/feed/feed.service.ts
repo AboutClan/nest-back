@@ -49,7 +49,7 @@ export class FeedService {
 
     const gap = 12;
     const start = gap * (cursor || 0);
-    console.log(13, typeof isRecent);
+  
     const feeds = await this.feedRepository.findByType(type, {
       start,
       gap,
@@ -121,7 +121,7 @@ export class FeedService {
 
     const gap = 12;
     const start = gap * (cursor || 0);
-    console.log(25, isRecent === 'true');
+
     const feeds = await this.feedRepository.findAll({
       start,
       gap,

@@ -227,7 +227,7 @@ export default class GroupStudyService {
     } else {
       filterQuery.status = filter;
     }
-    console.log(filter);
+
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
@@ -273,7 +273,7 @@ export default class GroupStudyService {
         },
       }), // 배열 길이 조건 추가
     };
-    console.log(123);
+
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,

@@ -44,7 +44,7 @@ export class MongoLogRepository implements LogRepository {
     type: string,
     sub: string,
   ): Promise<ILog[]> {
-    console.log(type, sub);
+   
     return await this.Log.findOne(
       {
         'meta.uid': uid,
