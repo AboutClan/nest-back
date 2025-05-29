@@ -1,10 +1,10 @@
+import { Inject, Injectable } from '@nestjs/common';
 import admin from 'firebase-admin';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { FcmTokenZodSchema, IFcmToken } from './fcmToken.entity';
-import { DatabaseError } from 'src/errors/DatabaseError';
 import { AppError } from 'src/errors/AppError';
+import { DatabaseError } from 'src/errors/DatabaseError';
 import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmRepository } from './fcm.repository.interfae';
+import { FcmTokenZodSchema } from './fcmToken.entity';
 
 @Injectable()
 export class FcmService {
@@ -39,6 +39,18 @@ export class FcmService {
           icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
         },
       },
+      apns: {
+        payload: {
+          aps: {
+            alert: {
+              title: '알림2',
+              body: '알림2',
+            },
+            sound: 'default',
+            badge: 1,
+          },
+        },
+      },
     };
   }
 
@@ -61,7 +73,7 @@ export class FcmService {
     const deleted = await this.fcmRepository.deleteToken(uid, platform);
 
     if (!deleted.modifiedCount)
-      throw new DatabaseError('fcm token delete failed');
+      throw new DatabaseError('fcm token delet qe failed');
     return;
   }
 
@@ -89,11 +101,12 @@ export class FcmService {
 
   async sendNotificationToX(uid: string, title: string, body: string) {
     const user = await this.fcmRepository.findByUid(uid);
-
+    console.log('user', user);
     if (!user) throw new DatabaseError("can't find toUser");
 
     try {
       user.devices.forEach(async (device) => {
+        console.log(2, device);
         const newPayload = {
           ...this.payload,
           token: device.token,
@@ -102,6 +115,7 @@ export class FcmService {
             body,
           },
         };
+        console.log(24, newPayload);
         await admin.messaging().send(newPayload);
       });
     } catch (err: any) {
@@ -125,6 +139,7 @@ export class FcmService {
               body,
             },
           };
+          console.log(this.payload);
           const response = await admin.messaging().send(newPayload);
         });
       });

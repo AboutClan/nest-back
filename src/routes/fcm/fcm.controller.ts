@@ -1,11 +1,11 @@
 import {
-  Controller,
-  Post,
-  Get,
   Body,
+  Controller,
   Delete,
+  Get,
   HttpException,
   HttpStatus,
+  Post,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { FcmService } from './fcm.service';
@@ -18,7 +18,8 @@ export class FcmController {
   @Get('test')
   async test() {
     try {
-      await this.fcmService.sendNotificationToX('2283035576', 'hello', 'hello');
+      await this.fcmService.sendNotificationToX('3869980826', 'hello', 'hello');
+      
       return { message: 'Notification sent' };
     } catch (err) {
       throw new HttpException(
