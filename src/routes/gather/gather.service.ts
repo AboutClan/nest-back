@@ -27,6 +27,7 @@ import { IGatherRepository } from './GatherRepository.interface';
 import { logger } from 'src/logger';
 import { DateUtils } from 'src/utils/Date';
 import { FcmService } from '../fcm/fcm.service';
+import { IUser } from '../user/user.entity';
 
 //commit
 @Injectable()
@@ -654,14 +655,14 @@ export class GatherService {
       );
       // 모임장 알림
       await this.webPushServiceInstance.sendNotificationToXWithId(
-        gather.user as string,
+        (gather.user as unknown as IUser)._id.toString(),
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
           DateUtils.formatGatherDate(gather.date),
         ),
       );
       await this.fcmServiceInstance.sendNotificationToXWithId(
-        gather.user as string,
+        (gather.user as unknown as IUser)._id.toString(),
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
           DateUtils.formatGatherDate(gather.date),
@@ -714,7 +715,7 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
-      gather.user as string,
+      (gather.user as unknown as IUser)._id.toString(),
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.COMMENT_CREATE(
         token.name,
@@ -722,7 +723,7 @@ export class GatherService {
       ),
     );
     await this.fcmServiceInstance.sendNotificationToXWithId(
-      gather.user as string,
+      (gather.user as unknown as IUser)._id.toString(),
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.COMMENT_CREATE(
         token.name,
