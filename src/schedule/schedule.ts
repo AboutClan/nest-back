@@ -118,16 +118,16 @@ export class NotificationScheduler {
   }
 
   //gather 정산
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
-    timeZone: 'Asia/Seoul',
-  })
-  async distributeGatherDeposit() {
-    try {
-      await this.gatherService.distributeDeposit();
-    } catch (err: any) {
-      throw new Error(err);
-    }
-  }
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async distributeGatherDeposit() {
+  //   try {
+  //     await this.gatherService.distributeDeposit();
+  //   } catch (err: any) {
+  //     throw new Error(err);
+  //   }
+  // }
 
   //temperature 정산
   // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
