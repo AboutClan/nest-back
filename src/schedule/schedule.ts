@@ -130,16 +130,16 @@ export class NotificationScheduler {
   }
 
   //temperature 정산
-  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
-    timeZone: 'Asia/Seoul',
-  })
-  async processTemperature() {
-    try {
-      await this.userService.processTemperature();
-    } catch (err: any) {
-      throw new Error(err);
-    }
-  }
+  // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async processTemperature() {
+  //   try {
+  //     await this.userService.processTemperature();
+  //   } catch (err: any) {
+  //     throw new Error(err);
+  //   }
+  // }
 
   // //monthScore 정산
   // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
