@@ -21,6 +21,7 @@ import {
 } from 'src/utils/di.tokens';
 import { IGatherRepository } from '../gather/GatherRepository.interface';
 import { IFeedRepository } from './FeedRepository.interface';
+import { FcmService } from '../fcm/fcm.service';
 
 @Injectable()
 export class FeedService {
@@ -36,6 +37,7 @@ export class FeedService {
 
     private readonly userService: UserService,
     private readonly webPushServiceInstance: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
   ) {
     this.imageServiceInstance = new ImageService();
   }
@@ -49,7 +51,7 @@ export class FeedService {
 
     const gap = 12;
     const start = gap * (cursor || 0);
-  
+
     const feeds = await this.feedRepository.findByType(type, {
       start,
       gap,
@@ -212,6 +214,12 @@ export class FeedService {
       content,
     );
 
+    await this.fcmServiceInstance.sendNotificationToXWithId(
+      feed.writer,
+      WEBPUSH_MSG.FEED.COMMENT_TITLE,
+      content,
+    );
+
     return;
   }
 
@@ -268,6 +276,16 @@ export class FeedService {
       content,
     );
     this.webPushServiceInstance.sendNotificationToXWithId(
+      feed.writer,
+      WEBPUSH_MSG.FEED.COMMENT_TITLE,
+      content,
+    );
+    await this.fcmServiceInstance.sendNotificationToXWithId(
+      commentWriter,
+      WEBPUSH_MSG.FEED.COMMENT_TITLE,
+      content,
+    );
+    await this.fcmServiceInstance.sendNotificationToXWithId(
       feed.writer,
       WEBPUSH_MSG.FEED.COMMENT_TITLE,
       content,

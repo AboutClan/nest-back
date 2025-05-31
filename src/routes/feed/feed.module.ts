@@ -10,6 +10,7 @@ import { FeedService } from './feed.service';
 import { FeedRepository } from './FeedRepository';
 import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const feedRepositoryProvider: ClassProvider = {
   provide: IFEED_REPOSITORY,
@@ -23,6 +24,7 @@ const feedRepositoryProvider: ClassProvider = {
     GatherModule,
     GroupStudyModule,
     WebPushModule,
+    FcmAModule,
   ],
   controllers: [FeedController],
   providers: [FeedService, feedRepositoryProvider],

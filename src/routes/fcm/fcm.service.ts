@@ -5,6 +5,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmRepository } from './fcm.repository.interfae';
 import { FcmTokenZodSchema } from './fcmToken.entity';
+import { RequestContext } from 'src/request-context';
 
 @Injectable()
 export class FcmService {
@@ -78,10 +79,12 @@ export class FcmService {
   }
 
   async registerToken(uid: string, fcmToken: string, platform: string) {
-    const fcmTokenOne = await this.fcmRepository.findByUid(uid);
+    const token = RequestContext.getDecodedToken();
 
+    const fcmTokenOne = await this.fcmRepository.findByUid(uid);
     const validatedFcm = FcmTokenZodSchema.parse({
       uid,
+      userId: token.id,
       devices: [{ token: fcmToken, platform }],
     });
 
@@ -101,6 +104,31 @@ export class FcmService {
 
   async sendNotificationToX(uid: string, title: string, body: string) {
     const user = await this.fcmRepository.findByUid(uid);
+    if (!user) throw new DatabaseError("can't find toUser");
+
+    try {
+      user.devices.forEach(async (device) => {
+        const newPayload = {
+          ...this.payload,
+          token: device.token,
+          notification: {
+            title,
+            body,
+          },
+        };
+
+        await admin.messaging().send(newPayload);
+      });
+    } catch (err: any) {
+      throw new AppError('send notifacation failed', 1001);
+    }
+
+    return;
+  }
+
+  async sendNotificationToXWithId(userId: string, title: string, body: string) {
+    const user = await this.fcmRepository.findByUserId(userId);
+
     if (!user) throw new DatabaseError("can't find toUser");
 
     try {

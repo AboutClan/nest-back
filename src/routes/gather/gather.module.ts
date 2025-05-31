@@ -9,6 +9,7 @@ import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { GatherService } from './gather.service';
 import { GatherRepository } from './GatherRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const gatherRepositoryProvider: ClassProvider = {
   provide: IGATHER_REPOSITORY,
@@ -23,6 +24,7 @@ const gatherRepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.GATHER, schema: GatherSchema },
     ]),
     WebPushModule,
+    FcmAModule,
   ],
   controllers: [GatherController],
   providers: [GatherService, gatherRepositoryProvider],

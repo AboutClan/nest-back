@@ -10,6 +10,7 @@ import NoticeService from './notice.service';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { GatherSchema } from '../gather/gather.entity';
 import { GatherRepository } from '../gather/GatherRepository';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const noticeRepositoryProvider: ClassProvider = {
   provide: INOTICE_REPOSITORY,
@@ -31,6 +32,7 @@ const gatherRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: DB_SCHEMA.GATHER, schema: GatherSchema },
     ]),
+    FcmAModule,
   ],
   controllers: [NoticeController],
   providers: [

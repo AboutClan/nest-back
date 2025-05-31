@@ -8,6 +8,7 @@ import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { IChatRepository } from './ChatRepository.interface';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { FcmService } from '../fcm/fcm.service';
 
 @Injectable()
 export class ChatService {
@@ -16,6 +17,7 @@ export class ChatService {
     @Inject(ICHAT_REPOSITORY)
     private readonly chatRepository: IChatRepository,
     private readonly webPushServiceInstance: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
   ) {}
@@ -123,6 +125,11 @@ export class ChatService {
 
     //알림 보내기
     await this.webPushServiceInstance.sendNotificationToXWithId(
+      toUserId,
+      WEBPUSH_MSG.CHAT.ARRIVE(token.name),
+      message,
+    );
+    await this.fcmServiceInstance.sendNotificationToXWithId(
       toUserId,
       WEBPUSH_MSG.CHAT.ARRIVE(token.name),
       message,

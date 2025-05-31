@@ -10,6 +10,7 @@ import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoGroupStudyInterface } from './groupStudy.repository';
 import { RedisModule } from 'src/redis/redis.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
@@ -25,6 +26,7 @@ const groupStudyRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: DB_SCHEMA.GROUPSTUDY, schema: GroupStudySchema },
     ]),
+    FcmAModule,
   ],
   controllers: [GroupStudyController],
   providers: [GroupStudyService, groupStudyRepositoryProvider],

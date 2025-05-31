@@ -26,6 +26,7 @@ import {
 import { IGatherRepository } from './GatherRepository.interface';
 import { logger } from 'src/logger';
 import { DateUtils } from 'src/utils/Date';
+import { FcmService } from '../fcm/fcm.service';
 
 //commit
 @Injectable()
@@ -36,6 +37,7 @@ export class GatherService {
     private readonly userServiceInstance: UserService,
     private readonly counterServiceInstance: CounterService,
     private readonly webPushServiceInstance: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
   ) {}
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
@@ -316,6 +318,14 @@ export class GatherService {
           DateUtils.formatGatherDate(gather.date),
         ),
       );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        gather?.user as string,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.PARTICIPATE(
+          token.name,
+          DateUtils.formatGatherDate(gather.date),
+        ),
+      );
     }
 
     return;
@@ -352,12 +362,19 @@ export class GatherService {
       user.uid,
     );
 
-    if (userId)
+    if (userId) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
       );
+
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
+      );
+    }
 
     return;
   }
@@ -519,7 +536,7 @@ export class GatherService {
 
       await this.gatherRepository.save(gather);
 
-      if (gather.user)
+      if (gather.user) {
         await this.webPushServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           WEBPUSH_MSG.GATHER.TITLE,
@@ -528,6 +545,15 @@ export class GatherService {
             DateUtils.formatGatherDate(gather.date),
           ),
         );
+        await this.fcmServiceInstance.sendNotificationToXWithId(
+          gather?.user as string,
+          WEBPUSH_MSG.GATHER.TITLE,
+          WEBPUSH_MSG.GATHER.REQUEST(
+            token.name,
+            DateUtils.formatGatherDate(gather.date),
+          ),
+        );
+      }
     } catch (err) {
       throw new Error();
     }
@@ -582,6 +608,11 @@ export class GatherService {
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
     );
+    await this.fcmServiceInstance.sendNotificationToXWithId(
+      userId,
+      WEBPUSH_MSG.GATHER.TITLE,
+      WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
+    );
   }
 
   async createSubComment(gatherId: string, commentId: string, content: string) {
@@ -610,6 +641,14 @@ export class GatherService {
           DateUtils.formatGatherDate(gather.date),
         ),
       );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        comment[0].user as string,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.COMMENT_CREATE(
+          token.name,
+          DateUtils.formatGatherDate(gather.date),
+        ),
+      );
       // 모임장 알림
       await this.webPushServiceInstance.sendNotificationToXWithId(
         gather.user as string,
@@ -617,6 +656,14 @@ export class GatherService {
           token.name,
           DateUtils.formatGatherDate(gather.date),
         ),
+      );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        gather.user as string,
+        WEBPUSH_MSG.GATHER.COMMENT_CREATE(
+          token.name,
+          DateUtils.formatGatherDate(gather.date),
+        ),
+        '',
       );
     }
 
@@ -664,6 +711,14 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
+      gather.user as string,
+      WEBPUSH_MSG.GATHER.TITLE,
+      WEBPUSH_MSG.GATHER.COMMENT_CREATE(
+        token.name,
+        DateUtils.formatGatherDate(gather.date),
+      ),
+    );
+    await this.fcmServiceInstance.sendNotificationToXWithId(
       gather.user as string,
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.COMMENT_CREATE(

@@ -1,8 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 import { type Types } from 'mongoose';
-import { type JWT } from 'next-auth/jwt/types';
 import ImageService from 'src/imagez/image.service';
 import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import {
@@ -15,6 +12,7 @@ import { SquareRepository } from './square.repository.interface';
 import { RequestContext } from 'src/request-context';
 import { WebPushService } from '../webpush/webpush.service';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { FcmService } from '../fcm/fcm.service';
 
 export default class SquareService {
   constructor(
@@ -22,6 +20,7 @@ export default class SquareService {
     private readonly squareRepository: SquareRepository,
     private readonly imageServiceInstance: ImageService,
     private readonly webPushServiceInstance: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
   ) {}
 
   async getSquareList({
@@ -127,6 +126,11 @@ export default class SquareService {
       WEBPUSH_MSG.SQUARE.TITLE,
       WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
     );
+    await this.fcmServiceInstance.sendNotificationToXWithId(
+      updated.author.toString(),
+      WEBPUSH_MSG.SQUARE.TITLE,
+      WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+    );
   }
 
   async deleteSquareComment({
@@ -160,10 +164,20 @@ export default class SquareService {
             WEBPUSH_MSG.SQUARE.TITLE,
             WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
           );
+          this.fcmServiceInstance.sendNotificationToXWithId(
+            comment.user.toString(),
+            WEBPUSH_MSG.SQUARE.TITLE,
+            WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+          );
         }
       });
 
       await this.webPushServiceInstance.sendNotificationToXWithId(
+        updated.author.toString(),
+        WEBPUSH_MSG.SQUARE.TITLE,
+        WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+      );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
         updated.author.toString(),
         WEBPUSH_MSG.SQUARE.TITLE,
         WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
