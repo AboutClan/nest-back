@@ -260,29 +260,5 @@ export class MongoUserRepository implements UserRepository {
 
   async updateAllUserInfo() {}
 
-  async test() {
-    await this.User.updateMany(
-      {}, // 모든 사용자 대상
-      [
-        {
-          $set: {
-            'badge.badgeIdx': {
-              $switch: {
-                branches: [
-                  { case: { $lt: ['$score', 30] }, then: 0 },
-                  { case: { $lt: ['$score', 60] }, then: 1 },
-                  { case: { $lt: ['$score', 90] }, then: 2 },
-                  { case: { $lt: ['$score', 120] }, then: 3 },
-                  { case: { $lt: ['$score', 150] }, then: 4 },
-                  { case: { $lt: ['$score', 180] }, then: 5 },
-                  { case: { $lt: ['$score', 210] }, then: 6 },
-                ],
-                default: 7,
-              },
-            },
-          },
-        },
-      ],
-    );
-  }
+  async test() {}
 }

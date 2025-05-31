@@ -288,16 +288,17 @@ export class GatherService {
     for (const participant of participants) {
       gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
 
+      if (gather.deposit < 0) {
+        gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
+        throw new AppError('보증금이 부족합니다.', 500);
+      }
+
       await this.userServiceInstance.updatePointById(
         -CONST.POINT.PARTICIPATE_GATHER,
         '번개 모임 취소',
         '',
         participant.user,
       );
-
-      if (gather.deposit < 0) {
-        throw new AppError('보증금이 부족합니다.', 500);
-      }
     }
 
     return;
@@ -593,8 +594,11 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
+      await this.useDepositToParticipateGather(gather, userId);
+
       const targetUser =
         await this.userServiceInstance.getUserWithUserId(userId);
+
       await this.userServiceInstance.updateScore(
         CONST.SCORE.PARTICIPATE_GATHER,
         '번개 모임 참여',

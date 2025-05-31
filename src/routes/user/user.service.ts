@@ -800,39 +800,54 @@ export class UserService {
       end,
     );
 
-    const tempMap = new Map<string, number>();
+    const tempMap = new Map<string, { score: number; cnt: number }>();
 
     for (let temp of allTemps) {
+      const from = temp.from;
       const to = temp.to;
+      if (from === to) continue;
+
       const degree = temp.sub;
 
       let score = 0;
 
       switch (degree) {
         case 'great':
-          score += 0.5;
+          score += 4.8;
           break;
         case 'good':
-          score += 0.3;
+          score += 0.8;
           break;
         case 'soso':
-          score += -0.3;
+          score += -1.2;
           break;
         case 'block':
-          score += -1;
+          score += -5.2;
           break;
         default:
           break;
       }
 
-      const prev = tempMap.get(to) ?? 0;
+      const prev = tempMap.get(to) ?? { score: 0, cnt: 0 };
 
-      tempMap.set(to, prev + score);
+      tempMap.set(to, {
+        score: prev['score'] + score,
+        cnt: prev['cnt'] + 1,
+      });
     }
 
     for (const [key, value] of tempMap) {
-      await this.UserRepository.increaseTemperature(value, key);
+      const score = this.calculateScore(value.score, value.cnt);
+      // await this.UserRepository.increaseTemperature(score, key);
     }
+  }
+
+  calculateScore(totalScore: number, cnt: number): number {
+    const result =
+      (totalScore / cnt) * 2.2 * Math.pow(1 - Math.exp(-0.07 * cnt), 1.2);
+    const final = result.toFixed(1);
+
+    return +final;
   }
 
   async processMonthScore() {
