@@ -15,6 +15,7 @@ import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { FcmService } from '../fcm/fcm.service';
 
 export class Vote2Service {
   constructor(
@@ -25,6 +26,7 @@ export class Vote2Service {
     private readonly RealtimeService: RealtimeService,
     private readonly userServiceInstance: UserService,
     private readonly webPushServiceInstance: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
   ) {}
 
   formatMember(member: IMember) {
@@ -327,6 +329,17 @@ export class Vote2Service {
     );
 
     this.webPushServiceInstance.sendNotificationUserIds(
+      failedUserIds,
+      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+      WEBPUSH_MSG.VOTE.FAILURE_DESC,
+    );
+    await this.fcmServiceInstance.sendNotificationUserIds(
+      successUserIds,
+      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+    );
+
+    await this.fcmServiceInstance.sendNotificationUserIds(
       failedUserIds,
       WEBPUSH_MSG.VOTE.FAILURE_TITLE,
       WEBPUSH_MSG.VOTE.FAILURE_DESC,

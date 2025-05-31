@@ -12,6 +12,7 @@ import { Vote2Repository } from './vote2.repository';
 import { Vote2Service } from './vote2.service';
 import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const vote2RepositoryProvider: ClassProvider = {
   provide: IVOTE2_REPOSITORY,
@@ -26,6 +27,7 @@ const vote2RepositoryProvider: ClassProvider = {
     CollectionModule,
     UserModule,
     WebPushModule,
+    FcmAModule,
   ],
 
   controllers: [Vote2Controller],

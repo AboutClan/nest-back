@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import admin from 'firebase-admin';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
@@ -6,6 +6,13 @@ import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmRepository } from './fcm.repository.interfae';
 import { FcmTokenZodSchema } from './fcmToken.entity';
 import { RequestContext } from 'src/request-context';
+import { InjectModel } from '@nestjs/mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { Model } from 'mongoose';
+import { IGroupStudyData } from '../groupStudy/groupStudy.entity';
+import { IGatherData } from '../gather/gather.entity';
+import { IUser } from '../user/user.entity';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 @Injectable()
 export class FcmService {
@@ -15,6 +22,9 @@ export class FcmService {
   constructor(
     @Inject(IFCM_REPOSITORY)
     private readonly fcmRepository: FcmRepository,
+    @InjectModel(DB_SCHEMA.GROUPSTUDY)
+    private GroupStudy: Model<IGroupStudyData>,
+    @InjectModel(DB_SCHEMA.GATHER) private Gather: Model<IGatherData>,
   ) {
     const fcm = process.env.FCM_INFO;
     if (!admin.apps.length && fcm) {
@@ -173,6 +183,117 @@ export class FcmService {
       return;
     } catch (err) {
       throw new AppError('send notifacation failed', 1001);
+    }
+  }
+
+  async sendNotificationGather(gatherId: string, description: string) {
+    try {
+      const gather = await this.Gather.findOne({
+        id: gatherId,
+      });
+
+      const memberUids = gather.participants?.map((participant, idx) => {
+        return participant?.user as string;
+      });
+
+      const memberArray = Array.from(new Set(memberUids));
+
+      const subscriptions =
+        await this.fcmRepository.findByArrayUserId(memberArray);
+
+      for (const subscription of subscriptions) {
+        subscription.devices.forEach(async (device) => {
+          const newPayload = {
+            ...this.payload,
+            token: device.token,
+            notification: {
+              title: WEBPUSH_MSG.GATHER.TITLE,
+              body: description,
+            },
+          };
+
+          await admin.messaging().send(newPayload);
+        });
+      }
+      return;
+    } catch (err) {
+      throw new HttpException(
+        'Error deleting comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async sendNotificationGroupStudy(groupStudyId: string, description: string) {
+    try {
+      const groupStudy = await this.GroupStudy.findOne({
+        id: groupStudyId,
+      }).populate(['participants.user']);
+
+      const memberUids = groupStudy.participants?.map((participant, idx) => {
+        return (participant?.user as IUser)?.uid;
+      });
+
+      const memberArray = Array.from(new Set(memberUids));
+
+      const subscriptions = await this.fcmRepository.findByArray(memberArray);
+
+      for (const subscription of subscriptions) {
+        subscription.devices.forEach(async (device) => {
+          const newPayload = {
+            ...this.payload,
+            token: device.token,
+            notification: {
+              title: WEBPUSH_MSG.GROUPSTUDY.TITLE,
+              body: description,
+            },
+          };
+
+          await admin.messaging().send(newPayload);
+        });
+      }
+
+      return;
+    } catch (err) {
+      throw new HttpException(
+        'Error deleting comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async sendNotificationUserIds(
+    userIds: string[],
+    title: string,
+    description: string,
+  ) {
+    try {
+      const memberArray = Array.from(new Set(userIds));
+
+      const subscriptions =
+        await this.fcmRepository.findByArrayUserId(memberArray);
+
+      for (const subscription of subscriptions) {
+        subscription.devices.forEach(async (device) => {
+          const newPayload = {
+            ...this.payload,
+            token: device.token,
+            notification: {
+              title,
+              body: description,
+            },
+          };
+
+          await admin.messaging().send(newPayload);
+        });
+      }
+
+      return;
+    } catch (err) {
+      throw new HttpException(
+        'Error deleting comment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

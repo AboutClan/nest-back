@@ -34,4 +34,16 @@ export class MongoFcmRepository implements FcmRepository {
   async findAll(): Promise<IFcmToken[]> {
     return await this.FcmToken.find();
   }
+
+  async findByArray(targetArr: string[]): Promise<IFcmToken[]> {
+    return await this.FcmToken.find({
+      uid: { $in: targetArr },
+    });
+  }
+
+  async findByArrayUserId(targetArr: string[]): Promise<IFcmToken[]> {
+    return await this.FcmToken.find({
+      userId: { $in: targetArr },
+    });
+  }
 }
