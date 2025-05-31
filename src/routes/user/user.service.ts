@@ -392,6 +392,10 @@ export class UserService {
   ) {
     const token = RequestContext.getDecodedToken();
 
+    const user = await this.UserRepository.findByUserId(userId ?? token.id);
+    if (user.deposit + point < 0)
+      throw new AppError('포인트가 부족합니다.', 400);
+
     await this.UserRepository.increasePointWithUserId(
       point,
       userId ?? token.id,

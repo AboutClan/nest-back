@@ -237,6 +237,8 @@ export class GatherService {
     gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
 
     try {
+      const user = await this.userServiceInstance.getUserWithUserId(userId);
+
       await this.userServiceInstance.updatePointById(
         CONST.POINT.PARTICIPATE_GATHER,
         '번개 모임 참여',
@@ -245,6 +247,7 @@ export class GatherService {
       );
     } catch (err) {
       logger.error(err);
+      throw new AppError(err, 500);
     }
 
     return;
