@@ -248,40 +248,6 @@ export class GatherService {
     return;
   }
 
-  async useDepositToParticipateGather(gather: Gather, userId: string) {
-    gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
-
-    try {
-      await this.userServiceInstance.updatePointById(
-        CONST.POINT.PARTICIPATE_GATHER,
-        '번개 모임 참여',
-        '',
-        userId,
-      );
-    } catch (err) {
-      logger.error(err);
-    }
-
-    return;
-  }
-
-  async useDepositToParticipateGather(gather: Gather, userId: string) {
-    gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
-
-    try {
-      await this.userServiceInstance.updatePointById(
-        CONST.POINT.PARTICIPATE_GATHER,
-        '번개 모임 참여',
-        '',
-        userId,
-      );
-    } catch (err) {
-      logger.error(err);
-    }
-
-    return;
-  }
-
   async returnDepositToRemoveGather(gather: Gather) {
     const participants = gather.participants;
 
