@@ -463,6 +463,11 @@ export default class GroupStudyService {
       WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
     );
 
+    await this.fcmServiceInstance.sendNotificationGroupStudy(
+      id,
+      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
+    );
+
     return;
   }
 
@@ -491,6 +496,10 @@ export default class GroupStudyService {
     await this.userServiceInstance.updateReduceTicket('groupOffline', user.id);
 
     await this.webPushServiceInstance.sendNotificationGroupStudy(
+      id,
+      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(user.name, groupStudy.title),
+    );
+    await this.fcmServiceInstance.sendNotificationGroupStudy(
       id,
       WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(user.name, groupStudy.title),
     );
@@ -627,6 +636,13 @@ export default class GroupStudyService {
 
         //알림
         await this.webPushServiceInstance.sendNotificationGroupStudy(
+          id,
+          WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(
+            (user.user as IUser).name,
+            groupStudy.title,
+          ),
+        );
+        await this.fcmServiceInstance.sendNotificationGroupStudy(
           id,
           WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(
             (user.user as IUser).name,

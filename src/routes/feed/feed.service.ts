@@ -190,6 +190,10 @@ export class FeedService {
         gather.id.toString(),
         WEBPUSH_MSG.FEED.CREATE,
       );
+      await this.fcmServiceInstance.sendNotificationGather(
+        gather.id.toString(),
+        WEBPUSH_MSG.FEED.CREATE,
+      );
     }
 
     return;

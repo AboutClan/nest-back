@@ -6,4 +6,6 @@ export interface FcmRepository {
   findByUserId(userId: string): Promise<IFcmToken>;
   findAll(): Promise<IFcmToken[]>;
   createToken(data: any): Promise<IFcmToken>;
+  findByArray(targetArr: string[]): Promise<IFcmToken[]>;
+  findByArrayUserId(targetArr: string[]): Promise<IFcmToken[]>;
 }
