@@ -27,6 +27,7 @@ import { IGatherRepository } from './GatherRepository.interface';
 import { logger } from 'src/logger';
 import { DateUtils } from 'src/utils/Date';
 import { FcmService } from '../fcm/fcm.service';
+import { IUser } from '../user/user.entity';
 
 //commit
 @Injectable()
@@ -237,6 +238,8 @@ export class GatherService {
     gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
 
     try {
+      const user = await this.userServiceInstance.getUserWithUserId(userId);
+
       await this.userServiceInstance.updatePointById(
         CONST.POINT.PARTICIPATE_GATHER,
         '번개 모임 참여',
@@ -245,6 +248,7 @@ export class GatherService {
       );
     } catch (err) {
       logger.error(err);
+      throw new AppError(err, 500);
     }
 
     return;
@@ -651,14 +655,14 @@ export class GatherService {
       );
       // 모임장 알림
       await this.webPushServiceInstance.sendNotificationToXWithId(
-        gather.user as string,
+        (gather.user as unknown as IUser)._id.toString(),
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
           DateUtils.formatGatherDate(gather.date),
         ),
       );
       await this.fcmServiceInstance.sendNotificationToXWithId(
-        gather.user as string,
+        (gather.user as unknown as IUser)._id.toString(),
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
           DateUtils.formatGatherDate(gather.date),
@@ -711,7 +715,7 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
-      gather.user as string,
+      (gather.user as unknown as IUser)._id.toString(),
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.COMMENT_CREATE(
         token.name,
@@ -719,7 +723,7 @@ export class GatherService {
       ),
     );
     await this.fcmServiceInstance.sendNotificationToXWithId(
-      gather.user as string,
+      (gather.user as unknown as IUser)._id.toString(),
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.COMMENT_CREATE(
         token.name,
