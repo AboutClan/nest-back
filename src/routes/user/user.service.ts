@@ -1,7 +1,6 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
-import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CollectionService } from 'src/routes/collection/collection.service';
 import { AppError } from 'src/errors/AppError';
@@ -19,6 +18,7 @@ import { UserRepository } from './user.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { DateUtils } from 'src/utils/Date';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -174,8 +174,8 @@ export class UserService {
           {
             $match: {
               date: {
-                $gte: dayjs(startDay).toDate(),
-                $lt: dayjs(endDay).toDate(),
+                $gte: DateUtils.getDayJsDate(startDay),
+                $lt: DateUtils.getDayJsDate(endDay),
               },
             },
           },
@@ -264,8 +264,8 @@ export class UserService {
           {
             $match: {
               date: {
-                $gte: dayjs(startDay).toDate(),
-                $lt: dayjs(endDay).toDate(),
+                $gte: DateUtils.getDayJsDate(startDay),
+                $lt: DateUtils.getDayJsDate(endDay),
               },
             },
           },
@@ -379,6 +379,28 @@ export class UserService {
       type: 'point',
       sub,
       uid: uid ?? token.uid,
+      value: point,
+    });
+    return;
+  }
+
+  async updatePointById(
+    point: number,
+    message: string,
+    sub?: string,
+    userId?: string,
+  ) {
+    const token = RequestContext.getDecodedToken();
+
+    await this.UserRepository.increasePointWithUserId(
+      point,
+      userId ?? token.id,
+    );
+
+    logger.logger.info(message, {
+      type: 'point',
+      sub,
+      uid: userId ?? token.id,
       value: point,
     });
     return;
@@ -525,8 +547,8 @@ export class UserService {
       const user = await this.UserRepository.findByUid(token.uid);
       if (!user) throw new Error();
 
-      const startDay = dayjs(startDate, 'YYYY-MM-DD');
-      const endDay = dayjs(endDate, 'YYYY-MM-DD');
+      const startDay = DateUtils.getDayJsYYYYMMDD(startDate);
+      const endDay = DateUtils.getDayJsYYYYMMDD(endDate);
       const dayDiff = endDay.diff(startDay, 'day');
 
       const result = await this.UserRepository.setRest(
@@ -742,7 +764,7 @@ export class UserService {
     const userData = await this.UserRepository.findById(userId);
 
     if (userData) {
-      const diffMinutes = dayjs(end).diff(dayjs(), 'm');
+      const diffMinutes = DateUtils.getMinutesDiffFromNow(end);
       const record = userData.studyRecord;
 
       userData.studyRecord = {
@@ -778,27 +800,59 @@ export class UserService {
       end,
     );
 
-    const tempMap = new Map<string, number>();
+    const tempMap = new Map<string, { score: number; cnt: number }>();
 
     for (let temp of allTemps) {
+      const from = temp.from;
       const to = temp.to;
+      if (from === to) continue;
+
       const degree = temp.sub;
 
       let score = 0;
 
       switch (degree) {
         case 'great':
-          score += 0.2;
+          score += 4.8;
           break;
         case 'good':
-          score += 0.1;
+          score += 0.8;
+          break;
+        case 'soso':
+          score += -1.2;
+          break;
+        case 'block':
+          score += -5.2;
           break;
         default:
           break;
       }
 
-      tempMap[to] += score;
+      const prev = tempMap.get(to) ?? { score: 0, cnt: 0 };
+
+      tempMap.set(to, {
+        score: prev['score'] + score,
+        cnt: prev['cnt'] + 1,
+      });
     }
+
+    for (const [key, value] of tempMap) {
+      const score = this.calculateScore(value.score, value.cnt);
+      // await this.UserRepository.increaseTemperature(score, key);
+    }
+  }
+
+  calculateScore(totalScore: number, cnt: number): number {
+    const result =
+      (totalScore / cnt) * 2.2 * Math.pow(1 - Math.exp(-0.07 * cnt), 1.2);
+    const final = result.toFixed(1);
+
+    return +final;
+  }
+
+  async processMonthScore() {
+    await this.UserRepository.resetPointByMonthScore();
+    await this.UserRepository.resetMonthScore();
   }
 
   async test() {

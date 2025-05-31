@@ -26,11 +26,7 @@ export class GatherRepository implements IGatherRepository {
       ])
       .sort({ createdAt: -1 });
 
-    return (
-      result
-        // .filter((props) => dayjs(props.date).isBefore(dayjs()))
-        .map((doc) => this.mapToDomain(doc))
-    );
+    return result.map((doc) => this.mapToDomain(doc));
   }
 
   async findMyGatherId(userId: string) {
@@ -42,7 +38,21 @@ export class GatherRepository implements IGatherRepository {
       .select('-_id id')
       .sort({ createdAt: -1 });
 
-    return result;
+    result;
+  }
+
+  async findByPeriod(
+    firstDay: Date,
+    secondDay: Date,
+  ): Promise<Gather[] | null> {
+    const result = await this.Gather.find({
+      date: {
+        $gte: firstDay.toISOString(), // 현재보다 이전
+        $lte: secondDay.toISOString(), // 24시간 전보다 이후
+      },
+    }).sort({ createdAt: -1 });
+
+    return result.map((doc) => this.mapToDomain(doc));
   }
 
   async findById(gatherId: number, pop?: boolean): Promise<Gather | null> {
@@ -50,14 +60,24 @@ export class GatherRepository implements IGatherRepository {
 
     if (pop) {
       query = query
-        .populate([
-          'user',
-          'participants.user',
-          'waiting.user',
-          'comments.user',
-        ])
+        .populate({
+          path: 'participants.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
         .populate({
           path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'comments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'waiting.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'user',
           select: ENTITY.USER.C_SIMPLE_USER,
         });
     }
@@ -88,9 +108,24 @@ export class GatherRepository implements IGatherRepository {
       .skip(start)
       .limit(gap)
       .select('-_id')
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'waiting.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
       .populate({
         path: 'comments.subComments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'comments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
 
@@ -101,20 +136,49 @@ export class GatherRepository implements IGatherRepository {
     const gatherData = await this.Gather.find()
       .sort({ createdAt: -1 })
       .limit(6)
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'waiting.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
       .populate({
         path: 'comments.subComments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'comments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
     const gatherData2 = await this.Gather.find({ status: 'pending' })
       .sort({ createdAt: 1 })
       .limit(6)
-      .populate(['user', 'participants.user', 'waiting.user', 'comments.user'])
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'waiting.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
       .populate({
         path: 'comments.subComments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate({
+        path: 'comments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
-    console.log(15, gatherData, gatherData2);
     return [...gatherData, ...gatherData2].map((doc) => this.mapToDomain(doc));
   }
 
@@ -239,8 +303,8 @@ export class GatherRepository implements IGatherRepository {
       _id: doc._id as string,
       title: doc.title,
       type: {
-        title: doc.type.title,
-        subtitle: doc.type.subtitle ?? null,
+        title: doc.type?.title ?? null,
+        subtitle: doc.type?.subtitle ?? null,
       },
       gatherList: doc.gatherList.map((g: any) => ({
         text: g.text,
@@ -267,6 +331,7 @@ export class GatherRepository implements IGatherRepository {
         user: p.user, // ObjectId → string
         phase: p.phase,
         invited: p.invited,
+        absence: p.absence,
       })),
       user: doc.user as string,
       // comments는 하위 도메인 엔티티로 매핑할 수 있지만, 여기서는 간단하게 plain object로 전달
@@ -280,7 +345,10 @@ export class GatherRepository implements IGatherRepository {
           user: sc.user,
           comment: sc.comment,
           likeList: sc.likeList || [],
+          createdAt: sc.createdAt || '',
         })),
+        createdAt: c?.createdAt || '',
+        updatedAt: c?.updatedAt || '',
       })),
       id: doc.id,
       date: doc.date,
@@ -292,9 +360,11 @@ export class GatherRepository implements IGatherRepository {
       waiting: doc.waiting.map((w: any) => ({
         user: w.user,
         phase: w.phase,
+        createdAt: w.createdAt || new Date(),
       })),
       isApprovalRequired: doc.isApprovalRequired ?? null,
       reviewers: doc.reviewers ?? [],
+      deposit: doc.deposit,
     });
   }
 
@@ -333,6 +403,7 @@ export class GatherRepository implements IGatherRepository {
         user: p.user, // Mongoose가 문자열을 ObjectId로 변환할 수 있음
         phase: p.phase,
         invited: p.invited,
+        absence: p.absence,
       })),
       user: props.user,
       comments: props.comments.map((c) => ({
@@ -359,6 +430,7 @@ export class GatherRepository implements IGatherRepository {
       })),
       isApprovalRequired: props.isApprovalRequired,
       reviewers: props.reviewers,
+      deposit: props.deposit,
     };
   }
 }

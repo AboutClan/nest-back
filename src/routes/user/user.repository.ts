@@ -80,6 +80,15 @@ export class MongoUserRepository implements UserRepository {
 
     return null;
   }
+  async increasePointWithUserId(point: number, userId: string): Promise<null> {
+    await this.User.findOneAndUpdate(
+      { _id: userId }, // 검색 조건
+      { $inc: { point: point } }, // point 필드 값을 증가
+      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+    );
+
+    return null;
+  }
   async increaseScoreWithUserId(score: number, userId: string): Promise<null> {
     await this.User.findOneAndUpdate(
       { _id: userId }, // 검색 조건
@@ -99,6 +108,13 @@ export class MongoUserRepository implements UserRepository {
     await this.User.updateOne({ uid }, { locationDetail: { text, lat, lon } });
   }
 
+  async increaseTemperature(temperature: number, uid: string): Promise<null> {
+    return await this.User.findOneAndUpdate(
+      { uid }, // 검색 조건
+      { $inc: { temperature } }, // score와 monthScore 필드를 동시에 증가
+      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+    );
+  }
   async increaseScore(score: number, uid: string): Promise<null> {
     return await this.User.findOneAndUpdate(
       { uid }, // 검색 조건
@@ -227,35 +243,22 @@ export class MongoUserRepository implements UserRepository {
     );
   }
 
+  //잘못실행되지 않도록 막아야함
+  async resetPointByMonthScore() {
+    await this.User.updateMany(
+      { monthScore: { $lte: 10 } },
+      { $inc: { point: -1000 } },
+    );
+  }
+  async resetMonthScore() {
+    await this.User.updateMany({}, { monthScore: 0 });
+  }
+
   async getBadgeList(uid: string) {
     return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
   }
 
   async updateAllUserInfo() {}
 
-  async test() {
-    await this.User.updateMany(
-      {}, // 모든 사용자 대상
-      [
-        {
-          $set: {
-            'badge.badgeIdx': {
-              $switch: {
-                branches: [
-                  { case: { $lt: ['$score', 30] }, then: 0 },
-                  { case: { $lt: ['$score', 60] }, then: 1 },
-                  { case: { $lt: ['$score', 90] }, then: 2 },
-                  { case: { $lt: ['$score', 120] }, then: 3 },
-                  { case: { $lt: ['$score', 150] }, then: 4 },
-                  { case: { $lt: ['$score', 180] }, then: 5 },
-                  { case: { $lt: ['$score', 210] }, then: 6 },
-                ],
-                default: 7,
-              },
-            },
-          },
-        },
-      ],
-    );
-  }
+  async test() {}
 }

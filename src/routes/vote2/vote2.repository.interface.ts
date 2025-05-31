@@ -1,7 +1,7 @@
 import { IMember, IParticipation, IResult, IVote2 } from './vote2.entity';
 
 export interface IVote2Repository {
-  getVoteByPeriod(startDay: string, endDay: string): Promise<IVote2[]>;
+  getVoteByPeriod(startDay: Date, endDay: Date): Promise<IVote2[]>;
   setVote(date: string, userVoteData: IParticipation);
   deleteVote(date: string, userId: string);
   setVoteResult(date: string, result: IResult[]);

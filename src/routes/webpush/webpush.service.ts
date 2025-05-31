@@ -8,21 +8,15 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Queue } from 'bull';
-import dayjs from 'dayjs';
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
 import { Model } from 'mongoose';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { IGatherData } from 'src/routes/gather/gather.entity';
 import { IGroupStudyData } from 'src/routes/groupStudy/groupStudy.entity';
 import { IUser } from 'src/routes/user/user.entity';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { WebpushRepository } from './webpush.repository.interface';
-
-// 플러그인 등록
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { IGatherData } from 'src/routes/gather/gather.entity';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { DateUtils } from 'src/utils/Date';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class WebPushService {
@@ -53,7 +47,7 @@ export class WebPushService {
       requireInteraction: true,
       silent: false,
       renotify: true,
-      timestamp: dayjs().tz('Asia/Seoul').toDate().getTime(),
+      timestamp: DateUtils.getMillisecondsNow(),
       // timestamp: Date.now(),
       vibrate: [100, 50, 100],
       priority: 'high',

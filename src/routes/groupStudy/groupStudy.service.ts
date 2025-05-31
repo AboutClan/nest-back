@@ -1,12 +1,8 @@
 import { HttpException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
 
-import { CONST } from 'src/Constants/CONSTANTS';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { CounterService } from 'src/counter/counter.service';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
@@ -19,6 +15,10 @@ import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { CONST } from 'src/Constants/CONSTANTS';
+import { DateUtils } from 'src/utils/Date';
 
 //test
 export default class GroupStudyService {
@@ -650,12 +650,7 @@ export default class GroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
 
-    const firstDate = dayjs()
-      .subtract(1, 'day')
-      .startOf('week')
-      .add(1, 'day')
-      .format('YYYY-MM-DD');
-
+    const firstDate = DateUtils.getLatestMonday();
     groupStudy.attendance.firstDate = firstDate;
     groupStudy.attendance.lastWeek = groupStudy.attendance.thisWeek;
     groupStudy.attendance.thisWeek = [];
@@ -674,11 +669,7 @@ export default class GroupStudyService {
     if (!groupStudy) throw new Error();
 
     try {
-      const firstDate = dayjs()
-        .subtract(1, 'day')
-        .startOf('week')
-        .add(1, 'day')
-        .format('YYYY-MM-DD');
+      const firstDate = DateUtils.getLatestMonday();
 
       if (type === 'this') groupStudy.attendance.firstDate = firstDate;
 

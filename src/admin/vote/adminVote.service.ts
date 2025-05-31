@@ -2,9 +2,9 @@ import { Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
-import { strToDate } from 'src/utils/dateUtils';
 import { IAttendance, IParticipation, IVote } from 'src/vote/vote.entity';
 import { findOneVote, now } from 'src/vote/util';
+import { DateUtils } from 'src/utils/Date';
 
 type voteTime = { start: Dayjs | Date; end: Dayjs | Date };
 
@@ -61,7 +61,7 @@ export default class AdminVoteService {
   };
 
   async confirm(dateStr: string) {
-    const date = strToDate(dateStr).toDate();
+    const date = DateUtils.strToDate(dateStr);
     const vote = await this.Vote.findOne({ date });
 
     const failure = new Set();
@@ -187,7 +187,7 @@ export default class AdminVoteService {
 
   async waitingConfirm(dateStr: string) {
     try {
-      const date = strToDate(dateStr).toDate();
+      const date = DateUtils.strToDate(dateStr);
       const vote = await this.Vote.findOne({ date });
 
       vote?.participations.forEach((participation) => {
@@ -216,7 +216,7 @@ export default class AdminVoteService {
   }
   async voteStatusReset(date: any) {
     try {
-      const vote = await findOneVote(strToDate(date).toDate());
+      const vote = await findOneVote(DateUtils.strToDate(date));
       if (!vote) throw new Error();
 
       vote.participations.forEach((participation) => {
@@ -242,8 +242,8 @@ export default class AdminVoteService {
           {
             $match: {
               date: {
-                $gte: strToDate(startDay).toDate(),
-                $lte: strToDate(endDay).toDate(),
+                $gte: DateUtils.strToDate(startDay),
+                $lte: DateUtils.strToDate(endDay),
               },
             },
           },
@@ -302,7 +302,7 @@ export default class AdminVoteService {
         if (uid && uid !== info.uid[0]) return;
         if (info.name[0] && info.location[0] === location) {
           if (info.arrived) {
-            if (info.date >= strToDate(startDay).toDate()) {
+            if (info.date >= DateUtils.strToDate(startDay)) {
               if (info.status !== 'free') {
                 if (attendResult.has(info.name[0])) {
                   const current = attendResult.get(info.name[0]);

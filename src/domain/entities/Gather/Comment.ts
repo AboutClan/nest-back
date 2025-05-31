@@ -7,6 +7,8 @@ export interface CommentProps {
   comment: string;
   subComments?: SubCommentProps[];
   likeList?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export class Comment {
@@ -15,6 +17,8 @@ export class Comment {
   public comment: string;
   public subComments: SubComment[];
   public likeList: string[];
+  public createdAt: string;
+  public updatedAt: string;
 
   constructor(props: CommentProps) {
     this._id = props.id || '';
@@ -24,6 +28,8 @@ export class Comment {
       (sc) => new SubComment(sc),
     );
     this.likeList = props.likeList ?? [];
+    this.createdAt = props.createdAt || '';
+    this.updatedAt = props.updatedAt || '';
   }
 
   public addLike(userId: string): boolean {

@@ -16,7 +16,6 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
-import { formatGatherDate } from 'src/utils/dateUtils';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import {
   gatherStatus,
@@ -25,6 +24,8 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import { logger } from 'src/logger';
+import { DateUtils } from 'src/utils/Date';
 
 //commit
 @Injectable()
@@ -230,6 +231,45 @@ export class GatherService {
     return;
   }
 
+  async useDepositToParticipateGather(gather: Gather, userId: string) {
+    gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
+
+    try {
+      await this.userServiceInstance.updatePointById(
+        CONST.POINT.PARTICIPATE_GATHER,
+        '번개 모임 참여',
+        '',
+        userId,
+      );
+    } catch (err) {
+      logger.error(err);
+    }
+
+    return;
+  }
+
+  async returnDepositToRemoveGather(gather: Gather) {
+    const participants = gather.participants;
+
+    for (const participant of participants) {
+      gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+
+      if (gather.deposit < 0) {
+        gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
+        throw new AppError('보증금이 부족합니다.', 500);
+      }
+
+      await this.userServiceInstance.updatePointById(
+        -CONST.POINT.PARTICIPATE_GATHER,
+        '번개 모임 취소',
+        '',
+        participant.user,
+      );
+    }
+
+    return;
+  }
+
   async participateGather(gatherId: number, phase: string, isFree: boolean) {
     const token = RequestContext.getDecodedToken();
     const { ticket } = await this.userServiceInstance.getTicketInfo(token.id);
@@ -252,6 +292,8 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
+      await this.useDepositToParticipateGather(gather, token.id);
+
       await this.gatherRepository.save(gather);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
@@ -271,7 +313,7 @@ export class GatherService {
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.PARTICIPATE(
           token.name,
-          formatGatherDate(gather.date),
+          DateUtils.formatGatherDate(gather.date),
         ),
       );
     }
@@ -280,9 +322,6 @@ export class GatherService {
   }
 
   async inviteGather(gatherId: number, phase: string, userId: string) {
-    //userId존재 => 초대로 들어온 경우임
-    const token = RequestContext.getDecodedToken();
-
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
@@ -293,10 +332,11 @@ export class GatherService {
         phase,
         invited: true,
       };
-
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
 
       gather.participate(validatedParticipate as ParticipantsProps);
+
+      await this.useDepositToParticipateGather(gather, userId);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -316,7 +356,7 @@ export class GatherService {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(formatGatherDate(gather.date)),
+        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
       );
 
     return;
@@ -329,12 +369,56 @@ export class GatherService {
     await this.gatherRepository.save(gather);
   }
 
+  getDaysDifferenceFromNowKST(isoDate: string): number {
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    const KST_OFFSET_MS = 9 * 60 * 60 * 1000; // UTC+9
+
+    // 입력값과 현재 시각을 UTC 타임스탬프로 가져오기
+    const inputTs = new Date(isoDate).getTime();
+    const nowTs = Date.now();
+
+    /**
+     * 타임스탬프(ts)를 받아서
+     *   1) KST 시각으로 변환 (ts + 9시간)
+     *   2) 그 값을 일 단위로 내림(floor)하여 ‘몇 번째 날짜’인지 구함
+     *   3) 다시 KST 기준 자정의 UTC 타임스탬프로 되돌림
+     */
+    function startOfKSTDay(ts: number): number {
+      const kstTs = ts + KST_OFFSET_MS;
+      const dayIndex = Math.floor(kstTs / MS_PER_DAY);
+      return dayIndex * MS_PER_DAY - KST_OFFSET_MS;
+    }
+
+    const inputDayStart = startOfKSTDay(inputTs);
+    const todayDayStart = startOfKSTDay(nowTs);
+
+    // 두 자정 타임스탬프 차이를 하루(ms)로 나누어 일수 계산
+    return Math.floor((inputDayStart - todayDayStart) / MS_PER_DAY);
+  }
+
   async deleteParticipate(gatherId: number) {
     const token = RequestContext.getDecodedToken();
 
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
     gather.exile(token.id);
+
+    try {
+      const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
+      if (diffDay > 2) {
+        await this.userServiceInstance.updatePoint(
+          -CONST.POINT.PARTICIPATE_GATHER,
+          '번개 모임 참여 취소',
+        );
+        gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+      } else if (diffDay === 1) {
+        await this.userServiceInstance.updatePoint(
+          -CONST.POINT.PARTICIPATE_GATHER / 2,
+          '번개 모임 참여 취소',
+        );
+        gather.deposit += CONST.POINT.PARTICIPATE_GATHER / 2;
+      }
+    } catch (err) {}
     await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScore(
@@ -349,12 +433,79 @@ export class GatherService {
   }
 
   async setStatus(gatherId: number, status: gatherStatus) {
-    await this.gatherRepository.updateGather(gatherId, {
-      status,
-    });
+    const gather = await this.gatherRepository.findById(gatherId);
+
+    if (status === 'close') {
+      await this.returnDepositToRemoveGather(gather);
+    }
+
+    gather.status = status;
+    await this.gatherRepository.save(gather);
 
     return;
   }
+
+  async setAbsence(userId: string, gatherId: number) {
+    const gather = await this.gatherRepository.findById(gatherId);
+
+    gather.setAbsence(userId);
+
+    await this.gatherRepository.save(gather);
+  }
+
+  async distributeDeposit() {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const twoDayAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+    const gathers = await this.gatherRepository.findByPeriod(
+      twoDayAgo,
+      oneDayAgo,
+    );
+
+    for (let gather of gathers) {
+      if (gather.deposit <= 0) continue;
+
+      let distributeDeposit = 0;
+      const distributeList = [];
+
+      gather.participants.forEach((participant) => {
+        if (!participant.absence) {
+          distributeList.push(participant.user);
+
+          distributeDeposit += -CONST.POINT.PARTICIPATE_GATHER;
+          gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+
+          if (gather.deposit < 0) {
+            throw new AppError('보증금이 부족합니다.', 500);
+          }
+        }
+      });
+
+      for (let userId of distributeList) {
+        await this.userServiceInstance.updatePointById(
+          distributeDeposit / distributeList.length,
+          '번개 모임 보증금 반환',
+          '',
+          userId,
+        );
+      }
+
+      if (gather.deposit !== 0) {
+        await this.userServiceInstance.updatePointById(
+          (gather.deposit * 8) / 10,
+          '번개 모임 보증금 반환',
+          '',
+          gather.user,
+        );
+
+        gather.deposit = 0;
+      }
+
+      await this.gatherRepository.save(gather);
+    }
+  }
+
   async setWaitingPerson(id: number, phase: 'first' | 'second') {
     const token = RequestContext.getDecodedToken();
 
@@ -372,7 +523,10 @@ export class GatherService {
         await this.webPushServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           WEBPUSH_MSG.GATHER.TITLE,
-          WEBPUSH_MSG.GATHER.REQUEST(token.name, formatGatherDate(gather.date)),
+          WEBPUSH_MSG.GATHER.REQUEST(
+            token.name,
+            DateUtils.formatGatherDate(gather.date),
+          ),
         );
     } catch (err) {
       throw new Error();
@@ -406,8 +560,11 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
+      await this.useDepositToParticipateGather(gather, userId);
+
       const targetUser =
         await this.userServiceInstance.getUserWithUserId(userId);
+
       await this.userServiceInstance.updateScore(
         CONST.SCORE.PARTICIPATE_GATHER,
         '번개 모임 참여',
@@ -423,7 +580,7 @@ export class GatherService {
     await this.webPushServiceInstance.sendNotificationToXWithId(
       userId,
       WEBPUSH_MSG.GATHER.TITLE,
-      WEBPUSH_MSG.GATHER.ACCEPT(formatGatherDate(gather.date)),
+      WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
     );
   }
 
@@ -450,7 +607,7 @@ export class GatherService {
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
-          formatGatherDate(gather.date),
+          DateUtils.formatGatherDate(gather.date),
         ),
       );
       // 모임장 알림
@@ -458,7 +615,7 @@ export class GatherService {
         gather.user as string,
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
-          formatGatherDate(gather.date),
+          DateUtils.formatGatherDate(gather.date),
         ),
       );
     }
@@ -511,7 +668,7 @@ export class GatherService {
       WEBPUSH_MSG.GATHER.TITLE,
       WEBPUSH_MSG.GATHER.COMMENT_CREATE(
         token.name,
-        formatGatherDate(gather.date),
+        DateUtils.formatGatherDate(gather.date),
       ),
     );
 
@@ -568,6 +725,9 @@ export class GatherService {
   }
 
   async deleteGather(gatherId: string) {
+    const gather = await this.gatherRepository.findById(+gatherId, true);
+    await this.returnDepositToRemoveGather(gather);
+
     const deleted = await this.gatherRepository.deleteById(gatherId);
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 

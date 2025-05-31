@@ -2,8 +2,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { IVote, IParticipation } from './vote.entity';
 import { VoteRepository } from './vote.repository.interface';
 import { Model } from 'mongoose';
-import { strToDate } from 'src/utils/dateUtils';
 import dayjs from 'dayjs';
+import { DateUtils } from 'src/utils/Date';
 
 export class MongoVoteRepository implements VoteRepository {
   constructor(
@@ -283,8 +283,8 @@ export class MongoVoteRepository implements VoteRepository {
         {
           $match: {
             date: {
-              $gte: strToDate('2023-12-03').toDate(),
-              $lte: strToDate('2023-12-04').toDate(),
+              $gte: DateUtils.strToDate('2023-12-03'),
+              $lte: DateUtils.strToDate('2023-12-04'),
             },
           },
         },

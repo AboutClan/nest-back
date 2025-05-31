@@ -2,13 +2,12 @@
 //출석체크도 안하고, 불참버튼도 안 누른 인원(말 그대로 잠수한 인원)을 체크해서 보증금에서 -1000원을 하면 되는거예요!
 
 import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
-import { strToDate } from 'src/utils/dateUtils';
+import { DateUtils } from 'src/utils/Date';
 import { VoteService } from 'src/vote/vote.service';
 const logger = require('../../logger');
 
@@ -20,7 +19,7 @@ export default class AdminManageService {
   ) {}
 
   async absenceManage() {
-    const date = strToDate(dayjs().format('YYYY-MM-DD').toString());
+    const date = DateUtils.strToDate(DateUtils.getTodayYYYYMMDD().toString());
 
     const vote = await this.voteServiceInstance.getVote(date);
     if (!vote) throw new DatabaseError('Vote date Error');
@@ -53,20 +52,14 @@ export default class AdminManageService {
       });
 
       const fUsers = users.filter((user) => {
-        const thisMonth = dayjs().get('M') + 1;
-        const regMonth = dayjs(user.registerDate).get('M') + 1;
+        const thisMonth = DateUtils.getMonth();
+        const regMonth = DateUtils.getMonth(user.registerDate);
 
         return thisMonth - regMonth !== 1;
       });
 
-      const lastMonthStart = dayjs()
-        .subtract(1, 'month')
-        .startOf('month')
-        .toString();
-      const lastMonthEnd = dayjs()
-        .subtract(1, 'month')
-        .endOf('month')
-        .toString();
+      const lastMonthStart = DateUtils.getStartOfMonth().toString();
+      const lastMonthEnd = DateUtils.getEndOfMonth().toString();
 
       const participationRate =
         await this.userServiceInstance.getParticipationRate(

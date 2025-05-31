@@ -5,6 +5,7 @@ export interface SubCommentProps {
   user: string; // DB에선 ObjectId, domain에선 string
   comment: string;
   likeList?: string[];
+  createdAt?: string;
 }
 
 export class SubComment {
@@ -12,12 +13,14 @@ export class SubComment {
   public user: string;
   public comment: string;
   public likeList: string[];
+  public createdAt: string;
 
   constructor(props: SubCommentProps) {
     this._id = props.id || '';
     this.user = props.user;
     this.comment = props.comment;
     this.likeList = props.likeList ?? [];
+    this.createdAt = props.createdAt || '';
   }
 
   addLike(userId: string): boolean {
