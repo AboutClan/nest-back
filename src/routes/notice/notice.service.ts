@@ -10,6 +10,9 @@ import { NoticeRepository } from './notice.repository.interface';
 import { RequestContext } from 'src/request-context';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IGatherRepository } from '../gather/GatherRepository.interface';
+import { FcmService } from '../fcm/fcm.service';
+import { WebPushService } from '../webpush/webpush.service';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 export default class NoticeService {
   constructor(
@@ -18,6 +21,8 @@ export default class NoticeService {
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: IGatherRepository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
+    private readonly webPushService: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
   ) {}
 
   async createNotice(noticeData: Partial<INotice>) {
@@ -72,6 +77,17 @@ export default class NoticeService {
     } catch (err: any) {
       throw new Error(err);
     }
+
+    await this.webPushService.sendNotificationToX(
+      to,
+      WEBPUSH_MSG.NOTICE.LIKE_TITLE,
+      WEBPUSH_MSG.NOTICE.LIKE_RECIEVE('', ''),
+    );
+    await this.fcmServiceInstance.sendNotificationToX(
+      to,
+      WEBPUSH_MSG.NOTICE.LIKE_TITLE,
+      WEBPUSH_MSG.NOTICE.LIKE_RECIEVE('', ''),
+    );
   }
 
   async getLike() {

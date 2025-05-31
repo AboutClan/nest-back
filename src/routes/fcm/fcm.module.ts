@@ -17,6 +17,6 @@ const fcmRepositoryProvider: ClassProvider = {
   ],
   controllers: [FcmController],
   providers: [FcmService, fcmRepositoryProvider],
-  exports: [MongooseModule, fcmRepositoryProvider],
+  exports: [FcmService, MongooseModule, fcmRepositoryProvider],
 })
 export class FcmAModule {}

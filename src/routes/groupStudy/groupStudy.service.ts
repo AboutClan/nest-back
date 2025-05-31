@@ -19,6 +19,7 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DateUtils } from 'src/utils/Date';
+import { FcmService } from '../fcm/fcm.service';
 
 //test
 export default class GroupStudyService {
@@ -31,6 +32,7 @@ export default class GroupStudyService {
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     private webPushServiceInstance: WebPushService,
     private readonly counterServiceInstance: CounterService,
+    private readonly fcmServiceInstance: FcmService,
   ) {}
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
@@ -576,6 +578,11 @@ export default class GroupStudyService {
         WEBPUSH_MSG.GROUPSTUDY.TITLE,
         WEBPUSH_MSG.GROUPSTUDY.REQUEST(token.name, groupStudy.title),
       );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        groupStudy.organizer,
+        WEBPUSH_MSG.GROUPSTUDY.TITLE,
+        WEBPUSH_MSG.GROUPSTUDY.REQUEST(token.name, groupStudy.title),
+      );
     } catch (err) {
       throw new Error();
     }
@@ -628,6 +635,11 @@ export default class GroupStudyService {
         );
 
         await this.webPushServiceInstance.sendNotificationToXWithId(
+          userId,
+          WEBPUSH_MSG.GROUPSTUDY.TITLE,
+          WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
+        );
+        await this.fcmServiceInstance.sendNotificationToXWithId(
           userId,
           WEBPUSH_MSG.GROUPSTUDY.TITLE,
           WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
@@ -740,6 +752,11 @@ export default class GroupStudyService {
     }
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
+      groupStudy.organizer,
+      WEBPUSH_MSG.GROUPSTUDY.TITLE,
+      WEBPUSH_MSG.GROUPSTUDY.COMMENT_CREATE(groupStudy.title),
+    );
+    await this.fcmServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
       WEBPUSH_MSG.GROUPSTUDY.TITLE,
       WEBPUSH_MSG.GROUPSTUDY.COMMENT_CREATE(groupStudy.title),

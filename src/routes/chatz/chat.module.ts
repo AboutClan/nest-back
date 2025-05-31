@@ -9,6 +9,7 @@ import { MongoUserRepository } from 'src/routes/user/user.repository';
 import { ChatSchema } from './chat.entity';
 import { ChatRepository } from './ChatRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const chatRepositoryProvider: ClassProvider = {
   provide: ICHAT_REPOSITORY,
@@ -24,6 +25,7 @@ const userRepositoryProvider: ClassProvider = {
   imports: [
     UserModule,
     WebPushModule,
+    FcmAModule,
     MongooseModule.forFeature([{ name: DB_SCHEMA.CHAT, schema: ChatSchema }]),
   ],
   controllers: [ChatContoller],

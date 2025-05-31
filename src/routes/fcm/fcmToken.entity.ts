@@ -7,6 +7,7 @@ export const DeviceSchema = z.object({
 });
 export const FcmTokenZodSchema = z.object({
   uid: z.string(),
+  userId: z.string(),
   devices: z.array(DeviceSchema),
 });
 
@@ -26,6 +27,11 @@ const deviceSchema: Schema<IDevice> = new Schema({
 
 export const FcmTokenSchema: Schema<IFcmToken> = new Schema({
   uid: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  userId: {
     type: String,
     required: true,
     unique: true,

@@ -8,6 +8,7 @@ import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { MongoSquareRepository } from './square.repository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WebPushModule } from '../webpush/webpush.module';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const squareRepositoryProvider: ClassProvider = {
   provide: ISQUARE_REPOSITORY,
@@ -20,6 +21,7 @@ const squareRepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.SQUARE, schema: secretSquareSchema },
     ]),
     WebPushModule,
+    FcmAModule,
   ],
   controllers: [SquareController],
   providers: [SquareService, ImageService, squareRepositoryProvider],

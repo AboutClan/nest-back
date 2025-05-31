@@ -11,17 +11,12 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import NoticeService from './notice.service';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 //todo: Notice 전반적인 수정 필요해보임
 @ApiTags('notice')
 @Controller('notice')
 export class NoticeController {
-  constructor(
-    private readonly noticeService: NoticeService,
-    private readonly webPushService: WebPushService,
-  ) {}
+  constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
   async findActiveLog() {
@@ -68,11 +63,7 @@ export class NoticeController {
   async setLike(@Body('to') to: string, @Body('message') message: string) {
     try {
       await this.noticeService.setLike(to, message);
-      await this.webPushService.sendNotificationToX(
-        to,
-        WEBPUSH_MSG.NOTICE.LIKE_TITLE,
-        WEBPUSH_MSG.NOTICE.LIKE_RECIEVE('', ''),
-      );
+
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(
