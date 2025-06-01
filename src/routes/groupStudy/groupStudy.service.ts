@@ -34,6 +34,7 @@ export default class GroupStudyService {
     private readonly counterServiceInstance: CounterService,
     private readonly fcmServiceInstance: FcmService,
   ) {}
+
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
       case 'isParticipating':
@@ -685,6 +686,7 @@ export default class GroupStudyService {
 
     await groupStudy.save();
   }
+
   async attendGroupStudy(
     id: string,
     weekRecord: string[],
