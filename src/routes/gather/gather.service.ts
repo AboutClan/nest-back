@@ -786,6 +786,7 @@ export class GatherService {
   async deleteGather(gatherId: string) {
     const gather = await this.gatherRepository.findById(+gatherId, true);
     // await this.returnDepositToRemoveGather(gather);
+    await this.distributeTicket(gather);
 
     const deleted = await this.gatherRepository.deleteById(gatherId);
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
@@ -795,5 +796,21 @@ export class GatherService {
       '번개 모임 삭제',
     );
     return;
+  }
+
+  async distributeTicket(gather: Gather) {
+    const today = DateUtils.getTodayYYYYMMDD();
+
+    //날짜 지나서 삭제시 무효
+    if (gather.date < today) return;
+
+    gather.participants.forEach(async (participant) => {
+      if (!participant.invited) {
+        await this.userServiceInstance.updateAddTicket(
+          'gather',
+          participant.user,
+        );
+      }
+    });
   }
 }
