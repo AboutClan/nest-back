@@ -13,10 +13,14 @@ import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
 import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
+import { logger } from 'src/logger';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
+import { DateUtils } from 'src/utils/Date';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
+import { FcmService } from '../fcm/fcm.service';
+import { IUser } from '../user/user.entity';
 import {
   gatherStatus,
   IGatherData,
@@ -24,10 +28,6 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import { logger } from 'src/logger';
-import { DateUtils } from 'src/utils/Date';
-import { FcmService } from '../fcm/fcm.service';
-import { IUser } from '../user/user.entity';
 
 //commit
 @Injectable()
@@ -191,7 +191,7 @@ export class GatherService {
       const isOwner = (g.user as any)._id.toString() === userIdString;
 
       return (
-        dayjs(g.date).isBefore(dayjs()) &&
+        dayjs(g.date).add(1, 'day').isBefore(dayjs()) &&
         !isReviewed &&
         (isParticipant || isOwner)
       );
