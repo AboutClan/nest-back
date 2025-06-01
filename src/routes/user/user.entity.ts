@@ -20,6 +20,12 @@ const restZodSchema = z.object({
   cumulativeSum: z.number().default(0),
 });
 
+const temperatureZodSchema = z.object({
+  temperature: z.number().default(ENTITY.USER.DEAFULT_TEMPERATURE),
+  sum: z.number().default(0),
+  cnt: z.number().default(0),
+});
+
 // avatarType Zod schema
 const avatarZodSchema = z.object({
   type: z.number().default(1),
@@ -59,6 +65,7 @@ export type preferenceType = z.infer<typeof preferenceZodSchema>;
 export type ticketType = z.infer<typeof ticketZodSchema>;
 export type badgeType = z.infer<typeof badgeZodSchema>;
 export type studyRecordType = z.infer<typeof studyRecordZodSchema>;
+export type temperatureType = z.infer<typeof temperatureZodSchema>;
 
 // IUser Zod schema
 export const userZodSchema = z.object({
@@ -134,7 +141,7 @@ export interface IUser extends Document, IRegistered {
   monthStudyTarget: number;
   studyRecord: studyRecordType;
   isLocationSharingDenided: boolean;
-  temperature: number;
+  temperature: temperatureType;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -188,6 +195,27 @@ export const preferenceSchema: Schema<preferenceType> = new Schema(
     place: {
       type: Schema.Types.ObjectId,
       ref: DB_SCHEMA.PLACE,
+    },
+  },
+  {
+    _id: false,
+    timestamps: false,
+  },
+);
+
+export const temperatureSchema: Schema<temperatureType> = new Schema(
+  {
+    temperature: {
+      type: Schema.Types.Number,
+      default: ENTITY.USER.DEAFULT_TEMPERATURE,
+    },
+    cnt: {
+      type: Schema.Types.Number,
+      default: 0,
+    },
+    sum: {
+      type: Schema.Types.Number,
+      default: 0,
     },
   },
   {
@@ -364,8 +392,7 @@ export const UserSchema: Schema<IUser> = new Schema({
     }),
   },
   temperature: {
-    type: Number,
-    default: ENTITY.USER.DEAFULT_TEMPERATURE,
+    type: temperatureSchema,
   },
 });
 

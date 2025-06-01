@@ -114,7 +114,7 @@ export class FcmService {
 
   async sendNotificationToX(uid: string, title: string, body: string) {
     const user = await this.fcmRepository.findByUid(uid);
-    if (!user) throw new DatabaseError("can't find toUser");
+    if (!user) return;
 
     try {
       user.devices.forEach(async (device) => {
@@ -139,7 +139,7 @@ export class FcmService {
   async sendNotificationToXWithId(userId: string, title: string, body: string) {
     const user = await this.fcmRepository.findByUserId(userId);
 
-    if (!user) throw new DatabaseError("can't find toUser");
+    if (!user) return;
 
     try {
       user.devices.forEach(async (device) => {

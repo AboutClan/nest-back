@@ -828,6 +828,12 @@ export class UserService {
         case 'block':
           score += -5.2;
           break;
+        case 'cancel':
+          score += -1.0;
+          break;
+        case 'noshow':
+          score += -2.0;
+          break;
         default:
           break;
       }
@@ -841,8 +847,13 @@ export class UserService {
     }
 
     for (const [key, value] of tempMap) {
-      const score = this.calculateScore(value.score, value.cnt);
-      // await this.UserRepository.increaseTemperature(score, key);
+      const addTemp = this.calculateScore(value.score, value.cnt);
+      await this.UserRepository.increaseTemperature(
+        addTemp,
+        Math.round(value.score) / 10,
+        Math.round(value.cnt) / 10,
+        key,
+      );
     }
   }
 
