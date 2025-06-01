@@ -108,30 +108,41 @@ export class MongoUserRepository implements UserRepository {
     await this.User.updateOne({ uid }, { locationDetail: { text, lat, lon } });
   }
 
-  async increaseTemperature(temperature: number, uid: string): Promise<null> {
+  async increaseTemperature(
+    temperature: number,
+    score: number,
+    cnt: number,
+    uid: string,
+  ): Promise<null> {
     return await this.User.findOneAndUpdate(
-      { uid }, // 검색 조건
-      { $inc: { temperature } }, // score와 monthScore 필드를 동시에 증가
-      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+      { uid },
+      {
+        $inc: {
+          'temperature.score': score,
+          'temperature.cnt': cnt,
+          'temperature.temperature': temperature,
+        },
+      },
+      { new: true, useFindAndModify: false },
     );
   }
   async increaseScore(score: number, uid: string): Promise<null> {
     return await this.User.findOneAndUpdate(
       { uid }, // 검색 조건
-      { $inc: { score: score, monthScore: score } }, // score와 monthScore 필드를 동시에 증가
-      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+      { $inc: { score: score, monthScore: score } },
+      { new: true, useFindAndModify: false },
     );
   }
   async increaseDeposit(deposit: number, uid: string): Promise<null> {
     return await this.User.findOneAndUpdate(
-      { uid }, // 검색 조건
-      { $inc: { deposit } }, // deposit 필드를 증가
-      { new: true, useFindAndModify: false }, // 업데이트 후의 최신 문서를 반환
+      { uid },
+      { $inc: { deposit } },
+      { new: true, useFindAndModify: false },
     );
   }
   async setRest(info: any, uid: string, dayDiff: any): Promise<IUser> {
     await this.User.findOneAndUpdate(
-      { uid }, // 사용자를 uid로 찾음
+      { uid },
       {
         $set: {
           'rest.type': info.type,
@@ -142,8 +153,8 @@ export class MongoUserRepository implements UserRepository {
         $inc: { 'rest.restCnt': 1, 'rest.cumulativeSum': dayDiff }, // restCnt와 cumulativeSum 증가
       },
       {
-        upsert: true, // rest 필드가 없는 경우 생성
-        new: true, // 업데이트된 값을 반환
+        upsert: true,
+        new: true,
       },
     );
     return null;
