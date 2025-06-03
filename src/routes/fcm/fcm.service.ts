@@ -1,18 +1,18 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import admin from 'firebase-admin';
+import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
+import { RequestContext } from 'src/request-context';
 import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
+import { IGatherData } from '../gather/gather.entity';
+import { IGroupStudyData } from '../groupStudy/groupStudy.entity';
+import { IUser } from '../user/user.entity';
 import { FcmRepository } from './fcm.repository.interfae';
 import { FcmTokenZodSchema } from './fcmToken.entity';
-import { RequestContext } from 'src/request-context';
-import { InjectModel } from '@nestjs/mongoose';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { Model } from 'mongoose';
-import { IGroupStudyData } from '../groupStudy/groupStudy.entity';
-import { IGatherData } from '../gather/gather.entity';
-import { IUser } from '../user/user.entity';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 @Injectable()
 export class FcmService {
@@ -59,7 +59,12 @@ export class FcmService {
             },
             sound: 'default',
             badge: 1,
+            'content-available': 1,
           },
+        },
+        headers: {
+          'apns-priority': '10',
+          'apns-push-type': 'alert',
         },
       },
     };
