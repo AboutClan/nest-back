@@ -54,8 +54,8 @@ export class FcmService {
         payload: {
           aps: {
             alert: {
-              title: '알림2',
-              body: '알림2',
+              title: '알림',
+              body: '알림',
             },
             sound: 'default',
             badge: 1,
@@ -123,14 +123,15 @@ export class FcmService {
 
     try {
       user.devices.forEach(async (device) => {
-        const newPayload = {
-          ...this.payload,
-          token: device.token,
-          notification: {
-            title,
-            body,
-          },
-        };
+        // const newPayload = {
+        //   ...this.payload,
+        //   token: device.token,
+        //   notification: {
+        //     title,
+        //     body,
+        //   },
+        // };
+        const newPayload = this.createPayload(device.token, title, body);
 
         await admin.messaging().send(newPayload);
       });
@@ -148,15 +149,7 @@ export class FcmService {
 
     try {
       user.devices.forEach(async (device) => {
-        const newPayload = {
-          ...this.payload,
-          token: device.token,
-          notification: {
-            title,
-            body,
-          },
-        };
-
+        const newPayload = this.createPayload(device.token, title, body);
         await admin.messaging().send(newPayload);
       });
     } catch (err: any) {
@@ -300,5 +293,42 @@ export class FcmService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+  private createPayload(token: string, title: string, body: string) {
+    return {
+      token,
+      notification: { title, body },
+      android: {
+        notification: {
+          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
+          channelId: 'about_club_app_push_notification_all',
+        },
+      },
+      webpush: {
+        headers: {
+          TTL: '1',
+        },
+        notification: {
+          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
+        },
+      },
+      apns: {
+        payload: {
+          aps: {
+            alert: {
+              title,
+              body,
+            },
+            sound: 'default',
+            badge: 1,
+            'content-available': 1,
+          },
+        },
+        headers: {
+          'apns-priority': '10',
+          'apns-push-type': 'alert',
+        },
+      },
+    };
   }
 }
