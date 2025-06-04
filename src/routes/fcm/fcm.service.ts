@@ -120,21 +120,31 @@ export class FcmService {
   async sendNotificationToX(uid: string, title: string, body: string) {
     const user = await this.fcmRepository.findByUid(uid);
     if (!user) return;
-
     try {
-      user.devices.forEach(async (device) => {
-        // const newPayload = {
-        //   ...this.payload,
-        //   token: device.token,
-        //   notification: {
-        //     title,
-        //     body,
-        //   },
-        // };
+      for (const device of user.devices) {
         const newPayload = this.createPayload(device.token, title, body);
+        try {
+          const res = await admin.messaging().send(newPayload);
+          console.log('[FCM 성공]', device.token, res);
+        } catch (err) {
+          console.error('[FCM 실패]', device.token, err);
+        }
+      }
 
-        await admin.messaging().send(newPayload);
-      });
+      //  user.devices.forEach(async (device) => {
+      //     const newPayload = {
+      //       ...this.payload,
+      //       token: device.token,
+      //       notification: {
+      //         title,
+      //         body,
+      //       },
+      //     };
+      //     const newPayload = this.createPayload(device.token, title, body);
+
+      //     await admin.messaging().send(newPayload);
+      //   });
+      // }
     } catch (err: any) {
       throw new AppError('send notifacation failed', 1001);
     }
@@ -146,12 +156,16 @@ export class FcmService {
     const user = await this.fcmRepository.findByUserId(userId);
 
     if (!user) return;
-
     try {
-      user.devices.forEach(async (device) => {
+      for (const device of user.devices) {
         const newPayload = this.createPayload(device.token, title, body);
-        await admin.messaging().send(newPayload);
-      });
+        try {
+          const res = await admin.messaging().send(newPayload);
+          console.log('[FCM 성공]', device.token, res);
+        } catch (err) {
+          console.error('[FCM 실패]', device.token, err);
+        }
+      }
     } catch (err: any) {
       throw new AppError('send notifacation failed', 1001);
     }
