@@ -58,7 +58,7 @@ export class FcmService {
               body: '알림',
             },
             sound: 'default',
-            badge: 1,
+            badge: 0,
             'content-available': 1,
           },
         },
