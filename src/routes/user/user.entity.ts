@@ -380,7 +380,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   badge: {
     type: badgeSchema,
-    default: () => ({ badgeIdx: null, badgeList: [] }),
+    default: () => ({ badgeIdx: 0, badgeList: [] }),
   },
   studyRecord: {
     type: studyRecordSchema,

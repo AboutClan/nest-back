@@ -1,18 +1,18 @@
 import { Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { DatabaseError } from 'src/errors/DatabaseError';
+import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
 import { IGATHER_REPOSITORY, INOTICE_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from '../../logger';
+import { FcmService } from '../fcm/fcm.service';
+import { IGatherRepository } from '../gather/GatherRepository.interface';
+import { WebPushService } from '../webpush/webpush.service';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
-import { RequestContext } from 'src/request-context';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { IGatherRepository } from '../gather/GatherRepository.interface';
-import { FcmService } from '../fcm/fcm.service';
-import { WebPushService } from '../webpush/webpush.service';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 export default class NoticeService {
   constructor(
@@ -64,16 +64,7 @@ export default class NoticeService {
       });
 
       await this.noticeRepository.createNotice(validatedNotice);
-      await this.User.findOneAndUpdate(
-        { uid: to },
-        { $inc: { like: 1, point: 2 } },
-      );
-
-      logger.logger.info(message, {
-        type: 'point',
-        uid: to,
-        value: 2,
-      });
+      await this.User.findOneAndUpdate({ uid: to }, { $inc: { like: 1 } });
     } catch (err: any) {
       throw new Error(err);
     }
