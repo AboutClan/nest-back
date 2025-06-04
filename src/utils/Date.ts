@@ -1,10 +1,12 @@
 import dayjs, { Dayjs } from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import 'dayjs/locale/ko';
 import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Seoul');
+dayjs.locale('ko');
 
 export class DateUtils {
   static getStartOfMonth(date?: string): Dayjs {
