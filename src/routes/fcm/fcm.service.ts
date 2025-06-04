@@ -27,6 +27,14 @@ export class FcmService {
     @InjectModel(DB_SCHEMA.GATHER) private Gather: Model<IGatherData>,
   ) {
     const fcm = process.env.FCM_INFO;
+
+    if (!admin.apps.length && fcm) {
+      const serviceAccount = JSON.parse(fcm.replace(/\\n/g, '\n')); // ✅ 수정
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    }
+
     if (!admin.apps.length && fcm) {
       const serviceAccount = JSON.parse(fcm);
       admin.initializeApp({
