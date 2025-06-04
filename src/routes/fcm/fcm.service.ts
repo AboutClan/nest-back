@@ -35,13 +35,6 @@ export class FcmService {
       });
     }
 
-    if (!admin.apps.length && fcm) {
-      const serviceAccount = JSON.parse(fcm);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-    }
-
     this.payload = {
       notification: {
         title: '알림',
