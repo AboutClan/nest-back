@@ -116,6 +116,7 @@ export const userZodSchema = z.object({
   badge: badgeZodSchema,
   isLocationSharingDenided: z.boolean().default(false).optional(),
   temperature: z.number().default(ENTITY.USER.DEAFULT_TEMPERATURE),
+  introduceText: z.string(),
 });
 
 export interface IUser extends Document, IRegistered {
@@ -142,6 +143,7 @@ export interface IUser extends Document, IRegistered {
   studyRecord: studyRecordType;
   isLocationSharingDenided: boolean;
   temperature: temperatureType;
+  introduceText: string;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -393,6 +395,9 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   temperature: {
     type: temperatureSchema,
+  },
+  introduceText: {
+    type: String,
   },
 });
 
