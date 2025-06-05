@@ -39,6 +39,9 @@ export const WEBPUSH_MSG = {
   NOTICE: {
     LIKE_TITLE: '',
     LIKE_RECIEVE: (user, name) => `누군가에게 좋아요를 받았어요!`,
+
+    FRIEND_TITLE: '친구 요청',
+    FRIEND_RECIEVE: (user) => `${user}님이 친구 요청을 보냈어요!`,
   },
 
   VOTE: {

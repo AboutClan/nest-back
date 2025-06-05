@@ -114,6 +114,19 @@ export default class NoticeService {
         message,
         sub,
       });
+
+      if (type === 'friend') {
+        await this.webPushService.sendNotificationToX(
+          toUid,
+          WEBPUSH_MSG.NOTICE.FRIEND_TITLE,
+          WEBPUSH_MSG.NOTICE.FRIEND_RECIEVE(token.name),
+        );
+        await this.fcmServiceInstance.sendNotificationToX(
+          toUid,
+          WEBPUSH_MSG.NOTICE.FRIEND_TITLE,
+          WEBPUSH_MSG.NOTICE.FRIEND_RECIEVE(token.name),
+        );
+      }
     } catch (err: any) {
       throw new DatabaseError('create notice failed');
     }
