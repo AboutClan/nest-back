@@ -135,7 +135,6 @@ export class GatherRepository implements IGatherRepository {
   async findThree(): Promise<Gather[] | null> {
     const gatherData = await this.Gather.find()
       .sort({ createdAt: -1 })
-      .limit(6)
       .populate({
         path: 'user',
         select: ENTITY.USER.C_SIMPLE_USER,
@@ -156,30 +155,17 @@ export class GatherRepository implements IGatherRepository {
         path: 'comments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
-    const gatherData2 = await this.Gather.find({ status: 'pending' })
-      .sort({ createdAt: 1 })
-      .limit(6)
-      .populate({
-        path: 'user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'participants.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
-    return [...gatherData, ...gatherData2].map((doc) => this.mapToDomain(doc));
+
+    const A = gatherData.slice(0, 6);
+    const B = gatherData
+      .filter((gather) => gather.status === 'pending')
+      .reverse()
+      .slice(0, 6);
+    const C = gatherData
+      .filter((gather) => gather.participants.length >= 9)
+      .slice(0, 6);
+
+    return [...A, ...B, ...C].map((doc) => this.mapToDomain(doc));
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {
