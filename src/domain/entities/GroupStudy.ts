@@ -1,6 +1,8 @@
 // src/domain/entities/GroupStudyTypes.ts
 
-export type UserRole = 'host' | 'member';
+import { DateUtils } from 'src/utils/Date';
+
+export type UserRole = 'host' | 'member' | 'outsider';
 // 실제 ENUM_USER_ROLE 배열 요소에 맞춰 수정하세요.
 
 export interface CategoryProps {
@@ -26,7 +28,7 @@ export interface CommentProps {
 }
 
 export interface WaitingProps {
-  userId: string;
+  user: string;
   answer?: string;
   pointType: string;
 }
@@ -50,7 +52,7 @@ export interface MemberCntProps {
 }
 
 export interface ParticipantProps {
-  userId: string;
+  user: string;
   randomId?: number;
   role: UserRole;
   attendCnt: number;
@@ -69,7 +71,7 @@ export interface GroupStudyProps {
   guide: string;
   gender: boolean;
   age: number[];
-  organizerId: string;
+  organizer: string;
   memberCnt: MemberCntProps;
   password?: string;
   status: string;
@@ -107,7 +109,7 @@ export class GroupStudy {
   public guide: string;
   public gender: boolean;
   public age: number[];
-  public organizerId: string;
+  public organizer: string;
   public memberCnt: MemberCntProps;
   public password?: string;
   public status: string;
@@ -142,7 +144,7 @@ export class GroupStudy {
     this.guide = props.guide;
     this.gender = props.gender;
     this.age = props.age;
-    this.organizerId = props.organizerId;
+    this.organizer = props.organizer;
     this.memberCnt = props.memberCnt;
     this.password = props.password;
     this.status = props.status;
@@ -292,20 +294,36 @@ export class GroupStudy {
     }
   }
 
-  participateGroupStudy(participant: ParticipantProps): void {
-    if (!participant.userId || !participant.role) {
-      throw new Error('Participant must have a userId and role');
-    }
-    if (this.participants.some((p) => p.userId === participant.userId)) {
-      return;
+  participateGroupStudy(
+    userId: string,
+    userName: string,
+    userUid: string,
+  ): void {
+    if (!userId || !userName || !userUid) {
+      throw new Error('User ID, name, and UID cannot be empty');
     }
 
-    this.participants.push(participant);
+    const existingParticipant = this.participants.find(
+      (p) => p.user === userId,
+    );
+    if (existingParticipant) {
+      throw new Error('User is already a participant');
+    }
+
+    const newParticipant: ParticipantProps = {
+      user: userId,
+      randomId: Math.floor(Math.random() * 1000000),
+      role: 'member',
+      attendCnt: 0,
+      weekAttendance: false,
+    };
+
+    this.participants.push(newParticipant);
   }
 
   deleteParticipant(userId: string): void {
     const participantIndex = this.participants.findIndex(
-      (p) => p.userId === userId,
+      (p) => p.user === userId,
     );
     if (participantIndex !== -1) {
       this.participants.splice(participantIndex, 1);
@@ -321,26 +339,38 @@ export class GroupStudy {
     );
   }
 
+  deleteParticipantByRandomId(randomId: number): void {
+    const participantIndex = this.participants.findIndex(
+      (p) => p.randomId === randomId,
+    );
+    if (participantIndex !== -1) {
+      const userId = this.participants[participantIndex].user;
+      this.deleteParticipant(userId);
+    } else {
+      throw new Error('Participant not found by random ID');
+    }
+  }
+
   setWaiting({ userId, answer, pointType }): void {
     if (!userId || !pointType) {
       throw new Error('Waiting must have a userId and pointType');
     }
 
-    const existingWaiting = this.waiting.find((w) => w.userId === userId);
+    const existingWaiting = this.waiting.find((w) => w.user === userId);
     if (existingWaiting) {
       existingWaiting.answer = answer;
       existingWaiting.pointType = pointType;
     } else {
-      this.waiting.push({ userId, answer, pointType });
+      this.waiting.push({ user: userId, answer, pointType });
     }
   }
 
   agreeWaiting(userId: string): void {
-    const waitingIndex = this.waiting.findIndex((w) => w.userId === userId);
+    const waitingIndex = this.waiting.findIndex((w) => w.user === userId);
     if (waitingIndex !== -1) {
       const waitingUser = this.waiting[waitingIndex];
       this.participateGroupStudy({
-        userId: waitingUser.userId,
+        userId: waitingUser.user,
         role: 'member',
         attendCnt: 0,
         weekAttendance: false,
@@ -374,15 +404,15 @@ export class GroupStudy {
     weekRecordSub?: string[],
   ): void {
     if (type === 'this') {
-      const latestMonday = new Date();
-      this.attendance.firstDate = latestMonday.toISOString().slice(0, 10);
+      const firstDate = DateUtils.getLatestMonday();
+      this.attendance.firstDate = firstDate;
     }
 
     const weekArray: WeekRecordProps[] =
       type === 'this' ? this.attendance.thisWeek : this.attendance.lastWeek;
 
     const existingRecord = weekArray.find((wr) => wr.uid === userUid);
-    const member = this.participants.find((pt) => pt.userId === userId);
+    const member = this.participants.find((pt) => pt.user === userId);
 
     if (existingRecord) {
       const beforeCnt = existingRecord.attendRecord.length;
@@ -413,7 +443,7 @@ export class GroupStudy {
   }
 
   markWeeklyAttendance(userId: string): boolean {
-    const participant = this.participants.find((p) => p.userId === userId);
+    const participant = this.participants.find((p) => p.user === userId);
     if (!participant) {
       // 참가자 자체가 없으면 변경할 수 없음
       return false;
@@ -440,7 +470,7 @@ export class GroupStudy {
       guide: this.guide,
       gender: this.gender,
       age: [...this.age],
-      organizerId: this.organizerId,
+      organizer: this.organizer,
       memberCnt: { ...this.memberCnt },
       password: this.password,
       status: this.status,

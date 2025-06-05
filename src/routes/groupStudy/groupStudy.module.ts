@@ -11,10 +11,11 @@ import { MongoGroupStudyInterface } from './groupStudy.repository';
 import { RedisModule } from 'src/redis/redis.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../fcm/fcm.module';
+import { GroupStudyRepository } from './GroupStudyRepository';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
-  useClass: MongoGroupStudyInterface,
+  useClass: GroupStudyRepository,
 };
 
 @Module({

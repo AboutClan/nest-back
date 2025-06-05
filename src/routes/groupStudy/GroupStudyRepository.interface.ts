@@ -15,4 +15,5 @@ export interface IGroupStudyRepository {
   initWeekAttendance(): Promise<void>;
   findMyGroupStudyComment(userId: string): Promise<any[]>;
   save(entity: GroupStudy): Promise<GroupStudy>;
+  findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null>;
 }

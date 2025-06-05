@@ -161,6 +161,14 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return this.mapToDomain(updatedDoc);
   }
 
+  async findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null> {
+    const doc = await this.GroupStudy.findOne({ id: groupStudyId })
+      .populate(['waiting.user'])
+      .select('-_id');
+
+    return doc ? this.mapToDomain(doc) : null;
+  }
+
   /** Mongoose Document → 도메인 엔티티 */
   private mapToDomain(doc: IGroupStudyData): GroupStudy {
     // category
@@ -210,7 +218,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
 
     // waiting
     const waiting: WaitingProps[] = (doc.waiting || []).map((w) => ({
-      userId: w.user.toString(),
+      user: w.user.toString(),
       answer: w.answer,
       pointType: w.pointType,
     }));
@@ -242,7 +250,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       guide: doc.guide,
       gender: doc.gender,
       age: doc.age,
-      organizerId: doc.organizer.toString(),
+      organizer: doc.organizer.toString(),
       memberCnt,
       password: doc.password,
       status: doc.status,
@@ -294,7 +302,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     }));
 
     const waitingDb = (p.waiting || []).map((w) => ({
-      user: w.userId,
+      user: w.user,
       answer: w.answer,
       pointType: w.pointType,
     }));
@@ -325,7 +333,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       guide: p.guide,
       gender: p.gender,
       age: p.age,
-      organizer: p.organizerId,
+      organizer: p.organizer,
       memberCnt: {
         min: p.memberCnt.min,
         max: p.memberCnt.max,

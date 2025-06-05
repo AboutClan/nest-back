@@ -19,6 +19,13 @@ import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { FcmService } from '../fcm/fcm.service';
 import { IGroupStudyData, subCommentType } from './groupStudy.entity';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { CONST } from 'src/Constants/CONSTANTS';
+import { DateUtils } from 'src/utils/Date';
+import { FcmService } from '../fcm/fcm.service';
+import { IGroupStudyRepository } from './GroupStudyRepository.interface';
+import { group } from 'console';
 import { GroupStudyRepository } from './groupStudy.repository.interface';
 
 //test
@@ -27,7 +34,7 @@ export default class GroupStudyService {
     @Inject(REDIS_CLIENT)
     private readonly redisClient: Redis,
     @Inject(IGROUPSTUDY_REPOSITORY)
-    private readonly groupStudyRepository: GroupStudyRepository,
+    private readonly groupStudyRepository: IGroupStudyRepository,
     private readonly userServiceInstance: UserService,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     private webPushServiceInstance: WebPushService,
@@ -340,16 +347,12 @@ export default class GroupStudyService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const message: subCommentType = {
-      user: token.id,
-      comment: content,
-    };
+    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
+    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
-    await this.groupStudyRepository.createSubComment(
-      groupStudyId,
-      commentId,
-      message,
-    );
+    groupStudy.createSubComment(commentId, token.id, content);
+
+    await this.groupStudyRepository.save(groupStudy);
 
     return;
   }
@@ -359,11 +362,12 @@ export default class GroupStudyService {
     commentId: string,
     subCommentId: string,
   ) {
-    await this.groupStudyRepository.deleteSubComment(
-      groupStudyId,
-      commentId,
-      subCommentId,
-    );
+    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
+    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
+
+    groupStudy.deleteSubComment(commentId, subCommentId);
+
+    await this.groupStudyRepository.save(groupStudy);
 
     return;
   }
@@ -374,12 +378,11 @@ export default class GroupStudyService {
     subCommentId: string,
     comment: string,
   ) {
-    await this.groupStudyRepository.updateSubComment(
-      groupStudyId,
-      commentId,
-      subCommentId,
-      comment,
-    );
+    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
+    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
+
+    groupStudy.updateSubComment(commentId, subCommentId, comment);
+    await this.groupStudyRepository.save(groupStudy);
     return;
   }
 
@@ -410,7 +413,7 @@ export default class GroupStudyService {
 
       const groupStudyData = groupStudyInfo;
 
-      await this.groupStudyRepository.createGroupStudy(groupStudyData);
+      await this.groupStudyRepository.save(groupStudyData);
 
       return;
     } catch (err) {
@@ -444,20 +447,12 @@ export default class GroupStudyService {
 
     if (!groupStudy) throw new Error();
 
-    if (
-      !groupStudy.participants.some(
-        (participant) => participant.user == token.id,
-      )
-    ) {
-      await this.groupStudyRepository.addParticipantWithAttendance(
-        id,
-        token.id,
-        token.name,
-        token.uid,
-      );
-    }
+    groupStudy.participateGroupStudy(token.id, token.name, token.uid);
 
+    //ticket 차감 로직
     await this.userServiceInstance.updateReduceTicket('groupOffline', token.id);
+
+    await this.groupStudyRepository.save(groupStudy);
 
     // await this.webPushServiceInstance.sendNotificationGroupStudy(
     //   id,
@@ -481,18 +476,7 @@ export default class GroupStudyService {
     const ticketInfo = await this.userServiceInstance.getTicketInfo(user.id);
     if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
 
-    if (
-      !groupStudy.participants.some(
-        (participant) => participant.user == user.id,
-      )
-    ) {
-      await this.groupStudyRepository.addParticipantWithAttendance(
-        id,
-        user._id,
-        user.name,
-        user.uid,
-      );
-    }
+    groupStudy.participateGroupStudy(user._id, user.name, user.uid);
 
     await this.userServiceInstance.updateReduceTicket('groupOffline', user.id);
 
@@ -514,21 +498,10 @@ export default class GroupStudyService {
 
     if (!groupStudy) throw new Error();
 
-    try {
-      groupStudy.participants = groupStudy.participants.filter(
-        (participant) => participant.user != token.id,
-      );
+    groupStudy.deleteParticipant(token.id);
 
-      groupStudy.attendance.lastWeek = groupStudy.attendance.lastWeek.filter(
-        (who) => who.uid !== token.uid + '',
-      );
-      groupStudy.attendance.thisWeek = groupStudy.attendance.thisWeek.filter(
-        (who) => who.uid !== token.uid + '',
-      );
-      await groupStudy.save();
-    } catch (err) {
-      throw new Error();
-    }
+    await this.groupStudyRepository.save(groupStudy);
+
     return;
   }
 
@@ -537,22 +510,11 @@ export default class GroupStudyService {
     if (!groupStudy) throw new Error();
     try {
       if (!randomId) {
-        groupStudy.participants = groupStudy.participants.filter(
-          (participant) => participant.user != toUid,
-        );
-
-        groupStudy.attendance.lastWeek = groupStudy.attendance.lastWeek.filter(
-          (who) => who.uid !== toUid + '',
-        );
-        groupStudy.attendance.thisWeek = groupStudy.attendance.thisWeek.filter(
-          (who) => who.uid !== toUid + '',
-        );
+        groupStudy.deleteParticipant(toUid);
       } else {
-        groupStudy.participants = groupStudy.participants.filter(
-          (participant) => participant.randomId !== randomId,
-        );
+        groupStudy.deleteParticipantByRandomId(randomId);
       }
-      await groupStudy.save();
+      await this.groupStudyRepository.save(groupStudy);
     } catch (err) {
       throw new Error();
     }
@@ -572,16 +534,10 @@ export default class GroupStudyService {
     if (!groupStudy) throw new Error();
 
     try {
-      const user = { user: token.id, answer, pointType };
-      if (groupStudy?.waiting) {
-        if (groupStudy.waiting.includes(user)) {
-          return;
-        }
-        groupStudy.waiting.push(user);
-      } else {
-        groupStudy.waiting = [user];
-      }
-      await groupStudy?.save();
+      const user = { userId: token.id, answer, pointType };
+      groupStudy.setWaiting(user);
+
+      await this.groupStudyRepository.save(groupStudy);
 
       await this.webPushServiceInstance.sendNotificationToXWithId(
         groupStudy.organizer,
@@ -608,8 +564,10 @@ export default class GroupStudyService {
     if (!groupStudy) throw new Error();
 
     try {
+      groupStudy.agreeWaiting(userId);
+
       const user = groupStudyWithWaiting?.waiting.find((who) => {
-        return (who.user as IUser)._id.toString() === userId;
+        return (who.user as unknown as IUser)._id.toString() === userId;
       });
 
       groupStudy.waiting = groupStudy.waiting.filter(
@@ -621,6 +579,7 @@ export default class GroupStudyService {
           role: userId ? 'member' : 'outsider',
           attendCnt: 0,
           randomId: userId ? undefined : Math.floor(Math.random() * 100000),
+          weekAttendance: false,
         });
 
         //ticket 소모 로직
@@ -662,7 +621,7 @@ export default class GroupStudyService {
           WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
         );
       }
-      await groupStudy?.save();
+      await this.groupStudyRepository.save(groupStudy);
     } catch (err) {
       throw new Error();
     }
@@ -680,11 +639,14 @@ export default class GroupStudyService {
     if (!groupStudy) throw new Error();
 
     const firstDate = DateUtils.getLatestMonday();
-    groupStudy.attendance.firstDate = firstDate;
-    groupStudy.attendance.lastWeek = groupStudy.attendance.thisWeek;
-    groupStudy.attendance.thisWeek = [];
 
-    await groupStudy.save();
+    groupStudy.patchAttendance(
+      firstDate,
+      groupStudy.attendance.thisWeek,
+      groupStudy.attendance.lastWeek,
+    );
+
+    await this.groupStudyRepository.save(groupStudy);
   }
 
   async attendGroupStudy(
@@ -699,44 +661,52 @@ export default class GroupStudyService {
     if (!groupStudy) throw new Error();
 
     try {
-      const firstDate = DateUtils.getLatestMonday();
-
-      if (type === 'this') groupStudy.attendance.firstDate = firstDate;
-
-      const weekData =
-        type === 'this'
-          ? groupStudy.attendance.thisWeek
-          : groupStudy.attendance.lastWeek;
-
-      const findUser = weekData.find((who) => who.uid === token.uid + '');
-      const findMember = groupStudy.participants.find(
-        (who) => who.user.toString() === (token.id as string),
+      groupStudy.attend(
+        token.id,
+        token.name,
+        token.uid,
+        weekRecord,
+        type as any,
+        weekRecordSub,
       );
 
-      if (findUser) {
-        const beforeCnt = findUser.attendRecord.length;
-        if (findMember) {
-          findMember.attendCnt += -beforeCnt + weekRecord.length;
-        }
-        findUser.attendRecord = weekRecord;
-        findUser.attendRecordSub = weekRecordSub;
-      } else {
-        const data = {
-          name: token.name as string,
-          uid: token.uid as string,
-          attendRecord: weekRecord,
-          attendRecordSub: weekRecordSub,
-        };
-        if (findMember) {
-          findMember.attendCnt += weekRecord.length;
-        }
-        if (type === 'this') {
-          groupStudy.attendance.thisWeek.push(data);
-        }
-        if (type === 'last') groupStudy.attendance.lastWeek.push(data);
-      }
+      await this.groupStudyRepository.save(groupStudy);
+      // if (type === 'this') groupStudy.attendance.firstDate = firstDate;
 
-      await groupStudy?.save();
+      // const weekData =
+      //   type === 'this'
+      //     ? groupStudy.attendance.thisWeek
+      //     : groupStudy.attendance.lastWeek;
+
+      // const findUser = weekData.find((who) => who.uid === token.uid + '');
+      // const findMember = groupStudy.participants.find(
+      //   (who) => who.user.toString() === (token.id as string),
+      // );
+
+      // if (findUser) {
+      //   const beforeCnt = findUser.attendRecord.length;
+      //   if (findMember) {
+      //     findMember.attendCnt += -beforeCnt + weekRecord.length;
+      //   }
+      //   findUser.attendRecord = weekRecord;
+      //   findUser.attendRecordSub = weekRecordSub;
+      // } else {
+      //   const data = {
+      //     name: token.name as string,
+      //     uid: token.uid as string,
+      //     attendRecord: weekRecord,
+      //     attendRecordSub: weekRecordSub,
+      //   };
+      //   if (findMember) {
+      //     findMember.attendCnt += weekRecord.length;
+      //   }
+      //   if (type === 'this') {
+      //     groupStudy.attendance.thisWeek.push(data);
+      //   }
+      //   if (type === 'last') groupStudy.attendance.lastWeek.push(data);
+      // }
+
+      // await groupStudy?.save();
 
       return;
     } catch (err) {
@@ -750,12 +720,9 @@ export default class GroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
-    if (groupStudy?.comments) {
-      groupStudy.comments.push({
-        user: token.id,
-        comment,
-      });
-    } else {
+    groupStudy.addComment(token.id, comment);
+
+    if (groupStudy.comments.length === 1) {
       await this.userServiceInstance.updatePoint(
         CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
         '소모임 최초 리뷰 작성',
@@ -769,6 +736,8 @@ export default class GroupStudyService {
       ];
     }
 
+    await this.groupStudyRepository.save(groupStudy);
+
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
       WEBPUSH_MSG.GROUPSTUDY.TITLE,
@@ -779,8 +748,6 @@ export default class GroupStudyService {
       WEBPUSH_MSG.GROUPSTUDY.TITLE,
       WEBPUSH_MSG.GROUPSTUDY.COMMENT_CREATE(groupStudy.title),
     );
-
-    await groupStudy.save();
   }
 
   //comment방식 바꾸기
@@ -788,11 +755,9 @@ export default class GroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
-    groupStudy.comments = groupStudy.comments.filter(
-      (com: any) => (com._id as string) != commentId,
-    );
+    groupStudy.deleteComment(commentId);
 
-    await groupStudy.save();
+    await this.groupStudyRepository.save(groupStudy);
   }
 
   async patchComment(groupStudyId: string, commentId: string, comment: string) {
@@ -958,7 +923,7 @@ export default class GroupStudyService {
     return usedComment;
   }
 
-  async test() {
-    return await this.groupStudyRepository.test();
-  }
+  // async test() {
+  //   return await this.groupStudyRepository.test();
+  // }
 }
