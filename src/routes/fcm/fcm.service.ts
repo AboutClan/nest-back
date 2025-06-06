@@ -334,7 +334,7 @@ export class FcmService {
               body,
             },
             sound: 'default',
-            badge: 1,
+            badge: 0,
             'content-available': 1,
           },
         },
