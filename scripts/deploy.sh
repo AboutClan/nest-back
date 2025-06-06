@@ -35,6 +35,7 @@ REDIS_HOST=$(echo "$SECRETS" | jq -r '.REDIS_HOST')
 REDIS_PORT=$(echo "$SECRETS" | jq -r '.REDIS_PORT')
 REDIS_PASSWORD=$(echo "$SECRETS" | jq -r '.REDIS_PASSWORD')
 JWT_TOKEN=$(echo "$SECRETS" | jq -r '.JWT_TOKEN')
+FCM_INFO=$(echo "$SECRETS" | jq -r '.FCM_INFO')
 EOF
 
 echo ".env file created successfully."

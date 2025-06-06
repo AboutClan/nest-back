@@ -65,12 +65,19 @@ export class NotificationScheduler {
   async resetGatherTicket() {
     try {
       await this.User.updateMany(
+        {},
+        {
+          $inc: { 'ticket.groupStudyTicket': 1 },
+        },
+      );
+
+      await this.User.updateMany(
         { 'ticket.gatherTicket': { $lt: 3 } },
         {
           $set: { 'ticket.gatherTicket': 3 },
         },
-        { new: true, upsert: false },
       );
+
       this.logger.log('Gather ticket reset successfully.');
     } catch (error) {
       this.logger.error('Error resetting monthly scores:', error);
@@ -141,15 +148,15 @@ export class NotificationScheduler {
   //   }
   // }
 
-  // //monthScore 정산
-  // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
-  //   timeZone: 'Asia/Seoul',
-  // })
-  // async processMonthScore() {
-  //   try {
-  //     await this.userService.processMonthScore();
-  //   } catch (err: any) {
-  //     throw new Error(err);
-  //   }
-  // }
+  //monthScore 정산
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+    timeZone: 'Asia/Seoul',
+  })
+  async processMonthScore() {
+    try {
+      await this.userService.processMonthScore();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 }

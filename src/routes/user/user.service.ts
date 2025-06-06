@@ -847,11 +847,21 @@ export class UserService {
     }
 
     for (const [key, value] of tempMap) {
-      const addTemp = this.calculateScore(value.score, value.cnt);
+      const user = await this.UserRepository.findByUid(key);
+      if (!user) continue;
+      const temp = user.temperature || {
+        sum: 0,
+        cnt: 0,
+      };
+
+      const newSum = temp.sum + Math.round(value.score) / 10;
+      const newCnt = temp.cnt + Math.round(value.cnt) / 10;
+
+      const addTemp = this.calculateScore(newSum, newCnt);
       await this.UserRepository.increaseTemperature(
         addTemp,
-        Math.round(value.score) / 10,
-        Math.round(value.cnt) / 10,
+        newSum,
+        newCnt,
         key,
       );
     }
