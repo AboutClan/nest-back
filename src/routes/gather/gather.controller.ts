@@ -137,8 +137,8 @@ export class GatherController {
   }
 
   @Delete('participate')
-  async deleteParticipate(@Body() body: { gatherId: number }) {
-    await this.gatherService.deleteParticipate(body.gatherId);
+  async deleteParticipate(@Body() body: { gatherId: number; userId: string }) {
+    await this.gatherService.deleteParticipate(body.gatherId, body.userId);
     return { status: 'success' };
   }
 

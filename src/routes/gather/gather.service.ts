@@ -417,12 +417,13 @@ export class GatherService {
     return Math.floor((inputDayStart - todayDayStart) / MS_PER_DAY);
   }
 
-  async deleteParticipate(gatherId: number) {
+  async deleteParticipate(gatherId: number, userId?: string) {
     const token = RequestContext.getDecodedToken();
 
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
-    gather.exile(token.id);
+
+    gather.exile(userId ? userId : token.id);
 
     // try {
     //   const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
