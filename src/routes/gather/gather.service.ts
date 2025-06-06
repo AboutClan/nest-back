@@ -191,7 +191,7 @@ export class GatherService {
       const isOwner = (g.user as any)._id.toString() === userIdString;
 
       return (
-        dayjs(g.date).add(1, 'day').isBefore(dayjs()) &&
+        dayjs(g.date).add(1, 'day').startOf('day').isBefore(dayjs()) &&
         !isReviewed &&
         (isParticipant || isOwner)
       );
