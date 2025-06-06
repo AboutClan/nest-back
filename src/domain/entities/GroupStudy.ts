@@ -6,37 +6,37 @@ export type UserRole = 'host' | 'member' | 'outsider';
 // 실제 ENUM_USER_ROLE 배열 요소에 맞춰 수정하세요.
 
 export interface CategoryProps {
-  main: string;
-  sub: string;
+  main?: string;
+  sub?: string;
 }
 
 export interface SubCommentProps {
   _id?: string; // Optional for new comments
-  userId: string;
-  comment: string;
-  likeList: string[];
+  user?: string;
+  comment?: string;
+  likeList?: string[];
   createdAt?: Date;
 }
 
 export interface CommentProps {
   _id?: string; // Optional for new comments
-  userId: string;
-  comment: string;
-  subComments: SubCommentProps[];
-  likeList: string[];
+  user?: string;
+  comment?: string;
+  subComments?: SubCommentProps[];
+  likeList?: string[];
   createdAt?: Date;
 }
 
 export interface WaitingProps {
-  user: string;
+  user?: string;
   answer?: string;
-  pointType: string;
+  pointType?: string;
 }
 
 export interface WeekRecordProps {
-  uid: string;
-  name: string;
-  attendRecord: string[];
+  uid?: string;
+  name?: string;
+  attendRecord?: string[];
   attendRecordSub?: string[];
 }
 
@@ -47,45 +47,45 @@ export interface AttendanceProps {
 }
 
 export interface MemberCntProps {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
 }
 
 export interface ParticipantProps {
-  user: string;
+  user?: string;
   randomId?: number;
-  role: UserRole;
-  attendCnt: number;
-  weekAttendance: boolean;
+  role?: UserRole;
+  attendCnt?: number;
+  weekAttendance?: boolean;
 }
 
 export interface GroupStudyProps {
   _id?: string; // Optional for new comments
-  id: number;
-  title: string;
-  category: CategoryProps;
+  id?: number;
+  title?: string;
+  category?: CategoryProps;
   challenge?: string;
-  rules: string[];
-  content: string;
-  period: string;
-  guide: string;
-  gender: boolean;
-  age: number[];
-  organizer: string;
-  memberCnt: MemberCntProps;
+  rules?: string[];
+  content?: string;
+  period?: string;
+  guide?: string;
+  gender?: boolean;
+  age?: number[];
+  organizer?: string;
+  memberCnt?: MemberCntProps;
   password?: string;
-  status: string;
-  participants: ParticipantProps[];
-  userId: string; // 작성자(creator) ID
+  status?: string;
+  participants?: ParticipantProps[];
+  userId?: string; // 작성자(creator) ID
   comments?: CommentProps[];
-  location: string;
+  location?: string;
   image?: string;
-  isFree: boolean;
+  isFree?: boolean;
   feeText?: string;
   fee?: number;
   questionText?: string;
-  hashTag: string;
-  attendance: AttendanceProps;
+  hashTag?: string;
+  attendance?: AttendanceProps;
   link?: string;
   isSecret?: boolean;
   waiting?: WaitingProps[];
@@ -135,35 +135,35 @@ export class GroupStudy {
   constructor(props: GroupStudyProps) {
     this._id = props._id;
     this.id = props.id;
-    this.title = props.title;
-    this.category = props.category;
-    this.challenge = props.challenge;
-    this.rules = props.rules;
-    this.content = props.content;
-    this.period = props.period;
-    this.guide = props.guide;
-    this.gender = props.gender;
-    this.age = props.age;
-    this.organizer = props.organizer;
-    this.memberCnt = props.memberCnt;
-    this.password = props.password;
-    this.status = props.status;
-    this.participants = props.participants;
+    this.title = props.title || 'no title';
+    this.category = props.category || { main: '기타', sub: '기타' };
+    this.challenge = props.challenge || '';
+    this.rules = props.rules || [];
+    this.content = props.content || '';
+    this.period = props.period || '';
+    this.guide = props.guide || '';
+    this.gender = props.gender || false;
+    this.age = props.age || [];
+    this.organizer = props.organizer || '';
+    this.memberCnt = props.memberCnt || { min: 1, max: 10 };
+    this.password = props.password || null;
+    this.status = props.status || 'active';
+    this.participants = props.participants || [];
     this.userId = props.userId;
     this.comments = props.comments ?? [];
-    this.location = props.location;
-    this.image = props.image;
-    this.isFree = props.isFree;
-    this.feeText = props.feeText;
-    this.fee = props.fee;
-    this.questionText = props.questionText;
-    this.hashTag = props.hashTag;
-    this.attendance = props.attendance;
-    this.link = props.link;
-    this.isSecret = props.isSecret;
+    this.location = props.location || '수원';
+    this.image = props.image || null;
+    this.isFree = props.isFree || false;
+    this.feeText = props.feeText || '';
+    this.fee = props.fee || 0;
+    this.questionText = props.questionText || '';
+    this.hashTag = props.hashTag || '';
+    this.attendance = props.attendance || null;
+    this.link = props.link || '';
+    this.isSecret = props.isSecret || false;
     this.waiting = props.waiting ?? [];
-    this.squareImage = props.squareImage;
-    this.meetingType = props.meetingType;
+    this.squareImage = props.squareImage || null;
+    this.meetingType = props.meetingType || 'offline';
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
@@ -174,7 +174,7 @@ export class GroupStudy {
     }
 
     const newComment: CommentProps = {
-      userId,
+      user: userId,
       comment,
       subComments: [],
       likeList: [],
@@ -283,7 +283,7 @@ export class GroupStudy {
     const comment = this.comments.find((c) => c._id === commentId);
     if (comment) {
       const newSubComment: SubCommentProps = {
-        userId,
+        user: userId,
         comment: subComment,
         likeList: [],
         createdAt: new Date(),
@@ -294,12 +294,8 @@ export class GroupStudy {
     }
   }
 
-  participateGroupStudy(
-    userId: string,
-    userName: string,
-    userUid: string,
-  ): void {
-    if (!userId || !userName || !userUid) {
+  participateGroupStudy(userId: string, role: UserRole): void {
+    if (!userId) {
       throw new Error('User ID, name, and UID cannot be empty');
     }
 
@@ -313,12 +309,29 @@ export class GroupStudy {
     const newParticipant: ParticipantProps = {
       user: userId,
       randomId: Math.floor(Math.random() * 1000000),
-      role: 'member',
+      role,
       attendCnt: 0,
       weekAttendance: false,
     };
 
     this.participants.push(newParticipant);
+  }
+
+  checkWeekAttendance(userId: string): boolean {
+    const participant = this.participants.find((p) => p.user === userId);
+    if (!participant) {
+      throw new Error('Participant not found');
+    }
+
+    let ret = false;
+
+    if (participant.weekAttendance !== true) {
+      participant.weekAttendance = true;
+      participant.attendCnt += 1;
+      ret = true;
+    }
+
+    return ret;
   }
 
   deleteParticipant(userId: string): void {
@@ -369,15 +382,15 @@ export class GroupStudy {
     const waitingIndex = this.waiting.findIndex((w) => w.user === userId);
     if (waitingIndex !== -1) {
       const waitingUser = this.waiting[waitingIndex];
-      this.participateGroupStudy({
-        userId: waitingUser.user,
-        role: 'member',
-        attendCnt: 0,
-        weekAttendance: false,
-      });
+      this.participateGroupStudy(waitingUser.user, 'member');
       this.waiting.splice(waitingIndex, 1);
-    } else {
-      throw new Error('Waiting user not found');
+    }
+  }
+
+  disagreeWaiting(userId: string): void {
+    const waitingIndex = this.waiting.findIndex((w) => w.user === userId);
+    if (waitingIndex !== -1) {
+      this.waiting.splice(waitingIndex, 1);
     }
   }
 
@@ -460,6 +473,7 @@ export class GroupStudy {
 
   toPrimitives(): GroupStudyProps {
     return {
+      _id: this._id,
       id: this.id,
       title: this.title,
       category: { ...this.category },
@@ -477,7 +491,7 @@ export class GroupStudy {
       participants: this.participants.map((p) => ({ ...p })),
       userId: this.userId,
       comments: this.comments.map((c) => ({
-        userId: c.userId,
+        user: c.user,
         comment: c.comment,
         subComments: c.subComments.map((s) => ({ ...s })),
         likeList: [...c.likeList],

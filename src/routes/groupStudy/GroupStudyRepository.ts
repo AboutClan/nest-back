@@ -129,6 +129,55 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return doc ? this.mapToDomain(doc) : null;
   }
 
+  async findBy_Id(groupStudyId: string): Promise<GroupStudy | null> {
+    const doc = await this.GroupStudy.findOne({ _id: groupStudyId });
+
+    return doc ? this.mapToDomain(doc) : null;
+  }
+
+  async findEnthMembers() {
+    try {
+      // Aggregation Pipeline
+      const result = await this.GroupStudy.aggregate([
+        { $unwind: '$participants' }, // Unwind the participants array
+        {
+          $group: {
+            _id: '$participants.user', // Group by user ID
+            count: { $sum: 1 }, // Count occurrences
+          },
+        },
+        {
+          $match: {
+            count: { $gte: 3 }, // Find users with 3 or more occurrences
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userDetails',
+          },
+        },
+        {
+          $unwind: '$userDetails', // userDetails 배열을 펼침
+        },
+        {
+          $project: {
+            _id: 1,
+            count: 1,
+            uid: '$userDetails.uid', // userDetails.uid를 바로 꺼냄
+            name: '$userDetails.name', // userDetails.name을 바로 꺼냄
+          },
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async initWeekAttendance(): Promise<void> {
     await this.GroupStudy.updateMany(
       {},
@@ -173,20 +222,20 @@ export class GroupStudyRepository implements IGroupStudyRepository {
   private mapToDomain(doc: IGroupStudyData): GroupStudy {
     // category
     const category: CategoryProps = {
-      main: doc.category.main,
-      sub: doc.category.sub,
+      main: doc?.category?.main,
+      sub: doc?.category?.sub,
     };
 
     // memberCnt
     const memberCnt: MemberCntProps = {
-      min: doc.memberCnt.min,
-      max: doc.memberCnt.max,
+      min: doc?.memberCnt?.min,
+      max: doc?.memberCnt?.max,
     };
 
     // participants
     const participants: ParticipantProps[] = (doc.participants || []).map(
       (p) => ({
-        userId: p.user.toString(),
+        user: p.user?.toString(),
         randomId: p.randomId,
         role: p.role as ParticipantProps['role'],
         attendCnt: p.attendCnt,
@@ -199,7 +248,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       const subComments: SubCommentProps[] = (c.subComments || []).map(
         (s: any) => ({
           _id: s._id,
-          userId: s.user.toString(),
+          user: s.user?.toString(),
           comment: s.comment,
           likeList: s.likeList || [],
           createdAt: s.createdAt || new Date(),
@@ -208,7 +257,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
 
       return {
         _id: c._id,
-        userId: c.user.toString(),
+        user: c.user?.toString(),
         comment: c.comment,
         subComments,
         likeList: c.likeList || [],
@@ -218,7 +267,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
 
     // waiting
     const waiting: WaitingProps[] = (doc.waiting || []).map((w) => ({
-      user: w.user.toString(),
+      user: w.user?.toString(),
       answer: w.answer,
       pointType: w.pointType,
     }));
@@ -239,7 +288,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
 
     // 최종 GroupStudyProps 구성
     const props: GroupStudyProps = {
-      _id: doc._id.toString(),
+      _id: doc._id?.toString(),
       id: doc.id,
       title: doc.title,
       category,
@@ -250,12 +299,12 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       guide: doc.guide,
       gender: doc.gender,
       age: doc.age,
-      organizer: doc.organizer.toString(),
+      organizer: doc.organizer?.toString(),
       memberCnt,
       password: doc.password,
       status: doc.status,
       participants,
-      userId: doc.user.toString(),
+      userId: doc.user?.toString(),
       comments,
       location: doc.location,
       image: doc.image,
@@ -283,7 +332,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
 
     // 변환된 Plain Object를 Mongoose 스키마 구조에 맞게 가공
     const participantsDb = p.participants.map((pt) => ({
-      user: pt.userId,
+      user: pt.user,
       randomId: pt.randomId,
       role: pt.role,
       attendCnt: pt.attendCnt,
@@ -291,10 +340,10 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     }));
 
     const commentsDb = (p.comments || []).map((c) => ({
-      user: c.userId,
+      user: c.user,
       comment: c.comment,
       subComments: c.subComments.map((s) => ({
-        user: s.userId,
+        user: s.user,
         comment: s.comment,
         likeList: s.likeList,
       })),
@@ -321,6 +370,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     };
 
     return {
+      _id: p._id,
       title: p.title,
       category: {
         main: p.category.main,

@@ -317,12 +317,5 @@ export class MongoGroupStudyInterface implements GroupStudyRepository {
     return result;
   }
 
-  async test() {
-    await this.GroupStudy.updateMany(
-      {},
-      {
-        $set: { comments: [] },
-      },
-    );
-  }
+  async test() {}
 }
