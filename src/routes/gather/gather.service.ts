@@ -173,13 +173,13 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
     const userIdString = token.id.toString();
 
-    const myGathers = (await this.gatherRepository.findMyGather(token.id))
-      .filter(
-        (g) =>
-          dayjs(g.date).isBefore(dayjs()) &&
-          dayjs(g.date).isAfter(dayjs().subtract(2, 'week')),
-      )
-      .slice(0, 2);
+    const myGathers = (
+      await this.gatherRepository.findMyGather(token.id)
+    ).filter(
+      (g) =>
+        dayjs(g.date).isBefore(dayjs()) &&
+        dayjs(g.date).isAfter(dayjs().subtract(2, 'week')),
+    );
 
     const notReviewed = myGathers.filter((g) => {
       const reviewerIds = g.reviewers.map((r) => r.toString());
@@ -607,16 +607,18 @@ export class GatherService {
 
     await this.gatherRepository.save(gather);
 
-    await this.webPushServiceInstance.sendNotificationToXWithId(
-      userId,
-      WEBPUSH_MSG.GATHER.TITLE,
-      WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
-    );
-    await this.fcmServiceInstance.sendNotificationToXWithId(
-      userId,
-      WEBPUSH_MSG.GATHER.TITLE,
-      WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
-    );
+    if (status === 'agree') {
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
+      );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
+      );
+    }
   }
 
   async createSubComment(gatherId: string, commentId: string, content: string) {
