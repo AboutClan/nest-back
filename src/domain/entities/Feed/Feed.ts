@@ -46,7 +46,9 @@ export class Feed {
   }
 
   public addLike(userId: string): boolean {
-    const index = this.like.indexOf(userId);
+    const likeList = this.like.map((item: any) => item._id.toString());
+    console.log(likeList);
+    const index = likeList.indexOf(userId);
     if (index === -1) {
       this.like.push(userId);
       return true;
