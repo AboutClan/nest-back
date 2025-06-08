@@ -1,4 +1,9 @@
-import { ClassProvider, forwardRef, Module } from '@nestjs/common';
+import {
+  ClassProvider,
+  forwardRef,
+  MiddlewareConsumer,
+  Module,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RealtimeSchema } from './realtime.entity';
 import { RealtimeController } from './realtime.controller';
@@ -10,6 +15,7 @@ import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoRealtimeRepository } from './realtime.repository';
 import { UserModule } from 'src/routes/user/user.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { SetDateParamMiddleware } from './middleware/setDateParam';
 const realtimeRepositoryProvider: ClassProvider = {
   provide: IREALTIME_REPOSITORY,
   useClass: MongoRealtimeRepository,
@@ -29,4 +35,10 @@ const realtimeRepositoryProvider: ClassProvider = {
   providers: [RealtimeService, realtimeRepositoryProvider],
   exports: [RealtimeService, MongooseModule, realtimeRepositoryProvider],
 })
-export class RealtimeModule {}
+export class RealtimeModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(SetDateParamMiddleware) // 작성한 미들웨어 적용
+      .forRoutes('realtime/:date'); // 특정 경로에 미들웨어 적용
+  }
+}

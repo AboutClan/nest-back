@@ -41,11 +41,10 @@ export default class RealtimeService {
     return data;
   }
 
-  // 기본 투표 생성
-  async createBasicVote(studyData: Partial<IRealtime>) {
+  //todo: date:YYYYMMDD라 가정
+  async createBasicVote(studyData: Partial<IRealtime>, date: string) {
     const token = RequestContext.getDecodedToken();
 
-    const date = this.getToday();
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
@@ -65,11 +64,15 @@ export default class RealtimeService {
 
   //todo: 수정 급함
   //test
-  async markAttendance(studyData: Partial<IRealtimeUser>, buffers: Buffer[]) {
+  async markAttendance(
+    studyData: Partial<IRealtimeUser>,
+    buffers: Buffer[],
+    date: string,
+  ) {
     const token = RequestContext.getDecodedToken();
 
     try {
-      const date = this.getToday();
+      if (!date) date = this.getToday();
 
       if (buffers.length) {
         const images = await this.imageServiceInstance.uploadImgCom(
@@ -110,7 +113,7 @@ export default class RealtimeService {
   }
 
   // 스터디 정보 업데이트
-  async updateStudy(studyData: Partial<IRealtime>) {
+  async updateStudy(studyData: Partial<IRealtime>, date: string) {
     const token = RequestContext.getDecodedToken();
 
     const updateFields: Record<string, any> = {};
@@ -123,20 +126,23 @@ export default class RealtimeService {
       }
     });
 
+    if (!date) date = this.getToday();
+
     const updatedRealtime = await this.realtimeRepository.patchRealtime(
       token.id,
       updateFields,
-      this.getToday(),
+      date,
     );
 
     if (!updatedRealtime) throw new DatabaseError('Failed to update study');
     return updatedRealtime;
   }
 
-  async patchVote(start: any, end: any) {
+  async patchVote(start: any, end: any, date: string) {
     const token = RequestContext.getDecodedToken();
 
-    const todayData = await this.getTodayData();
+    const todayData = await this.getTodayData(date);
+
     try {
       if (start && end && todayData?.userList) {
         todayData.userList.forEach((userInfo) => {
@@ -155,10 +161,10 @@ export default class RealtimeService {
     }
   }
 
-  async deleteVote() {
+  async deleteVote(date: string) {
     const token = RequestContext.getDecodedToken();
 
-    const todayData = await this.getTodayData();
+    const todayData = await this.getTodayData(date);
     try {
       todayData.userList = todayData.userList?.filter(
         (userInfo) => userInfo.user.toString() !== token.id,
@@ -169,10 +175,10 @@ export default class RealtimeService {
       throw new Error();
     }
   }
-  async patchStatus(status: any) {
+  async patchStatus(status: any, date: string) {
     const token = RequestContext.getDecodedToken();
 
-    const todayData = await this.getTodayData();
+    const todayData = await this.getTodayData(date);
 
     try {
       todayData.userList?.forEach((userInfo) => {
@@ -186,10 +192,10 @@ export default class RealtimeService {
       throw new Error();
     }
   }
-  async patchComment(comment: string) {
+  async patchComment(comment: string, date: string) {
     const token = RequestContext.getDecodedToken();
 
-    const todayData = await this.getTodayData();
+    const todayData = await this.getTodayData(date);
 
     try {
       todayData.userList?.forEach((userInfo) => {
@@ -206,7 +212,7 @@ export default class RealtimeService {
   }
 
   // 가장 최근의 스터디 가져오기
-  async getRecentStudy() {
-    return this.getTodayData();
+  async getRecentStudy(date: string) {
+    return this.getTodayData(date);
   }
 }
