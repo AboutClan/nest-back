@@ -795,7 +795,7 @@ export class UserService {
   }
 
   async processTemperature() {
-    const end = new Date(2025, 5, 1);
+    const end = new Date();
     const start = new Date();
     start.setDate(end.getDate() - 30);
 
