@@ -71,6 +71,22 @@ export default class RegisterService {
     }
   }
 
+  async removeUnnecessaryUserField() {
+    await this.User.updateMany(
+      {},
+      {
+        $unset: {
+          email: '',
+          emailVerified: '',
+          kakao_account: '',
+          properties: '',
+          connected_at: '',
+        },
+      },
+      { strict: false },
+    );
+  }
+
   async approve(uid: string) {
     let userForm;
 
@@ -94,6 +110,8 @@ export default class RegisterService {
         upsert: true,
         new: true,
       });
+
+      await this.removeUnnecessaryUserField();
 
       await this.deleteRegisterUser(uid, true);
     } catch (err: any) {

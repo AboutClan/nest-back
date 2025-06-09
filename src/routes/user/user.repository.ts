@@ -271,5 +271,19 @@ export class MongoUserRepository implements UserRepository {
 
   async updateAllUserInfo() {}
 
-  async test() {}
+  async test() {
+    await this.User.updateOne(
+      { uid: '1234' },
+      {
+        $unset: {
+          email: true,
+          emailVerified: true,
+          kakao_account: true,
+          properties: true,
+          connected_at: true,
+        },
+      },
+      { strict: false },
+    );
+  }
 }
