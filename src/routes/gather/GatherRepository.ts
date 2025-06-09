@@ -135,6 +135,7 @@ export class GatherRepository implements IGatherRepository {
   async findThree(): Promise<Gather[] | null> {
     const gatherData = await this.Gather.find()
       .sort({ createdAt: -1 })
+      .limit(40)
       .populate({
         path: 'user',
         select: ENTITY.USER.C_SIMPLE_USER,
