@@ -118,9 +118,9 @@ export class MongoUserRepository implements UserRepository {
       { uid },
       {
         $set: {
-          'temperature.score': 36.5 + score,
+          'temperature.score': score,
           'temperature.cnt': cnt,
-          'temperature.temperature': temperature,
+          'temperature.temperature': 36.5 + temperature,
         },
       },
       { new: true, useFindAndModify: false },
