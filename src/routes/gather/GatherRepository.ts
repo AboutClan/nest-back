@@ -133,40 +133,47 @@ export class GatherRepository implements IGatherRepository {
   }
 
   async findThree(): Promise<Gather[] | null> {
-    const gatherData = await this.Gather.find()
+    const gatherData1 = await this.Gather.find()
       .sort({ createdAt: -1 })
-      .limit(40)
+      .limit(6)
       .populate({
         path: 'user',
-        select: ENTITY.USER.C_SIMPLE_USER,
+        select: `profileImage avatar uid`,
       })
       .populate({
         path: 'participants.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
+        select: `profileImage avatar uid`,
       });
 
-    const A = gatherData.slice(0, 6);
-    const B = gatherData
-      .filter((gather) => gather.status === 'pending')
-      .reverse()
-      .slice(0, 6);
-    const C = gatherData
-      .filter((gather) => gather.participants.length >= 9)
-      .slice(0, 6);
+    const gatherData2 = await this.Gather.find({ status: 'pending' })
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .populate({
+        path: 'user',
+        select: `profileImage avatar uid`,
+      })
+      .populate({
+        path: 'participants.user',
+        select: `profileImage avatar uid`,
+      });
 
-    return [...A, ...B, ...C].map((doc) => this.mapToDomain(doc));
+    const gatherData3 = await this.Gather.find({
+      'participants.9': { $exists: true },
+    })
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .populate({
+        path: 'user',
+        select: `profileImage avatar uid`,
+      })
+      .populate({
+        path: 'participants.user',
+        select: `profileImage avatar uid`,
+      });
+
+    return [...gatherData1, ...gatherData2, ...gatherData3].map((doc) =>
+      this.mapToDomain(doc),
+    );
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {
