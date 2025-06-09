@@ -396,6 +396,6 @@ export class UserController {
 
   @Get('test')
   async test() {
-    return await this.userService.test();
+    return await this.userService.processTemperature();
   }
 }

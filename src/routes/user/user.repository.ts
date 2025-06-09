@@ -117,8 +117,8 @@ export class MongoUserRepository implements UserRepository {
     return await this.User.findOneAndUpdate(
       { uid },
       {
-        $inc: {
-          'temperature.score': score,
+        $set: {
+          'temperature.score': 36.5 + score,
           'temperature.cnt': cnt,
           'temperature.temperature': temperature,
         },

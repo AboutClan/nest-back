@@ -795,7 +795,7 @@ export class UserService {
   }
 
   async processTemperature() {
-    const end = new Date();
+    const end = new Date(2025, 5, 1);
     const start = new Date();
     start.setDate(end.getDate() - 30);
 
@@ -854,12 +854,12 @@ export class UserService {
         cnt: 0,
       };
 
-      const newSum = temp.sum + Math.round(value.score) / 10;
-      const newCnt = temp.cnt + Math.round(value.cnt) / 10;
+      const newSum = temp.sum + Math.round(value.score * 10) / 10;
+      const newCnt = temp.cnt + value.cnt;
 
       const addTemp = this.calculateScore(newSum, newCnt);
       await this.UserRepository.increaseTemperature(
-        addTemp,
+        Math.ceil(addTemp * 10) / 10,
         newSum,
         newCnt,
         key,
