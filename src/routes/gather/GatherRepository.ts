@@ -146,7 +146,7 @@ export class GatherRepository implements IGatherRepository {
       });
 
     const gatherData2 = await this.Gather.find({ status: 'pending' })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .limit(6)
       .populate({
         path: 'user',
