@@ -138,11 +138,11 @@ export class GatherRepository implements IGatherRepository {
       .limit(6)
       .populate({
         path: 'user',
-        select: `profileImage avatar uid`,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'participants.user',
-        select: `profileImage avatar uid`,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     const gatherData2 = await this.Gather.find({ status: 'pending' })
@@ -150,11 +150,11 @@ export class GatherRepository implements IGatherRepository {
       .limit(6)
       .populate({
         path: 'user',
-        select: `profileImage avatar uid`,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'participants.user',
-        select: `profileImage avatar uid`,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     const gatherData3 = await this.Gather.find({
@@ -164,11 +164,11 @@ export class GatherRepository implements IGatherRepository {
       .limit(6)
       .populate({
         path: 'user',
-        select: `profileImage avatar uid`,
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'participants.user',
-        select: `profileImage avatar uid`,
+        select: ENTITY.USER.C_SIMPLE_USER,
       });
 
     return [...gatherData1, ...gatherData2, ...gatherData3].map((doc) =>
