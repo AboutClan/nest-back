@@ -52,16 +52,13 @@ export class ChatService {
   async getChats() {
     const token = RequestContext.getDecodedToken();
 
-    const chats = await this.chatRepository.findByUserId(
-      '6841400119f6b6fab9cf3748',
-    );
+    const chats = await this.chatRepository.findByUserId(token.id);
 
     //채팅 데이터가 생성돼있으면 전부 가져옴
     const chatWithUsers = (
       await Promise.all(
         chats.map(async (chat) => {
-          const opponentId =
-            chat.user1 === '6841400119f6b6fab9cf3748' ? chat.user2 : chat.user1;
+          const opponentId = chat.user1 === token.id ? chat.user2 : chat.user1;
           const opponent = await this.UserRepository.findById(
             opponentId as string,
           );
