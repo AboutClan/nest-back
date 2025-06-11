@@ -64,7 +64,7 @@ export class ChatService {
           const opponent = await this.UserRepository.findById(
             opponentId as string,
           );
-          console.log(32, opponent);
+         
           if (!opponent) {
             return null; // opponent 없으면 스킵
           }
