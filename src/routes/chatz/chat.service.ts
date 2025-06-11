@@ -58,10 +58,13 @@ export class ChatService {
     const chatWithUsers = (
       await Promise.all(
         chats.map(async (chat) => {
-          const opponentId = chat.user1 === token.id ? chat.user2 : chat.user1;
+          const opponentId =
+            chat.user1.toString() === token.id ? chat.user2 : chat.user1;
+
           const opponent = await this.UserRepository.findById(
             opponentId as string,
           );
+          console.log(32, opponent);
           if (!opponent) {
             return null; // opponent 없으면 스킵
           }
