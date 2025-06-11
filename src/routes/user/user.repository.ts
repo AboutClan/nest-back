@@ -117,10 +117,10 @@ export class MongoUserRepository implements UserRepository {
     return await this.User.findOneAndUpdate(
       { uid },
       {
-        $inc: {
+        $set: {
           'temperature.score': score,
           'temperature.cnt': cnt,
-          'temperature.temperature': temperature,
+          'temperature.temperature': 36.5 + temperature,
         },
       },
       { new: true, useFindAndModify: false },
@@ -271,5 +271,19 @@ export class MongoUserRepository implements UserRepository {
 
   async updateAllUserInfo() {}
 
-  async test() {}
+  async test() {
+    await this.User.updateOne(
+      { uid: '1234' },
+      {
+        $unset: {
+          email: true,
+          emailVerified: true,
+          kakao_account: true,
+          properties: true,
+          connected_at: true,
+        },
+      },
+      { strict: false },
+    );
+  }
 }
