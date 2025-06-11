@@ -1,14 +1,14 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Chat } from 'src/domain/entities/chat/Chat';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserRepository } from 'src/routes/user/user.repository.interface';
-import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
-import { IChatRepository } from './ChatRepository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
+import { IChatRepository } from './ChatRepository.interface';
 
 @Injectable()
 export class ChatService {
@@ -52,13 +52,16 @@ export class ChatService {
   async getChats() {
     const token = RequestContext.getDecodedToken();
 
-    const chats = await this.chatRepository.findByUserId(token.id);
+    const chats = await this.chatRepository.findByUserId(
+      '6841400119f6b6fab9cf3748',
+    );
 
     //채팅 데이터가 생성돼있으면 전부 가져옴
     const chatWithUsers = (
       await Promise.all(
         chats.map(async (chat) => {
-          const opponentId = chat.user1 === token.id ? chat.user1 : chat.user2;
+          const opponentId =
+            chat.user1 === '6841400119f6b6fab9cf3748' ? chat.user2 : chat.user1;
           const opponent = await this.UserRepository.findById(
             opponentId as string,
           );
