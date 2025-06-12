@@ -1,8 +1,8 @@
-import { Model } from 'mongoose';
-import { RequestRepository } from './request.repository.interface';
-import { IRequestData } from './request.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { IRequestData } from './request.entity';
+import { RequestRepository } from './request.repository.interface';
 
 export class MongoRequestRepository implements RequestRepository {
   constructor(
@@ -10,7 +10,7 @@ export class MongoRequestRepository implements RequestRepository {
     private readonly Request: Model<IRequestData>,
   ) {}
   async findAll(): Promise<IRequestData[]> {
-    return await this.Request.find({});
+    return await this.Request.find({}).populate('writer');
   }
   async create(data: any): Promise<IRequestData> {
     return await this.Request.create(data);
