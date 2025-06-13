@@ -17,6 +17,7 @@ export const RequestZodSchema = z.object({
   writer: z.union([z.string(), z.any()]),
   content: z.string(),
   rest: RestZodSchema.optional(),
+  isChecked: z.boolean(),
 });
 
 export interface restType {
@@ -59,6 +60,10 @@ export const RequestSchema: Schema<IRequestData> = new Schema(
     },
     rest: {
       type: restSchema,
+    },
+    isChecked: {
+      type: Boolean,
+      default: false,
     },
     location: {
       type: String,

@@ -2,18 +2,18 @@ import { HttpException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
+import { RequestContext } from 'src/request-context';
+import { IAccount } from 'src/routes/account/account.entity';
 import { IUser } from 'src/routes/user/user.entity';
+import { WebPushService } from 'src/routes/webpush/webpush.service';
+import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from '../../logger';
 import { IRegistered } from './register.entity';
 import { RegisterRepository } from './register.repository';
-import { IAccount } from 'src/routes/account/account.entity';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
-import { RequestContext } from 'src/request-context';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { DateUtils } from 'src/utils/Date';
-import { ENTITY } from 'src/Constants/ENTITY';
 
 export default class RegisterService {
   constructor(
@@ -71,6 +71,22 @@ export default class RegisterService {
     }
   }
 
+  async removeUnnecessaryUserField() {
+    await this.User.updateMany(
+      {},
+      {
+        $unset: {
+          email: '',
+          emailVerified: '',
+          kakao_account: '',
+          properties: '',
+          connected_at: '',
+        },
+      },
+      { strict: false },
+    );
+  }
+
   async approve(uid: string) {
     let userForm;
 
@@ -82,7 +98,7 @@ export default class RegisterService {
       role: 'human',
       registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
-      point: 3000,
+      point: 10000,
       ticket: {
         gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
         groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
@@ -94,6 +110,8 @@ export default class RegisterService {
         upsert: true,
         new: true,
       });
+
+      await this.removeUnnecessaryUserField();
 
       await this.deleteRegisterUser(uid, true);
     } catch (err: any) {
