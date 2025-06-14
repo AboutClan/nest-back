@@ -190,4 +190,14 @@ export class RealtimeController {
       next(err);
     }
   }
+
+  @Get(':date/test')
+  async test(@Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const result = await this.realtimeService.setResult();
+      return res.status(HttpStatus.OK).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }

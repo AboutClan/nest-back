@@ -30,6 +30,72 @@ export default class RealtimeService {
     return DateUtils.getTodayYYYYMMDD();
   }
 
+  async setResult() {
+    const realtimeData = await this.getTodayData('2023-04-09');
+
+    const realtimeMap = new Map<string, any[]>();
+
+    realtimeData.userList.forEach((data) => {
+      const key = `${data.place.latitude}${data.place.longitude}`;
+
+      if (realtimeMap.has(key)) {
+        realtimeMap.set(key, [
+          ...realtimeMap.get(key),
+          {
+            userId: (data.user as any)._id,
+            start: data.time.start,
+            end: data.time.end,
+          },
+        ]);
+      } else {
+        realtimeMap.set(key, [
+          {
+            userId: (data.user as any)._id,
+            start: data.time.start,
+            end: data.time.end,
+          },
+        ]);
+      }
+    });
+
+    const ONE_HOUR_MS = 60 * 60 * 1000;
+
+    const overlappingUserIds = new Set<string>();
+
+    for (const entries of realtimeMap.values()) {
+      for (let i = 0; i < entries.length; i++) {
+        for (let j = i + 1; j < entries.length; j++) {
+          for (let k = j + 1; k < entries.length; k++) {
+            const a = entries[i];
+            const b = entries[j];
+            const c = entries[k];
+
+            const starts = [a.start, b.start, c.start].map(Date.parse);
+            const ends = [a.end, b.end, c.end].map(Date.parse);
+
+            const maxStart = Math.max(...starts);
+            const minEnd = Math.min(...ends);
+
+            if (minEnd - maxStart >= ONE_HOUR_MS) {
+              overlappingUserIds.add(a.userId);
+              overlappingUserIds.add(b.userId);
+              overlappingUserIds.add(c.userId);
+            }
+          }
+        }
+      }
+    }
+
+    const resultUserIds = Array.from(overlappingUserIds);
+
+    await this.realtimeRepository.updateStatusWithIdArr(
+      '2023-04-09',
+      resultUserIds,
+    );
+
+    return resultUserIds;
+  }
+
   async getTodayData(date?: string) {
     // const date = this.getToday();
     if (!date) date = this.getToday();
@@ -48,7 +114,7 @@ export default class RealtimeService {
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
-      status: 'free',
+      status: 'pending',
       user: token.id,
     });
 

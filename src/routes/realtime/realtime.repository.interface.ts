@@ -10,4 +10,5 @@ export interface RealtimeRepository {
     updateFields: Partial<IRealtimeUser>,
     data: string,
   );
+  updateStatusWithIdArr(date: string, userIds: string[]);
 }

@@ -84,4 +84,23 @@ export class MongoRealtimeRepository implements RealtimeRepository {
       },
     );
   }
+  async updateStatusWithIdArr(date: string, userIds: string[]) {
+    await this.RealtimeModel.updateMany(
+      {
+        date,
+      },
+      {
+        $set: {
+          'userList.$[inUser].status': 'cancel', // userIds에 포함된 것
+          'userList.$[outUser].status': 'open', // userIds에 없는 것
+        },
+      },
+      {
+        arrayFilters: [
+          { 'inUser.user': { $in: userIds } },
+          { 'outUser.user': { $nin: userIds } },
+        ],
+      },
+    );
+  }
 }

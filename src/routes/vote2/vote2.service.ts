@@ -303,6 +303,11 @@ export class Vote2Service {
   async setResult(date: string) {
     const today = DateUtils.getTodayYYYYMMDD();
 
+    //vote2에서 realtime 성공한 유저 삭제
+    const realtimeSuccessUsers = await this.RealtimeService.setResult();
+    await this.Vote2Repository.deleteUsers(today, realtimeSuccessUsers);
+
+    //투표 결과 계산 시작
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(today);
 
