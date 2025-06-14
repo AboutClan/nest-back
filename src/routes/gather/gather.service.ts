@@ -62,7 +62,7 @@ export class GatherService {
     sortBy: 'createdAt' | 'date',
   ) {
     const gap = 20;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
     const query =
       category === '스터디'
         ? { 'type.title': '스터디' }
@@ -70,7 +70,7 @@ export class GatherService {
           ? { 'type.title': { $ne: '스터디' } }
           : {};
 
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -97,7 +97,7 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const todayString = dayjs().startOf('day').toISOString();
     const query = {
@@ -112,7 +112,7 @@ export class GatherService {
       ],
     };
 
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -124,7 +124,7 @@ export class GatherService {
   async getMyFinishGather(cursor: number | null) {
     const token = RequestContext.getDecodedToken();
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const todayString = dayjs().startOf('day').toISOString();
     const query = {
@@ -139,7 +139,7 @@ export class GatherService {
       ],
     };
 
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -155,12 +155,12 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
 
     const gap = 12;
-    let start = gap * (cursor || 0);
+    const start = gap * (cursor || 0);
 
     const query = {
       user: token.id,
     };
-    let gatherData = await this.gatherRepository.findWithQueryPop(
+    const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       start,
       gap,
@@ -238,8 +238,6 @@ export class GatherService {
     gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
 
     try {
-      const user = await this.userServiceInstance.getUserWithUserId(userId);
-
       await this.userServiceInstance.updatePointById(
         CONST.POINT.PARTICIPATE_GATHER,
         '번개 모임 참여',
@@ -289,7 +287,7 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      let partData = {
+      const partData = {
         user: token.id,
         phase,
         invited: !!isFree,
@@ -298,7 +296,7 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      // await this.useDepositToParticipateGather(gather, token.id);
+      await this.useDepositToParticipateGather(gather, token.id);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -341,7 +339,7 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      let partData = {
+      const partData = {
         user: userId,
         phase,
         invited: true,
@@ -350,7 +348,7 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      // await this.useDepositToParticipateGather(gather, userId);
+      await this.useDepositToParticipateGather(gather, userId);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -425,22 +423,22 @@ export class GatherService {
 
     gather.exile(userId ? userId : token.id);
 
-    // try {
-    //   const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
-    //   if (diffDay > 2) {
-    //     await this.userServiceInstance.updatePoint(
-    //       -CONST.POINT.PARTICIPATE_GATHER,
-    //       '번개 모임 참여 취소',
-    //     );
-    //     gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
-    //   } else if (diffDay === 1) {
-    //     await this.userServiceInstance.updatePoint(
-    //       -CONST.POINT.PARTICIPATE_GATHER / 2,
-    //       '번개 모임 참여 취소',
-    //     );
-    //     gather.deposit += CONST.POINT.PARTICIPATE_GATHER / 2;
-    //   }
-    // } catch (err) {}
+    try {
+      const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
+      if (diffDay > 2) {
+        await this.userServiceInstance.updatePoint(
+          -CONST.POINT.PARTICIPATE_GATHER,
+          '번개 모임 참여 취소',
+        );
+        gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+      } else if (diffDay === 1) {
+        await this.userServiceInstance.updatePoint(
+          -CONST.POINT.PARTICIPATE_GATHER / 2,
+          '번개 모임 참여 취소',
+        );
+        gather.deposit += CONST.POINT.PARTICIPATE_GATHER / 2;
+      }
+    } catch (err) {}
     await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScore(
@@ -457,9 +455,9 @@ export class GatherService {
   async setStatus(gatherId: number, status: gatherStatus) {
     const gather = await this.gatherRepository.findById(gatherId);
 
-    // if (status === 'close') {
-    //   await this.returnDepositToRemoveGather(gather);
-    // }
+    if (status === 'close') {
+      await this.returnDepositToRemoveGather(gather);
+    }
 
     gather.status = status;
     await this.gatherRepository.save(gather);
@@ -485,7 +483,7 @@ export class GatherService {
       oneDayAgo,
     );
 
-    for (let gather of gathers) {
+    for (const gather of gathers) {
       if (gather.deposit <= 0) continue;
 
       let distributeDeposit = 0;
@@ -504,7 +502,7 @@ export class GatherService {
         }
       });
 
-      for (let userId of distributeList) {
+      for (const userId of distributeList) {
         await this.userServiceInstance.updatePointById(
           distributeDeposit / distributeList.length,
           '번개 모임 보증금 반환',
@@ -591,7 +589,7 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      // await this.useDepositToParticipateGather(gather, userId);
+      await this.useDepositToParticipateGather(gather, userId);
 
       const targetUser =
         await this.userServiceInstance.getUserWithUserId(userId);
@@ -788,7 +786,7 @@ export class GatherService {
 
   async deleteGather(gatherId: string) {
     const gather = await this.gatherRepository.findById(+gatherId, true);
-    // await this.returnDepositToRemoveGather(gather);
+    await this.returnDepositToRemoveGather(gather);
     await this.distributeTicket(gather);
 
     const deleted = await this.gatherRepository.deleteById(gatherId);
