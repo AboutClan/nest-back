@@ -26,4 +26,8 @@ export default class RequestService {
     if (!created) throw new DatabaseError('create request failed');
     return;
   }
+
+  async checkRequest(id: string) {
+    await this.requestRepository.setCheck();
+  }
 }

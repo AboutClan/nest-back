@@ -15,4 +15,14 @@ export class MongoRequestRepository implements RequestRepository {
   async create(data: any): Promise<IRequestData> {
     return await this.Request.create(data);
   }
+  async setCheck(id: string): Promise<null> {
+    await this.Request.updateOne(
+      { _id: id },
+      {
+        isChecked: true,
+      },
+    );
+
+    return null;
+  }
 }
