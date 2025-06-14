@@ -1,4 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
+import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ILog } from './log.entity';
@@ -54,11 +55,26 @@ export class MongoLogRepository implements LogRepository {
       '-_id timestamp message meta',
     );
   }
-  async findAllByType(type: string): Promise<ILog[]> {
-    return await this.Log.find(
-      { 'meta.type': type },
-      '-_id timestamp message meta',
-    );
+  async findAllByType(type: string, scope?: 'month'): Promise<ILog[]> {
+    const query: any = {
+      'meta.type': type,
+    };
+
+    if (scope === 'month') {
+      const now = new Date();
+      const startOfMonthKST = dayjs()
+        .startOf('month')
+        .subtract(9, 'hour')
+        .toDate();
+      const nowUTC = dayjs(now).subtract(9, 'hour').toDate();
+
+      query.timestamp = {
+        $gte: startOfMonthKST,
+        $lte: nowUTC,
+      };
+    }
+
+    return await this.Log.find(query, '-_id timestamp message meta');
   }
   async findTicketLog(uid: String, type: string[]): Promise<ILog[]> {
     return await this.Log.find(

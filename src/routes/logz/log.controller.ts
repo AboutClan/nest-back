@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import LogService from './log.service';
@@ -40,9 +41,9 @@ export class LogController {
   }
 
   @Get('score/all')
-  async getAllScoreLog() {
+  async getAllScoreLog(@Query('scope') scope?: 'month') {
     try {
-      const logs = await this.logService.getAllLog('score');
+      const logs = await this.logService.getAllLog('score', scope);
       return logs;
     } catch (err) {
       throw new HttpException(

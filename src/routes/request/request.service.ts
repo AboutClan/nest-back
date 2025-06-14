@@ -28,6 +28,6 @@ export default class RequestService {
   }
 
   async checkRequest(id: string) {
-    await this.requestRepository.setCheck();
+    // await this.requestRepository.setCheck();
   }
 }

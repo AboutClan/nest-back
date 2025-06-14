@@ -50,8 +50,8 @@ export default class LogService {
     return log;
   }
 
-  async getAllLog(type: string) {
-    const logs = await this.logRepository.findAllByType(type);
+  async getAllLog(type: string, scope?: 'month') {
+    const logs = await this.logRepository.findAllByType(type,scope);
     return logs;
   }
 
