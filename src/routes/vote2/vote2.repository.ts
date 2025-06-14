@@ -204,4 +204,15 @@ export class Vote2Repository implements IVote2Repository {
       },
     );
   }
+
+  async deleteUsers(date: string, userIds: string[]) {
+    await this.Vote2.updateMany(
+      { date },
+      {
+        $pull: {
+          participants: { userId: { $in: userIds } },
+        },
+      },
+    );
+  }
 }

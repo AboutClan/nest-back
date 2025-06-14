@@ -82,12 +82,12 @@ export class Vote2Service {
   }
 
   async getVoteInfo(date: string) {
-    const now = new Date(date);
+    // const now = new Date(date);
+    // const targetTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
 
     const koreaTime = DateUtils.getKoreaToday();
     const hour = koreaTime.getHours();
-
-    const targetTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    const targetTime = DateUtils.getKoreaDate(date);
 
     const todayStr = koreaTime.toISOString().split('T')[0];
     const targetStr = targetTime.toISOString().split('T')[0];
@@ -100,11 +100,6 @@ export class Vote2Service {
     if (targetStr === todayStr && hour >= 9) {
       return this.getAfterVoteInfo(date);
     }
-
-    //미래
-    const tomorrow = new Date(koreaTime);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
     return this.getBeforeVoteInfo(date);
   }
@@ -308,6 +303,11 @@ export class Vote2Service {
   async setResult(date: string) {
     const today = DateUtils.getTodayYYYYMMDD();
 
+    //vote2에서 realtime 성공한 유저 삭제
+    const realtimeSuccessUsers = await this.RealtimeService.setResult();
+    await this.Vote2Repository.deleteUsers(today, realtimeSuccessUsers);
+
+    //투표 결과 계산 시작
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(today);
 

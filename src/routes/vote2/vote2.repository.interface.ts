@@ -13,4 +13,5 @@ export interface IVote2Repository {
   setAbsence(date: string, message: string, userId: string, fee: number);
   setComment(date: string, userId, comment: string);
   updateResult(date: string, userId: string, start: string, end: string);
+  deleteUsers(date: string, userIds: string[]);
 }
