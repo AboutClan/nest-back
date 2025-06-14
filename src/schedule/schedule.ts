@@ -50,7 +50,7 @@ export class NotificationScheduler {
   })
   async resetMonthlyScores() {
     try {
-      await this.User.updateMany({}, { monthScore: 0 });
+      await this.userService.processMonthScore();
       this.logger.log('Monthly scores reset successfully.');
     } catch (error) {
       this.logger.error('Error resetting monthly scores:', error);
@@ -136,17 +136,17 @@ export class NotificationScheduler {
   //   }
   // }
 
-  //temperature 정산
-  // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
-  //   timeZone: 'Asia/Seoul',
-  // })
-  // async processTemperature() {
-  //   try {
-  //     await this.userService.processTemperature();
-  //   } catch (err: any) {
-  //     throw new Error(err);
-  //   }
-  // }
+  // temperature 정산
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
+    timeZone: 'Asia/Seoul',
+  })
+  async processTemperature() {
+    try {
+      await this.userService.processTemperature();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 
   //monthScore 정산
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {

@@ -43,5 +43,6 @@ export interface UserRepository {
   updateAllUserInfo();
   resetPointByMonthScore();
   resetMonthScore();
+  processTicket();
   test();
 }

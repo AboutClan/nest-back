@@ -54,4 +54,17 @@ export class RequestController {
       );
     }
   }
+
+  @Post('check')
+  async checkRequest(@Body('id') requestId: string) {
+    try {
+      await this.requestService.checkRequest(requestId);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error creating request',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

@@ -271,6 +271,62 @@ export class MongoUserRepository implements UserRepository {
 
   async updateAllUserInfo() {}
 
+  async processTicket() {
+    // A유형 (<36.5)
+    await this.User.updateMany({ 'temperature.temperature': { $lt: 36.5 } }, [
+      { $set: { 'ticket.gatherTicket': 1 } },
+      {
+        $set: {
+          'ticket.groupStudyTicket': {
+            $min: [{ $add: ['$ticket.groupStudyTicket', 1] }, 4],
+          },
+        },
+      },
+    ]);
+
+    // B유형 (36.5 ≤ t < 38)
+    await this.User.updateMany(
+      { 'temperature.temperature': { $gte: 36.5, $lt: 38 } },
+      [
+        { $set: { 'ticket.gatherTicket': 2 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': {
+              $min: [{ $add: ['$ticket.groupStudyTicket', 2] }, 4],
+            },
+          },
+        },
+      ],
+    );
+
+    // C유형 (38 ≤ t < 40)
+    await this.User.updateMany(
+      { 'temperature.temperature': { $gte: 38, $lt: 40 } },
+      [
+        { $set: { 'ticket.gatherTicket': 3 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': {
+              $min: [{ $add: ['$ticket.groupStudyTicket', 2] }, 4],
+            },
+          },
+        },
+      ],
+    );
+
+    // D유형 (≥40)
+    await this.User.updateMany({ 'temperature.temperature': { $gte: 40 } }, [
+      { $set: { 'ticket.gatherTicket': 4 } },
+      {
+        $set: {
+          'ticket.groupStudyTicket': {
+            $min: [{ $add: ['$ticket.groupStudyTicket', 3] }, 4],
+          },
+        },
+      },
+    ]);
+  }
+
   async test() {
     await this.User.updateOne(
       { uid: '1234' },

@@ -879,6 +879,9 @@ export class UserService {
     await this.UserRepository.resetPointByMonthScore();
     await this.UserRepository.resetMonthScore();
   }
+  async processTicket() {
+    await this.UserRepository.processTicket();
+  }
 
   async test() {
     await this.UserRepository.test();
