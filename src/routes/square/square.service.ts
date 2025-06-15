@@ -64,25 +64,24 @@ export default class SquareService {
 
     const author = token.id;
 
-    const validatedSquare =
-      squareType === 'poll'
-        ? SecretSquareZodSchema.parse({
-            category,
-            title,
-            content,
-            author,
-            type: squareType,
-            poll,
-            images,
-          })
-        : SecretSquareZodSchema.parse({
-            category,
-            title,
-            content,
-            author,
-            type: squareType,
-            images,
-          });
+    const validatedSquare = poll
+      ? SecretSquareZodSchema.parse({
+          category,
+          title,
+          content,
+          author,
+          poll,
+          type: squareType,
+          images,
+        })
+      : SecretSquareZodSchema.parse({
+          category,
+          title,
+          content,
+          author,
+          type: squareType,
+          images,
+        });
 
     const { _id: squareId } =
       await this.squareRepository.create(validatedSquare);

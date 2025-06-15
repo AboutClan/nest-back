@@ -3,6 +3,8 @@ import { SecretSquareItem } from './square.entity';
 import { Model } from 'mongoose';
 import { SquareRepository } from './square.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { NotFoundException } from '@nestjs/common';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class MongoSquareRepository implements SquareRepository {
   constructor(
@@ -213,12 +215,32 @@ export class MongoSquareRepository implements SquareRepository {
           { 'comment._id': commentId },
           { 'subComment._id': subCommentId },
         ],
-        new: true, // 업데이트된 도큐먼트를 반환
+        new: true,
       },
     );
   }
   async findById(squareId: string): Promise<SecretSquareItem> {
-    return await this.SecretSquare.findById(squareId);
+    const square = await this.SecretSquare.findById(squareId);
+    if (!square) {
+      throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
+    }
+
+    if (square.type === 'info') {
+      await square.populate({
+        path: 'author',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'like',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'comments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+    }
+
+    return square;
   }
 
   async updateLike(

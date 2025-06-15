@@ -20,7 +20,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { SecretSquareCategory } from './square.entity';
 import { CreateSquareDto } from './createSquareDto';
-import { ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { ApiTags } from '@nestjs/swagger';
 import SquareService from './square.service';
 
@@ -275,13 +274,13 @@ export class SquareController {
   }
 
   @Post('comment/like')
-  async setCommentLike( 
+  async setCommentLike(
     @Body('squareId') squareId: string,
     @Body('commentId') commentId: string,
   ) {
     try {
       await this.squareService.createCommentLike(squareId, commentId);
-      return { status: 'success' }
+      return { status: 'success' };
     } catch (err) {
       throw new HttpException(
         'Error liking comment',
