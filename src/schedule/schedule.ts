@@ -2,7 +2,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
-import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { DateUtils } from 'src/utils/Date';
 import {
@@ -14,6 +13,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
 import { GatherService } from 'src/routes/gather/gather.service';
 import { UserService } from 'src/routes/user/user.service';
+import { IGroupStudyRepository } from 'src/routes/groupStudy/GroupStudyRepository.interface';
 
 @Injectable()
 export class NotificationScheduler {
@@ -23,7 +23,7 @@ export class NotificationScheduler {
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: IGatherRepository,
     @Inject(IGROUPSTUDY_REPOSITORY)
-    private groupstudyRepository: GroupStudyRepository,
+    private groupstudyRepository: IGroupStudyRepository,
     private readonly vote2Service: Vote2Service,
     private readonly gatherService: GatherService,
     private readonly userService: UserService,

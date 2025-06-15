@@ -23,6 +23,16 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     private readonly GroupStudy: Model<IGroupStudyData>,
   ) {}
 
+  async findMyGroupStudyId(userId: string) {
+    const result = await this.GroupStudy.find({
+      participants: {
+        $elemMatch: { user: userId },
+      },
+    }).select('-_id id');
+
+    return result;
+  }
+
   async findWithQueryPopPage(
     filterQuery: any,
     start?: number,

@@ -6,7 +6,7 @@ export interface IGroupStudyRepository {
     start?: number,
     gap?: number,
   ): Promise<GroupStudy[]>;
-
+  findMyGroupStudyId(userId: string);
   findEnthMembers();
   getUserGroupsTitleByUserId(userId: string): Promise<any>;
   getSigningGroupByStatus(userId: string, status: string): Promise<any>;
