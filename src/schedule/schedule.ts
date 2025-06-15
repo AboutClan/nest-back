@@ -44,20 +44,6 @@ export class NotificationScheduler {
     }
   }
 
-  //매달 score 초기화
-  @Cron('0 0 1 * *', {
-    timeZone: 'Asia/Seoul',
-  })
-  async resetMonthlyScores() {
-    try {
-      await this.userService.processMonthScore();
-      this.logger.log('Monthly scores reset successfully.');
-    } catch (error) {
-      this.logger.error('Error resetting monthly scores:', error);
-      throw new Error(error);
-    }
-  }
-
   //매달 gatherTicket 3개로
   @Cron('0 0 1 * *', {
     timeZone: 'Asia/Seoul',
@@ -155,6 +141,18 @@ export class NotificationScheduler {
   async processMonthScore() {
     try {
       await this.userService.processMonthScore();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  //monthScore 정산
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+    timeZone: 'Asia/Seoul',
+  })
+  async processTicket() {
+    try {
+      await this.userService.processTicket();
     } catch (err: any) {
       throw new Error(err);
     }
