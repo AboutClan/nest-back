@@ -10,7 +10,6 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
-import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
@@ -22,6 +21,7 @@ import {
 import { IGatherRepository } from '../gather/GatherRepository.interface';
 import { IFeedRepository } from './FeedRepository.interface';
 import { FcmService } from '../fcm/fcm.service';
+import { IGroupStudyRepository } from '../groupStudy/GroupStudyRepository.interface';
 
 @Injectable()
 export class FeedService {
@@ -29,7 +29,7 @@ export class FeedService {
 
   constructor(
     @Inject(IGROUPSTUDY_REPOSITORY)
-    private readonly groupStudyRepository: GroupStudyRepository,
+    private readonly groupStudyRepository: IGroupStudyRepository,
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: IGatherRepository,
     @Inject(IFEED_REPOSITORY)

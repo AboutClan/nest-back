@@ -7,14 +7,14 @@ import { UserModule } from 'src/routes/user/user.module';
 import { CounterModule } from 'src/counter/couter.module';
 import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
-import { MongoGroupStudyInterface } from './groupStudy.repository';
 import { RedisModule } from 'src/redis/redis.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../fcm/fcm.module';
+import { GroupStudyRepository } from './GroupStudyRepository';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
-  useClass: MongoGroupStudyInterface,
+  useClass: GroupStudyRepository,
 };
 
 @Module({

@@ -15,6 +15,7 @@ const categoryZodSchema = z.object({
 
 // subCommentType Zod schema
 const subCommentZodSchema = z.object({
+  _id: z.string().optional(),
   user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
   likeList: z.array(z.string()).optional().default([]),
@@ -43,6 +44,7 @@ const waitingZodSchema = z.object({
 
 // commentType Zod schema
 const commentZodSchema = z.object({
+  _id: z.string().optional(),
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
   comment: z.string(),
   subComments: z.array(subCommentZodSchema).optional().default([]),
