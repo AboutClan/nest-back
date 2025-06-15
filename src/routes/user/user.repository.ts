@@ -141,7 +141,7 @@ export class MongoUserRepository implements UserRepository {
     );
   }
   async setRest(info: any, uid: string, dayDiff: any): Promise<IUser> {
-    await this.User.findOneAndUpdate(
+    const user = await this.User.findOneAndUpdate(
       { uid },
       {
         $set: {
@@ -149,6 +149,7 @@ export class MongoUserRepository implements UserRepository {
           'rest.content': info.content,
           'rest.startDate': info.startDate,
           'rest.endDate': info.endDate,
+          role: 'resting',
         },
         $inc: { 'rest.restCnt': 1, 'rest.cumulativeSum': dayDiff }, // restCnt와 cumulativeSum 증가
       },
@@ -157,7 +158,7 @@ export class MongoUserRepository implements UserRepository {
         new: true,
       },
     );
-    return null;
+    return user;
   }
   async updatePreference(
     uid: string,
