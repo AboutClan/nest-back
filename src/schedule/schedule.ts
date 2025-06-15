@@ -2,7 +2,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
-import { GroupStudyRepository } from 'src/routes/groupStudy/groupStudy.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { DateUtils } from 'src/utils/Date';
 import {
@@ -14,6 +13,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
 import { GatherService } from 'src/routes/gather/gather.service';
 import { UserService } from 'src/routes/user/user.service';
+import { IGroupStudyRepository } from 'src/routes/groupStudy/GroupStudyRepository.interface';
 
 @Injectable()
 export class NotificationScheduler {
@@ -23,7 +23,7 @@ export class NotificationScheduler {
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: IGatherRepository,
     @Inject(IGROUPSTUDY_REPOSITORY)
-    private groupstudyRepository: GroupStudyRepository,
+    private groupstudyRepository: IGroupStudyRepository,
     private readonly vote2Service: Vote2Service,
     private readonly gatherService: GatherService,
     private readonly userService: UserService,
@@ -40,20 +40,6 @@ export class NotificationScheduler {
       this.logger.log('Vote result notifications sent successfully.');
     } catch (error) {
       this.logger.error('Error sending vote result notifications:', error);
-      throw new Error(error);
-    }
-  }
-
-  //매달 score 초기화
-  @Cron('0 0 1 * *', {
-    timeZone: 'Asia/Seoul',
-  })
-  async resetMonthlyScores() {
-    try {
-      await this.userService.processMonthScore();
-      this.logger.log('Monthly scores reset successfully.');
-    } catch (error) {
-      this.logger.error('Error resetting monthly scores:', error);
       throw new Error(error);
     }
   }
@@ -124,17 +110,17 @@ export class NotificationScheduler {
     }
   }
 
-  //gather 정산
-  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
-  //   timeZone: 'Asia/Seoul',
-  // })
-  // async distributeGatherDeposit() {
-  //   try {
-  //     await this.gatherService.distributeDeposit();
-  //   } catch (err: any) {
-  //     throw new Error(err);
-  //   }
-  // }
+  // gather 정산
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+    timeZone: 'Asia/Seoul',
+  })
+  async distributeGatherDeposit() {
+    try {
+      await this.gatherService.distributeDeposit();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 
   // temperature 정산
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
@@ -155,6 +141,18 @@ export class NotificationScheduler {
   async processMonthScore() {
     try {
       await this.userService.processMonthScore();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  //monthScore 정산
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+    timeZone: 'Asia/Seoul',
+  })
+  async processTicket() {
+    try {
+      await this.userService.processTicket();
     } catch (err: any) {
       throw new Error(err);
     }

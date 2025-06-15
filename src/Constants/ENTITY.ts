@@ -80,7 +80,7 @@ export const ENTITY = {
 
   SQUARE: {
     ENUM_CATEGORY: ['일상', '고민', '정보', '같이해요'] as const,
-    ENUM_TYPE: ['general', 'poll'] as const,
+    ENUM_TYPE: ['general', 'poll', 'info', 'secret'] as const,
   },
 
   USER: {

@@ -3,6 +3,8 @@ import { SecretSquareItem } from './square.entity';
 import { Model } from 'mongoose';
 import { SquareRepository } from './square.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { NotFoundException } from '@nestjs/common';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class MongoSquareRepository implements SquareRepository {
   constructor(
@@ -14,7 +16,8 @@ export class MongoSquareRepository implements SquareRepository {
     start: number,
     gap: number,
   ): Promise<SecretSquareItem[]> {
-    return await this.SecretSquare.find(
+    // 1) summary projection
+    const squares = await this.SecretSquare.find(
       category === 'all' ? {} : { category },
       {
         category: 1,
@@ -32,11 +35,27 @@ export class MongoSquareRepository implements SquareRepository {
         likeCount: { $size: '$like' },
         commentsCount: { $size: '$comments' },
         createdAt: 1,
+        author: 1,
+        like: 1,
+        comments: 1,
       },
     )
       .sort({ createdAt: 'desc' })
       .skip(start)
-      .limit(gap);
+      .limit(gap)
+      .exec();
+
+    for (const square of squares) {
+      if (square.type === 'info') {
+        await square.populate([
+          { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+          { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        ]);
+      }
+    }
+
+    return squares;
   }
   async create(squareData: any): Promise<SecretSquareItem> {
     return await this.SecretSquare.create(squareData);
@@ -54,7 +73,7 @@ export class MongoSquareRepository implements SquareRepository {
     squareId: string,
     userId: any,
   ): Promise<SecretSquareItem> {
-    return await this.SecretSquare.findById(squareId, {
+    const projection = {
       category: 1,
       title: 1,
       content: 1,
@@ -102,7 +121,25 @@ export class MongoSquareRepository implements SquareRepository {
       },
       createdAt: 1,
       updatedAt: 1,
-    });
+    };
+
+    const square = await this.SecretSquare.findById(
+      squareId,
+      projection,
+    ).exec();
+
+    if (!square) {
+      throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
+    }
+
+    if (square.type === 'info') {
+      await square.populate([
+        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+      ]);
+    }
+
+    return square;
   }
   async updateComment(
     squareId: string,
@@ -213,12 +250,32 @@ export class MongoSquareRepository implements SquareRepository {
           { 'comment._id': commentId },
           { 'subComment._id': subCommentId },
         ],
-        new: true, // 업데이트된 도큐먼트를 반환
+        new: true,
       },
     );
   }
   async findById(squareId: string): Promise<SecretSquareItem> {
-    return await this.SecretSquare.findById(squareId);
+    const square = await this.SecretSquare.findById(squareId);
+    if (!square) {
+      throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
+    }
+
+    if (square.type === 'info') {
+      await square.populate({
+        path: 'author',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'like',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'comments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+    }
+
+    return square;
   }
 
   async updateLike(
