@@ -1,5 +1,6 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import dayjs from 'dayjs';
 import { Model, SortOrder, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
@@ -100,36 +101,85 @@ export class GatherRepository implements IGatherRepository {
     query: any,
     start?: number,
     gap?: number,
-    sortBy: 'createdAt' | 'date' = 'createdAt',
+    sortBy: 'createdAt' | 'date' | 'basic' = 'basic',
   ): Promise<Gather[] | null> {
-    const sortOption: { [key: string]: SortOrder } = { [sortBy]: -1 };
-    const result = await this.Gather.find(query)
-      .sort(sortOption)
-      .skip(start)
-      .limit(gap)
-      .select('-_id')
-      .populate({
-        path: 'user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'participants.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
+    const todayMidnightKST = dayjs().startOf('day').toISOString();
 
-    return result.map((doc) => this.mapToDomain(doc));
+    if (sortBy === 'basic') {
+      const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
+      const futureResult = await this.Gather.find(futureQuery)
+        .sort({ date: 1 })
+        .skip(start)
+        .limit(gap)
+        .select('-_id')
+        .populate({ path: 'user', select: ENTITY.USER.C_SIMPLE_USER })
+        .populate({
+          path: 'participants.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({ path: 'waiting.user', select: ENTITY.USER.C_SIMPLE_USER })
+        .populate({
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'comments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        });
+
+      const futureCount = futureResult.length;
+      if (futureCount < gap) {
+        const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
+        const pastResult = await this.Gather.find(pastQuery)
+          .sort({ date: -1 })
+          .limit(gap - futureCount)
+          .select('-_id')
+          .populate({ path: 'user', select: ENTITY.USER.C_SIMPLE_USER })
+          .populate({
+            path: 'participants.user',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          })
+          .populate({
+            path: 'waiting.user',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          })
+          .populate({
+            path: 'comments.subComments.user',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          })
+          .populate({
+            path: 'comments.user',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          });
+
+        const merged = [...futureResult, ...pastResult];
+        return merged.map((doc) => this.mapToDomain(doc));
+      }
+
+      return futureResult.map((doc) => this.mapToDomain(doc));
+    } else {
+      // createdAt 또는 date 기준 정렬
+      const sortOption: { [key: string]: SortOrder } = { [sortBy]: -1 };
+
+      const result = await this.Gather.find(query)
+        .sort(sortOption)
+        .skip(start)
+        .limit(gap)
+        .select('-_id')
+        .populate({ path: 'user', select: ENTITY.USER.C_SIMPLE_USER })
+        .populate({
+          path: 'participants.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({ path: 'waiting.user', select: ENTITY.USER.C_SIMPLE_USER })
+        .populate({
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({ path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER });
+
+      return result.map((doc) => this.mapToDomain(doc));
+    }
   }
 
   async findThree(): Promise<Gather[] | null> {

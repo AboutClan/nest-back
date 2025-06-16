@@ -59,7 +59,7 @@ export class GatherService {
   async getGather(
     cursor: number | null,
     category: '취미' | '스터디',
-    sortBy: 'createdAt' | 'date',
+    sortBy: 'createdAt' | 'date' | 'basic',
   ) {
     const gap = 20;
     const start = gap * (cursor || 0);
