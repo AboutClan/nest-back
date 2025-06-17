@@ -19,7 +19,7 @@ import { RealtimeRepository } from './realtime.repository.interface';
 export default class RealtimeService {
   constructor(
     @Inject(IREALTIME_REPOSITORY)
-    private readonly realtimeRepository: RealtimeRepository,
+    private readonly realtimeRepository: IRealtimeRepository,
     private readonly userServiceInstance: UserService,
     private readonly imageServiceInstance: ImageService,
     private readonly voteServiceInstance: VoteService,
@@ -120,12 +120,26 @@ export default class RealtimeService {
 
     this.voteServiceInstance.deleteVote(date);
 
-    const updatedData = await this.realtimeRepository.patchUser(
-      date,
-      validatedUserData,
+    const realtime = await this.realtimeRepository.findByDate(date);
+
+    realtime.addUser(
+      new RealtimeUser({
+        userId: token.id,
+        place: validatedUserData.place,
+        time: validatedUserData.time,
+        arrived: validatedUserData.arrived,
+        image: validatedUserData.image as string,
+        memo: validatedUserData.memo,
+        comment: validatedUserData.comment,
+        status: validatedUserData.status,
+      }),
     );
 
-    return updatedData;
+    // 5️⃣ 변경사항 저장 (by date)
+    const updated = await this.realtimeRepository.saveByDate(realtime);
+
+    // 6️⃣ 순수 객체 반환
+    return updated.toPrimitives();
   }
 
   //todo: 수정 급함

@@ -1,9 +1,10 @@
-// src/domain/entities/realtime/RealtimeUser.ts
-
-import { CommentProps, Comment } from './Comments';
 import { Place, PlaceProps } from './Place';
 import { Time, TimeProps } from './Time';
+import { Comment, CommentProps } from './Comment';
 
+/**
+ * Status enum for RealtimeUser
+ */
 export type RealtimeUserStatus =
   | 'pending'
   | 'solo'
@@ -11,11 +12,14 @@ export type RealtimeUserStatus =
   | 'free'
   | 'cancel';
 
+/**
+ * Primitive props for RealtimeUser entity
+ */
 export interface RealtimeUserProps {
-  userId: string; // DB: user: ObjectId -> Domain: string
+  userId: string;
   place: PlaceProps;
   arrived?: Date;
-  image?: string; // DB에는 Buffer or string이 들어갈 수 있으나 Domain에서는 string?
+  image?: string;
   memo?: string;
   comment?: CommentProps;
   status?: RealtimeUserStatus;
@@ -23,62 +27,33 @@ export interface RealtimeUserProps {
 }
 
 export class RealtimeUser {
-  private userId: string;
-  private place: Place;
-  private arrived?: Date;
-  private image?: string;
-  private memo?: string;
-  private comment?: Comment;
-  private status: RealtimeUserStatus;
-  private time: Time;
+  public readonly userId: string;
+  public place: Place;
+  public arrived?: Date;
+  public image?: string;
+  public memo?: string;
+  public comment?: Comment;
+  public status: RealtimeUserStatus;
+  public time: Time;
 
   constructor(props: RealtimeUserProps) {
+    if (!props.userId) throw new Error('RealtimeUser.userId is required');
+    if (!props.place) throw new Error('RealtimeUser.place is required');
+    if (!props.time) throw new Error('RealtimeUser.time is required');
     this.userId = props.userId;
-    this.place = new Place(props.place);
+    // instantiate nested entities from raw props
+    this.place = new Place(
+      props.place.latitude,
+      props.place.longitude,
+      props.place.name,
+      props.place.address,
+    );
+    this.time = new Time(props.time.start, props.time.end);
     this.arrived = props.arrived;
     this.image = props.image;
     this.memo = props.memo;
-    this.comment = props.comment ? new Comment(props.comment) : undefined;
+    this.comment = props.comment ? new Comment(props.comment.text) : undefined;
     this.status = props.status ?? 'solo';
-    this.time = new Time(props.time);
-  }
-
-  getUserId(): string {
-    return this.userId;
-  }
-
-  getPlace(): Place {
-    return this.place;
-  }
-
-  getArrived(): Date | undefined {
-    return this.arrived;
-  }
-
-  getImage(): string | undefined {
-    return this.image;
-  }
-
-  getMemo(): string | undefined {
-    return this.memo;
-  }
-
-  getComment(): Comment | undefined {
-    return this.comment;
-  }
-
-  getStatus(): RealtimeUserStatus {
-    return this.status;
-  }
-
-  getTime(): Time {
-    return this.time;
-  }
-
-  // 예: status 변경 로직
-  updateStatus(newStatus: RealtimeUserStatus) {
-    // 필요 시 검증
-    this.status = newStatus;
   }
 
   toPrimitives(): RealtimeUserProps {
@@ -88,7 +63,7 @@ export class RealtimeUser {
       arrived: this.arrived,
       image: this.image,
       memo: this.memo,
-      comment: this.comment ? this.comment.toPrimitives() : undefined,
+      comment: this.comment?.toPrimitives(),
       status: this.status,
       time: this.time.toPrimitives(),
     };

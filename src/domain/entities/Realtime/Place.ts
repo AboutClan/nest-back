@@ -1,5 +1,3 @@
-// src/domain/entities/realtime/Place.ts
-
 export interface PlaceProps {
   latitude: number;
   longitude: number;
@@ -8,29 +6,25 @@ export interface PlaceProps {
 }
 
 export class Place {
-  private latitude: number;
-  private longitude: number;
-  private name: string;
-  private address: string;
+  public readonly latitude: number;
+  public readonly longitude: number;
+  public readonly name: string;
+  public readonly address: string;
 
-  constructor(props: PlaceProps) {
-    this.latitude = props.latitude;
-    this.longitude = props.longitude;
-    this.name = props.name;
-    this.address = props.address;
-  }
-
-  getLatitude(): number {
-    return this.latitude;
-  }
-  getLongitude(): number {
-    return this.longitude;
-  }
-  getName(): string {
-    return this.name;
-  }
-  getAddress(): string {
-    return this.address;
+  constructor(
+    latitude: number,
+    longitude: number,
+    name: string,
+    address: string,
+  ) {
+    if (latitude === undefined) throw new Error('Place.latitude is required');
+    if (longitude === undefined) throw new Error('Place.longitude is required');
+    if (!name) throw new Error('Place.name is required');
+    if (!address) throw new Error('Place.address is required');
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.name = name;
+    this.address = address;
   }
 
   toPrimitives(): PlaceProps {
