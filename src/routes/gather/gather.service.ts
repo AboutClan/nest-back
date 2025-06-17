@@ -28,6 +28,7 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import ImageService from 'src/imagez/image.service';
 
 //commit
 @Injectable()
@@ -39,6 +40,7 @@ export class GatherService {
     private readonly counterServiceInstance: CounterService,
     private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
+    private readonly imageServiceInstance: ImageService,
   ) {}
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
@@ -202,7 +204,11 @@ export class GatherService {
 
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
-  async createGather(data: Partial<IGatherData>) {
+  async createGather(data: Partial<IGatherData>, buffer: any) {
+    const url = await this.imageServiceInstance.uploadSingleImage(
+      'gather',
+      buffer,
+    );
     const token = RequestContext.getDecodedToken();
 
     const nextId =
