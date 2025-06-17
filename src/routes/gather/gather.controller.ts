@@ -70,10 +70,20 @@ export class GatherController {
   ) {
     const gatherId = await this.gatherService.createGather(
       createGatherDto.gather,
-      file.buffer,
+      file?.buffer,
     );
 
     return { gatherId };
+  }
+
+  @Patch()
+  @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
+  async updateGather(
+    @Body() updateGatherDto: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    await this.gatherService.updateGather(updateGatherDto.gather, file?.buffer);
+    return { status: 'success' };
   }
 
   @Post('exile')
@@ -90,12 +100,6 @@ export class GatherController {
     );
 
     return gatherData;
-  }
-
-  @Patch()
-  async updateGather(@Body() updateGatherDto: any) {
-    await this.gatherService.updateGather(updateGatherDto.gather);
-    return { status: 'success' };
   }
 
   @Post('waiting')

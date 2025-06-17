@@ -205,10 +205,13 @@ export class GatherService {
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
   async createGather(data: Partial<IGatherData>, buffer: any) {
-    const url = await this.imageServiceInstance.uploadSingleImage(
-      'gather',
-      buffer,
-    );
+    let imageUrl = '';
+    if (buffer) {
+      imageUrl = await this.imageServiceInstance.uploadSingleImage(
+        'gather',
+        buffer,
+      );
+    }
     const token = RequestContext.getDecodedToken();
 
     const nextId =
@@ -218,6 +221,7 @@ export class GatherService {
       ...data,
       user: token.id,
       id: nextId,
+      coverImg: imageUrl,
     };
 
     const gatherData = new Gather(gatherInfo as GatherProps);
@@ -235,7 +239,15 @@ export class GatherService {
     return gatherData.id;
   }
 
-  async updateGather(gatherData: Partial<IGatherData>) {
+  async updateGather(gatherData: Partial<IGatherData>, buffer: any) {
+    if (buffer) {
+      const imageUrl = await this.imageServiceInstance.uploadSingleImage(
+        'gather',
+        buffer,
+      );
+      gatherData.coverImage = imageUrl;
+    }
+
     await this.gatherRepository.updateGather(gatherData.id, gatherData);
     return;
   }
