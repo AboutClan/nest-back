@@ -300,7 +300,7 @@ export class GroupStudy {
     }
 
     const existingParticipant = this.participants.find(
-      (p) => p.user === userId,
+      (p) => p.user.toString() === userId,
     );
     if (existingParticipant) {
       throw new Error('User is already a participant');
@@ -318,7 +318,9 @@ export class GroupStudy {
   }
 
   checkWeekAttendance(userId: string): boolean {
-    const participant = this.participants.find((p) => p.user === userId);
+    const participant = this.participants.find(
+      (p) => p.user.toString() === userId,
+    );
     if (!participant) {
       throw new Error('Participant not found');
     }
@@ -336,8 +338,9 @@ export class GroupStudy {
 
   deleteParticipant(userId: string): void {
     const participantIndex = this.participants.findIndex(
-      (p) => p.user === userId,
+      (p) => p.user.toString() === userId,
     );
+
     if (participantIndex !== -1) {
       this.participants.splice(participantIndex, 1);
     } else {
@@ -369,7 +372,9 @@ export class GroupStudy {
       throw new Error('Waiting must have a userId and pointType');
     }
 
-    const existingWaiting = this.waiting.find((w) => w.user === userId);
+    const existingWaiting = this.waiting.find(
+      (w) => w.user.toString() === userId,
+    );
     if (existingWaiting) {
       existingWaiting.answer = answer;
       existingWaiting.pointType = pointType;
@@ -379,7 +384,9 @@ export class GroupStudy {
   }
 
   agreeWaiting(userId: string): void {
-    const waitingIndex = this.waiting.findIndex((w) => w.user === userId);
+    const waitingIndex = this.waiting.findIndex(
+      (w) => w.user.toString() === userId,
+    );
     if (waitingIndex !== -1) {
       const waitingUser = this.waiting[waitingIndex];
       this.participateGroupStudy(waitingUser.user, 'member');
@@ -388,7 +395,9 @@ export class GroupStudy {
   }
 
   disagreeWaiting(userId: string): void {
-    const waitingIndex = this.waiting.findIndex((w) => w.user === userId);
+    const waitingIndex = this.waiting.findIndex(
+      (w) => w.user.toString() === userId,
+    );
     if (waitingIndex !== -1) {
       this.waiting.splice(waitingIndex, 1);
     }
@@ -425,7 +434,9 @@ export class GroupStudy {
       type === 'this' ? this.attendance.thisWeek : this.attendance.lastWeek;
 
     const existingRecord = weekArray.find((wr) => wr.uid === userUid);
-    const member = this.participants.find((pt) => pt.user === userId);
+    const member = this.participants.find(
+      (pt) => pt.user.toString() === userId,
+    );
 
     if (existingRecord) {
       const beforeCnt = existingRecord.attendRecord.length;
@@ -456,7 +467,9 @@ export class GroupStudy {
   }
 
   markWeeklyAttendance(userId: string): boolean {
-    const participant = this.participants.find((p) => p.user === userId);
+    const participant = this.participants.find(
+      (p) => p.user.toString() === userId,
+    );
     if (!participant) {
       // 참가자 자체가 없으면 변경할 수 없음
       return false;
