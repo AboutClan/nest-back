@@ -98,6 +98,7 @@ const groupStudyZodSchema = z.object({
   waiting: z.array(waitingZodSchema).optional().default([]),
   squareImage: z.string().optional(),
   meetingType: z.enum(ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE).optional(),
+  notionUrl: z.string().optional(),
 });
 
 export type GroupStudyStatus = 'end' | 'pending';
@@ -351,6 +352,9 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     meetingType: {
       type: String,
       enum: ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE,
+    },
+    notionUrl: {
+      type: String,
     },
   },
   { timestamps: true },

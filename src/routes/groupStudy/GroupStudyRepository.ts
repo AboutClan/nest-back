@@ -1,3 +1,7 @@
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import {
   AttendanceProps,
   CategoryProps,
@@ -12,10 +16,6 @@ import {
 } from 'src/domain/entities/GroupStudy';
 import { IGroupStudyData } from './groupStudy.entity';
 import { IGroupStudyRepository } from './GroupStudyRepository.interface';
-import { InjectModel } from '@nestjs/mongoose';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { Model } from 'mongoose';
-import { ENTITY } from 'src/Constants/ENTITY';
 
 export class GroupStudyRepository implements IGroupStudyRepository {
   constructor(
@@ -331,6 +331,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       meetingType: doc.meetingType,
       createdAt: (doc as any).createdAt,
       updatedAt: (doc as any).updatedAt,
+      notionUrl: doc?.notionUrl,
     };
 
     return new GroupStudy(props);
