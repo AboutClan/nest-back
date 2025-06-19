@@ -6,6 +6,8 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
@@ -18,6 +20,8 @@ import {
 } from './dto';
 import { gatherStatus } from './gather.entity';
 import { GatherService } from './gather.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @ApiTags('gather')
 @Controller('gather')
@@ -59,12 +63,27 @@ export class GatherController {
   }
 
   @Post()
-  async createGather(@Body() createGatherDto: CreateGatherDto) {
+  @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
+  async createGather(
+    @Body() createGatherDto: CreateGatherDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     const gatherId = await this.gatherService.createGather(
       createGatherDto.gather,
+      file?.buffer,
     );
 
     return { gatherId };
+  }
+
+  @Patch()
+  @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
+  async updateGather(
+    @Body() updateGatherDto: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    await this.gatherService.updateGather(updateGatherDto.gather, file?.buffer);
+    return { status: 'success' };
   }
 
   @Post('exile')
@@ -81,12 +100,6 @@ export class GatherController {
     );
 
     return gatherData;
-  }
-
-  @Patch()
-  async updateGather(@Body() updateGatherDto: any) {
-    await this.gatherService.updateGather(updateGatherDto.gather);
-    return { status: 'success' };
   }
 
   @Post('waiting')

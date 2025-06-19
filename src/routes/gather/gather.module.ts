@@ -10,6 +10,7 @@ import { GatherService } from './gather.service';
 import { GatherRepository } from './GatherRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../fcm/fcm.module';
+import { ImageModule } from 'src/imagez/image.module';
 
 const gatherRepositoryProvider: ClassProvider = {
   provide: IGATHER_REPOSITORY,
@@ -25,6 +26,7 @@ const gatherRepositoryProvider: ClassProvider = {
     ]),
     WebPushModule,
     FcmAModule,
+    ImageModule,
   ],
   controllers: [GatherController],
   providers: [GatherService, gatherRepositoryProvider],
