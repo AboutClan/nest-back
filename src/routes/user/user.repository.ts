@@ -256,12 +256,17 @@ export class MongoUserRepository implements UserRepository {
   }
 
   //잘못실행되지 않도록 막아야함
-  async resetPointByMonthScore() {
+  async resetPointByMonthScore(maxDate: string) {
     await this.User.updateMany(
-      { monthScore: { $lte: 10 } },
+      {
+        monthScore: { $lte: 10 },
+        role: { $ne: 'resting' },
+        registerDate: { $lt: maxDate },
+      },
       { $inc: { point: -1000 } },
     );
   }
+
   async resetMonthScore() {
     await this.User.updateMany({}, { monthScore: 0 });
   }
