@@ -876,7 +876,9 @@ export class UserService {
   }
 
   async processMonthScore() {
-    await this.UserRepository.resetPointByMonthScore();
+    const firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth();
+
+    await this.UserRepository.resetPointByMonthScore(firstDayOfLastMonth);
     await this.UserRepository.resetMonthScore();
   }
   async processTicket() {

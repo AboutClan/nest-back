@@ -57,6 +57,13 @@ export class DateUtils {
     return dayjs(date).startOf('isoWeek' as dayjs.OpUnitType);
   }
 
+  static getFirstDayOfLastMonth(): string {
+    return dayjs()
+      .subtract(1, 'month') // 한 달을 뺀 뒤
+      .startOf('month') // 그 달의 첫째 날로 이동
+      .format('YYYY-MM-DD'); // 포맷 지정
+  }
+
   //'2023-12-03' -> dayjs object
   static strToDate(dateStr: string) {
     return dayjs(dateStr, 'YYYY-MM-DD').startOf('day').toDate();
