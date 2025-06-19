@@ -1,7 +1,11 @@
 import { Inject } from '@nestjs/common';
 import { type Types } from 'mongoose';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import ImageService from 'src/imagez/image.service';
+import { RequestContext } from 'src/request-context';
 import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
+import { FcmService } from '../fcm/fcm.service';
+import { WebPushService } from '../webpush/webpush.service';
 import {
   SecretSquareCategory,
   SecretSquareItem,
@@ -9,10 +13,6 @@ import {
   subCommentType,
 } from './square.entity';
 import { SquareRepository } from './square.repository.interface';
-import { RequestContext } from 'src/request-context';
-import { WebPushService } from '../webpush/webpush.service';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { FcmService } from '../fcm/fcm.service';
 
 export default class SquareService {
   constructor(
@@ -64,24 +64,25 @@ export default class SquareService {
 
     const author = token.id;
 
-    const validatedSquare = poll
-      ? SecretSquareZodSchema.parse({
-          category,
-          title,
-          content,
-          author,
-          poll,
-          type: squareType,
-          images,
-        })
-      : SecretSquareZodSchema.parse({
-          category,
-          title,
-          content,
-          author,
-          type: squareType,
-          images,
-        });
+    const validatedSquare =
+      squareType === 'poll'
+        ? SecretSquareZodSchema.parse({
+            category,
+            title,
+            content,
+            author,
+            poll,
+            type: squareType,
+            images,
+          })
+        : SecretSquareZodSchema.parse({
+            category,
+            title,
+            content,
+            author,
+            type: squareType,
+            images,
+          });
 
     const { _id: squareId } =
       await this.squareRepository.create(validatedSquare);
