@@ -19,8 +19,8 @@ import {
   ParticipateGroupStudyDto,
 } from './dto';
 import { GroupStudyStatus } from './groupStudy.entity';
-import GroupStudyService from './groupStudy.service';
 import { GroupStudyInterceptor } from './groupstudy.interceptor';
+import GroupStudyService from './groupStudy.service';
 
 @ApiTags('groupStudy')
 @Controller('groupStudy')
@@ -129,6 +129,7 @@ export class GroupStudyController {
 
   @Get('snapshot')
   async getGroupStudySnapshot() {
+   
     return await this.groupStudyService.getGroupStudySnapshot();
   }
 

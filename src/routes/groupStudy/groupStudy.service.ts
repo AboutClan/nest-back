@@ -167,39 +167,41 @@ export default class GroupStudyService {
 
     groupStudyData = groupStudyData.sort(() => Math.random() - 0.5);
 
-    const filterGroupStudies = (data, type, status) => {
-      return data
-        .filter((groupStudy) => {
-          const typeMatches = !type || groupStudy.category.main === type;
-
-          const statusMatches = (() => {
-            if (!status) return true;
-            if (status === 'planned') {
-              return (
-                groupStudy.status === 'pending' &&
-                groupStudy.participants.length <= 2
-              );
-            }
-            if (status === 'pending') {
-              return (
-                groupStudy.status === 'pending' &&
-                groupStudy.participants.length > 2
-              );
-            }
-            return groupStudy.status === status;
-          })();
-
-          return statusMatches && typeMatches;
-        })
-        .slice(0, type === '취미' ? 6 : 3);
+    const suffleArray = (array: any[]) => {
+      return array.sort(() => Math.random() - 0.5);
     };
 
+    const hobbyData = suffleArray(
+      groupStudyData.filter((group) => {
+        if (
+          ['소셜 게임', '감상', '운동', '푸드', '힐링'].includes(
+            group.category.main,
+          )
+        ) {
+          return group.status === 'pending' && group.participants.length > 2;
+        }
+      }),
+    );
+
+    const developData = suffleArray(
+      groupStudyData.filter((group) => {
+        if (['스터디', '자기계발', '대화'].includes(group.category.main)) {
+          return group.status === 'pending' && group.participants.length > 2;
+        }
+      }),
+    );
+
+    const waitingData = suffleArray(
+      groupStudyData.filter((group) => {
+        return group.status === 'pending' && group.participants.length < 2;
+      }),
+    );
+
     const returnVal = {
-      hobby: filterGroupStudies(groupStudyData, '취미', 'pending'),
-      development: filterGroupStudies(groupStudyData, '자기계발', 'pending'),
-      study: filterGroupStudies(groupStudyData, '성장 스터디', 'pending'),
-      exam: filterGroupStudies(groupStudyData, '시험 스터디', 'pending'),
-      waiting: filterGroupStudies(groupStudyData, null, 'planned'),
+      hobby: hobbyData.slice(0, 6),
+      hobby2: hobbyData.slice(6, 12),
+      develop: developData.slice(0, 6),
+      waiting: waitingData.slice(0, 6),
     };
 
     this.redisClient.set(

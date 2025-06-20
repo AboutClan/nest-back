@@ -61,7 +61,7 @@ export default class LogService {
     switch (category) {
       case 'gather':
         logs = await this.logRepository.findTicketLog(token.uid, ['gather']);
-        console.log(12, logs);
+     
         break;
       case 'groupStudy':
         logs = await this.logRepository.findTicketLog(token.uid, [
