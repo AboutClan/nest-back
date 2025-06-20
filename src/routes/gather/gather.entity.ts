@@ -82,6 +82,7 @@ export const GatherZodSchema = z.object({
   reviewers: z.array(z.string()).default([]),
   deposit: z.number().default(0),
   notionUrl: z.string(),
+  category: z.enum(ENTITY.GAHTER.ENUM_CATEGORY_TYPE),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;
