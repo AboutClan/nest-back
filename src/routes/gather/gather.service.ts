@@ -13,6 +13,7 @@ import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
 import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
+import ImageService from 'src/imagez/image.service';
 import { logger } from 'src/logger';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
@@ -28,7 +29,6 @@ import {
   subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import ImageService from 'src/imagez/image.service';
 
 //commit
 @Injectable()
@@ -460,7 +460,7 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScore(
-      CONST.SCORE.CANCEL_GAHTER,
+      CONST.SCORE.CANCEL_GATHER,
       '번개 모임 참여 취소',
     );
 
@@ -811,7 +811,7 @@ export class GatherService {
     if (!deleted.deletedCount) throw new DatabaseError('delete failed');
 
     await this.userServiceInstance.updateScore(
-      CONST.SCORE.REMOVE_GAHTER,
+      CONST.SCORE.REMOVE_GATHER,
       '번개 모임 삭제',
     );
     return;

@@ -5,9 +5,9 @@ export const CONST = {
     //번개 모임 참여
     PARTICIPATE_GATHER: 5,
     //번개 모임 참여 취소
-    CANCEL_GAHTER: -5,
+    CANCEL_GATHER: -5,
     //번개 모임 삭제
-    REMOVE_GAHTER: -10,
+    REMOVE_GATHER: -10,
     //스터디 투표
     VOTE_STUDY: 3,
     //스터디 출석

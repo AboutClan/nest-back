@@ -65,8 +65,8 @@ export const GatherZodSchema = z.object({
   genderCondition: z.boolean(),
   password: z.string().nullable().optional(),
   status: z
-    .enum(ENTITY.GAHTER.ENUM_STATUS)
-    .default(ENTITY.GAHTER.DEFAULT_STATUS),
+    .enum(ENTITY.GATHER.ENUM_STATUS)
+    .default(ENTITY.GATHER.DEFAULT_STATUS),
   participants: z.array(ParticipantsZodSchema),
   user: z.union([z.string(), z.custom<IUser>()]),
   comments: z.array(CommentZodSchema),
@@ -82,7 +82,7 @@ export const GatherZodSchema = z.object({
   reviewers: z.array(z.string()).default([]),
   deposit: z.number().default(0),
   notionUrl: z.string(),
-  category: z.enum(ENTITY.GAHTER.ENUM_CATEGORY_TYPE),
+  category: z.enum(ENTITY.GATHER.ENUM_CATEGORY_TYPE),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;
@@ -167,7 +167,7 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
     phase: {
       type: String,
-      enum: ENTITY.GAHTER.ENUM_PART_PHASE,
+      enum: ENTITY.GATHER.ENUM_PART_PHASE,
     },
     invited: {
       type: Boolean,
@@ -278,8 +278,8 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     status: {
       type: String,
-      enum: ENTITY.GAHTER.ENUM_STATUS,
-      default: ENTITY.GAHTER.DEFAULT_STATUS,
+      enum: ENTITY.GATHER.ENUM_STATUS,
+      default: ENTITY.GATHER.DEFAULT_STATUS,
       required: true,
     },
     comments: {
@@ -325,6 +325,11 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     },
     notionUrl: {
       type: String,
+    },
+    category: {
+      type: String,
+      enum: ENTITY.GATHER.ENUM_CATEGORY_TYPE,
+      default: ENTITY.GATHER.DEFAULT_CATEGORY_TYPE,
     },
   },
   { timestamps: true, strict: false },
