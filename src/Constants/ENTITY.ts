@@ -86,7 +86,7 @@ export const ENTITY = {
   },
 
   USER: {
-    C_MINI_USER: `profileImage avatar ` as const,
+    C_MINI_USER: `_id profileImage avatar ` as const,
     C_SIMPLE_USER:
       ` _id name profileImage uid avatar comment birth badge temperature ` as const,
 
