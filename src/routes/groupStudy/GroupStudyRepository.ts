@@ -50,23 +50,11 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     const docs = await query
       .populate({
         path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
+        select: ENTITY.USER.C_MINI_USER,
       })
       .populate({
         path: 'participants.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'waiting.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.subComments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
+        select: ENTITY.USER.C_MINI_USER,
       });
 
     return docs.map((doc) => this.mapToDomain(doc));
@@ -89,10 +77,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     const docs = await this.GroupStudy.find({
       status: status === 'pending' ? 'pending' : { $in: ['pending', 'end'] },
       participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
-      'category.main': { $ne: '콘텐츠' },
-    }).populate({
-      path: 'participants.user', // participants 배열 내부의 user 필드를 populate
-      select: 'name profileImage uid score avatar comment', // 필요한 필드만 선택
     });
 
     return docs;
@@ -104,7 +88,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     })
       .populate({
         path: 'organizer',
-        select: 'name profileImage uid score avatar comment',
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .populate({
         path: 'participants.user',
@@ -120,7 +104,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       })
       .populate({
         path: 'comments.subComments.user',
-        select: 'name profileImage uid score avatar comment location',
+        select: ENTITY.USER.C_SIMPLE_USER,
       })
       .select('-_id');
 
@@ -222,7 +206,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
 
   async findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null> {
     const doc = await this.GroupStudy.findOne({ id: groupStudyId })
-      .populate(['waiting.user'])
+      .populate({ path: 'waiting.user', select: ENTITY.USER.C_SIMPLE_USER })
       .select('-_id');
 
     return doc ? this.mapToDomain(doc) : null;

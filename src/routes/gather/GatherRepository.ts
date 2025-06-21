@@ -134,22 +134,10 @@ export class GatherRepository implements IGatherRepository {
           .sort({ date: -1 })
           .limit(gap - futureCount)
           .select('-_id')
-          .populate({ path: 'user', select: ENTITY.USER.C_SIMPLE_USER })
+          .populate({ path: 'user', select: ENTITY.USER.C_MINI_USER })
           .populate({
             path: 'participants.user',
-            select: ENTITY.USER.C_SIMPLE_USER,
-          })
-          .populate({
-            path: 'waiting.user',
-            select: ENTITY.USER.C_SIMPLE_USER,
-          })
-          .populate({
-            path: 'comments.subComments.user',
-            select: ENTITY.USER.C_SIMPLE_USER,
-          })
-          .populate({
-            path: 'comments.user',
-            select: ENTITY.USER.C_SIMPLE_USER,
+            select: ENTITY.USER.C_MINI_USER,
           });
 
         const merged = [...futureResult, ...pastResult];
@@ -166,17 +154,11 @@ export class GatherRepository implements IGatherRepository {
         .skip(start)
         .limit(gap)
         .select('-_id')
-        .populate({ path: 'user', select: ENTITY.USER.C_SIMPLE_USER })
+        .populate({ path: 'user', select: ENTITY.USER.C_MINI_USER })
         .populate({
           path: 'participants.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        })
-        .populate({ path: 'waiting.user', select: ENTITY.USER.C_SIMPLE_USER })
-        .populate({
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        })
-        .populate({ path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER });
+          select: ENTITY.USER.C_MINI_USER,
+        });
 
       return result.map((doc) => this.mapToDomain(doc));
     }
