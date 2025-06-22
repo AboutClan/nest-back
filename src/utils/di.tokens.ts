@@ -31,6 +31,7 @@ export const IDAILYCHECK_REPOSITORY = 'DailyCheckRepository';
 export const IFCM_REPOSITORY = 'FcmRepository';
 export const IFEED_REPOSITORY = 'FeedRepository';
 export const IGATHER_REPOSITORY = 'GatherRepository';
+export const IGATHERREQUEST_REPOSITORY = 'GatherRequestRepository';
 export const IGIFT_REPOSITORY = 'GiftRepository';
 export const IGROUPSTUDY_REPOSITORY = 'GroupStudyRepository';
 export const ILOG_REPOSITORY = 'LogRepository';
