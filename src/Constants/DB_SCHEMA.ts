@@ -6,6 +6,7 @@ export const DB_SCHEMA = {
   DAILYCHECK: 'DailyCheck',
   FEED: 'Feed',
   GATHER: 'Gather',
+  GATHERREQUEST: 'GatherRequest',
   GIFT: 'GiftModel',
   GROUPSTUDY: 'GroupStudy',
   LOG: 'Log',

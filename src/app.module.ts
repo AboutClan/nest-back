@@ -53,6 +53,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
 import { AnnouncementModule } from './routes/announcement/announcement.module';
 import { FcmAModule } from './routes/fcm/fcm.module';
+import { GatherRequestModule } from './routes/gatherRequest/gatherRequest.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -110,6 +111,7 @@ const corsOptions = {
     GroupStudyModule,
     GiftModule,
     GatherModule,
+    GatherRequestModule,
     FeedModule,
     ChatModule,
     BookModule,
