@@ -391,10 +391,11 @@ export class GatherRepository implements IGatherRepository {
       isApprovalRequired: doc.isApprovalRequired ?? null,
       reviewers: doc.reviewers ?? [],
       deposit: doc.deposit,
+      category: doc.category ?? 'gather',
+      groupId: doc.groupId ?? null,
     });
   }
 
-  // DB로 저장하기 위한 객체 변환: Domain Entity → Mongoose Document 형태 (Partial)
   private mapToDB(gather: Gather): Partial<IGatherData> {
     const props = gather.toPrimitives();
     return {
@@ -457,6 +458,8 @@ export class GatherRepository implements IGatherRepository {
       isApprovalRequired: props.isApprovalRequired,
       reviewers: props.reviewers,
       deposit: props.deposit,
+      category: props.category as any,
+      groupId: props.groupId ?? null,
     };
   }
 }

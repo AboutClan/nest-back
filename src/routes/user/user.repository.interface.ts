@@ -41,7 +41,7 @@ export interface UserRepository {
   selectbadge(uid: string, badgeIdx: number);
   getBadgeList(uid: string);
   updateAllUserInfo();
-  resetPointByMonthScore();
+  resetPointByMonthScore(maxDate: string);
   resetMonthScore();
   processTicket();
   test();

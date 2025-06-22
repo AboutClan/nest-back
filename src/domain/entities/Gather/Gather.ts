@@ -38,6 +38,8 @@ export interface GatherProps {
   isApprovalRequired?: boolean | null;
   reviewers: string[];
   deposit: number;
+  category?: string;
+  groupId?: string | null;
 }
 
 export class Gather {
@@ -67,6 +69,8 @@ export class Gather {
   public isApprovalRequired: boolean | null;
   public reviewers: string[];
   public deposit: number;
+  public category?: string;
+  public groupId?: string | null;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -96,6 +100,8 @@ export class Gather {
     this.isApprovalRequired = props.isApprovalRequired ?? null;
     this.reviewers = props.reviewers || [];
     this.deposit = props.deposit || 0;
+    this.category = props.category || 'gather';
+    this.groupId = props.groupId ?? null;
   }
 
   participate(participant: ParticipantsProps) {
