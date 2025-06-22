@@ -83,6 +83,7 @@ export const GatherZodSchema = z.object({
   deposit: z.number().default(0),
   notionUrl: z.string(),
   category: z.enum(ENTITY.GATHER.ENUM_CATEGORY_TYPE),
+  groupId: z.string().optional(),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;
@@ -330,6 +331,11 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
       type: String,
       enum: ENTITY.GATHER.ENUM_CATEGORY_TYPE,
       default: ENTITY.GATHER.DEFAULT_CATEGORY_TYPE,
+    },
+    groupId: {
+      type: String,
+      default: null,
+      required: false,
     },
   },
   { timestamps: true, strict: false },
