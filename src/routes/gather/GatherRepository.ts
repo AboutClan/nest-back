@@ -177,7 +177,12 @@ export class GatherRepository implements IGatherRepository {
         select: ENTITY.USER.C_MINI_USER,
       });
 
-    const gatherData2 = await this.Gather.find({ status: 'pending' })
+    const gatherData2 = await this.Gather.find({
+      status: 'pending',
+      $expr: {
+        $lt: [{ $add: [{ $size: '$participants' }, 2] }, '$memberCnt.max'],
+      },
+    })
       .sort({ createdAt: 1 })
       .limit(6)
       .populate({
@@ -393,7 +398,6 @@ export class GatherRepository implements IGatherRepository {
       deposit: doc.deposit,
       category: doc.category ?? 'gather',
       groupId: doc.groupId ?? null,
-      postImage: doc.postImage ?? null,
     });
   }
 
