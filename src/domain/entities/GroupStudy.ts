@@ -301,10 +301,12 @@ export class GroupStudy {
     if (!userId) {
       throw new Error('User ID, name, and UID cannot be empty');
     }
-
+    console.log(1234);
     const existingParticipant = this.participants.find(
       (p) => p.user.toString() === userId,
     );
+    console.log(51234, existingParticipant);
+
     if (existingParticipant) {
       throw new Error('User is already a participant');
     }
@@ -340,16 +342,17 @@ export class GroupStudy {
   }
 
   deleteParticipant(userId: string): void {
+    console.log(23, userId);
     const participantIndex = this.participants.findIndex(
-      (p) => p.user.toString() === userId,
+      (p) => p.user.toString() === userId.toString(),
     );
-
+    console.log(44, this.participants, participantIndex);
     if (participantIndex !== -1) {
       this.participants.splice(participantIndex, 1);
     } else {
       throw new Error('Participant not found');
     }
-
+    console.log(51);
     this.attendance.lastWeek = this.attendance.lastWeek.filter(
       (w) => w.uid !== userId,
     );

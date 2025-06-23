@@ -443,13 +443,16 @@ export default class GroupStudyService {
 
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
-
+    console.log(55);
     groupStudy.participateGroupStudy(token.id, 'member');
-
+    console.log(24);
+    console.log(24);
     //ticket 차감 로직
     await this.userServiceInstance.updateReduceTicket('groupOffline', token.id);
 
+    console.log(1);
     await this.groupStudyRepository.save(groupStudy);
+    console.log(13);
 
     // await this.webPushServiceInstance.sendNotificationGroupStudy(
     //   id,
@@ -465,6 +468,7 @@ export default class GroupStudyService {
   }
 
   async inviteGroupStudy(id: string, userId: string) {
+    console.log(234, id, userId);
     const groupStudy = await this.groupStudyRepository.findById(id);
     const user = await this.userServiceInstance.getUserWithUserId(userId);
     if (!groupStudy) throw new Error();
@@ -476,6 +480,8 @@ export default class GroupStudyService {
     groupStudy.participateGroupStudy(user._id, 'member');
 
     await this.userServiceInstance.updateReduceTicket('groupOffline', user.id);
+    console.log(32);
+    await this.groupStudyRepository.save(groupStudy);
 
     // await this.webPushServiceInstance.sendNotificationGroupStudy(
     //   id,
