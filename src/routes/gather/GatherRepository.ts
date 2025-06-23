@@ -393,6 +393,7 @@ export class GatherRepository implements IGatherRepository {
       deposit: doc.deposit,
       category: doc.category ?? 'gather',
       groupId: doc.groupId ?? null,
+      postImage: doc.postImage ?? null,
     });
   }
 

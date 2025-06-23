@@ -34,6 +34,7 @@ export interface GatherProps {
   isAdminOpen?: boolean | null;
   image?: string | null;
   coverImage?: string | null;
+  postImage?: string | null;
   kakaoUrl?: string | null;
   isApprovalRequired?: boolean | null;
   reviewers: string[];
@@ -65,6 +66,7 @@ export class Gather {
   public isAdminOpen: boolean | null;
   public image: string | null;
   public coverImage: string | null;
+  public postImage: string | null;
   public kakaoUrl: string | null;
   public isApprovalRequired: boolean | null;
   public reviewers: string[];
@@ -102,6 +104,7 @@ export class Gather {
     this.deposit = props.deposit || 0;
     this.category = props.category || 'gather';
     this.groupId = props.groupId ?? null;
+    this.postImage = props.postImage ?? null;
   }
 
   participate(participant: ParticipantsProps) {
