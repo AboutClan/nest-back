@@ -75,6 +75,7 @@ export const GatherZodSchema = z.object({
   place: z.string().nullable().optional(),
   isAdminOpen: z.boolean().nullable().optional(),
   image: z.string().nullable().optional(),
+  postImage: z.string().nullable().optional(),
   coverImage: z.string().nullable().optional(),
   kakaoUrl: z.string().nullable().optional(),
   waiting: z.array(WaitingZodSchema).default([]),
@@ -309,6 +310,9 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
       type: String,
     },
     coverImage: {
+      type: String,
+    },
+    postImage: {
       type: String,
     },
     kakaoUrl: {
