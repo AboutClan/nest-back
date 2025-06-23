@@ -258,6 +258,8 @@ export class Gather {
       isApprovalRequired: this.isApprovalRequired,
       reviewers: this.reviewers,
       deposit: this.deposit,
+      category: this.category,
+      groupId: this.groupId,
     };
   }
 }
