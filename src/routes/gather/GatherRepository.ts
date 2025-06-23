@@ -387,6 +387,7 @@ export class GatherRepository implements IGatherRepository {
       isAdminOpen: doc.isAdminOpen ?? null,
       image: doc.image ?? null,
       coverImage: doc.coverImage ?? null,
+      postImage: doc.postImage ?? null,
       kakaoUrl: doc.kakaoUrl ?? null,
       waiting: doc.waiting.map((w: any) => ({
         user: w.user,
