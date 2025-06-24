@@ -47,6 +47,14 @@ export class GatherController {
     }
   }
 
+  @Get('group')
+  async getGatherByGroup(
+    @Query('groupId') groupId: string,
+    @Query('type') type?: string,
+  ) {
+    return await this.gatherService.getGatherGroup(groupId, type);
+  }
+
   @Get('status')
   async getStatusGather(
     @Query('cursor') cursor?: string,

@@ -329,6 +329,15 @@ export class GatherRepository implements IGatherRepository {
     );
   }
 
+  async findByGroupId(groupId: string, type: string): Promise<Gather[] | null> {
+    const result = await this.Gather.find({
+      groupId,
+      category: type,
+    });
+
+    return result.map((doc) => this.mapToDomain(doc));
+  }
+
   private mapToDomain(doc: IGatherData): Gather {
     return new Gather({
       _id: doc._id as string,
