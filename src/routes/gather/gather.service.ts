@@ -202,6 +202,16 @@ export class GatherService {
     return notReviewed[0] ?? null;
   }
 
+  async getGatherGroup(groupId, type) {
+    const gatherData = await this.gatherRepository.findByGroupId(groupId, type);
+
+    if (!gatherData) {
+      throw new HttpException('Gather not found', 404);
+    }
+
+    return gatherData;
+  }
+
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
   async createGather(data: Partial<IGatherData>, buffer: any) {
