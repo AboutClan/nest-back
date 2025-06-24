@@ -38,20 +38,25 @@ export default class LogService {
     const logs = await this.logRepository.findByUidType(token.uid, type);
     return logs;
   }
-  async getCuoponLog(type: string) {
+  async getCuoponLog(type: string, scope?: 'all') {
     const token = RequestContext.getDecodedToken();
 
-    const log = await this.logRepository.findByUidAndSubType(
-      token.uid,
-      type,
-      'coupon',
-    );
-
-    return log;
+    if (!scope) {
+      const log = await this.logRepository.findByUidAndSubType(
+        token.uid,
+        type,
+        'coupon',
+      );
+      return log;
+    } else {
+      const logs = await this.logRepository.findAllByType(type, null, 'coupon');
+      console.log(31, logs);
+      return logs;
+    }
   }
 
   async getAllLog(type: string, scope?: 'month') {
-    const logs = await this.logRepository.findAllByType(type,scope);
+    const logs = await this.logRepository.findAllByType(type, scope);
     return logs;
   }
 
@@ -61,7 +66,7 @@ export default class LogService {
     switch (category) {
       case 'gather':
         logs = await this.logRepository.findTicketLog(token.uid, ['gather']);
-     
+
         break;
       case 'groupStudy':
         logs = await this.logRepository.findTicketLog(token.uid, [

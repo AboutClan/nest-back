@@ -45,7 +45,6 @@ export class MongoLogRepository implements LogRepository {
     type: string,
     sub: string,
   ): Promise<ILog[]> {
- 
     return await this.Log.findOne(
       {
         'meta.uid': uid,
@@ -55,10 +54,15 @@ export class MongoLogRepository implements LogRepository {
       '-_id timestamp message meta',
     );
   }
-  async findAllByType(type: string, scope?: 'month'): Promise<ILog[]> {
-    const query: any = {
-      'meta.type': type,
-    };
+  async findAllByType(
+    type: string,
+    scope?: 'month',
+    sub?: 'coupon',
+  ): Promise<ILog[]> {
+    const query: any = {};
+
+    if (type) query['meta.type'] = type;
+    if (sub) query['meta.sub'] = sub;
 
     if (scope === 'month') {
       const now = new Date();

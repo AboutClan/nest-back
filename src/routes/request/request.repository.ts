@@ -10,7 +10,9 @@ export class MongoRequestRepository implements RequestRepository {
     private readonly Request: Model<IRequestData>,
   ) {}
   async findAll(): Promise<IRequestData[]> {
-    return await this.Request.find({}).populate('writer');
+    return await this.Request.find({})
+      .sort({ createdAt: 1 })
+      .populate('writer');
   }
   async create(data: any): Promise<IRequestData> {
     return await this.Request.create(data);

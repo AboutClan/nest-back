@@ -66,10 +66,10 @@ export class LogController {
     }
   }
   @Get('point/coupon')
-  async getPointCouponLog() {
+  async getPointCouponLog(@Query('scope') scope?: 'all') {
     try {
-      const log = await this.logService.getCuoponLog('point');
-      if (log) return true;
+      const log = await this.logService.getCuoponLog('point', scope);
+      if (log) return log;
       else return false;
     } catch (err) {
       throw new HttpException(
