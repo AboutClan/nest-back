@@ -13,3 +13,7 @@ export class updateCollectionDTO {
   @IsString()
   toUid: string;
 }
+export class updateAlpabetDTO {
+  @IsString()
+  alphabet: 'A' | 'B' | 'O' | 'U' | 'T';
+}

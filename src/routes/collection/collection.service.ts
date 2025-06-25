@@ -5,14 +5,14 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { Collection } from 'src/domain/entities/Collection';
 import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/routes/request/request.entity';
 import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ICollectionRepository } from './CollectionRepository.interface';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ENTITY } from 'src/Constants/ENTITY';
 
 @Injectable()
 export class CollectionService {
@@ -113,6 +113,7 @@ export class CollectionService {
       collection.addAlphabet(alphabet);
       await this.collectionRepository.save(collection);
     }
+
     // const validatedCollection = CollectionZodSchema.parse({
     //   user: token.id,
     //   collects: [alphabet],
@@ -125,14 +126,15 @@ export class CollectionService {
     //   validatedCollection.collectCnt,
     // );
 
-    return null;
+    return alphabet;
   }
 
   async setCollectionCompleted() {
     const token = RequestContext.getDecodedToken();
 
+    console.log(32);
     const collection = await this.collectionRepository.findByUser(token.id);
-
+    console.log(3);
     const myAlphabets = [...collection?.collects];
 
     if (
@@ -150,7 +152,7 @@ export class CollectionService {
       await this.Request.create({
         category: '건의',
         title: '알파벳 완성',
-        writer: token.name,
+        writer: token.id,
         content: `${token.name}/${
           collection?.collectCnt ? collection.collectCnt + 1 : 0
         }`,

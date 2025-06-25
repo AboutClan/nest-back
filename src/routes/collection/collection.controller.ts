@@ -1,7 +1,7 @@
-import { Controller, Get, Patch, Post, Body } from '@nestjs/common';
-import { updateCollectionDTO } from './dto';
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CollectionService } from './collection.service';
+import { updateAlpabetDTO, updateCollectionDTO } from './dto';
 
 @ApiTags('controller')
 @Controller('collection')
@@ -22,6 +22,14 @@ export class CollectionController {
     return { status: 'success' };
   }
 
+  @Patch('alphabet')
+  async setAlphabet(@Body() updateAlpabetDTO: updateAlpabetDTO) {
+    const { alphabet } = updateAlpabetDTO;
+    const alphabetCollection =
+      await this.collectionService.setCollection(alphabet);
+    console.log(1234, alphabetCollection);
+    return { alphabet: alphabetCollection };
+  }
   @Post('alphabet/completed')
   async setCollectionCompleted() {
     await this.collectionService.setCollectionCompleted();

@@ -333,7 +333,12 @@ export class GatherRepository implements IGatherRepository {
     const result = await this.Gather.find({
       groupId,
       category: type,
-    });
+    })
+      .populate([
+        { path: 'user', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'participants.user', select: ENTITY.USER.C_SIMPLE_USER },
+      ])
+      .sort({ createdAt: -1 });
 
     return result.map((doc) => this.mapToDomain(doc));
   }

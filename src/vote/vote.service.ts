@@ -2,23 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
-import { CollectionService } from 'src/routes/collection/collection.service';
+import { CONST } from 'src/Constants/CONSTANTS';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { convertUserToSummary } from 'src/convert';
+import { RequestContext } from 'src/request-context';
+import { CollectionService } from 'src/routes/collection/collection.service';
 import { IPlace } from 'src/routes/place/place.entity';
 import { IRealtime } from 'src/routes/realtime/realtime.entity';
-import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
-import { now } from './util';
-import {
-  IAttendance,
-  IParticipation,
-  IVote,
-  IVoteStudyInfo,
-} from './vote.entity';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { CONST } from 'src/Constants/CONSTANTS';
 import { DateUtils } from 'src/utils/Date';
+import { now } from './util';
+import { IParticipation, IVote, IVoteStudyInfo } from './vote.entity';
 
 @Injectable()
 export class VoteService {
@@ -819,16 +814,12 @@ export class VoteService {
       await vote.save();
       await userData?.save();
 
-      const result = this.collectionServiceInstance.setCollectionStamp(
-        token.id,
-      );
-
       await this.userServiceInstance.updateScore(
         CONST.SCORE.ATTEND_STUDY,
         '스터디 출석',
       );
 
-      return result;
+      return;
     } catch (err) {
       throw new Error();
     }

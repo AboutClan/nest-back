@@ -1,10 +1,11 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { Collection } from 'src/domain/entities/Collection';
 import { ICollection } from './collection.entity';
 import { ICollectionRepository } from './CollectionRepository.interface';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 export class CollectionRepository implements ICollectionRepository {
   constructor(
@@ -24,14 +25,20 @@ export class CollectionRepository implements ICollectionRepository {
   async findByUserJoin(userId: string): Promise<Collection | null> {
     const doc = await this.Collection.findOne({
       user: userId,
-    }).populate('user');
+    }).populate({
+      path: 'user',
+      select: ENTITY.USER.C_SIMPLE_USER,
+    });
     if (!doc) return null;
 
     return this.mapToDomain(doc);
   }
 
   async findAll(): Promise<Collection[]> {
-    const doc = await this.Collection.find({}).populate('user');
+    const doc = await this.Collection.find({}).populate({
+      path: 'user',
+      select: ENTITY.USER.C_SIMPLE_USER,
+    });
     if (!doc) return null;
 
     return doc.map((item) => this.mapToDomain(item));

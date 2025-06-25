@@ -76,6 +76,7 @@ export const ENTITY = {
       '조모임',
       '장소 추가',
       '출금',
+      '인스타',
     ],
     ENUM_REST: ['일반', '특별'] as const,
   },
