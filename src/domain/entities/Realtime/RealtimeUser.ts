@@ -16,7 +16,7 @@ export type RealtimeUserStatus =
  * Primitive props for RealtimeUser entity
  */
 export interface RealtimeUserProps {
-  userId: string;
+  user: string;
   place: PlaceProps;
   arrived?: Date;
   image?: string;
@@ -27,7 +27,7 @@ export interface RealtimeUserProps {
 }
 
 export class RealtimeUser {
-  public readonly userId: string;
+  public readonly user: string;
   public place: Place;
   public arrived?: Date;
   public image?: string;
@@ -37,10 +37,10 @@ export class RealtimeUser {
   public time: Time;
 
   constructor(props: RealtimeUserProps) {
-    if (!props.userId) throw new Error('RealtimeUser.userId is required');
+    if (!props.user) throw new Error('RealtimeUser.userId is required');
     if (!props.place) throw new Error('RealtimeUser.place is required');
     if (!props.time) throw new Error('RealtimeUser.time is required');
-    this.userId = props.userId;
+    this.user = props.user;
     // instantiate nested entities from raw props
     this.place = new Place(
       props.place.latitude,
@@ -58,7 +58,7 @@ export class RealtimeUser {
 
   toPrimitives(): RealtimeUserProps {
     return {
-      userId: this.userId,
+      user: this.user,
       place: this.place.toPrimitives(),
       arrived: this.arrived,
       image: this.image,
