@@ -55,4 +55,9 @@ export const WEBPUSH_MSG = {
     TITLE: '커뮤니티',
     COMMENT_CREATE: (name) => `누군가 댓글을 남겼어요!`,
   },
+
+  COLLECTION: {
+    CHANGE_TITLE: '알파벳 교환 요청을 받았어요!',
+    CHANGE_DESC: '교환 요청을 확인하세요!',
+  },
 };

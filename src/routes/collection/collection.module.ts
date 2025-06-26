@@ -9,6 +9,8 @@ import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoUserRepository } from 'src/routes/user/user.repository';
 import { CollectionRepository } from './CollectionRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { WebPushModule } from '../webpush/webpush.module';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const collectionRepositoryProvider: ClassProvider = {
   provide: ICOLLECTION_REPOSITORY,
@@ -27,6 +29,8 @@ const userRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: DB_SCHEMA.COLLECTION, schema: CollectionSchema },
     ]),
+    forwardRef(() => WebPushModule),
+    forwardRef(() => FcmAModule),
   ],
   controllers: [CollectionController],
   providers: [
