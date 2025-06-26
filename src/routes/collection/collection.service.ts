@@ -7,15 +7,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Collection } from 'src/domain/entities/Collection';
 import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/routes/request/request.entity';
 import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
-import { ICollectionRepository } from './CollectionRepository.interface';
-import { WebPushService } from '../webpush/webpush.service';
 import { FcmService } from '../fcm/fcm.service';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { WebPushService } from '../webpush/webpush.service';
+import { ICollectionRepository } from './CollectionRepository.interface';
 
 @Injectable()
 export class CollectionService {
@@ -182,7 +182,8 @@ export class CollectionService {
   async getCollection() {
     const token = RequestContext.getDecodedToken();
     const result = await this.collectionRepository.findByUserJoin(token.id);
-    return result.toPrimitives();
+
+    return result === null ? null : result.toPrimitives();
   }
 
   async getCollectionAll() {
