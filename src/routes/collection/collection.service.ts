@@ -105,7 +105,7 @@ export class CollectionService {
       collection = new Collection({
         user: token.id,
         collects: [alphabet],
-        collectCnt: 1,
+        collectCnt: 0,
       });
 
       await this.collectionRepository.create(collection);
