@@ -13,6 +13,9 @@ import { IRequestData } from 'src/routes/request/request.entity';
 import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ICollectionRepository } from './CollectionRepository.interface';
+import { WebPushService } from '../webpush/webpush.service';
+import { FcmService } from '../fcm/fcm.service';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 @Injectable()
 export class CollectionService {
@@ -22,6 +25,9 @@ export class CollectionService {
     private readonly UserRepository: UserRepository,
     @Inject(ICOLLECTION_REPOSITORY)
     private readonly collectionRepository: ICollectionRepository,
+
+    private readonly webPushServiceInstance: WebPushService,
+    private readonly fcmServiceInstance: FcmService,
   ) {}
 
   async setCollectionStamp(id: string) {
@@ -93,6 +99,17 @@ export class CollectionService {
 
     await this.collectionRepository.save(myAlphabets);
     await this.collectionRepository.save(opponentAlphabets);
+
+    await this.webPushServiceInstance.sendNotificationToX(
+      toUid,
+      WEBPUSH_MSG.COLLECTION.CHANGE_TITLE,
+      WEBPUSH_MSG.COLLECTION.CHANGE_DESC,
+    );
+    await this.fcmServiceInstance.sendNotificationToX(
+      toUid,
+      WEBPUSH_MSG.COLLECTION.CHANGE_TITLE,
+      WEBPUSH_MSG.COLLECTION.CHANGE_DESC,
+    );
 
     return null;
   }

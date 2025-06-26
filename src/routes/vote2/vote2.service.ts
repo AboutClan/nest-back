@@ -81,6 +81,27 @@ export class Vote2Service {
     return form;
   }
 
+  async getWeekData() {
+    const dates = DateUtils.getWeekDate();
+
+    const rawData = await Promise.all(
+      dates.map(async (date, idx) => {
+        if (idx === 0) {
+          return await this.getAfterVoteInfo(date);
+        } else {
+          const before = await this.getBeforeVoteInfo(date);
+          const realtime = await this.RealtimeService.getTodayData(date);
+          return { ...before, realtime };
+        }
+      }),
+    );
+
+    return dates.map((date, idx) => ({
+      date,
+      ...rawData[idx],
+    }));
+  }
+
   async getVoteInfo(date: string) {
     // const now = new Date(date);
     // const targetTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
