@@ -96,6 +96,13 @@ export class DateUtils {
     }
   }
 
+  static getWeekDate() {
+    const dates = Array.from({ length: 7 }, (_, i) =>
+      dayjs().subtract(i, 'day').format('YYYY-MM-DD'),
+    );
+    return dates;
+  }
+
   static getKoreaDate(date: string): Date {
     const today = new Date(date);
     const koreaToday = new Date(

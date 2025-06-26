@@ -21,6 +21,13 @@ import { CONST } from 'src/Constants/CONSTANTS';
 export class Vote2Controller {
   constructor(private readonly voteService2: Vote2Service) {}
 
+  @Get('week')
+  async getWeekData(@Req() req: Request): Promise<any> {
+    const { date } = req;
+    const filteredVote = await this.voteService2.getWeekData();
+    return filteredVote;
+  }
+
   @Get(':date/info')
   async getVoteInfo(@Req() req: Request): Promise<any> {
     const { date } = req;
