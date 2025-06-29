@@ -4,6 +4,7 @@ import { IRealtime } from './realtime.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { Model } from 'mongoose';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class RealtimeRepository implements IRealtimeRepository {
   constructor(
@@ -12,7 +13,10 @@ export class RealtimeRepository implements IRealtimeRepository {
   ) {}
 
   async findByDate(date): Promise<Realtime | null> {
-    const doc = await this.realtime.findOne({ date });
+    const doc = await this.realtime.findOne({ date }).populate({
+      path: 'userList.user',
+      select: ENTITY.USER.C_SIMPLE_USER,
+    });
     if (!doc) {
       return null;
     }
@@ -77,7 +81,7 @@ export class RealtimeRepository implements IRealtimeRepository {
       _id: doc._id as any,
       date: doc.date as unknown as string,
       userList: (doc.userList ?? []).map((u) => ({
-        user: u.user.toString(),
+        user: u.user as string,
         place: {
           latitude: u.place.latitude,
           longitude: u.place.longitude,

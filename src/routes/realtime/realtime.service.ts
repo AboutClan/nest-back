@@ -3,7 +3,6 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/routes/collection/collection.service';
-import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
