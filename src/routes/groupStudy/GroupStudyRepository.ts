@@ -371,7 +371,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     };
 
     return {
-      _id: p._id,
+      _id: p._id || undefined,
       title: p.title,
       category: {
         main: p.category.main,
