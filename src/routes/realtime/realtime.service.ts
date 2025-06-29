@@ -3,7 +3,6 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/routes/collection/collection.service';
-import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
@@ -14,12 +13,17 @@ import {
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
-import { RealtimeRepository } from './realtime.repository.interface';
+import { IRealtimeRepository } from './RealtimeRepository.interface';
+import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
+import { PlaceProps } from 'src/domain/entities/Realtime/Place';
+import { TimeProps } from 'src/domain/entities/Realtime/Time';
+import { CommentProps } from 'src/domain/entities/Realtime/Comment';
+import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 
 export default class RealtimeService {
   constructor(
     @Inject(IREALTIME_REPOSITORY)
-    private readonly realtimeRepository: RealtimeRepository,
+    private readonly realtimeRepository: IRealtimeRepository,
     private readonly userServiceInstance: UserService,
     private readonly imageServiceInstance: ImageService,
     private readonly voteServiceInstance: VoteService,
@@ -100,9 +104,11 @@ export default class RealtimeService {
     // const date = this.getToday();
     if (!date) date = this.getToday();
     const data = await this.realtimeRepository.findByDate(date);
-    // if (!data) {
-    //   return await this.realtimeRepository.createByDate(date);
-    // }
+
+    if (!data) {
+      const newRealtime = new Realtime({ date });
+      return await this.realtimeRepository.create(newRealtime);
+    }
 
     return data;
   }
@@ -120,12 +126,24 @@ export default class RealtimeService {
 
     this.voteServiceInstance.deleteVote(date);
 
-    const updatedData = await this.realtimeRepository.patchUser(
-      date,
-      validatedUserData,
+    const realtime = await this.getTodayData(date);
+
+    realtime.addUser(
+      new RealtimeUser({
+        user: token.id,
+        place: validatedUserData.place as PlaceProps,
+        time: validatedUserData.time as TimeProps,
+        arrived: validatedUserData.arrived,
+        image: validatedUserData.image as string,
+        memo: validatedUserData.memo,
+        comment: validatedUserData.comment as CommentProps,
+        status: validatedUserData.status,
+      }),
     );
 
-    return updatedData;
+    const updated = await this.realtimeRepository.save(realtime);
+
+    return updated.toPrimitives();
   }
 
   //todo: 수정 급함
@@ -158,9 +176,12 @@ export default class RealtimeService {
 
       await this.voteServiceInstance.deleteVote(date);
 
-      await this.realtimeRepository.patchAttendance(
-        date,
-        validatedStudy,
+      const todayData = await this.getTodayData(date);
+      todayData.patchUser(validatedStudy as RealtimeUser);
+
+      await this.realtimeRepository.save(todayData);
+
+      const result = this.collectionServiceInstance.setCollectionStamp(
         token.id,
       );
 
@@ -183,7 +204,6 @@ export default class RealtimeService {
     Object.keys(studyData).forEach((key) => {
       const value = studyData[key];
       if (value !== undefined && value !== null) {
-        // `prefix`를 포함한 필드명을 동적으로 설정
         updateFields[`userList.$[elem].${key}`] = value;
       }
     });
@@ -206,18 +226,9 @@ export default class RealtimeService {
     const todayData = await this.getTodayData(date);
 
     try {
-      if (start && end && todayData?.userList) {
-        todayData.userList.forEach((userInfo) => {
-          if ((userInfo.user as IUser)._id.toString() === token.id) {
-            userInfo.time.start = start;
-            userInfo.time.end = end;
-          }
-        });
+      todayData.updateUserTime(token.id, start, end);
 
-        await todayData.save();
-      } else {
-        return new Error();
-      }
+      await this.realtimeRepository.save(todayData);
     } catch (err) {
       throw new Error();
     }
@@ -227,50 +238,29 @@ export default class RealtimeService {
     const token = RequestContext.getDecodedToken();
 
     const todayData = await this.getTodayData(date);
-    try {
-      todayData.userList = todayData.userList?.filter(
-        (userInfo) => userInfo.user.toString() !== token.id,
-      );
 
-      await todayData.save();
-    } catch (err) {
-      throw new Error();
-    }
+    todayData.deleteVote(token.id);
+
+    await this.realtimeRepository.save(todayData);
   }
+
   async patchStatus(status: any, date: string) {
     const token = RequestContext.getDecodedToken();
 
     const todayData = await this.getTodayData(date);
 
-    try {
-      todayData.userList?.forEach((userInfo) => {
-        if ((userInfo.user as IUser)._id.toString() === token.id) {
-          userInfo.status = status;
-        }
-      });
+    todayData.updateStatus(token.id, status);
 
-      await todayData.save();
-    } catch (err) {
-      throw new Error();
-    }
+    await this.realtimeRepository.save(todayData);
   }
+
   async patchComment(comment: string, date: string) {
     const token = RequestContext.getDecodedToken();
 
     const todayData = await this.getTodayData(date);
 
-    try {
-      todayData.userList?.forEach((userInfo) => {
-        if (userInfo.user.toString() === token.id) {
-          userInfo.comment = userInfo.comment || { text: '' };
-          userInfo.comment.text = comment;
-        }
-      });
-
-      await todayData.save();
-    } catch (err) {
-      throw new Error();
-    }
+    todayData.updateComment(token.id, comment);
+    await this.realtimeRepository.save(todayData);
   }
 
   // 가장 최근의 스터디 가져오기

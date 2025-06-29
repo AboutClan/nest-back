@@ -1,40 +1,74 @@
-// src/domain/entities/realtime/Realtime.ts
+import { Comment } from './Comment';
 import { RealtimeUser, RealtimeUserProps } from './RealtimeUser';
+import { Time } from './Time';
 
+/**
+ * Primitive props for Realtime entity
+ */
 export interface RealtimeProps {
-  date: Date;
+  _id?: string; // Optional ID for MongoDB or other database usage
+  date: string; // YYYY-MM-DD format
   userList?: RealtimeUserProps[];
 }
 
 export class Realtime {
-  private date: Date;
-  private userList: RealtimeUser[];
+  public _id?: string; // Optional ID for MongoDB or other database usage
+  public date: string;
+  public userList: RealtimeUser[];
 
   constructor(props: RealtimeProps) {
-    // date가 필수라면 검증
+    if (!props.date) throw new Error('Realtime.date is required');
+    this._id = props._id || null;
     this.date = props.date;
-    // userList 초기화
     this.userList = (props.userList ?? []).map((u) => new RealtimeUser(u));
   }
 
-  getDate(): Date {
-    return this.date;
+  public addUser(user: RealtimeUserProps) {
+    this.userList.push(new RealtimeUser(user));
   }
 
-  getUserList(): RealtimeUser[] {
-    return this.userList;
+  public patchUser(userProps: RealtimeUserProps): void {
+    const idx = this.userList.findIndex((u) => u.user === userProps.user);
+    const newUser = new RealtimeUser(userProps);
+
+    if (idx === -1) {
+      // 없으면 추가
+      this.userList.push(newUser);
+    } else {
+      // 있으면 교체
+      this.userList[idx] = newUser;
+    }
   }
 
-  // 예: 사용자 목록에 추가
-  addUser(userProps: RealtimeUserProps) {
-    this.userList.push(new RealtimeUser(userProps));
+  updateUserTime(userId: string, start: string, end: string): void {
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+    // Time 객체 교체
+    user.time = new Time(start, end);
   }
 
-  // 예: 사용자 제거/업데이트 로직 등
-  removeUser(userId: string): boolean {
-    const initialLength = this.userList.length;
-    this.userList = this.userList.filter((u) => u.getUserId() !== userId);
-    return this.userList.length !== initialLength;
+  updateStatus(userId: string, status: string): void {
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+    // 상태 업데이트
+    user.status = status as RealtimeUserProps['status'];
+  }
+
+  updateComment(userId: string, comment: string): void {
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+
+    user.comment = new Comment(comment);
+  }
+
+  deleteVote(userId: string): void {
+    this.userList = this.userList.filter((user) => user.user !== userId);
   }
 
   toPrimitives(): RealtimeProps {

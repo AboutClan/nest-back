@@ -1,32 +1,20 @@
-// src/domain/entities/realtime/Time.ts
-
 export interface TimeProps {
-  start: string; // ISO date string
-  end: string; // ISO date string
+  start: string; // ISO Date string
+  end: string; // ISO Date string
 }
 
 export class Time {
-  private start: string;
-  private end: string;
+  public readonly start: string;
+  public readonly end: string;
 
-  constructor(props: TimeProps) {
-    // 추가 검증 가능 (start <= end?)
-    this.start = props.start;
-    this.end = props.end;
-  }
-
-  getStart(): string {
-    return this.start;
-  }
-
-  getEnd(): string {
-    return this.end;
+  constructor(start: string, end: string) {
+    if (!start) throw new Error('Time.start is required');
+    if (!end) throw new Error('Time.end is required');
+    this.start = start;
+    this.end = end;
   }
 
   toPrimitives(): TimeProps {
-    return {
-      start: this.start,
-      end: this.end,
-    };
+    return { start: this.start, end: this.end };
   }
 }

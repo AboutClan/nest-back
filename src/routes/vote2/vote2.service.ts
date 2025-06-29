@@ -187,7 +187,7 @@ export class Vote2Service {
       })),
       realTimes: realtimeData
         ? {
-            ...realtimeData.toObject(),
+            ...realtimeData,
             userList: realtimeData.userList.map((user) =>
               this.formatRealtime(user),
             ),

@@ -12,13 +12,14 @@ import { ImageModule } from 'src/imagez/image.module';
 import { VoteModule } from 'src/vote/vote.module';
 import { CollectionModule } from 'src/routes/collection/collection.module';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
-import { MongoRealtimeRepository } from './realtime.repository';
 import { UserModule } from 'src/routes/user/user.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
+import { RealtimeRepository } from './RealtimeRepository';
+
 const realtimeRepositoryProvider: ClassProvider = {
   provide: IREALTIME_REPOSITORY,
-  useClass: MongoRealtimeRepository,
+  useClass: RealtimeRepository,
 };
 
 @Module({

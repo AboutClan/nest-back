@@ -73,8 +73,15 @@ export class RealtimeController {
     try {
       const { date } = req;
 
-      const parsedPlace = JSON.parse(markAttendanceDto.place);
-      const parsedTime = JSON.parse(markAttendanceDto.time);
+      let parsedPlace;
+      let parsedTime;
+      try {
+        parsedPlace = JSON.parse(markAttendanceDto.place);
+        parsedTime = JSON.parse(markAttendanceDto.time);
+      } catch (error) {
+        parsedPlace = markAttendanceDto.place;
+        parsedTime = markAttendanceDto.time;
+      }
 
       // 필요한 형태로 데이터 가공
       const parsedData = {
