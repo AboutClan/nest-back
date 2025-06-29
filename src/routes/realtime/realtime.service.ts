@@ -20,6 +20,7 @@ import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
 import { PlaceProps } from 'src/domain/entities/Realtime/Place';
 import { TimeProps } from 'src/domain/entities/Realtime/Time';
 import { CommentProps } from 'src/domain/entities/Realtime/Comment';
+import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 
 export default class RealtimeService {
   constructor(
@@ -105,9 +106,11 @@ export default class RealtimeService {
     // const date = this.getToday();
     if (!date) date = this.getToday();
     const data = await this.realtimeRepository.findByDate(date);
-    // if (!data) {
-    //   return await this.realtimeRepository.createByDate(date);
-    // }
+
+    if (!data) {
+      const newRealtime = new Realtime({ date });
+      return await this.realtimeRepository.create(newRealtime);
+    }
 
     return data;
   }
@@ -177,6 +180,8 @@ export default class RealtimeService {
 
       const todayData = await this.getTodayData(date);
       todayData.patchUser(validatedStudy as RealtimeUser);
+
+      await this.realtimeRepository.save(todayData);
 
       const result = this.collectionServiceInstance.setCollectionStamp(
         token.id,

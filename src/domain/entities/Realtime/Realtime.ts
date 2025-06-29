@@ -7,18 +7,18 @@ import { Time } from './Time';
  */
 export interface RealtimeProps {
   _id?: string; // Optional ID for MongoDB or other database usage
-  date: Date;
+  date: string; // YYYY-MM-DD format
   userList?: RealtimeUserProps[];
 }
 
 export class Realtime {
   public _id?: string; // Optional ID for MongoDB or other database usage
-  public date: Date;
+  public date: string;
   public userList: RealtimeUser[];
 
   constructor(props: RealtimeProps) {
     if (!props.date) throw new Error('Realtime.date is required');
-    this._id = props._id;
+    this._id = props._id || null;
     this.date = props.date;
     this.userList = (props.userList ?? []).map((u) => new RealtimeUser(u));
   }

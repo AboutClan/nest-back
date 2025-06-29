@@ -1,13 +1,9 @@
 import { IRealtimeRepository } from './RealtimeRepository.interface';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { IRealtime } from './realtime.entity';
-import { Place } from 'src/domain/entities/Realtime/Place';
-import { Time } from 'src/domain/entities/Realtime/Time';
-import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { Model } from 'mongoose';
-import { Comment } from 'src/domain/entities/Realtime/Comment';
 
 export class RealtimeRepository implements IRealtimeRepository {
   constructor(
@@ -15,9 +11,11 @@ export class RealtimeRepository implements IRealtimeRepository {
     private readonly realtime: Model<IRealtime>,
   ) {}
 
-  async findByDate(date): Promise<Realtime> {
+  async findByDate(date): Promise<Realtime | null> {
     const doc = await this.realtime.findOne({ date });
-
+    if (!doc) {
+      return null;
+    }
     return this.mapToDomain(doc);
   }
 
@@ -70,12 +68,14 @@ export class RealtimeRepository implements IRealtimeRepository {
         new: true,
       })
       .exec();
+
     return this.mapToDomain(updated);
   }
 
   private mapToDomain(doc: IRealtime): Realtime {
     return new Realtime({
-      date: doc.date,
+      _id: doc._id as any,
+      date: doc.date as unknown as string,
       userList: (doc.userList ?? []).map((u) => ({
         user: u.user.toString(),
         place: {
@@ -101,8 +101,8 @@ export class RealtimeRepository implements IRealtimeRepository {
   private mapToDb(entity: Realtime): Partial<IRealtime> {
     const { date, userList } = entity.toPrimitives();
     return {
-      _id: entity._id,
-      date,
+      _id: entity._id || undefined,
+      date: date as unknown as Date,
       userList: (userList ?? []).map((u) => ({
         user: u.user,
         place: u.place,
