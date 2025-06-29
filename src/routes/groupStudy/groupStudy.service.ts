@@ -408,7 +408,7 @@ export default class GroupStudyService {
 
       const groupStudyData = new GroupStudy(groupStudyInfo);
 
-      await this.groupStudyRepository.save(groupStudyData);
+      await this.groupStudyRepository.create(groupStudyData);
 
       return;
     } catch (err) {

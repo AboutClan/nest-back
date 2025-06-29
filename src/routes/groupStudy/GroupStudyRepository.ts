@@ -212,6 +212,12 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return doc ? this.mapToDomain(doc) : null;
   }
 
+  async create(entity: GroupStudy): Promise<GroupStudy> {
+    const docToCreate = this.mapToDb(entity);
+    const createdDoc = await this.GroupStudy.create(docToCreate);
+    return this.mapToDomain(createdDoc);
+  }
+
   /** Mongoose Document → 도메인 엔티티 */
   private mapToDomain(doc: IGroupStudyData): GroupStudy {
     // category
