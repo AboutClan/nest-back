@@ -14,7 +14,6 @@ import {
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
-import { CONST } from 'src/Constants/CONSTANTS';
 import { IRealtimeRepository } from './RealtimeRepository.interface';
 import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
 import { PlaceProps } from 'src/domain/entities/Realtime/Place';
