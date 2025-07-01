@@ -45,4 +45,5 @@ export interface UserRepository {
   resetMonthScore();
   processTicket();
   test();
+  initTemperature();
 }

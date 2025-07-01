@@ -797,72 +797,72 @@ export class UserService {
   async processTemperature() {
     const end = new Date();
     const start = new Date();
-    start.setDate(end.getDate() - 30);
+    start.setDate(end.getDate() - 45);
+    end.setDate(end.getDate() - 15);
 
     const allTemps = await this.noticeService.getTemperatureByPeriod(
       start,
       end,
     );
 
+    allTemps.sort(
+      (a: any, b: any) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+    const handledPair = new Set<string>();
     const tempMap = new Map<string, { score: number; cnt: number }>();
 
-    for (let temp of allTemps) {
-      const from = temp.from;
-      const to = temp.to;
+    for (const temp of allTemps) {
+      const { from, to, sub: degree } = temp;
       if (from === to) continue;
 
-      const degree = temp.sub;
+      const pairKey = `${from}-${to}`;
+      if (handledPair.has(pairKey)) continue;
+      handledPair.add(pairKey);
 
+      // 점수 환산
       let score = 0;
-
       switch (degree) {
         case 'great':
-          score += 4.8;
+          score = 4.8;
           break;
         case 'good':
-          score += 0.8;
+          score = 0.8;
           break;
         case 'soso':
-          score += -1.2;
+          score = -1.2;
           break;
         case 'block':
-          score += -5.2;
+          score = -5.2;
           break;
         case 'cancel':
-          score += -1.0;
+          score = -1.0;
           break;
         case 'noshow':
-          score += -2.0;
-          break;
-        default:
+          score = -2.0;
           break;
       }
 
       const prev = tempMap.get(to) ?? { score: 0, cnt: 0 };
-
-      tempMap.set(to, {
-        score: prev['score'] + score,
-        cnt: prev['cnt'] + 1,
-      });
+      tempMap.set(to, { score: prev.score + score, cnt: prev.cnt + 1 });
     }
 
-    for (const [key, value] of tempMap) {
-      const user = await this.UserRepository.findByUid(key);
+    for (const [uid, { score, cnt }] of tempMap) {
+      const user = await this.UserRepository.findByUid(uid);
       if (!user) continue;
-      const temp = user.temperature || {
-        sum: 0,
-        cnt: 0,
-      };
 
-      const newSum = temp.sum + Math.round(value.score * 10) / 10;
-      const newCnt = temp.cnt + value.cnt;
+      const temp = user.temperature ?? { sum: 0, cnt: 0 };
+      const newSum = temp.sum + Math.round(score * 10) / 10;
+      const newCnt = temp.cnt + cnt;
 
       const addTemp = this.calculateScore(newSum, newCnt);
+
       await this.UserRepository.increaseTemperature(
         Math.ceil(addTemp * 10) / 10,
         newSum,
         newCnt,
-        key,
+        uid,
       );
     }
   }

@@ -9,6 +9,20 @@ export class MongoUserRepository implements UserRepository {
     @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
   ) {}
 
+  async initTemperature() {
+    await this.User.updateMany(
+      {},
+      {
+        $set: {
+          'temperature.temperature': 36.5,
+          'temperature.sum': 0,
+          'temperature.cnt': 0,
+        },
+      },
+    );
+    return null;
+  }
+
   async findById(userId: string): Promise<IUser> {
     return await this.User.findById(userId);
   }
@@ -118,7 +132,7 @@ export class MongoUserRepository implements UserRepository {
       { uid },
       {
         $set: {
-          'temperature.score': score,
+          'temperature.sum': score,
           'temperature.cnt': cnt,
           'temperature.temperature': 36.5 + temperature,
         },
