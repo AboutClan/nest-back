@@ -779,6 +779,23 @@ export default class GroupStudyService {
     return;
   }
 
+  async depositGroupStudy(id: number, deposit: number) {
+    const token = RequestContext.getDecodedToken();
+
+    const groupStudy = await this.groupStudyRepository.findById(id.toString());
+    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
+
+    if (deposit < 0) {
+      throw new HttpException('금액은 0보다 작을 수 없습니다.', 400);
+    }
+
+    groupStudy.updateDeposit(token.id.toString(), deposit);
+
+    await this.groupStudyRepository.save(groupStudy);
+
+    return;
+  }
+
   async belongToParticipateGroupStudy() {
     const groupStudies = await this.groupStudyRepository.findAll();
     const allUser = await this.User.find({ isActive: true });
@@ -824,7 +841,6 @@ export default class GroupStudyService {
               await group.participants.push({
                 user: who?._id,
                 role: 'member',
-                attendCnt: 0,
               });
               await group.attendance.thisWeek.push({
                 uid: who?.uid,
@@ -848,23 +864,23 @@ export default class GroupStudyService {
     }
   }
 
-  async weekAttend(groupId: string, userId: string) {
-    const groupStudy = await this.groupStudyRepository.findBy_Id(groupId);
+  // async weekAttend(groupId: string, userId: string) {
+  //   const groupStudy = await this.groupStudyRepository.findBy_Id(groupId);
 
-    const result = groupStudy.checkWeekAttendance(userId);
+  //   const result = groupStudy.checkWeekAttendance(userId);
 
-    if (result) {
-      await this.userServiceInstance.updateScoreWithUserId(
-        userId,
-        CONST.SCORE.GROUP_WEEKLY_PARTICIPATE,
-        '소모임 주간 출석',
-      );
-    }
+  //   if (result) {
+  //     await this.userServiceInstance.updateScoreWithUserId(
+  //       userId,
+  //       CONST.SCORE.GROUP_WEEKLY_PARTICIPATE,
+  //       '소모임 주간 출석',
+  //     );
+  //   }
 
-    await this.groupStudyRepository.save(groupStudy);
+  //   await this.groupStudyRepository.save(groupStudy);
 
-    return;
-  }
+  //   return;
+  // }
 
   async initWeekAttend() {
     await this.groupStudyRepository.initWeekAttendance();

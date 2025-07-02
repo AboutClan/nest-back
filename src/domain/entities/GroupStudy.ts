@@ -55,8 +55,8 @@ export interface ParticipantProps {
   user?: string;
   randomId?: number;
   role?: UserRole;
-  attendCnt?: number;
-  weekAttendance?: boolean;
+  deposit?: number;
+  monthAttendance?: boolean;
 }
 
 export interface GroupStudyProps {
@@ -301,11 +301,11 @@ export class GroupStudy {
     if (!userId) {
       throw new Error('User ID, name, and UID cannot be empty');
     }
-   
+
     const existingParticipant = this.participants.find(
       (p) => p.user.toString() === userId,
     );
-    
+
     if (existingParticipant) {
       throw new Error('User is already a participant');
     }
@@ -314,38 +314,37 @@ export class GroupStudy {
       user: userId,
       randomId: Math.floor(Math.random() * 1000000),
       role,
-      attendCnt: 0,
-      weekAttendance: false,
+      deposit: 0,
+      monthAttendance: false,
     };
 
     this.participants.push(newParticipant);
   }
 
-  checkWeekAttendance(userId: string): boolean {
-    const participant = this.participants.find(
-      (p) => p.user.toString() === userId,
-    );
-    if (!participant) {
-      throw new Error('Participant not found');
-    }
+  // checkWeekAttendance(userId: string): boolean {
+  //   const participant = this.participants.find(
+  //     (p) => p.user.toString() === userId,
+  //   );
+  //   if (!participant) {
+  //     throw new Error('Participant not found');
+  //   }
 
-    let ret = false;
+  //   let ret = false;
 
-    if (participant.weekAttendance !== true) {
-      participant.weekAttendance = true;
-      participant.attendCnt += 1;
-      ret = true;
-    }
+  //   if (participant.weekAttendance !== true) {
+  //     participant.weekAttendance = true;
+  //     participant.attendCnt += 1;
+  //     ret = true;
+  //   }
 
-    return ret;
-  }
+  //   return ret;
+  // }
 
   deleteParticipant(userId: string): void {
-
     const participantIndex = this.participants.findIndex(
       (p) => p.user.toString() === userId.toString(),
     );
-    
+
     if (participantIndex !== -1) {
       this.participants.splice(participantIndex, 1);
     } else {
@@ -446,9 +445,7 @@ export class GroupStudy {
     if (existingRecord) {
       const beforeCnt = existingRecord.attendRecord.length;
       const diffCnt = weekRecord.length - beforeCnt;
-      if (member) {
-        member.attendCnt += diffCnt;
-      }
+
       existingRecord.attendRecord = weekRecord;
       existingRecord.attendRecordSub = weekRecordSub || [];
     } else {
@@ -459,10 +456,6 @@ export class GroupStudy {
         attendRecordSub: weekRecordSub || [],
       };
 
-      if (member) {
-        member.attendCnt += weekRecord.length;
-      }
-
       if (type === 'this') {
         this.attendance.thisWeek.push(newWeekRecord);
       } else {
@@ -471,22 +464,20 @@ export class GroupStudy {
     }
   }
 
-  markWeeklyAttendance(userId: string): boolean {
+  updateDeposit(userId: string, deposit: number) {
     const participant = this.participants.find(
       (p) => p.user.toString() === userId,
     );
+
     if (!participant) {
-      // 참가자 자체가 없으면 변경할 수 없음
-      return false;
+      throw new Error('Participant not found');
     }
 
-    if (participant.weekAttendance) {
-      return false;
+    if (deposit < 0) {
+      throw new Error('Deposit cannot be negative');
     }
 
-    participant.weekAttendance = true;
-    participant.attendCnt += 1;
-    return true;
+    participant.deposit = deposit;
   }
 
   toPrimitives(): GroupStudyProps {

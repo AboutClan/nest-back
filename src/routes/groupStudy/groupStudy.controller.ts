@@ -129,7 +129,6 @@ export class GroupStudyController {
 
   @Get('snapshot')
   async getGroupStudySnapshot() {
-   
     return await this.groupStudyService.getGroupStudySnapshot();
   }
 
@@ -484,16 +483,32 @@ export class GroupStudyController {
     return { status: 'success' };
   }
 
-  @Post('weekAttend')
-  async weekAttend(
-    @Body('groupId') groupId: string,
-    @Body('userId') userId: string,
+  // @Post('weekAttend')
+  // async weekAttend(
+  //   @Body('groupId') groupId: string,
+  //   @Body('userId') userId: string,
+  // ) {
+  //   try {
+  //     await this.groupStudyService.weekAttend(groupId, userId);
+  //     return { status: 'success' };
+  //   } catch (err) {
+  //     throw new HttpException('Error agreeing waiting person', 500);
+  //   }
+  // }
+
+  @Post('deposit')
+  async depositGroupStudy(
+    @Body('id') id: number,
+    @Body('deposit') deposit: number,
   ) {
     try {
-      await this.groupStudyService.weekAttend(groupId, userId);
+      await this.groupStudyService.depositGroupStudy(id, deposit);
       return { status: 'success' };
     } catch (err) {
-      throw new HttpException('Error agreeing waiting person', 500);
+      throw new HttpException(
+        'Error depositing in group study',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

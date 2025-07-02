@@ -32,8 +32,8 @@ const participantsZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
   randomId: z.number().optional(),
   role: userRoleZodSchema,
-  attendCnt: z.number(),
-  weekAttendance: z.boolean().default(false),
+  monthAttendance: z.boolean().default(false),
+  deposit: z.number().optional(),
 });
 // IWaiting Zod schema
 const waitingZodSchema = z.object({
@@ -179,13 +179,13 @@ export const participantsSchema: Schema<participantsType> = new Schema(
       type: String,
       enum: ENTITY.GROUPSTUDY.ENUM_USER_ROLE,
     },
-    attendCnt: {
+    deposit: {
       type: Number,
     },
     randomId: {
       type: Number,
     },
-    weekAttendance: {
+    monthAttendance: {
       type: Boolean,
       default: false,
     },
