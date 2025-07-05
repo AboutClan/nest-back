@@ -57,6 +57,7 @@ export interface ParticipantProps {
   role?: UserRole;
   deposit?: number;
   monthAttendance?: boolean;
+  lastMonthAttendance?: boolean;
 }
 
 export interface GroupStudyProps {
@@ -369,6 +370,37 @@ export class GroupStudy {
     } else {
       throw new Error('Participant not found by random ID');
     }
+  }
+
+  checkMonthAttendance(userId, last): boolean {
+    const participant = this.participants.find(
+      (p) => p.user.toString() === userId,
+    );
+    if (!participant) {
+      throw new Error('Participant not found');
+    }
+
+    let ret = false;
+
+    if (last) {
+      if (participant.lastMonthAttendance !== true) {
+        participant.lastMonthAttendance = true;
+        ret = true;
+      }
+    } else {
+      if (participant.monthAttendance !== true) {
+        participant.monthAttendance = true;
+        ret = true;
+      }
+    }
+
+    return ret;
+  }
+
+  processMonthAttendance(): void {
+    this.participants.forEach((participant) => {
+      participant.lastMonthAttendance = participant.monthAttendance;
+    });
   }
 
   setWaiting({ userId, answer, pointType }): void {

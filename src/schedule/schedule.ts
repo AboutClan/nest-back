@@ -14,6 +14,7 @@ import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface'
 import { GatherService } from 'src/routes/gather/gather.service';
 import { UserService } from 'src/routes/user/user.service';
 import { IGroupStudyRepository } from 'src/routes/groupStudy/GroupStudyRepository.interface';
+import GroupStudyService from 'src/routes/groupStudy/groupStudy.service';
 
 @Injectable()
 export class NotificationScheduler {
@@ -24,6 +25,8 @@ export class NotificationScheduler {
     private readonly gatherRepository: IGatherRepository,
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: IGroupStudyRepository,
+
+    private readonly groupStudyService: GroupStudyService,
     private readonly vote2Service: Vote2Service,
     private readonly gatherService: GatherService,
     private readonly userService: UserService,
@@ -153,6 +156,18 @@ export class NotificationScheduler {
   async processTicket() {
     try {
       await this.userService.processTicket();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  //monthScore 정산
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+    timeZone: 'Asia/Seoul',
+  })
+  async processGroupStudyAttend() {
+    try {
+      await this.groupStudyService.processGroupStudyAttend();
     } catch (err: any) {
       throw new Error(err);
     }

@@ -496,6 +496,23 @@ export class GroupStudyController {
   //   }
   // }
 
+  @Post('monthAttend')
+  async monthAttend(
+    @Body('groupId') groupId: string,
+    @Body('userId') userId: string,
+    @Body('last') last: boolean = false,
+  ) {
+    try {
+      await this.groupStudyService.monthAttend(groupId, userId, last);
+      return { status: 'success' };
+    } catch (err) {
+      throw new HttpException(
+        'Error marking monthly attendance',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post('deposit')
   async depositGroupStudy(
     @Body('id') id: number,

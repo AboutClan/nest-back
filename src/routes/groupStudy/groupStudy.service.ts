@@ -779,6 +779,26 @@ export default class GroupStudyService {
     return;
   }
 
+  async monthAttend(groupId, userId, last) {
+    const groupStudy = await this.groupStudyRepository.findById(groupId);
+
+    if (!groupStudy) throw new Error('해당 소모임을 찾을 수 없습니다.');
+
+    const result = groupStudy.checkMonthAttendance(userId, last);
+
+    // if (result) {
+    //   await this.userServiceInstance.updateScoreWithUserId(
+    //     userId,
+    //     CONST.SCORE.GROUP_MONTHLY_PARTICIPATE,
+    //     '소모임 월간 출석',
+    //   );
+    // }
+
+    await this.groupStudyRepository.save(groupStudy);
+
+    return;
+  }
+
   async depositGroupStudy(id: number, deposit: number) {
     const token = RequestContext.getDecodedToken();
 
@@ -794,6 +814,21 @@ export default class GroupStudyService {
     await this.groupStudyRepository.save(groupStudy);
 
     return;
+  }
+
+  async processGroupStudyAttend() {
+    const groupStudies = await this.groupStudyRepository.findAll();
+    if (!groupStudies) throw new Error('No group studies found');
+
+    try {
+      for (const group of groupStudies) {
+        group.processMonthAttendance();
+
+        await this.groupStudyRepository.save(group);
+      }
+    } catch (err) {
+      throw new Error('Error processing group study attendance');
+    }
   }
 
   async belongToParticipateGroupStudy() {

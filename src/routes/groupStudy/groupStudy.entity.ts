@@ -33,6 +33,7 @@ const participantsZodSchema = z.object({
   randomId: z.number().optional(),
   role: userRoleZodSchema,
   monthAttendance: z.boolean().default(false),
+  lastMonthAttendance: z.boolean().default(false),
   deposit: z.number().optional(),
 });
 // IWaiting Zod schema

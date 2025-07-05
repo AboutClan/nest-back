@@ -240,6 +240,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
         role: p.role as ParticipantProps['role'],
         deposit: p.deposit,
         monthAttendance: p.monthAttendance || false,
+        lastMonthAttendance: p.lastMonthAttendance || false,
       }),
     );
 
@@ -338,6 +339,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       role: pt.role,
       deposit: pt.deposit,
       monthAttendance: pt.monthAttendance,
+      lastMonthAttendance: pt.lastMonthAttendance,
     }));
 
     const commentsDb = (p.comments || []).map((c) => ({
