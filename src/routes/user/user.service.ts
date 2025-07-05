@@ -878,9 +878,24 @@ export class UserService {
   async processMonthScore() {
     const firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth();
 
-    await this.UserRepository.resetPointByMonthScore(firstDayOfLastMonth);
+    const uids =
+      await this.UserRepository.resetPointByMonthScore(firstDayOfLastMonth);
     await this.UserRepository.resetMonthScore();
+
+    uids.forEach((tempUid) => {
+      const point = -1000;
+      const uid = tempUid;
+
+      const message = `월간 점수 정산`;
+      logger.logger.info(message, {
+        type: 'point',
+        sub: '월간 점수 초기화',
+        uid,
+        value: point,
+      });
+    });
   }
+
   async processTicket() {
     await this.UserRepository.processTicket();
   }

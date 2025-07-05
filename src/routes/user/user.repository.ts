@@ -271,6 +271,15 @@ export class MongoUserRepository implements UserRepository {
 
   //잘못실행되지 않도록 막아야함
   async resetPointByMonthScore(maxDate: string) {
+    const users = await this.User.find(
+      {
+        monthScore: { $lte: 10 },
+        role: { $ne: 'resting' },
+        registerDate: { $lt: maxDate },
+      },
+      'uid',
+    );
+
     await this.User.updateMany(
       {
         monthScore: { $lte: 10 },
@@ -279,6 +288,8 @@ export class MongoUserRepository implements UserRepository {
       },
       { $inc: { point: -1000 } },
     );
+
+    return users.map((user) => user.uid);
   }
 
   async resetMonthScore() {

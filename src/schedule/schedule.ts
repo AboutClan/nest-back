@@ -149,7 +149,7 @@ export class NotificationScheduler {
     }
   }
 
-  //monthScore 정산
+  //ticket 정산
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
     timeZone: 'Asia/Seoul',
   })
@@ -161,7 +161,7 @@ export class NotificationScheduler {
     }
   }
 
-  //monthScore 정산
+  //groupstudy 정산
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
     timeZone: 'Asia/Seoul',
   })
