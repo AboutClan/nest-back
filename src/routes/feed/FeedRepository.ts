@@ -1,4 +1,4 @@
-import { HttpException } from '@nestjs/common';
+import { HttpException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
@@ -50,14 +50,23 @@ export class FeedRepository implements IFeedRepository {
   }
 
   async findById(id: string): Promise<Feed> {
-    const doc = await (
-      await this.FeedModel.findOne({ typeId: id })
-    ).populate([
-      { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.subComments.user', select: ENTITY.USER.C_SIMPLE_USER },
-    ]);
+    const doc = await this.FeedModel.findOne({ typeId: id })
+      .populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        {
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ])
+      .exec(); // ← exec()로 쿼리 실행
+
+    if (!doc) {
+      // 문서를 못 찾았을 때 적절히 예외 처리
+      throw new NotFoundException(`Feed(typeId=${id})를 찾을 수 없습니다.`);
+    }
+
     return this.mapToDomain(doc);
   }
 
@@ -75,7 +84,7 @@ export class FeedRepository implements IFeedRepository {
     if (opt.start) query = query.skip(opt.start);
     if (opt.gap) query = query.limit(opt.gap);
     if (opt.sort) query = query.sort({ createdAt: opt.sort });
-   
+
     const docs = await query
       .populate(['writer', 'like', 'comments.user'])
       .populate({

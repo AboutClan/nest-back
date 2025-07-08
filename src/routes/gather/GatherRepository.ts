@@ -39,7 +39,7 @@ export class GatherRepository implements IGatherRepository {
       .select('-_id id')
       .sort({ createdAt: -1 });
 
-    result;
+    return result;
   }
 
   async findByPeriod(
