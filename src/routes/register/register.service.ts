@@ -61,9 +61,9 @@ export default class RegisterService {
         telephone: encodedTel,
       });
 
-      await this.webPushServiceInstance.sendNotificationToManager(
-        subRegisterForm.location,
-      );
+      // await this.webPushServiceInstance.sendNotificationToManager(
+      //   subRegisterForm.location,
+      // );
       return;
     } catch (err) {
       console.log(err);

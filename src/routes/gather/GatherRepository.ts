@@ -112,19 +112,10 @@ export class GatherRepository implements IGatherRepository {
         .skip(start)
         .limit(gap)
         .select('-_id')
-        .populate({ path: 'user', select: ENTITY.USER.C_SIMPLE_USER })
+        .populate({ path: 'user', select: ENTITY.USER.C_MINI_USER })
         .populate({
           path: 'participants.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        })
-        .populate({ path: 'waiting.user', select: ENTITY.USER.C_SIMPLE_USER })
-        .populate({
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        })
-        .populate({
-          path: 'comments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
+          select: ENTITY.USER.C_MINI_USER,
         });
 
       const futureCount = futureResult.length;
@@ -180,10 +171,10 @@ export class GatherRepository implements IGatherRepository {
     const gatherData2 = await this.Gather.find({
       status: 'pending',
       $expr: {
-        $lt: [{ $add: [{ $size: '$participants' }, 2] }, '$memberCnt.max'],
+        $gte: [{ $add: [{ $size: '$participants' }, 4] }, '$memberCnt.max'],
       },
     })
-      .sort({ createdAt: 1 })
+      .sort({ date: 1 })
       .limit(6)
       .populate({
         path: 'user',

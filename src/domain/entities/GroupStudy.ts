@@ -150,7 +150,7 @@ export class GroupStudy {
     this.organizer = props.organizer || '';
     this.memberCnt = props.memberCnt || { min: 1, max: 10 };
     this.password = props.password || null;
-    this.status = props.status || 'active';
+    this.status = props.status || 'pending';
     this.participants = props.participants || [];
     this.userId = props.userId;
     this.comments = props.comments ?? [];
