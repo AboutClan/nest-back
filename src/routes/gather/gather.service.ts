@@ -288,7 +288,7 @@ export class GatherService {
 
       if (gather.deposit < 0) {
         gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
-        throw new AppError('보증금이 부족합니다.', 500);
+        break;
       }
 
       await this.userServiceInstance.updatePointById(
@@ -830,7 +830,6 @@ export class GatherService {
   async distributeTicket(gather: Gather) {
     const today = DateUtils.getTodayYYYYMMDD();
 
-    //날짜 지나서 삭제시 무효
     if (gather.date < today) return;
 
     for (const participant of gather.participants) {
