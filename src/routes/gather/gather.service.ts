@@ -833,13 +833,13 @@ export class GatherService {
     //날짜 지나서 삭제시 무효
     if (gather.date < today) return;
 
-    gather.participants.forEach(async (participant) => {
+    for (const participant of gather.participants) {
       if (!participant.invited) {
         await this.userServiceInstance.updateAddTicket(
           'gather',
           participant.user,
         );
       }
-    });
+    }
   }
 }
