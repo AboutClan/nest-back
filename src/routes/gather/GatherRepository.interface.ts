@@ -21,6 +21,6 @@ export interface IGatherRepository {
   ): Promise<null>;
   save(doc: Gather): Promise<Gather>;
   updateNotOpened(current: Date);
-  deleteById(gatherId: string): Promise<any>;
+  deleteById(gatherId: number): Promise<any>;
   getEnthMembers();
 }

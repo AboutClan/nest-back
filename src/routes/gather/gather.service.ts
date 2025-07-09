@@ -281,6 +281,9 @@ export class GatherService {
   }
 
   async returnDepositToRemoveGather(gather: Gather) {
+    const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
+    if (diffDay > -3) return;
+
     const participants = gather.participants;
 
     for (const participant of participants) {
@@ -817,8 +820,8 @@ export class GatherService {
     await this.returnDepositToRemoveGather(gather);
     await this.distributeTicket(gather);
 
-    const deleted = await this.gatherRepository.deleteById(gatherId);
-    if (!deleted.deletedCount) throw new DatabaseError('delete failed');
+    const deleted = await this.gatherRepository.deleteById(+gatherId);
+    if (!deleted?.deletedCount) throw new DatabaseError('delete failed');
 
     await this.userServiceInstance.updateScore(
       CONST.SCORE.REMOVE_GATHER,

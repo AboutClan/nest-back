@@ -271,7 +271,7 @@ export class GatherRepository implements IGatherRepository {
     }
   }
 
-  async deleteById(gatherId: string): Promise<any> {
+  async deleteById(gatherId: number): Promise<any> {
     return await this.Gather.deleteOne({ id: gatherId });
   }
 
