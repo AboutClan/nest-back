@@ -150,6 +150,18 @@ export default class NoticeService {
     return;
   }
 
+  async getMyTemperature(userId: string) {
+    const result = await this.noticeRepository.findMyTemperature(userId);
+    return result;
+  }
+
+  async getAllTemperature(page: number, userId: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const result = await this.noticeRepository.findAllTemperature(page, userId);
+    return result;
+  }
+
   async getTemperature() {
     const token = RequestContext.getDecodedToken();
     const result = await this.noticeRepository.findTemperature(token.uid);

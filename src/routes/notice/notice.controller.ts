@@ -8,6 +8,7 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import NoticeService from './notice.service';
@@ -186,6 +187,32 @@ export class NoticeController {
   async getTemperature() {
     try {
       const result = await this.noticeService.getTemperature();
+      return result;
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching friend requests',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('temperature/mine')
+  async getMyTemperature(@Param('uid') uid) {
+    try {
+      const result = await this.noticeService.getMyTemperature(uid);
+      return result;
+    } catch (err) {
+      throw new HttpException(
+        'Error fetching friend requests',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('temperature/all')
+  async getAllTemperature(@Param('page') page = 1, @Param('page') userId) {
+    try {
+      const result = await this.noticeService.getAllTemperature(page, userId);
       return result;
     } catch (err) {
       throw new HttpException(
