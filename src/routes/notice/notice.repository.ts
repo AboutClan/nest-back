@@ -56,4 +56,34 @@ export class MongoNoticeRepository implements NoticeRepository {
       '-_id -__v',
     );
   }
+
+  async findMyTemperature(toUid: string) {
+    return await this.Notice.find(
+      {
+        to: toUid,
+        type: 'temperature',
+        sub: { $in: ['great', 'good'] },
+        message: { $exists: true },
+      },
+      '-_id -__v',
+    )
+      .sort({ createdAt: -1 })
+      .limit(3);
+  }
+
+  async findAllTemperature(page: number = 1, uid: string) {
+    const offset = 20;
+
+    return await this.Notice.find(
+      {
+        toUid: uid,
+        type: 'temperature',
+        message: { $exists: true },
+      },
+      '-_id -__v',
+    )
+      .sort({ createdAt: -1 })
+      .skip(offset * (page - 1))
+      .limit(offset);
+  }
 }

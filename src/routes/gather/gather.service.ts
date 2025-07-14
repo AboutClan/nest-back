@@ -281,6 +281,9 @@ export class GatherService {
   }
 
   async returnDepositToRemoveGather(gather: Gather) {
+    const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
+    if (diffDay > -3) return;
+
     const participants = gather.participants;
 
     for (const participant of participants) {
@@ -288,7 +291,7 @@ export class GatherService {
 
       if (gather.deposit < 0) {
         gather.deposit += -CONST.POINT.PARTICIPATE_GATHER;
-        throw new AppError('보증금이 부족합니다.', 500);
+        break;
       }
 
       await this.userServiceInstance.updatePointById(
@@ -817,8 +820,8 @@ export class GatherService {
     await this.returnDepositToRemoveGather(gather);
     await this.distributeTicket(gather);
 
-    const deleted = await this.gatherRepository.deleteById(gatherId);
-    if (!deleted.deletedCount) throw new DatabaseError('delete failed');
+    const deleted = await this.gatherRepository.deleteById(+gatherId);
+    if (!deleted?.deletedCount) throw new DatabaseError('delete failed');
 
     await this.userServiceInstance.updateScore(
       CONST.SCORE.REMOVE_GATHER,
@@ -830,16 +833,15 @@ export class GatherService {
   async distributeTicket(gather: Gather) {
     const today = DateUtils.getTodayYYYYMMDD();
 
-    //날짜 지나서 삭제시 무효
     if (gather.date < today) return;
 
-    gather.participants.forEach(async (participant) => {
+    for (const participant of gather.participants) {
       if (!participant.invited) {
         await this.userServiceInstance.updateAddTicket(
           'gather',
           participant.user,
         );
       }
-    });
+    }
   }
 }
