@@ -184,7 +184,7 @@ export class GroupStudy {
       likeList: [],
       createdAt: new Date(),
     };
-
+    console.log(234);
     this.comments.push(newComment);
   }
 
@@ -534,8 +534,8 @@ export class GroupStudy {
       comments: this.comments.map((c) => ({
         user: c.user,
         comment: c.comment,
-        subComments: c.subComments.map((s) => ({ ...s })),
-        likeList: [...c.likeList],
+        subComments: (c.subComments ?? []).map((s) => ({ ...s })),
+        likeList: [...(c.likeList ?? [])],
       })),
       location: this.location,
       image: this.image,
