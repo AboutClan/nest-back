@@ -120,7 +120,6 @@ export class UserService {
       picked.telephone = await this.decodeByAES256(picked.telephone);
     }
 
-    console.log(picked);
     return picked;
   }
 
