@@ -389,11 +389,6 @@ export class UserController {
     );
   }
 
-  @Patch('allUserInfo')
-  async updateAllUserInfo() {
-    return await this.userService.updateAllUserInfo();
-  }
-
   @Get('test')
   async test() {
     return await this.userService.processTemperature();
