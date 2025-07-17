@@ -323,6 +323,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       createdAt: (doc as any).createdAt,
       updatedAt: (doc as any).updatedAt,
       notionUrl: doc?.notionUrl,
+      requiredTicket: doc?.requiredTicket,
     };
 
     return new GroupStudy(props);
@@ -410,6 +411,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       squareImage: p.squareImage,
       meetingType: p.meetingType as IGroupStudyData['meetingType'],
       id: p.id,
+      requiredTicket: p.requiredTicket,
     };
   }
 }

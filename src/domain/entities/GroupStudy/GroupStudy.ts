@@ -49,6 +49,7 @@ export interface GroupStudyProps {
   waiting?: WaitingProps[];
   squareImage?: string;
   meetingType?: MeetingType;
+  requiredTicket: number;
 }
 
 export class GroupStudy {
@@ -82,6 +83,7 @@ export class GroupStudy {
   private waiting: Waiting[];
   private squareImage?: string;
   private meetingType?: MeetingType;
+  private requiredTicket?: number;
 
   constructor(props: GroupStudyProps) {
     // if (!props.title) throw new Error('GroupStudy title is required.');
@@ -125,6 +127,7 @@ export class GroupStudy {
     this.waiting = (props.waiting ?? []).map((w) => new Waiting(w));
     this.squareImage = props.squareImage;
     this.meetingType = props.meetingType;
+    this.requiredTicket = props.requiredTicket;
   }
 
   // 여기에 추가적인 비즈니스 로직 (ex: addParticipant, closeStudy 등) 가능
@@ -294,6 +297,7 @@ export class GroupStudy {
       waiting: this.waiting.map((w) => w.toPrimitives()),
       squareImage: this.squareImage,
       meetingType: this.meetingType,
+      requiredTicket: this.requiredTicket,
     };
   }
 }

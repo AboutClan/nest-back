@@ -95,6 +95,7 @@ export interface GroupStudyProps {
   createdAt?: Date;
   updatedAt?: Date;
   notionUrl?: string;
+  requiredTicket?: number;
 }
 
 // src/domain/entities/GroupStudy.ts
@@ -134,6 +135,7 @@ export class GroupStudy {
   public createdAt?: Date;
   public updatedAt?: Date;
   public notionUrl?: string;
+  public requiredTicket?: number;
 
   constructor(props: GroupStudyProps) {
     this._id = props._id;
@@ -170,6 +172,7 @@ export class GroupStudy {
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
     this.notionUrl = props.notionUrl;
+    this.requiredTicket = props.requiredTicket || 1;
   }
 
   addComment(userId: string, comment: string): void {
@@ -556,6 +559,7 @@ export class GroupStudy {
       meetingType: this.meetingType,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      requiredTicket: this.requiredTicket,
     };
   }
 }

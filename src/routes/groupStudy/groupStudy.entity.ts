@@ -100,6 +100,7 @@ const groupStudyZodSchema = z.object({
   squareImage: z.string().optional(),
   meetingType: z.enum(ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE).optional(),
   notionUrl: z.string().optional(),
+  requiredTicket: z.number().default(1),
 });
 
 export type GroupStudyStatus = 'end' | 'pending';
@@ -356,6 +357,9 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     notionUrl: {
       type: String,
+    },
+    requiredTicket: {
+      type: Number,
     },
   },
   { timestamps: true },

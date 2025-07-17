@@ -443,16 +443,16 @@ export default class GroupStudyService {
 
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
-    console.log(55);
     groupStudy.participateGroupStudy(token.id, 'member');
-    console.log(24);
-    console.log(24);
-    //ticket 차감 로직
-    await this.userServiceInstance.updateReduceTicket('groupOffline', token.id);
 
-    console.log(1);
+    //ticket 차감 로직
+    await this.userServiceInstance.updateReduceTicket(
+      'groupOffline',
+      token.id,
+      -groupStudy.requiredTicket,
+    );
+
     await this.groupStudyRepository.save(groupStudy);
-    console.log(13);
 
     // await this.webPushServiceInstance.sendNotificationGroupStudy(
     //   id,
