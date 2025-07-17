@@ -292,6 +292,13 @@ export class MongoUserRepository implements UserRepository {
     return users.map((user) => user.uid);
   }
 
+  async updateTicketWithUserIds(userIds: string[], ticketNum: number) {
+    await this.User.updateMany(
+      { _id: { $in: userIds } },
+      { $inc: { 'ticket.groupStudyTicket': ticketNum } },
+    );
+  }
+
   async resetMonthScore() {
     await this.User.updateMany({}, { monthScore: 0 });
   }

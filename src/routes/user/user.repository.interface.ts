@@ -46,4 +46,5 @@ export interface UserRepository {
   processTicket();
   test();
   initTemperature();
+  updateTicketWithUserIds(userIds: string[], ticketNum: number);
 }

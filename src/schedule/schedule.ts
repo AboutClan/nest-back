@@ -161,8 +161,7 @@ export class NotificationScheduler {
     }
   }
 
-  //groupstudy 정산
-  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+  @Cron('0 10 0 1 * *', {
     timeZone: 'Asia/Seoul',
   })
   async processGroupStudyAttend() {

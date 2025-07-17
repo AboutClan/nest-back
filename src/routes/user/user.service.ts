@@ -902,6 +902,10 @@ export class UserService {
     await this.UserRepository.processTicket();
   }
 
+  async updateTicketWithUserIds(userIds: string[], ticketNum: number) {
+    await this.UserRepository.updateTicketWithUserIds(userIds, ticketNum);
+  }
+
   async test() {
     await this.UserRepository.test();
     // const users = await this.getAllUserInfo([]);

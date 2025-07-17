@@ -826,6 +826,13 @@ export default class GroupStudyService {
 
         await this.groupStudyRepository.save(group);
       }
+
+      for (const group of groupStudies) {
+        await this.userServiceInstance.updateTicketWithUserIds(
+          group.participants.map((part) => part.user),
+          group.requiredTicket,
+        );
+      }
     } catch (err) {
       throw new Error('Error processing group study attendance');
     }
