@@ -55,7 +55,7 @@ export class UserRepository implements IUserRepository {
       ? await this.UserModel.find({}, queryString)
       : await this.UserModel.find();
 
-    return users;
+    return users.map((user) => this.mapToDomain(user));
   }
 
   async findByUid(uid: string, queryString?: string): Promise<User | null> {
