@@ -345,7 +345,7 @@ export class UserService {
   async patchStudyTargetHour(hour: number) {
     const token = RequestContext.getDecodedToken();
     await this.UserRepository.updateUser(token.uid, {
-      weekStudyTragetHour: hour,
+      weekStudyTargetHour: hour,
     });
 
     return;
@@ -514,6 +514,7 @@ export class UserService {
         );
       }
 
+      console.log(user?.studyPreference?.subPlace);
       // 기존 sub preference 감소
       if (user?.studyPreference?.subPlace?.length) {
         await Promise.all(
@@ -586,7 +587,6 @@ export class UserService {
       const endDay = DateUtils.getDayJsYYYYMMDD(endDate);
       const dayDiff = endDay.diff(startDay, 'day');
 
-      console.log(user);
       user.setRest(
         info.type,
         startDate.toString(),
@@ -740,14 +740,15 @@ export class UserService {
         user.increaseGroupStudyTicket(ticketNum);
         break;
       default:
-        const { uid } = await this.getUserWithUserId(userId);
-        logger.logger.info('티켓 추가', {
-          type,
-          uid,
-          value: ticketNum,
-        });
         break;
     }
+    const { uid } = await this.getUserWithUserId(userId);
+    logger.logger.info('티켓 추가', {
+      type,
+      uid,
+      value: ticketNum,
+    });
+    await this.UserRepository.save(user);
   }
 
   async updateReduceTicket(

@@ -21,6 +21,7 @@ export class UserRepository implements IUserRepository {
   ) {}
 
   async updateUser(uid: string, updateInfo: any): Promise<null> {
+    console.log(uid, updateInfo);
     await this.UserModel.findOneAndUpdate(
       { uid },
       { $set: updateInfo },
@@ -54,15 +55,17 @@ export class UserRepository implements IUserRepository {
       ? await this.UserModel.find({}, queryString)
       : await this.UserModel.find();
 
-    return users.map((user) => this.mapToDomain(user));
+    return users;
   }
 
   async findByUid(uid: string, queryString?: string): Promise<User | null> {
-    const user = queryString
-      ? await this.UserModel.findOne({ uid }, queryString)
-      : await this.UserModel.findOne({ uid });
-    if (!user) return null;
-    return this.mapToDomain(user);
+    if (queryString) {
+      return await this.UserModel.findOne({ uid }, queryString);
+    } else {
+      const user = await this.UserModel.findOne({ uid });
+      if (!user) return null;
+      return this.mapToDomain(user);
+    }
   }
 
   async findByUidProjection(
@@ -243,7 +246,7 @@ export class UserRepository implements IUserRepository {
     );
     const preference = doc.studyPreference
       ? new Preference(
-          doc?.studyPreference?.place.toString(),
+          doc?.studyPreference?.place?.toString(),
           ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
             o.toString(),
           ),
@@ -270,7 +273,6 @@ export class UserRepository implements IUserRepository {
       doc?.temperature?.cnt,
     );
 
-    console.log(ticket);
     return new User(
       doc?._id?.toString(),
       doc?.uid,

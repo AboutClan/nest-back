@@ -183,7 +183,7 @@ export class UserController {
 
   @Get('profile')
   async getProfile() {
-    const targetUser = await this.userService.getUserInfo([]);
+    const targetUser = await this.userService.getUserInfo(['uid']);
     return targetUser;
   }
 
