@@ -76,7 +76,7 @@ export default class PlaceService {
   }
 
   async updatePrefCnt(placeId: string, num: number) {
-    await this.updatePrefCnt(placeId, num);
+    await this.placeRepository.updatePrefCnt(placeId, num);
     return;
   }
 

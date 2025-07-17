@@ -4,7 +4,7 @@ export interface IUserRepository {
   findByUid(uid: string, queryString?: string): Promise<User | null>;
   findByUserId(userId: string): Promise<User | null>;
   findByUids(uids: string[]): Promise<User[]>;
-  findAll(queryString?: string): Promise<User[]>;
+  findAll(queryString?: string): Promise<any>;
   updateUser(uid: string, updateInfo: any): Promise<null>;
   findByIsActiveUid(
     uid: string,
