@@ -307,7 +307,7 @@ export class GatherService {
 
   async participateGather(gatherId: number, phase: string, isFree: boolean) {
     const token = RequestContext.getDecodedToken();
-    const { ticket } = await this.userServiceInstance.getTicketInfo(token.id);
+    const ticket = await this.userServiceInstance.getTicketInfo(token.id);
 
     if (ticket.gatherTicket <= 0 && !isFree) {
       throw new HttpException('ticket이 부족합니다.', 500);
@@ -607,7 +607,7 @@ export class GatherService {
     gather.removeWaiting(userId);
 
     if (status === 'agree') {
-      const { ticket } = await this.userServiceInstance.getTicketInfo(userId);
+      const ticket = await this.userServiceInstance.getTicketInfo(userId);
 
       if (ticket.gatherTicket <= 0) {
         throw new AppError(`${token.uid} ticket이 부족합니다.`, 500);

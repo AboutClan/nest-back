@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import { Model } from 'mongoose';
@@ -19,12 +19,13 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DateUtils } from 'src/utils/Date';
+import { IUserRepository } from './UserRepository.interface';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
   constructor(
     @Inject(IUSER_REPOSITORY)
-    private readonly UserRepository: UserRepository,
+    private readonly UserRepository: IUserRepository,
     @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel(DB_SCHEMA.LOG) private Log: Model<ILog>,
     private readonly noticeService: NoticeService,
@@ -70,6 +71,7 @@ export class UserService {
 
     return result;
   }
+
   async getUserWithUserId(userId: string) {
     const result = await this.UserRepository.findByUserId(userId);
 
@@ -78,6 +80,7 @@ export class UserService {
 
     return result;
   }
+
   async getUsersWithUids(uids: string[]) {
     const results = await this.UserRepository.findByUids(uids);
 
@@ -92,15 +95,33 @@ export class UserService {
   //유저의 _id도 같이 전송. 유저 로그인 정보 불일치 문제를 클라이언트에서 접속중인 session의 _id와 DB에서 호출해서 가져오는 _id의 일치여부로 판단할 것임
   async getUserInfo(strArr: string[]) {
     const token = RequestContext.getDecodedToken();
-    let queryString = this.createQueryString(strArr);
-    if (strArr.length) queryString = '-_id' + queryString;
 
-    const result = await this.UserRepository.findByUid(token.uid, queryString);
+    // 1) UID로 도메인 User 객체 조회
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new NotFoundException(`User not found: ${token.uid}`);
+    }
 
-    if (result && result.telephone)
-      result.telephone = await this.decodeByAES256(result.telephone);
+    // 2) 도메인 → 순수 JS 객체
+    const data = user.toPrimitives();
 
-    return result;
+    // 3) 필요한 필드만 선택
+    let picked: Record<string, any> = {};
+
+    if (strArr.length)
+      for (const key of strArr) {
+        if (!(key in data)) continue;
+        picked[key] = data[key];
+      }
+    else picked = data;
+
+    // 4) telephone 암호화된 경우 복호화
+    if ('telephone' in picked && picked.telephone) {
+      picked.telephone = await this.decodeByAES256(picked.telephone);
+    }
+
+    console.log(picked);
+    return picked;
   }
 
   async getAllUserInfo(strArr: string[]) {
@@ -119,7 +140,7 @@ export class UserService {
 
   async getSimpleUserInfo() {
     const token = RequestContext.getDecodedToken();
-    const result = await this.UserRepository.findByUid(
+    const result = await this.UserRepository.findByUidProjection(
       token.uid,
       ENTITY.USER.C_SIMPLE_USER,
     );
@@ -135,6 +156,7 @@ export class UserService {
 
   async updateUser(updateInfo: Partial<IUser>) {
     const token = RequestContext.getDecodedToken();
+
     const updated = await this.UserRepository.updateUser(token.uid, updateInfo);
     return updated;
   }
@@ -165,7 +187,7 @@ export class UserService {
       let attendForm = allUser.map((user) => ({
         uid: user.uid,
         cnt: 0,
-        userSummary: { ...user.toJSON() },
+        userSummary: { ...user },
       }));
 
       let forParticipation: any[];
@@ -355,7 +377,9 @@ export class UserService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    await this.UserRepository.increasePoint(point, uid ?? token.uid);
+    const user = await this.UserRepository.findByUid(uid ?? token.uid);
+    user.increasePoint(point);
+    await this.UserRepository.save(user);
 
     logger.logger.info(message, {
       type: 'point',
@@ -365,6 +389,7 @@ export class UserService {
     });
     return;
   }
+
   async updatePoint(
     point: number,
     message: string,
@@ -373,7 +398,9 @@ export class UserService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    await this.UserRepository.increasePoint(point, uid ?? token.uid);
+    const user = await this.UserRepository.findByUid(uid ?? token.uid);
+    user.increasePoint(point);
+    await this.UserRepository.save(user);
 
     logger.logger.info(message, {
       type: 'point',
@@ -393,13 +420,8 @@ export class UserService {
     const token = RequestContext.getDecodedToken();
 
     const user = await this.UserRepository.findByUserId(userId ?? token.id);
-    if (user.deposit + point < 0)
-      throw new AppError('포인트가 부족합니다.', 400);
-
-    await this.UserRepository.increasePointWithUserId(
-      point,
-      userId ?? token.id,
-    );
+    user.increasePoint(point);
+    await this.UserRepository.save(user);
 
     logger.logger.info(message, {
       type: 'point',
@@ -418,7 +440,9 @@ export class UserService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    await this.UserRepository.increaseScoreWithUserId(score, userId);
+    const user = await this.UserRepository.findByUserId(userId);
+    user.increaseScore(score);
+    await this.UserRepository.save(user);
 
     logger.logger.info(message, {
       type: 'score',
@@ -441,7 +465,9 @@ export class UserService {
     uid?: string,
   ) {
     const token = RequestContext.getDecodedToken();
-    await this.UserRepository.increaseScore(score, uid ?? token.uid);
+    const user = await this.UserRepository.findByUid(uid ?? token.uid);
+    user.increaseScore(score);
+    await this.UserRepository.save(user);
 
     logger.logger.info(message, {
       type: 'score',
@@ -455,7 +481,12 @@ export class UserService {
   async updateDeposit(deposit: number, message: string, sub?: string) {
     const token = RequestContext.getDecodedToken();
 
-    await this.UserRepository.increaseDeposit(deposit, token.uid);
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    user.increaseDeposit(deposit);
+    await this.UserRepository.save(user);
 
     logger.logger.info(message, {
       type: 'deposit',
@@ -555,14 +586,17 @@ export class UserService {
       const endDay = DateUtils.getDayJsYYYYMMDD(endDate);
       const dayDiff = endDay.diff(startDay, 'day');
 
-      const result = await this.UserRepository.setRest(
-        info,
-        token.uid,
+      console.log(user);
+      user.setRest(
+        info.type,
+        startDate.toString(),
+        endDate.toString(),
+        info.content,
         dayDiff,
       );
 
-      if (!result) throw new Error('User not found or update failed');
-      return result;
+      const updated = await this.UserRepository.save(user);
+      return updated.toPrimitives();
     } catch (err: any) {
       throw new Error(err);
     }
@@ -570,13 +604,29 @@ export class UserService {
 
   async deleteFriend(toUid: string) {
     const token = RequestContext.getDecodedToken();
-    await this.UserRepository.deleteFriend(token.uid, toUid);
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    user.deleteFriend(toUid);
+    await this.UserRepository.save(user);
     return null;
   }
 
   async setFriend(toUid: string) {
     const token = RequestContext.getDecodedToken();
-    await this.UserRepository.updateFriend(token.uid, toUid);
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    const toUser = await this.UserRepository.findByUid(toUid);
+    if (!toUser) {
+      throw new AppError('Friend not found', 404);
+    }
+    user.setFriend(toUid);
+    toUser.setFriend(token.uid);
+    await this.UserRepository.save(user);
+    await this.UserRepository.save(toUser);
 
     await this.noticeService.createNotice({
       from: token.uid,
@@ -655,7 +705,13 @@ export class UserService {
   async patchLocationDetail(text: string, lat: string, lon: string) {
     const token = RequestContext.getDecodedToken();
 
-    await this.UserRepository.patchLocationDetail(token.uid, text, lat, lon);
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    user.setLocationDetail(text, lat, lon);
+
+    await this.UserRepository.save(user);
 
     return;
   }
@@ -665,22 +721,23 @@ export class UserService {
     userId: string,
     ticketNum?: number,
   ) {
+    const user = await this.UserRepository.findByUserId(userId);
     switch (type) {
       case 'gather':
         if (!ticketNum) ticketNum = 1;
-        await this.UserRepository.updateGatherTicket(userId, ticketNum);
+        user.increaseGatherTicket(ticketNum);
         break;
       case 'groupStudy':
         if (!ticketNum) ticketNum = 1;
-        await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
+        user.increaseGroupStudyTicket(ticketNum);
         break;
       case 'groupOffline':
         if (!ticketNum) ticketNum = 2;
-        await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
+        user.increaseGroupStudyTicket(ticketNum);
         break;
       case 'groupOnline':
         if (!ticketNum) ticketNum = 1;
-        await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
+        user.increaseGroupStudyTicket(ticketNum);
         break;
       default:
         const { uid } = await this.getUserWithUserId(userId);
@@ -699,6 +756,7 @@ export class UserService {
     num?: number,
   ) {
     let ticketNum;
+    const user = await this.UserRepository.findByUserId(userId);
     switch (type) {
       case 'gather':
         ticketNum = -1;
@@ -728,26 +786,28 @@ export class UserService {
 
   async addBadge(id: string, badgeName: string) {
     const token = RequestContext.getDecodedToken();
+    let user;
+
     if (id) {
-      await this.UserRepository.addbadge(id, badgeName);
+      user = await this.UserRepository.findByUserId(id);
     } else {
-      await this.UserRepository.addbadge(token.id, badgeName);
+      user = await this.UserRepository.findByUid(token.uid);
     }
+    user.addBadge(badgeName);
+
+    await this.UserRepository.save(user);
   }
 
   async selectBadge(badgeIdx: number) {
     const token = RequestContext.getDecodedToken();
 
-    // const badgeList: any[] = await this.UserRepository.getBadgeList(token.uid);
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
 
-    // if (badgeList.includes(badgeIdx)) {
-    //   await this.UserRepository.selectbadge(token.uid, badgeIdx);
-    //   return null;
-    // } else {
-    //   throw new Error('no badge');
-    // }
-
-    await this.UserRepository.selectbadge(token.uid, badgeIdx);
+    user.selectBadge(badgeIdx);
+    await this.UserRepository.save(user);
   }
 
   async updateProfileImg(img: Express.Multer.File) {
@@ -763,25 +823,28 @@ export class UserService {
   }
 
   async getTicketInfo(userId: string) {
-    return await this.UserRepository.getTicketInfo(userId);
+    const user = await this.UserRepository.findByUserId(userId);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    return user.ticket;
   }
 
   async setVoteArriveInfo(userId: string, end: string) {
-    const userData = await this.UserRepository.findById(userId);
+    const userData = await this.UserRepository.findByUserId(userId);
 
     if (userData) {
       const diffMinutes = DateUtils.getMinutesDiffFromNow(end);
       const record = userData.studyRecord;
 
-      userData.studyRecord = {
-        ...record,
-        accumulationMinutes: record.accumulationMinutes + diffMinutes,
-        accumulationCnt: record.accumulationCnt + 1,
-        monthMinutes: record.monthMinutes + diffMinutes,
-        monthCnt: record.monthCnt + 1,
-      };
+      userData.setRecord(
+        record.accumulationMinutes + diffMinutes,
+        record.accumulationCnt + 1,
+        record.monthMinutes + diffMinutes,
+        record.monthCnt + 1,
+      );
 
-      await userData.save();
+      await this.UserRepository.save(userData);
     }
 
     await this.updateScore(CONST.SCORE.ATTEND_STUDY, '스터디 출석');
@@ -790,10 +853,6 @@ export class UserService {
       await this.collectionServiceInstance.setCollectionStamp(userId);
 
     return result;
-  }
-
-  async updateAllUserInfo() {
-    this.UserRepository.updateAllUserInfo();
   }
 
   async processTemperature() {
@@ -860,12 +919,9 @@ export class UserService {
 
       const addTemp = this.calculateScore(newSum, newCnt);
 
-      await this.UserRepository.increaseTemperature(
-        Math.ceil(addTemp * 10) / 10,
-        newSum,
-        newCnt,
-        uid,
-      );
+      const userData = await this.UserRepository.findByUid(uid);
+      userData.setTemperature(Math.ceil(addTemp * 10) / 10, newSum, newCnt);
+      await this.UserRepository.save(userData);
     }
   }
 
@@ -907,37 +963,6 @@ export class UserService {
   }
 
   async test() {
-    await this.UserRepository.test();
-    // const users = await this.getAllUserInfo([]);
-    // const uidToId = new Map<string, string>();
-    // users.forEach((user) => uidToId.set(user.id, user.uid));
-    // const logs = await this.Log.find({ message: '티켓 소모' });
-    // for (let log of logs) {
-    //   await this.Log.updateOne(
-    //     { _id: log._id },
-    //     {
-    //       'meta.uid': uidToId.get(log.meta.uid.toString()),
-    //     },
-    //   );
-    // }
+    // await this.UserRepository.test();
   }
-  //   const logs = await this.Log.find({
-  //     $and: [
-  //       { 'meta.value': { $lte: -100 } },
-  //       {
-  //         $or: [
-  //           { message: { $regex: '스터디 가입', $options: 'i' } },
-  //           { message: { $regex: '동아리 가입', $options: 'i' } },
-  //         ],
-  //       },
-  //     ],
-  //   });
-
-  //   const cleanedData = logs.map((log) => {
-  //     return {
-  //       uid: log.meta.uid,
-  //       point: log.meta.value,
-  //     };
-  //   });
-  // }
 }

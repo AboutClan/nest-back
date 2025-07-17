@@ -12,10 +12,11 @@ import { UserSchema } from './user.entity';
 import { ImageModule } from 'src/imagez/image.module';
 import { CollectionModule } from 'src/routes/collection/collection.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { UserRepository } from './UserRepository';
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
-  useClass: MongoUserRepository,
+  useClass: UserRepository,
 };
 
 @Module({
