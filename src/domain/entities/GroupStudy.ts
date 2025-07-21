@@ -172,7 +172,7 @@ export class GroupStudy {
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
     this.notionUrl = props.notionUrl;
-    this.requiredTicket = props.requiredTicket || 1;
+    this.requiredTicket = props.requiredTicket ?? 1;
   }
 
   addComment(userId: string, comment: string): void {
