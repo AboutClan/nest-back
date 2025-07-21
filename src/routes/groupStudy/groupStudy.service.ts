@@ -828,6 +828,7 @@ export default class GroupStudyService {
       }
 
       for (const group of groupStudies) {
+        if (group.status === 'end') continue;
         await this.userServiceInstance.updateTicketWithUserIds(
           group.participants.map((part) => part.user),
           group.requiredTicket,
