@@ -220,11 +220,13 @@ export default class GroupStudyService {
     cursor: number | null,
   ) {
     let groupStudyData;
-    const gap = 8;
+    //임시 수정 cursor을 프론트에서 우선 제거했음
+    const gap = 12;
     const start = gap * (cursor || 0);
 
     const filterQuery: any = {
       'category.main': category,
+      $expr: { $gt: [{ $size: '$participants' }, 1] },
     };
 
     if (filter === 'pending') {

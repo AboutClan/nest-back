@@ -315,9 +315,7 @@ export class MongoUserRepository implements UserRepository {
       { $set: { 'ticket.gatherTicket': 1 } },
       {
         $set: {
-          'ticket.groupStudyTicket': {
-            $min: [{ $add: ['$ticket.groupStudyTicket', 1] }, 4],
-          },
+          'ticket.groupStudyTicket': 2,
         },
       },
     ]);
@@ -329,9 +327,7 @@ export class MongoUserRepository implements UserRepository {
         { $set: { 'ticket.gatherTicket': 2 } },
         {
           $set: {
-            'ticket.groupStudyTicket': {
-              $min: [{ $add: ['$ticket.groupStudyTicket', 2] }, 4],
-            },
+            'ticket.groupStudyTicket': 3,
           },
         },
       ],
@@ -341,25 +337,31 @@ export class MongoUserRepository implements UserRepository {
     await this.User.updateMany(
       { 'temperature.temperature': { $gte: 38, $lt: 40 } },
       [
+        { $set: { 'ticket.gatherTicket': 2 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': 4,
+          },
+        },
+      ],
+    );
+    await this.User.updateMany(
+      { 'temperature.temperature': { $gte: 40, $lt: 42 } },
+      [
         { $set: { 'ticket.gatherTicket': 3 } },
         {
           $set: {
-            'ticket.groupStudyTicket': {
-              $min: [{ $add: ['$ticket.groupStudyTicket', 2] }, 4],
-            },
+            'ticket.groupStudyTicket': 5,
           },
         },
       ],
     );
 
-    // D유형 (≥40)
-    await this.User.updateMany({ 'temperature.temperature': { $gte: 40 } }, [
+    await this.User.updateMany({ 'temperature.temperature': { $gte: 42 } }, [
       { $set: { 'ticket.gatherTicket': 4 } },
       {
         $set: {
-          'ticket.groupStudyTicket': {
-            $min: [{ $add: ['$ticket.groupStudyTicket', 3] }, 4],
-          },
+          'ticket.groupStudyTicket': 6,
         },
       },
     ]);
