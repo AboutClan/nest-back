@@ -250,6 +250,11 @@ export default class GroupStudyService {
     return await this.groupStudyRepository.getUserGroupsTitleByUserId(userId);
   }
 
+  async getMyNextTicket(userId: string) {
+    const gs =
+      await this.groupStudyRepository.getUserGroupsTitleByUserId(userId);
+  }
+
   async getSigningGroupByStatus(status: string) {
     const token = RequestContext.getDecodedToken();
     return await this.groupStudyRepository.getSigningGroupByStatus(
