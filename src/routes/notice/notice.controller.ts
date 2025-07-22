@@ -1,14 +1,13 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
+  Controller,
+  Delete,
+  Get,
   HttpException,
   HttpStatus,
-  Inject,
-  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import NoticeService from './notice.service';
@@ -197,7 +196,8 @@ export class NoticeController {
   }
 
   @Get('temperature/mine')
-  async getMyTemperature(@Param('uid') uid) {
+  async getMyTemperature(@Query('uid') uid) {
+    console.log(34, uid);
     try {
       const result = await this.noticeService.getMyTemperature(uid);
       return result;
@@ -210,7 +210,7 @@ export class NoticeController {
   }
 
   @Get('temperature/all')
-  async getAllTemperature(@Param('page') page = 1, @Param('page') userId) {
+  async getAllTemperature(@Query('page') page = 1, @Query('page') userId) {
     try {
       const result = await this.noticeService.getAllTemperature(page, userId);
       return result;
