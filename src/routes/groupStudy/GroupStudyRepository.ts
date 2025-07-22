@@ -287,6 +287,10 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       thisWeek: (doc.attendance.thisWeek || []).map(toWeekRecord),
     };
 
+    let questionText = doc.questionText || [''];
+    if (!Array.isArray(questionText)) {
+      questionText = [questionText];
+    }
     // 최종 GroupStudyProps 구성
     const props: GroupStudyProps = {
       _id: doc._id?.toString(),
@@ -312,7 +316,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       isFree: doc.isFree,
       feeText: doc.feeText,
       fee: doc.fee,
-      questionText: doc.questionText,
+      questionText: questionText,
       hashTag: doc.hashTag,
       attendance,
       link: doc.link,

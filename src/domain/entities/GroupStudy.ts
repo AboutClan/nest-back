@@ -84,7 +84,7 @@ export interface GroupStudyProps {
   isFree?: boolean;
   feeText?: string;
   fee?: number;
-  questionText?: string;
+  questionText?: string[];
   hashTag?: string;
   attendance?: AttendanceProps;
   link?: string;
@@ -124,7 +124,7 @@ export class GroupStudy {
   public isFree: boolean;
   public feeText?: string;
   public fee?: number;
-  public questionText?: string;
+  public questionText?: string[];
   public hashTag: string;
   public attendance: AttendanceProps;
   public link?: string;
@@ -161,7 +161,7 @@ export class GroupStudy {
     this.isFree = props.isFree || false;
     this.feeText = props.feeText || '';
     this.fee = props.fee || 0;
-    this.questionText = props.questionText || '';
+    this.questionText = props.questionText || [''];
     this.hashTag = props.hashTag || '';
     this.attendance = props.attendance || null;
     this.link = props.link || '';
