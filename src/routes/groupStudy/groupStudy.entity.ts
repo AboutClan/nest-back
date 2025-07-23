@@ -91,7 +91,7 @@ const groupStudyZodSchema = z.object({
   isFree: z.boolean(),
   feeText: z.string().optional(),
   fee: z.number().optional(),
-  questionText: z.string().optional(),
+  questionText: z.array(z.string()).optional(),
   hashTag: z.string(),
   attendance: attendanceZodSchema,
   link: z.string().optional(),
@@ -306,7 +306,7 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
       type: Boolean,
     },
     questionText: {
-      type: String,
+      type: [String],
     },
     waiting: {
       type: [waitingSchema],
