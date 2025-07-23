@@ -12,7 +12,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import NoticeService from './notice.service';
 
-//todo: Notice 전반적인 수정 필요해보임
+//todo: Notice 전반적인 수정 필요해보임.
 @ApiTags('notice')
 @Controller('notice')
 export class NoticeController {
