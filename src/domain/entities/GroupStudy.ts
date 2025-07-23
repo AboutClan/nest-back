@@ -96,6 +96,7 @@ export interface GroupStudyProps {
   updatedAt?: Date;
   notionUrl?: string;
   requiredTicket?: number;
+  totalDeposit?: number;
 }
 
 // src/domain/entities/GroupStudy.ts
@@ -136,6 +137,7 @@ export class GroupStudy {
   public updatedAt?: Date;
   public notionUrl?: string;
   public requiredTicket?: number;
+  public totalDeposit?: number;
 
   constructor(props: GroupStudyProps) {
     this._id = props._id;
@@ -173,6 +175,7 @@ export class GroupStudy {
     this.updatedAt = props.updatedAt;
     this.notionUrl = props.notionUrl;
     this.requiredTicket = props.requiredTicket ?? 1;
+    this.totalDeposit = props.totalDeposit ?? 1;
   }
 
   addComment(userId: string, comment: string): void {
@@ -187,7 +190,6 @@ export class GroupStudy {
       likeList: [],
       createdAt: new Date(),
     };
-    console.log(234);
     this.comments.push(newComment);
   }
 
@@ -560,6 +562,7 @@ export class GroupStudy {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       requiredTicket: this.requiredTicket,
+      totalDeposit: this.totalDeposit,
     };
   }
 }

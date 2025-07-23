@@ -328,6 +328,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       updatedAt: (doc as any).updatedAt,
       notionUrl: doc?.notionUrl,
       requiredTicket: doc?.requiredTicket,
+      totalDeposit: doc?.totalDeposit,
     };
 
     return new GroupStudy(props);
