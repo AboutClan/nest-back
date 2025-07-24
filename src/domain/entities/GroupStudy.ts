@@ -396,6 +396,9 @@ export class GroupStudy {
       if (participant.monthAttendance !== true) {
         participant.monthAttendance = true;
         ret = true;
+      } else {
+        participant.monthAttendance = false;
+        ret = false;
       }
     }
 
