@@ -32,8 +32,8 @@ const participantsZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
   randomId: z.number().optional(),
   role: userRoleZodSchema,
-  monthAttendance: z.boolean().default(false),
-  lastMonthAttendance: z.boolean().default(false),
+  monthAttendance: z.boolean().default(true),
+  lastMonthAttendance: z.boolean().default(true),
   deposit: z.number().optional(),
 });
 // IWaiting Zod schema
