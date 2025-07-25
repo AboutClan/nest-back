@@ -3,8 +3,8 @@ import {
   GatherRequest,
   IGatherRequest,
 } from 'src/domain/entities/GatherRequest/GatherRequest';
-import { IGATHERREQUEST_REPOSITORY } from 'src/utils/di.tokens';
 import { RequestContext } from 'src/request-context';
+import { IGATHERREQUEST_REPOSITORY } from 'src/utils/di.tokens';
 import { IGatherRequestRepository } from './GatherRequestRepository.interface';
 
 @Injectable()
@@ -36,8 +36,9 @@ export class GatherRequestService {
     if (!gatherRequest) {
       throw new Error('Gather request not found');
     }
-    gatherRequest.toggleLike(token.id);
+    const res = gatherRequest.toggleLike(token.id);
 
     await this.gatherRequestRepository.save(gatherRequest);
+    return res;
   }
 }

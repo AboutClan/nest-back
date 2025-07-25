@@ -27,7 +27,7 @@ export default class SquareService {
     category,
     cursorNum,
   }: {
-    category: SecretSquareCategory | 'all';
+    category: SecretSquareCategory | 'normalAll' | 'secretAll';
     cursorNum: number | null;
   }) {
     const gap = 12;
@@ -44,7 +44,7 @@ export default class SquareService {
     square: Partial<SecretSquareItem> & { buffers: Buffer[] },
   ) {
     const token = RequestContext.getDecodedToken();
-
+    console.log(42, square);
     const {
       category,
       title,
@@ -84,6 +84,7 @@ export default class SquareService {
             images,
           });
 
+    console.log(5, validatedSquare);
     const { _id: squareId } =
       await this.squareRepository.create(validatedSquare);
     return { squareId };

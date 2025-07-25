@@ -1,4 +1,4 @@
-import mongoose, { Document, model, Model, Schema } from 'mongoose';
+import mongoose, { model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IGatherRequest } from 'src/domain/entities/GatherRequest/GatherRequest';
 
@@ -9,6 +9,7 @@ export const GatherRequestSchema: Schema<IGatherRequest> = new Schema({
   like: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
   prize: { type: Number, default: 0 },
+  isAnonymous: { type: Boolean, defualt: false },
   status: {
     type: String,
     enum: ['pending', 'completed'],

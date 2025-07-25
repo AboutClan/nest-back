@@ -1,10 +1,10 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { SecretSquareItem } from './square.entity';
-import { Model } from 'mongoose';
-import { SquareRepository } from './square.repository.interface';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { SecretSquareItem } from './square.entity';
+import { SquareRepository } from './square.repository.interface';
 
 export class MongoSquareRepository implements SquareRepository {
   constructor(
@@ -17,36 +17,43 @@ export class MongoSquareRepository implements SquareRepository {
     gap: number,
   ): Promise<SecretSquareItem[]> {
     // 1) summary projection
-    const squares = await this.SecretSquare.find(
-      category === 'all' ? {} : { category },
-      {
-        category: 1,
-        title: 1,
-        content: 1,
-        type: 1,
-        thumbnail: {
-          $cond: {
-            if: { $eq: [{ $size: '$images' }, 0] },
-            then: '',
-            else: { $arrayElemAt: ['$images', 0] },
-          },
+    let query = {};
+
+    if (category === 'normalAll') {
+      query = { type: { $in: ['info', 'poll2'] } };
+    } else if (category === 'secretAll') {
+      query = { type: { $in: ['general', 'poll', 'secret'] } };
+    } else {
+      query = { category };
+    }
+
+    const squares = await this.SecretSquare.find(query, {
+      category: 1,
+      title: 1,
+      content: 1,
+      type: 1,
+      thumbnail: {
+        $cond: {
+          if: { $eq: [{ $size: '$images' }, 0] },
+          then: '',
+          else: { $arrayElemAt: ['$images', 0] },
         },
-        viewCount: { $size: '$viewers' },
-        likeCount: { $size: '$like' },
-        commentsCount: { $size: '$comments' },
-        createdAt: 1,
-        author: 1,
-        like: 1,
-        comments: 1,
       },
-    )
+      viewCount: { $size: '$viewers' },
+      likeCount: { $size: '$like' },
+      commentsCount: { $size: '$comments' },
+      createdAt: 1,
+      author: 1,
+      like: 1,
+      comments: 1,
+    })
       .sort({ createdAt: 'desc' })
       .skip(start)
       .limit(gap)
       .exec();
 
     for (const square of squares) {
-      if (square.type === 'info') {
+      if (square.type === 'info' || square.type === 'poll2') {
         await square.populate([
           { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
           { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
@@ -132,7 +139,7 @@ export class MongoSquareRepository implements SquareRepository {
       throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
     }
 
-    if (square.type === 'info') {
+    if (square.type === 'info' || square.type === 'poll2') {
       await square.populate([
         { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
         { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },

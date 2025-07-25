@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Injectable, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { GatherRequestService } from './gatherRequest.service';
 
 @Controller('gatherRequest')
@@ -12,6 +12,7 @@ export class GatherRequestController {
 
   @Post()
   async createGatherRequest(@Body() gatherRequestData: any) {
+    console.log(gatherRequestData);
     return await this.gatherService.createGatherRequest(gatherRequestData);
   }
 

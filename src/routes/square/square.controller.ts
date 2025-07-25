@@ -1,26 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  HttpStatus,
+  Injectable,
   Param,
+  Patch,
+  PipeTransform,
+  Post,
+  Put,
   Query,
   UploadedFiles,
   UseInterceptors,
-  HttpException,
-  HttpStatus,
-  Put,
-  Inject,
-  Injectable,
-  PipeTransform,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
-import { SecretSquareCategory } from './square.entity';
-import { CreateSquareDto } from './createSquareDto';
 import { ApiTags } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
+import { CreateSquareDto } from './createSquareDto';
+import { SecretSquareCategory } from './square.entity';
 import SquareService from './square.service';
 
 // DTOs for request validation
@@ -47,7 +46,8 @@ export class SquareController {
 
   @Get()
   async getSquareList(
-    @Query('category') category: SecretSquareCategory | 'all' = 'all',
+    @Query('category')
+    category: SecretSquareCategory | 'secretAll' | 'normalAll' = 'normalAll',
     @Query('cursor') cursor: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor, 10) : null;

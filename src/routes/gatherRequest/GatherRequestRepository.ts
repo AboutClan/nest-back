@@ -1,6 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import {
   GatherRequest,
   IGatherRequest,
@@ -14,12 +15,16 @@ export class GatherRequestRepository implements IGatherRequestRepository {
   ) {}
 
   async findAll(): Promise<GatherRequest[]> {
-    const gatherRequest = await this.GatherRequest.find();
+    const gatherRequest = await this.GatherRequest.find().populate({
+      path: 'writer',
+      select: ENTITY.USER.C_SIMPLE_USER,
+    });
 
     return gatherRequest.map((gr) => this.mapToDomain(gr));
   }
   async create(gatherRequest: GatherRequest): Promise<void> {
     const gatherRequestDb = this.mapToDb(gatherRequest);
+    console.log(53, gatherRequestDb);
     await this.GatherRequest.create(gatherRequestDb);
   }
 
@@ -48,6 +53,7 @@ export class GatherRequestRepository implements IGatherRequestRepository {
       createdAt: gatherRequest.createdAt,
       prize: gatherRequest.prize,
       status: gatherRequest.status,
+      isAnonymous: gatherRequest.isAnonymous,
     });
   }
 
@@ -61,6 +67,7 @@ export class GatherRequestRepository implements IGatherRequestRepository {
       createdAt: gatherRequest.createdAt,
       prize: gatherRequest.prize,
       status: gatherRequest.status,
+      isAnonymous: gatherRequest.isAnonymous,
     };
   }
 }
