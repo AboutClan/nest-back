@@ -59,9 +59,9 @@ export class Vote2 {
       const member = result.members.find((m) => m.userId === userId);
       if (member) {
         member.arrived = new Date();
-        member.memo = memo;
-        member.end = end;
-        member.start = DateUtils.getNowDate().toString();
+        memo && (member.memo = memo);
+        end && (member.end = end);
+        member.start = DateUtils.getNowDate().toISOString();
       }
     }
   }
@@ -74,7 +74,6 @@ export class Vote2 {
       const member = result.members.find((m) => m.userId === userId);
       if (member) {
         member.absence = true;
-        member.userId = userId;
         member.comment = new VoteComment({ comment: message });
       }
     }

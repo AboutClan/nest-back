@@ -199,14 +199,9 @@ export class Vote2Service {
   }
 
   async getArrivedPeriod(startDay: string, endDay: string) {
-    const formattedStartDay = DateUtils.getDayJsDate(startDay);
-    const formattedEndDay = DateUtils.getDayJsDate(endDay);
+    const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
 
-    const votes = await this.Vote2Repository.getVoteByPeriod(
-      formattedStartDay,
-      formattedEndDay,
-    );
-
+    console.log(votes);
     const result = [];
     votes.forEach((vote) => {
       const a = {
@@ -251,6 +246,8 @@ export class Vote2Service {
 
     vote2.setOrUpdateParticipation(voteData);
 
+    await this.Vote2Repository.save(vote2);
+
     await this.userServiceInstance.updateScore(
       CONST.SCORE.VOTE_STUDY,
       '스터디 투표',
@@ -264,6 +261,8 @@ export class Vote2Service {
     const vote2 = await this.Vote2Repository.findByDate(date);
 
     vote2.removeParticipationByUserId(token.id);
+
+    await this.Vote2Repository.save(vote2);
 
     await this.userServiceInstance.updateScore(
       -CONST.SCORE.VOTE_STUDY,

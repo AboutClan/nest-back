@@ -7,6 +7,7 @@ import { Participation } from 'src/domain/entities/Vote2/Vote2Participation';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
 import { Member } from 'src/domain/entities/Vote2/Vote2Member';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { start } from 'node:repl';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
@@ -48,7 +49,8 @@ export class Vote2Repository implements IVote2Repository {
     return vote.participations;
   }
 
-  async getVoteByPeriod(startDay: Date, endDay: Date) {
+  async getVoteByPeriod(startDay: string, endDay: string) {
+    console.log(startDay, endDay);
     return this.Vote2Model.find({
       date: {
         $gte: startDay,
