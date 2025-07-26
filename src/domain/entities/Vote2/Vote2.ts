@@ -18,6 +18,25 @@ export class Vote2 {
     this.results = props.results.map((r) => new Result(r));
   }
 
+  removeParticipationByUserId(userId: string) {
+    this.participations = this.participations.filter(
+      (p) => p.userId !== userId,
+    );
+  }
+
+  setOrUpdateParticipation(newParticipation: Participation) {
+    const idx = this.participations.findIndex(
+      (p) => p.userId === newParticipation.userId,
+    );
+    if (idx !== -1) {
+      // 이미 존재하면 갱신
+      this.participations[idx] = newParticipation;
+    } else {
+      // 없으면 추가
+      this.participations.push(newParticipation);
+    }
+  }
+
   toPrimitives(): Vote2Props {
     return {
       date: this.date,

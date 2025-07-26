@@ -9,13 +9,13 @@ import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
-import { IVote2Repository } from './vote2.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { FcmService } from '../fcm/fcm.service';
+import { IVote2Repository } from './Vote2Repository.interface';
 
 export class Vote2Service {
   constructor(
@@ -169,7 +169,7 @@ export class Vote2Service {
     const unmatchedUsers = [];
 
     const resultMembers = voteData.results.flatMap((result) =>
-      result.members.map((member) => member.userId._id.toString()),
+      result.members.map((member) => member.userId.toString()),
     );
 
     participations?.forEach((par) => {
@@ -181,7 +181,7 @@ export class Vote2Service {
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
-        members: result.members.map((member) =>
+        members: result.members.map((member: any) =>
           this.formatResultMember(member),
         ),
       })),
@@ -235,6 +235,8 @@ export class Vote2Service {
   async setVote(date: string, createVote: CreateNewVoteDTO) {
     const token = RequestContext.getDecodedToken();
 
+    const vote2 = await this.Vote2Repository.findByDate(date);
+
     const { latitude, longitude, start, end } = createVote;
 
     const voteData: any = {};
@@ -246,7 +248,7 @@ export class Vote2Service {
     if (start !== null) voteData.start = start;
     if (end !== null) voteData.end = end;
 
-    await this.Vote2Repository.setVote(date, voteData);
+    vote2.setOrUpdateParticipation(voteData);
 
     await this.userServiceInstance.updateScore(
       CONST.SCORE.VOTE_STUDY,
@@ -257,7 +259,10 @@ export class Vote2Service {
 
   async deleteVote(date: string) {
     const token = RequestContext.getDecodedToken();
-    await this.Vote2Repository.deleteVote(date, token.id);
+
+    const vote2 = await this.Vote2Repository.findByDate(date);
+
+    vote2.removeParticipationByUserId(token.id);
 
     await this.userServiceInstance.updateScore(
       -CONST.SCORE.VOTE_STUDY,
