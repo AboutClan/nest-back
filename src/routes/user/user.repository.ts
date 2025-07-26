@@ -85,6 +85,7 @@ export class MongoUserRepository implements UserRepository {
   ): Promise<IUser[]> {
     return await this.User.find({ uid, isActive }, queryString);
   }
+
   async increasePoint(point: number, uid: string): Promise<null> {
     await this.User.findOneAndUpdate(
       { uid }, // 검색 조건
@@ -255,6 +256,7 @@ export class MongoUserRepository implements UserRepository {
   async getTicketInfo(userId: string) {
     return this.User.findOne({ _id: userId }, 'ticket');
   }
+
   async addbadge(id: string, badgeName: string) {
     await this.User.findOneAndUpdate(
       { _id: id },
@@ -306,8 +308,6 @@ export class MongoUserRepository implements UserRepository {
   async getBadgeList(uid: string) {
     return (await this.User.findOne({ uid }, '-_id badge')).badge.badgeList;
   }
-
-  async updateAllUserInfo() {}
 
   async processTicket() {
     // A유형 (<36.5)
