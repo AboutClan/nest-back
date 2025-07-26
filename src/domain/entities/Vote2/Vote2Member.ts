@@ -8,7 +8,7 @@ export interface MemberProps {
   start?: string;
   end?: string;
   absence?: boolean;
-  comment?: VoteCommentProps;
+  comment?: string;
 }
 
 export class Member {
@@ -19,7 +19,7 @@ export class Member {
   start?: string;
   end?: string;
   absence?: boolean;
-  comment?: VoteComment;
+  comment?: string;
 
   constructor(props: MemberProps) {
     this.userId = props.userId;
@@ -29,7 +29,7 @@ export class Member {
     this.start = props.start;
     this.end = props.end;
     this.absence = props.absence;
-    this.comment = props.comment ? new VoteComment(props.comment) : undefined;
+    this.comment = props.comment ? props.comment : undefined;
   }
 
   toPrimitives(): MemberProps {
@@ -41,7 +41,7 @@ export class Member {
       start: this.start,
       end: this.end,
       absence: this.absence,
-      comment: this.comment ? this.comment.toPrimitives() : undefined,
+      comment: this.comment ? this.comment : undefined,
     };
   }
 }

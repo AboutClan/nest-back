@@ -8,7 +8,7 @@ export interface ResultProps {
 }
 
 export class Result {
-  placeId: string | Place;
+  placeId: String | string | Place;
   members: Member[];
   center?: any;
 
@@ -20,7 +20,7 @@ export class Result {
 
   toPrimitives(): ResultProps {
     return {
-      placeId: this.placeId,
+      placeId: this.placeId as string,
       members: this.members.map((m) => m.toPrimitives()),
       center: this.center,
     };
