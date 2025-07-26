@@ -10,7 +10,7 @@ import { ENTITY } from 'src/Constants/ENTITY';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
-    @InjectModel('Vote2')
+    @InjectModel('vote2')
     private readonly Vote2Model: Model<IVote2>,
   ) {}
 

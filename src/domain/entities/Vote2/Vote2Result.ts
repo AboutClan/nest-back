@@ -8,7 +8,7 @@ export interface ResultProps {
 }
 
 export class Result {
-  placeId: String | string | Place;
+  placeId: string | Place;
   members: Member[];
   center?: any;
 

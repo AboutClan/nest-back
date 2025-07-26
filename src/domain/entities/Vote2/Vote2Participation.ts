@@ -6,7 +6,7 @@ export interface ParticipationProps {
   longitude: string;
   start?: string;
   end?: string;
-  comment?: string;
+  comment?: VoteCommentProps;
 }
 
 export class Participation {
@@ -15,7 +15,7 @@ export class Participation {
   longitude: string;
   start?: string;
   end?: string;
-  comment?: string;
+  comment?: VoteComment;
 
   constructor(props: ParticipationProps) {
     this.userId = props.userId;
@@ -23,7 +23,7 @@ export class Participation {
     this.longitude = props.longitude;
     this.start = props.start;
     this.end = props.end;
-    this.comment = props.comment ? props.comment : undefined;
+    this.comment = props.comment ? new VoteComment(props.comment) : undefined;
   }
 
   toPrimitives(): ParticipationProps {
@@ -33,7 +33,7 @@ export class Participation {
       longitude: this.longitude,
       start: this.start,
       end: this.end,
-      comment: this.comment ? this.comment : undefined,
+      comment: this.comment ? this.comment.toPrimitives() : undefined,
     };
   }
 }

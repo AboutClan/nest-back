@@ -35,7 +35,7 @@ export class Vote2 {
     this.results.forEach((result) => {
       result.members.forEach((member) => {
         if (member.userId === userId) {
-          member.comment = comment;
+          member.comment = new VoteComment({ comment });
         }
       });
     });
@@ -66,7 +66,7 @@ export class Vote2 {
     }
   }
 
-  setAbsence(userId: string, message: string, fee: number) {
+  setAbsence(userId: string, message: string) {
     const result = this.results.find((r) =>
       r.members.some((m) => m.userId === userId),
     );
@@ -74,11 +74,8 @@ export class Vote2 {
       const member = result.members.find((m) => m.userId === userId);
       if (member) {
         member.absence = true;
-        member.comment = new VoteComment({
-          userId,
-          message,
-          fee,
-        });
+        member.userId = userId;
+        member.comment = new VoteComment({ comment: message });
       }
     }
   }
@@ -104,7 +101,7 @@ export class Vote2 {
               longitude: participateData.longitude || '',
               start: participateData.start,
               end: participateData.end,
-              comment: participateData.comment || '',
+              comment: new VoteComment(participateData.comment),
             }),
           ],
         }),

@@ -467,7 +467,10 @@ export class Vote2Service {
 
     const vote = await this.Vote2Repository.findByDate(date);
 
-    vote.setAbsence(token.id, message, fee);
+    vote.setAbsence(token.id, message);
+
+    await this.userServiceInstance.updatePoint(fee, '스터디 당일 불참');
+
     await this.Vote2Repository.save(vote);
 
     // await this.Vote2Repository.setAbsence(date, message, token.id, fee);
