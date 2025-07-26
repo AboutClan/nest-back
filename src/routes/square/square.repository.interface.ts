@@ -51,4 +51,6 @@ export interface SquareRepository {
   updateLike(squareId: string, userId: string): Promise<SecretSquareItem>;
 
   deleteLikeSquare(squareId: string, userId: string): Promise<null>;
+
+  test();
 }

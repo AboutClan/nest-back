@@ -459,7 +459,7 @@ export class GroupStudyController {
   @Post('waiting')
   async setWaitingPerson(
     @Body('id') id: string,
-    @Body('answer') answer: string,
+    @Body('answer') answer: string[],
     @Body('pointType') pointType: string,
   ) {
     try {
@@ -538,8 +538,8 @@ export class GroupStudyController {
     }
   }
 
-  // @Get('test')
-  // async test() {
-  //   await this.groupStudyService.test();
-  // }
+  @Get('test')
+  async test() {
+    await this.groupStudyService.test();
+  }
 }

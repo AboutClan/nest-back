@@ -528,7 +528,7 @@ export default class GroupStudyService {
     return data;
   }
 
-  async setWaitingPerson(id: string, pointType: string, answer?: string) {
+  async setWaitingPerson(id: string, pointType: string, answer?: string[]) {
     const token = RequestContext.getDecodedToken();
 
     const groupStudy = await this.groupStudyRepository.findById(id);
@@ -952,7 +952,7 @@ export default class GroupStudyService {
     return usedComment;
   }
 
-  // async test() {
-  //   return await this.groupStudyRepository.test();
-  // }
+  async test() {
+    return await this.groupStudyRepository.test();
+  }
 }

@@ -361,4 +361,8 @@ export default class SquareService {
 
     return isLike;
   }
+
+  async test() {
+    await this.squareRepository.test();
+  }
 }

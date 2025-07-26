@@ -29,7 +29,7 @@ export interface CommentProps {
 
 export interface WaitingProps {
   user?: string;
-  answer?: string;
+  answer?: string[];
   pointType?: string;
 }
 
@@ -175,7 +175,7 @@ export class GroupStudy {
     this.updatedAt = props.updatedAt;
     this.notionUrl = props.notionUrl;
     this.requiredTicket = props.requiredTicket ?? 1;
-    this.totalDeposit = props.totalDeposit ?? 1;
+    this.totalDeposit = props.totalDeposit ?? 0;
   }
 
   addComment(userId: string, comment: string): void {

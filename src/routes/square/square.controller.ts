@@ -200,6 +200,12 @@ export class SquareController {
     }
   }
 
+  @Get(':squareId')
+  async test() {
+    const square = await this.squareService.test();
+    return { square };
+  }
+
   @Patch(':squareId/poll')
   async patchPoll(
     @Param('squareId') squareId: string,
