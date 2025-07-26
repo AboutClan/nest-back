@@ -19,4 +19,5 @@ export interface IGroupStudyRepository {
   save(entity: GroupStudy): Promise<GroupStudy>;
   create(entity: GroupStudy): Promise<GroupStudy>;
   findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null>;
+  test();
 }

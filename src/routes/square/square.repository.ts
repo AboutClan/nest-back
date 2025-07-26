@@ -64,6 +64,14 @@ export class MongoSquareRepository implements SquareRepository {
 
     return squares;
   }
+  async test() {
+    await this.SecretSquare.updateMany(
+      { type: 'info' },
+      {
+        $set: { type: '일상' },
+      },
+    );
+  }
   async create(squareData: any): Promise<SecretSquareItem> {
     return await this.SecretSquare.create(squareData);
   }

@@ -39,7 +39,7 @@ const participantsZodSchema = z.object({
 // IWaiting Zod schema
 const waitingZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]), // IUser type should be handled appropriately
-  answer: z.string().optional(),
+  answer: z.array(z.string()).optional(),
   pointType: z.string(),
 });
 
@@ -192,6 +192,10 @@ export const participantsSchema: Schema<participantsType> = new Schema(
       type: Boolean,
       default: false,
     },
+    lastMonthAttendance: {
+      type: Boolean,
+      default: false,
+    },
   },
   { _id: false },
 );
@@ -245,7 +249,7 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
       ref: DB_SCHEMA.USER,
     },
     answer: {
-      type: String,
+      type: [String],
     },
     pointType: {
       type: String,

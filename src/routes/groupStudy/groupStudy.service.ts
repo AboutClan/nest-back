@@ -475,29 +475,18 @@ export default class GroupStudyService {
   }
 
   async inviteGroupStudy(id: string, userId: string) {
-    console.log(234, id, userId);
     const groupStudy = await this.groupStudyRepository.findById(id);
     const user = await this.userServiceInstance.getUserWithUserId(userId);
     if (!groupStudy) throw new Error();
 
     //ticket 차감 로직
-    const ticketInfo = await this.userServiceInstance.getTicketInfo(user.id);
+    const ticketInfo = await this.userServiceInstance.getTicketInfo(user._id);
     if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
 
     groupStudy.participateGroupStudy(user._id, 'member');
 
-    await this.userServiceInstance.updateReduceTicket('groupOffline', user.id);
-    console.log(32);
+    await this.userServiceInstance.updateReduceTicket('groupOffline', user._id);
     await this.groupStudyRepository.save(groupStudy);
-
-    // await this.webPushServiceInstance.sendNotificationGroupStudy(
-    //   id,
-    //   WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(user.name, groupStudy.title),
-    // );
-    // await this.fcmServiceInstance.sendNotificationGroupStudy(
-    //   id,
-    //   WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(user.name, groupStudy.title),
-    // );
 
     return;
   }
@@ -539,7 +528,7 @@ export default class GroupStudyService {
     return data;
   }
 
-  async setWaitingPerson(id: string, pointType: string, answer?: string) {
+  async setWaitingPerson(id: string, pointType: string, answer?: string[]) {
     const token = RequestContext.getDecodedToken();
 
     const groupStudy = await this.groupStudyRepository.findById(id);
@@ -963,7 +952,7 @@ export default class GroupStudyService {
     return usedComment;
   }
 
-  // async test() {
-  //   return await this.groupStudyRepository.test();
-  // }
+  async test() {
+    return await this.groupStudyRepository.test();
+  }
 }

@@ -218,6 +218,15 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return this.mapToDomain(createdDoc);
   }
 
+  async test() {
+    await this.GroupStudy.updateMany(
+      {},
+      {
+        $set: { 'participants.$[].monthAttendance': true },
+      },
+    );
+  }
+
   /** Mongoose Document → 도메인 엔티티 */
   private mapToDomain(doc: IGroupStudyData): GroupStudy {
     // category
@@ -239,8 +248,8 @@ export class GroupStudyRepository implements IGroupStudyRepository {
         randomId: p.randomId,
         role: p.role as ParticipantProps['role'],
         deposit: p.deposit,
-        monthAttendance: p.monthAttendance || false,
-        lastMonthAttendance: p.lastMonthAttendance || false,
+        monthAttendance: p.monthAttendance || true,
+        lastMonthAttendance: p.lastMonthAttendance || true,
       }),
     );
 
@@ -269,7 +278,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     // waiting
     const waiting: WaitingProps[] = (doc.waiting || []).map((w) => ({
       user: w.user as string,
-      answer: w.answer,
+      answer: Array.isArray(w.answer) ? w.answer : [w.answer],
       pointType: w.pointType,
     }));
 
