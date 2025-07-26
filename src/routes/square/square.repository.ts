@@ -138,7 +138,7 @@ export class MongoSquareRepository implements SquareRepository {
     if (!square) {
       throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
     }
-
+    console.log(3, square);
     if (square.type === 'info' || square.type === 'poll2') {
       await square.populate([
         { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
@@ -267,7 +267,7 @@ export class MongoSquareRepository implements SquareRepository {
       throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
     }
 
-    if (square.type === 'info') {
+    if (square.type === 'info' || square.type === 'poll2') {
       await square.populate({
         path: 'author',
         select: ENTITY.USER.C_SIMPLE_USER,

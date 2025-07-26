@@ -97,7 +97,7 @@ export default class SquareService {
   async getSquare(squareId: string) {
     const token = RequestContext.getDecodedToken();
     await this.squareRepository.findByIdAndUpdate(squareId, token.id);
-
+   
     const secretSquare = await this.squareRepository.findById(squareId);
 
     // TODO 404 NOT FOUND
