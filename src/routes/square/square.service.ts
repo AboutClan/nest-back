@@ -37,7 +37,11 @@ export default class SquareService {
       );
       return result.squares;
     } else {
-      const squares = await this.squareRepository.findByCategory(category);
+      const squares = await this.squareRepository.findByCategory(
+        category,
+        start,
+        gap,
+      );
       return squares.slice(start, start + gap);
     }
   }

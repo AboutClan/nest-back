@@ -181,17 +181,49 @@ export class SquareRepository implements ISquareRepository {
     return savedSquare ? this.mapToDomain(savedSquare) : null;
   }
 
-  async findByCategory(category: string): Promise<Square[]> {
-    const squares = await this.SquareModel.find({ category })
-      .sort({ createdAt: -1 })
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
+  async findByCategory(
+    category: string,
+    start: number,
+    gap: number,
+  ): Promise<Square[]> {
+    // 1) summary projection
+    const squares = await this.SquareModel.find(
+      category === 'all' ? {} : { category },
+      {
+        category: 1,
+        title: 1,
+        content: 1,
+        type: 1,
+        thumbnail: {
+          $cond: {
+            if: { $eq: [{ $size: '$images' }, 0] },
+            then: '',
+            else: { $arrayElemAt: ['$images', 0] },
+          },
         },
-      ]);
+        viewCount: { $size: '$viewers' },
+        likeCount: { $size: '$like' },
+        commentsCount: { $size: '$comments' },
+        createdAt: 1,
+        author: 1,
+        like: 1,
+        comments: 1,
+      },
+    )
+      .sort({ createdAt: 'desc' })
+      .skip(start)
+      .limit(gap)
+      .exec();
+
+    for (const square of squares) {
+      if (square.type === 'info') {
+        await square.populate([
+          { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+          { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        ]);
+      }
+    }
 
     return squares.map((square) => this.mapToDomain(square));
   }
