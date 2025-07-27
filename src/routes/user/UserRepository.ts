@@ -21,7 +21,6 @@ export class UserRepository implements IUserRepository {
   ) {}
 
   async updateUser(uid: string, updateInfo: any): Promise<null> {
-    console.log(uid, updateInfo);
     await this.UserModel.findOneAndUpdate(
       { uid },
       { $set: updateInfo },

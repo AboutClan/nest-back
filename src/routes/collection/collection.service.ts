@@ -149,9 +149,7 @@ export class CollectionService {
   async setCollectionCompleted() {
     const token = RequestContext.getDecodedToken();
 
-    console.log(32);
     const collection = await this.collectionRepository.findByUser(token.id);
-    console.log(3);
     const myAlphabets = [...collection?.collects];
 
     if (

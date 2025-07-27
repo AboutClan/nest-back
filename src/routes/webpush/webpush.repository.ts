@@ -47,7 +47,6 @@ export class MongoWebpushRepository implements WebpushRepository {
     return await this.NotificationSub.find({ uid });
   }
   async findByUserId(userId: string): Promise<INotificationSub[]> {
-    console.log(userId);
     return await this.NotificationSub.find({ userId });
   }
   async findByArray(targetArr: string[]): Promise<INotificationSub[]> {

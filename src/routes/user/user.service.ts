@@ -513,7 +513,6 @@ export class UserService {
         );
       }
 
-      console.log(user?.studyPreference?.subPlace);
       // 기존 sub preference 감소
       if (user?.studyPreference?.subPlace?.length) {
         await Promise.all(

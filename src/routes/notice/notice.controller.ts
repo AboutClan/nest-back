@@ -197,7 +197,6 @@ export class NoticeController {
 
   @Get('temperature/mine')
   async getMyTemperature(@Query('uid') uid) {
-    console.log(34, uid);
     try {
       const result = await this.noticeService.getMyTemperature(uid);
       return result;
