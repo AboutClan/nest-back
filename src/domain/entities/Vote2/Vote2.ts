@@ -41,7 +41,7 @@ export class Vote2 {
     });
   }
 
-  setRestult(results: Result[]) {
+  setResult(results: Result[]) {
     this.results = results.map((r) => new Result(r as any));
   }
 

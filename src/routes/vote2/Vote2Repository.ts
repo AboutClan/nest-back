@@ -50,7 +50,6 @@ export class Vote2Repository implements IVote2Repository {
   }
 
   async getVoteByPeriod(startDay: string, endDay: string) {
-    console.log(startDay, endDay);
     return this.Vote2Model.find({
       date: {
         $gte: startDay,

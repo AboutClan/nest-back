@@ -341,8 +341,7 @@ export class Vote2Service {
     }
 
     //투표 결과 계산 시작
-    const participations: IParticipation[] =
-      await this.Vote2Repository.findParticipationsByDate(today);
+    const participations: IParticipation[] = vote2.participations;
 
     const { voteResults, successParticipations, failedParticipations } =
       await this.doAlgorithm(participations);
@@ -356,7 +355,7 @@ export class Vote2Service {
     );
 
     const resultInstances = voteResults.map((r) => new Result(r as any));
-    vote2.setRestult(resultInstances);
+    vote2.setResult(resultInstances);
 
     await this.Vote2Repository.save(vote2);
 
