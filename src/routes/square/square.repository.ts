@@ -107,29 +107,47 @@ export class SquareRepository implements ISquareRepository {
   }
 
   async findById(id: string): Promise<Square | null> {
-    const square = await this.SquareModel.findById(id).populate([
-      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-      {
-        path: 'comments.subComments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      },
-    ]);
+    const square = await this.SquareModel.findById(id);
+    if (!square) {
+      return null;
+    }
 
-    if (!square) return null;
+    if (square.type === 'info') {
+      await square.populate({
+        path: 'author',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'like',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'comments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+    }
+
     return this.mapToDomain(square);
   }
 
   async findAll(): Promise<Square[]> {
-    const squares = await this.SquareModel.find()
-      .sort({ createdAt: -1 })
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ]);
+    const squares = await this.SquareModel.find().sort({ createdAt: -1 });
+
+    if (squares.length === 0) {
+      return [];
+    }
+    squares.forEach((square) => {
+      if (square.type === 'info') {
+        square.populate([
+          { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+          {
+            path: 'comments.subComments.user',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          },
+        ]);
+      }
+    });
 
     return squares.map((square) => this.mapToDomain(square));
   }
