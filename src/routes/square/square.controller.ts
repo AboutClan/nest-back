@@ -192,7 +192,6 @@ export class SquareController {
   async getSquare(@Param('squareId') squareId: string) {
     try {
       const square = await this.squareService.getSquare(squareId);
-      console.log(square);
       return { square };
     } catch (err) {
       throw new HttpException(

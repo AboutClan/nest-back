@@ -94,7 +94,6 @@ export default class SquareService {
       throw new Error(`Square with id ${squareId} not found`);
     }
 
-    console.log(secretSquare.toPrimitives().poll);
     return secretSquare.toPrimitives();
   }
 

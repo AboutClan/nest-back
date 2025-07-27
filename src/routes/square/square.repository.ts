@@ -108,7 +108,6 @@ export class SquareRepository implements ISquareRepository {
 
   async findById(id: string): Promise<Square | null> {
     const square = await this.SquareModel.findById(id).populate([
-      { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
       { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
       {
         path: 'comments.subComments.user',
