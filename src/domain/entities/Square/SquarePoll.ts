@@ -29,8 +29,12 @@ export class SquarePoll {
 
   addUserToPollItem(itemId: string, userId: string) {
     const item = this.pollItems.find((pollItem) => pollItem._id === itemId);
+
     if (item) {
-      item.addUser(userId);
+      // Ensure the user is not already in the poll item
+      if (!item.users.includes(userId)) {
+        item.addUser(userId);
+      }
     }
   }
 

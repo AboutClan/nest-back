@@ -22,7 +22,7 @@ export class SquarePollItem {
   }
 
   removeUser(userId: string) {
-    this.users = this.users.filter((id) => id !== userId);
+    this.users = this.users.filter((id) => id.toString() !== userId.toString());
   }
 
   updateName(name: string) {

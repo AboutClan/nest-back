@@ -261,20 +261,15 @@ export default class SquareService {
     }
 
     const token = RequestContext.getDecodedToken();
-    const userVotes = square.poll.pollItems
-      .filter((item) => item.hasUser(token.id))
-      .map((item) => item._id);
 
-    return {
-      pollItems: square.poll.pollItems.map((item) => ({
-        _id: item._id,
-        name: item.name,
-        count: item.getUserCount(),
-        users: 0, // 보안상 사용자 목록은 숨김
-      })),
-      canMultiple: square.poll.canMultiple,
-      userVotes,
-    };
+    const pollItems: string[] = [];
+
+    square.poll.pollItems.forEach((pollItem) => {
+      if (!pollItem.users.includes(token.id)) return;
+      pollItems.push(pollItem._id.toString());
+    });
+
+    return pollItems;
   }
 
   async putLikeSquare({ squareId }: { squareId: string }) {

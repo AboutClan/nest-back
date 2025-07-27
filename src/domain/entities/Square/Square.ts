@@ -163,7 +163,15 @@ export class Square {
     });
 
     pollItems.forEach((itemId) => {
-      this.poll.addUserToPollItem(itemId, userId.toString());
+      const item = this.poll.pollItems.find(
+        (pollItem) => pollItem._id === itemId,
+      );
+      if (!item) {
+        throw new Error(`Poll item with id ${itemId} not found`);
+      }
+      if (!item.users.includes(userId.toString())) {
+        this.poll.addUserToPollItem(itemId, userId.toString());
+      }
     });
   }
 
