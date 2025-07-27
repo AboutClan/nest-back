@@ -11,11 +11,7 @@ export interface ISquareRepository {
   delete(id: string): Promise<boolean>;
 
   // 카테고리별 조회
-  findByCategory(
-    category: string,
-    start: number,
-    gap: number,
-  ): Promise<Square[]>;
+  findByCategory(category: string, start: number, gap: number): Promise<any[]>;
 
   // 타입별 조회
   findByType(type: string): Promise<Square[]>;

@@ -81,6 +81,8 @@ export default class SquareService {
       comments: [],
     });
 
+    console.log(squareEntity);
+
     const createdSquare = await this.squareRepository.create(squareEntity);
     return { squareId: createdSquare._id };
   }
