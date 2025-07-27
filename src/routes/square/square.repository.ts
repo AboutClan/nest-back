@@ -112,7 +112,7 @@ export class SquareRepository implements ISquareRepository {
       return null;
     }
 
-    if (square.type === 'info') {
+    if (square.type === 'info' || square.type === 'poll2') {
       await square.populate({
         path: 'author',
         select: ENTITY.USER.C_SIMPLE_USER,
@@ -137,7 +137,7 @@ export class SquareRepository implements ISquareRepository {
       return [];
     }
     squares.forEach((square) => {
-      if (square.type === 'info') {
+      if (square.type === 'info' || square.type === 'poll2') {
         square.populate([
           { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
           { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
