@@ -159,7 +159,7 @@ export class UserRepository implements IUserRepository {
     await this.UserModel.updateMany({}, { monthScore: 0 });
   }
 
-  async processTicket() {
+  async processTicket(whiteList: any) {
     // A유형 (<36.5)
     await this.UserModel.updateMany(
       { 'temperature.temperature': { $lt: 36.5 } },
@@ -219,6 +219,51 @@ export class UserRepository implements IUserRepository {
         },
       ],
     );
+
+    await this.User.updateMany(
+      { 'temperature.temperature': { $gte: 40, $lt: 42 } },
+      [
+        { $set: { 'ticket.gatherTicket': 3 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': 5,
+          },
+        },
+      ],
+    );
+
+    await this.User.updateMany({ 'temperature.temperature': { $gte: 42 } }, [
+      { $set: { 'ticket.gatherTicket': 4 } },
+      {
+        $set: {
+          'ticket.groupStudyTicket': 6,
+        },
+      },
+    ]);
+
+    //여성: gather 1, group 2장 추가
+    await this.UserModel.updateMany(
+      { gender: '여성' },
+      {
+        $inc: {
+          'ticket.gatherTicket': 1,
+          'ticket.groupStudyTicket': 2,
+        },
+      },
+    );
+
+    for (const item of whiteList) {
+      await this.UserModel.updateMany(
+        { uid: item.uid },
+        { $set: { 'ticket.gatherTicket': 4 } },
+        {
+          $inc: {
+            'ticket.gatherTicket': item.gatherTicket,
+            'ticket.groupStudyTicket': item.groupStudyTicket,
+          },
+        },
+      );
+    }
   }
 
   private mapToDomain(doc: IUser): User {
