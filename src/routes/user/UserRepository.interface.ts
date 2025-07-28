@@ -1,6 +1,7 @@
 import { User } from 'src/domain/entities/User/User';
 
 export interface IUserRepository {
+  findById(userId: string): Promise<User>;
   findByUid(uid: string, queryString?: string): Promise<User | null>;
   findByUserId(userId: string): Promise<User | null>;
   findByUids(uids: string[]): Promise<User[]>;

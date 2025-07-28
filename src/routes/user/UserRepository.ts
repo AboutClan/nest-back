@@ -20,6 +20,12 @@ export class UserRepository implements IUserRepository {
     @InjectModel(DB_SCHEMA.USER) private readonly UserModel: Model<IUser>,
   ) {}
 
+  async findById(userId: string): Promise<User> {
+    const user = await this.UserModel.findById(userId);
+    if (!user) return null;
+    return this.mapToDomain(user);
+  }
+
   async updateUser(uid: string, updateInfo: any): Promise<null> {
     await this.UserModel.findOneAndUpdate(
       { uid },

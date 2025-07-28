@@ -4,11 +4,11 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Chat } from 'src/domain/entities/chat/Chat';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
-import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
 import { IChatRepository } from './ChatRepository.interface';
+import { UserRepository } from '../user/UserRepository';
 
 @Injectable()
 export class ChatService {
@@ -64,7 +64,7 @@ export class ChatService {
           const opponent = await this.UserRepository.findById(
             opponentId as string,
           );
-         
+
           if (!opponent) {
             return null; // opponent 없으면 스킵
           }
