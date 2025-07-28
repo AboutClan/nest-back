@@ -505,7 +505,6 @@ export default class GroupStudyService {
   }
 
   async exileParticipate(id: string, toUid: string, randomId?: number) {
-    console.log(id);
     const groupStudy = await this.groupStudyRepository.findById(id);
 
     if (!groupStudy) throw new Error();

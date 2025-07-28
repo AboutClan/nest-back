@@ -50,7 +50,6 @@ export default class LogService {
       return log;
     } else {
       const logs = await this.logRepository.findAllByType(type, null, 'coupon');
-      console.log(31, logs);
       return logs;
     }
   }

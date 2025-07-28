@@ -5,14 +5,14 @@ import ImageService from 'src/imagez/image.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { secretSquareSchema } from './square.entity';
 import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
-import { MongoSquareRepository } from './square.repository';
+import { SquareRepository } from './square.repository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WebPushModule } from '../webpush/webpush.module';
 import { FcmAModule } from '../fcm/fcm.module';
 
 const squareRepositoryProvider: ClassProvider = {
   provide: ISQUARE_REPOSITORY,
-  useClass: MongoSquareRepository,
+  useClass: SquareRepository,
 };
 
 @Module({

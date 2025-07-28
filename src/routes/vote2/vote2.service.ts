@@ -201,7 +201,6 @@ export class Vote2Service {
   async getArrivedPeriod(startDay: string, endDay: string) {
     const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
 
-    console.log(votes);
     const result = [];
     votes.forEach((vote) => {
       const a = {

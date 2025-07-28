@@ -79,11 +79,12 @@ export class SquareController {
         poll: {
           pollItems: createSquareDto.pollItems,
           canMultiple: createSquareDto.canMultiple,
-        },
+        } as any,
         buffers,
       });
       return { squareId };
     } catch (err) {
+      console.log(err);
       throw new HttpException(
         'Error creating square',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -200,11 +201,11 @@ export class SquareController {
     }
   }
 
-  @Get(':squareId')
-  async test() {
-    const square = await this.squareService.test();
-    return { square };
-  }
+  // @Get(':squareId')
+  // async test() {
+  //   const square = await this.squareService.test();
+  //   return { square };
+  // }
 
   @Patch(':squareId/poll')
   async patchPoll(

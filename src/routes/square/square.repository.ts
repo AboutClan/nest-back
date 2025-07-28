@@ -3,19 +3,189 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
+import { Square } from 'src/domain/entities/Square/Square';
 import { SecretSquareItem } from './square.entity';
-import { SquareRepository } from './square.repository.interface';
+import { ISquareRepository } from './square.repository.interface';
 
-export class MongoSquareRepository implements SquareRepository {
+export class SquareRepository implements ISquareRepository {
   constructor(
     @InjectModel(DB_SCHEMA.SQUARE)
-    private readonly SecretSquare: Model<SecretSquareItem>,
+    private readonly SquareModel: Model<SecretSquareItem>,
   ) {}
-  async findSquareByCategory(
+
+  // Domain Entity와 DB Entity 간의 변환 함수들
+  private mapToDomain(dbEntity: SecretSquareItem): Square {
+    return new Square({
+      _id: dbEntity._id?.toString(),
+      category: dbEntity.category,
+      title: dbEntity.title,
+      content: dbEntity.content,
+      type: dbEntity.type,
+      poll: dbEntity.poll
+        ? {
+            pollItems: dbEntity.poll?.pollItems?.map((item) => ({
+              _id: item._id?.toString(),
+              name: item.name,
+              users: item.users || [],
+            })),
+            canMultiple: dbEntity.poll.canMultiple,
+          }
+        : {
+            pollItems: [],
+            canMultiple: false,
+          },
+
+      images: dbEntity.images || [],
+      author: dbEntity.author,
+      viewers: dbEntity.viewers || [],
+      like: dbEntity.like || [],
+      comments:
+        dbEntity.comments?.map((comment) => ({
+          _id: comment._id?.toString(),
+          user: comment.user,
+          comment: comment.comment,
+          subComments:
+            comment.subComments?.map((subComment) => ({
+              user: subComment.user,
+              comment: subComment.comment,
+              likeList: subComment.likeList || [],
+            })) || [],
+          likeList: comment.likeList || [],
+          createdAt: (comment as any).createdAt,
+          updatedAt: (comment as any).updatedAt,
+        })) || [],
+      createdAt: (dbEntity as any).createdAt,
+      updatedAt: (dbEntity as any).updatedAt,
+    });
+  }
+
+  private mapToDb(domainEntity: Square): any {
+    return {
+      _id: domainEntity._id,
+      category: domainEntity.category,
+      title: domainEntity.title,
+      content: domainEntity.content,
+      type: domainEntity.type,
+      poll: domainEntity.poll
+        ? {
+            pollItems: domainEntity.poll.pollItems?.map((item) => ({
+              _id: item._id,
+              name: item.name,
+              users: item.users,
+            })),
+            canMultiple: domainEntity.poll.canMultiple,
+          }
+        : undefined,
+      images: domainEntity.images,
+      author: domainEntity.author,
+      viewers: domainEntity.viewers,
+      like: domainEntity.like,
+      comments:
+        domainEntity.comments?.map((comment) => ({
+          _id: comment._id,
+          user: comment.user,
+          comment: comment.comment,
+          subComments:
+            comment.subComments?.map((subComment) => ({
+              user: subComment.user,
+              comment: subComment.comment,
+              likeList: subComment.likeList,
+            })) || [],
+          likeList: comment.likeList,
+          createdAt: comment.createdAt,
+          updatedAt: comment.updatedAt,
+        })) || [],
+      createdAt: domainEntity.createdAt,
+      updatedAt: domainEntity.updatedAt,
+    };
+  }
+
+  async create(square: Square): Promise<Square> {
+    const dbData = this.mapToDb(square);
+    const createdSquare = await this.SquareModel.create(dbData);
+    return this.mapToDomain(createdSquare);
+  }
+
+  async findById(id: string): Promise<Square | null> {
+    const square = await this.SquareModel.findById(id);
+    if (!square) {
+      return null;
+    }
+
+    if (square.type === 'info' || square.type === 'poll2') {
+      await square.populate({
+        path: 'author',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'like',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+      await square.populate({
+        path: 'comments.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
+    }
+
+    return this.mapToDomain(square);
+  }
+
+  async findAll(): Promise<Square[]> {
+    const squares = await this.SquareModel.find().sort({ createdAt: -1 });
+
+    if (squares.length === 0) {
+      return [];
+    }
+    squares.forEach((square) => {
+      if (square.type === 'info' || square.type === 'poll2') {
+        square.populate([
+          { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+          {
+            path: 'comments.subComments.user',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          },
+        ]);
+      }
+    });
+
+    return squares.map((square) => this.mapToDomain(square));
+  }
+
+  async update(id: string, square: Square): Promise<Square | null> {
+    const dbData = this.mapToDb(square);
+    const updatedSquare = await this.SquareModel.findByIdAndUpdate(id, dbData, {
+      new: true,
+    }).populate([
+      { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'comments.subComments.user', select: ENTITY.USER.C_SIMPLE_USER },
+    ]);
+
+    if (!updatedSquare) return null;
+    return this.mapToDomain(updatedSquare);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const result = await this.SquareModel.findByIdAndDelete(id);
+    return !!result;
+  }
+
+  async save(square: Square): Promise<Square> {
+    const dbData = this.mapToDb(square);
+    const savedSquare = await this.SquareModel.findByIdAndUpdate(
+      square._id,
+      dbData,
+      { new: true },
+    );
+    return savedSquare ? this.mapToDomain(savedSquare) : null;
+  }
+
+  async findByCategory(
     category: string,
     start: number,
     gap: number,
-  ): Promise<SecretSquareItem[]> {
+  ): Promise<any[]> {
     // 1) summary projection
     let query = {};
 
@@ -27,7 +197,7 @@ export class MongoSquareRepository implements SquareRepository {
       query = { category };
     }
 
-    const squares = await this.SecretSquare.find(query, {
+    const squares = await this.SquareModel.find(query, {
       category: 1,
       title: 1,
       content: 1,
@@ -64,252 +234,162 @@ export class MongoSquareRepository implements SquareRepository {
 
     return squares;
   }
-  async test() {
-    await this.SecretSquare.updateMany(
-      { type: 'info' },
-      {
-        $set: { type: '일상' },
-      },
-    );
-  }
-  async create(squareData: any): Promise<SecretSquareItem> {
-    return await this.SecretSquare.create(squareData);
-  }
-  async findByIdAndDelete(squareId: string): Promise<null> {
-    return await this.SecretSquare.findByIdAndDelete(squareId);
-  }
-  async findByIdAndUpdate(squareId: string, userId: string): Promise<null> {
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $addToSet: { viewers: userId },
-    });
-    return null;
-  }
-  async findByIdCustom(
-    squareId: string,
-    userId: any,
-  ): Promise<SecretSquareItem> {
-    const projection = {
-      category: 1,
-      title: 1,
-      content: 1,
-      type: 1,
-      author: 1,
-      poll: {
-        $cond: {
-          if: { $eq: ['$type', 'general'] },
-          then: null,
-          else: {
-            pollItems: {
-              $map: {
-                input: '$poll.pollItems',
-                as: 'pollItem',
-                in: {
-                  _id: '$$pollItem._id',
-                  name: '$$pollItem.name',
-                  count: { $size: '$$pollItem.users' },
-                  users: 0,
-                },
-              },
-            },
-            canMultiple: '$poll.canMultiple',
-          },
-        },
-      },
-      isMySquare: { $eq: ['$author', { $toObjectId: userId }] },
-      images: 1,
-      viewCount: { $size: '$viewers' },
-      likeCount: { $size: '$like' },
-      comments: {
-        $map: {
-          input: '$comments',
-          as: 'comment',
-          in: {
-            user: '$$comment.user',
-            comment: '$$comment.comment',
-            createdAt: '$$comment.createdAt',
-            updatedAt: '$$comment.updatedAt',
-            likeList: '$$comment.likeList',
-            _id: '$$comment._id',
-            subComments: '$$comment.subComments',
-          },
-        },
-      },
-      createdAt: 1,
-      updatedAt: 1,
-    };
 
-    const square = await this.SecretSquare.findById(
-      squareId,
-      projection,
-    ).exec();
-
-    if (!square) {
-      throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
-    }
-    console.log(3, square);
-    if (square.type === 'info' || square.type === 'poll2') {
-      await square.populate([
+  async findByType(type: string): Promise<Square[]> {
+    const squares = await this.SquareModel.find({ type })
+      .sort({ createdAt: -1 })
+      .populate([
         { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
         { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        {
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
       ]);
-    }
 
-    return square;
+    return squares.map((square) => this.mapToDomain(square));
   }
-  async updateComment(
-    squareId: string,
-    userId: string,
-    comment: string,
-  ): Promise<SecretSquareItem> {
-    const updatedSquare = await this.SecretSquare.findByIdAndUpdate(
-      squareId,
-      {
-        $push: { comments: { user: userId, comment } },
-      },
-      { new: true }, // 업데이트된 문서 반환
-    );
 
-    return updatedSquare;
+  async findByAuthor(authorId: string): Promise<Square[]> {
+    const squares = await this.SquareModel.find({ author: authorId })
+      .sort({ createdAt: -1 })
+      .populate([
+        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        {
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ]);
+
+    return squares.map((square) => this.mapToDomain(square));
   }
-  async deleteComment(squareId: string, commentId: string): Promise<null> {
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $pull: { comments: { _id: commentId } },
+
+  async addViewer(squareId: string, userId: string): Promise<void> {
+    await this.SquareModel.findByIdAndUpdate(squareId, {
+      $addToSet: { viewers: userId },
     });
-    return null;
   }
-  async createSubComment(
-    squareId: string,
-    commentId: string,
-    message: any,
-  ): Promise<SecretSquareItem> {
-    const updated = await this.SecretSquare.findOneAndUpdate(
-      {
-        _id: squareId,
-        'comments._id': commentId,
-      },
-      { $push: { 'comments.$.subComments': message } },
-      { new: true },
-    );
 
-    return updated;
+  async addImage(squareId: string, imageUrl: string): Promise<void> {
+    await this.SquareModel.findByIdAndUpdate(squareId, {
+      $push: { images: imageUrl },
+    });
   }
-  async deleteSubComment(
-    squareId: string,
-    commentId: String,
-    subCommentId: string,
-  ): Promise<null> {
-    await this.SecretSquare.updateOne(
-      {
-        _id: squareId,
-        'comments._id': commentId,
-      },
-      { $pull: { 'comments.$.subComments': { _id: subCommentId } } },
-    );
-    return null;
-  }
-  async updateSubComment(
-    squareId: string,
-    commentId: string,
-    subCommentId: string,
-    comment: string,
-  ): Promise<null> {
-    await this.SecretSquare.updateOne(
-      {
-        id: squareId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      { $set: { 'comments.$[].subComments.$[sub].comment': comment } },
-      {
-        arrayFilters: [{ 'sub._id': subCommentId }],
-      },
-    );
 
-    return null;
+  async removeImage(squareId: string, imageUrl: string): Promise<void> {
+    await this.SquareModel.findByIdAndUpdate(squareId, {
+      $pull: { images: imageUrl },
+    });
   }
-  async createCommentLike(
-    squareId: string,
-    commentId: string,
-    userId: string,
-  ): Promise<SecretSquareItem> {
-    return await this.SecretSquare.findOneAndUpdate(
-      {
-        _id: squareId,
-        'comments._id': commentId,
-      },
-      {
-        $addToSet: { 'comments.$.likeList': userId },
-      },
-      { new: true }, // 업데이트된 도큐먼트를 반환
-    );
+
+  async searchByTitle(title: string): Promise<Square[]> {
+    const squares = await this.SquareModel.find({
+      title: { $regex: title, $options: 'i' },
+    })
+      .sort({ createdAt: -1 })
+      .populate([
+        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        {
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ]);
+
+    return squares.map((square) => this.mapToDomain(square));
   }
-  async createSubCommentLike(
-    squareId: string,
-    commentId: string,
-    subCommentId: string,
-    userId: string,
-  ): Promise<SecretSquareItem> {
-    return await this.SecretSquare.findOneAndUpdate(
+
+  async searchByContent(content: string): Promise<Square[]> {
+    const squares = await this.SquareModel.find({
+      content: { $regex: content, $options: 'i' },
+    })
+      .sort({ createdAt: -1 })
+      .populate([
+        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        {
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ]);
+
+    return squares.map((square) => this.mapToDomain(square));
+  }
+
+  async findWithPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ squares: Square[]; total: number }> {
+    const skip = (page - 1) * limit;
+    const [squares, total] = await Promise.all([
+      this.SquareModel.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate([
+          { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+          {
+            path: 'comments.subComments.user',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          },
+        ]),
+      this.SquareModel.countDocuments(),
+    ]);
+
+    return {
+      squares: squares.map((square) => this.mapToDomain(square)),
+      total,
+    };
+  }
+
+  async findPopularSquares(limit: number): Promise<Square[]> {
+    const squares = await this.SquareModel.aggregate([
       {
-        _id: squareId,
-        'comments._id': commentId,
-        'comments.subComments._id': subCommentId,
-      },
-      {
-        $addToSet: {
-          'comments.$[comment].subComments.$[subComment].likeList': userId,
+        $addFields: {
+          likeCount: { $size: { $ifNull: ['$like', []] } },
         },
       },
       {
-        arrayFilters: [
-          { 'comment._id': commentId },
-          { 'subComment._id': subCommentId },
-        ],
-        new: true,
+        $sort: { likeCount: -1 },
       },
-    );
-  }
-  async findById(squareId: string): Promise<SecretSquareItem> {
-    const square = await this.SecretSquare.findById(squareId);
-    if (!square) {
-      throw new NotFoundException(`SecretSquare with id ${squareId} not found`);
-    }
-
-    if (square.type === 'info' || square.type === 'poll2') {
-      await square.populate({
-        path: 'author',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
-      await square.populate({
-        path: 'like',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
-      await square.populate({
-        path: 'comments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
-    }
-
-    return square;
-  }
-
-  async updateLike(
-    squareId: string,
-    userId: string,
-  ): Promise<SecretSquareItem> {
-    return await this.SecretSquare.findByIdAndUpdate(
-      squareId,
       {
-        $addToSet: { like: userId },
+        $limit: limit,
       },
-      { new: true },
-    );
+    ]);
+
+    // Aggregate 결과를 populate하기 위해 다시 조회
+    const squareIds = squares.map((square) => square._id);
+    const populatedSquares = await this.SquareModel.find({
+      _id: { $in: squareIds },
+    })
+      .sort({ createdAt: -1 })
+      .populate([
+        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        {
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ]);
+
+    return populatedSquares.map((square) => this.mapToDomain(square));
   }
 
-  async deleteLikeSquare(squareId: string, userId: string): Promise<null> {
-    await this.SecretSquare.findByIdAndUpdate(squareId, {
-      $pull: { like: userId },
-    });
-    return null;
+  async findRecentSquares(limit: number): Promise<Square[]> {
+    const squares = await this.SquareModel.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate([
+        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
+        {
+          path: 'comments.subComments.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ]);
+
+    return squares.map((square) => this.mapToDomain(square));
   }
 }
