@@ -220,7 +220,7 @@ export class UserRepository implements IUserRepository {
       ],
     );
 
-    await this.User.updateMany(
+    await this.UserModel.updateMany(
       { 'temperature.temperature': { $gte: 40, $lt: 42 } },
       [
         { $set: { 'ticket.gatherTicket': 3 } },
@@ -232,14 +232,17 @@ export class UserRepository implements IUserRepository {
       ],
     );
 
-    await this.User.updateMany({ 'temperature.temperature': { $gte: 42 } }, [
-      { $set: { 'ticket.gatherTicket': 4 } },
-      {
-        $set: {
-          'ticket.groupStudyTicket': 6,
+    await this.UserModel.updateMany(
+      { 'temperature.temperature': { $gte: 42 } },
+      [
+        { $set: { 'ticket.gatherTicket': 4 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': 6,
+          },
         },
-      },
-    ]);
+      ],
+    );
 
     //여성: gather 1, group 2장 추가
     await this.UserModel.updateMany(
