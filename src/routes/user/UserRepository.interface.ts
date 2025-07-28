@@ -16,7 +16,7 @@ export interface IUserRepository {
   save(user: User): Promise<User>;
   initMonthScore(): Promise<null>;
   resetGatherTicket(): Promise<null>;
-  processTicket();
+  processTicket(whiteList: any);
   resetMonthScore();
   findByUidProjection(
     uid: string,

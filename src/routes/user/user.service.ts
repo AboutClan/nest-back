@@ -954,7 +954,8 @@ export class UserService {
   }
 
   async processTicket() {
-    await this.UserRepository.processTicket();
+    const whiteList = [];
+    await this.UserRepository.processTicket(whiteList);
   }
 
   async updateTicketWithUserIds(userIds: string[], ticketNum: number) {
