@@ -14,7 +14,6 @@ import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../../logger';
 import { IUser, restType } from './user.entity';
-import { UserRepository } from './user.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { CONST } from 'src/Constants/CONSTANTS';

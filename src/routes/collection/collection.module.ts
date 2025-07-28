@@ -6,11 +6,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CollectionSchema } from './collection.entity';
 import { UserModule } from 'src/routes/user/user.module';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
-import { MongoUserRepository } from 'src/routes/user/user.repository';
 import { CollectionRepository } from './CollectionRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WebPushModule } from '../webpush/webpush.module';
 import { FcmAModule } from '../fcm/fcm.module';
+import { UserRepository } from '../user/UserRepository';
 
 const collectionRepositoryProvider: ClassProvider = {
   provide: ICOLLECTION_REPOSITORY,
@@ -19,7 +19,7 @@ const collectionRepositoryProvider: ClassProvider = {
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
-  useClass: MongoUserRepository,
+  useClass: UserRepository,
 };
 
 @Module({

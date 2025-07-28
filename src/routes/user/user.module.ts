@@ -6,7 +6,6 @@ import { VoteModule } from 'src/vote/vote.module';
 import { LogModule } from 'src/routes/logz/log.module';
 import { NoticeModule } from 'src/routes/notice/notice.module';
 import { IUSER_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
-import { MongoUserRepository } from './user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './user.entity';
 import { ImageModule } from 'src/imagez/image.module';
