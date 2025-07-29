@@ -304,7 +304,7 @@ export class UserRepository implements IUserRepository {
             o.toString(),
           ),
         )
-      : undefined;
+      : null;
     const ticket = new Ticket(
       doc?.ticket?.gatherTicket,
       doc?.ticket?.groupStudyTicket,
@@ -408,6 +408,9 @@ export class UserRepository implements IUserRepository {
     if (p.studyRecord !== null) result.studyRecord = p.studyRecord || [];
     if (p.temperature !== null) result.temperature = p.temperature || 0;
     if (p.introduceText !== null) result.introduceText = p.introduceText || '';
+
+    if (result.studyPreference?.place?.length === 0)
+      result.studyPreference.place = null;
 
     return result;
   }
