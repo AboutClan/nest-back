@@ -367,41 +367,48 @@ export class UserRepository implements IUserRepository {
 
   private mapToDb(user: User): Partial<IUser> {
     const p = user.toPrimitives();
-    return {
-      uid: p.uid,
-      name: p.name,
-      location: p.location,
-      mbti: p.mbti,
-      gender: p.gender,
-      belong: p.belong,
-      profileImage: p.profileImage,
-      registerDate: p.registerDate,
-      isActive: p.isActive,
-      birth: p.birth,
-      isPrivate: p.isPrivate,
-      monthStudyTarget: p.monthStudyTarget,
-      isLocationSharingDenided: p.isLocationSharingDenied,
-      role: p.role,
-      score: p.score,
-      monthScore: p.monthScore,
-      point: p.point,
-      comment: p.comment,
-      rest: p.rest,
-      avatar: p.avatar,
-      majors: p.majors,
-      interests: p.interests,
-      telephone: p.telephone,
-      deposit: p.deposit,
-      friend: p.friend,
-      like: p.like,
-      instagram: p.instagram,
-      studyPreference: p.studyPreference,
-      locationDetail: p.locationDetail,
-      ticket: p.ticket,
-      badge: p.badge,
-      studyRecord: p.studyRecord,
-      temperature: p.temperature,
-      introduceText: p.introduceText,
-    };
+
+    const result: any = {};
+
+    if (p.uid !== null) result.uid = p.uid;
+    if (p.name !== null) result.name = p.name || '';
+    if (p.location !== null) result.location = p.location || '';
+    if (p.mbti !== null) result.mbti = p.mbti || '';
+    if (p.gender !== null) result.gender = p.gender || '';
+    if (p.belong !== null) result.belong = p.belong || '';
+    if (p.profileImage !== null) result.profileImage = p.profileImage || '';
+    if (p.registerDate !== null) result.registerDate = p.registerDate;
+    if (p.isActive !== null) result.isActive = p.isActive ?? true;
+    if (p.birth !== null) result.birth = p.birth;
+    if (p.isPrivate !== null) result.isPrivate = p.isPrivate ?? false;
+    if (p.monthStudyTarget !== null)
+      result.monthStudyTarget = p.monthStudyTarget || 0;
+    if (p.isLocationSharingDenied !== null)
+      result.isLocationSharingDenided = p.isLocationSharingDenied ?? false;
+    if (p.role !== null) result.role = p.role || 'user';
+    if (p.score !== null) result.score = p.score || 0;
+    if (p.monthScore !== null) result.monthScore = p.monthScore || 0;
+    if (p.point !== null) result.point = p.point || 0;
+    if (p.comment !== null) result.comment = p.comment || '';
+    if (p.rest !== null) result.rest = p.rest || {};
+    if (p.avatar !== null) result.avatar = p.avatar || {};
+    if (p.majors !== null) result.majors = p.majors || [];
+    if (p.interests !== null) result.interests = p.interests || {};
+    if (p.telephone !== null) result.telephone = p.telephone || '';
+    if (p.deposit !== null) result.deposit = p.deposit || 0;
+    if (p.friend !== null) result.friend = p.friend || [];
+    if (p.like !== null) result.like = p.like || 0;
+    if (p.instagram !== null) result.instagram = p.instagram || '';
+    if (p.studyPreference !== null)
+      result.studyPreference = p.studyPreference || {};
+    if (p.locationDetail !== null)
+      result.locationDetail = p.locationDetail || {};
+    if (p.ticket !== null) result.ticket = p.ticket || [];
+    if (p.badge !== null) result.badge = p.badge || [];
+    if (p.studyRecord !== null) result.studyRecord = p.studyRecord || [];
+    if (p.temperature !== null) result.temperature = p.temperature || 0;
+    if (p.introduceText !== null) result.introduceText = p.introduceText || '';
+
+    return result;
   }
 }
