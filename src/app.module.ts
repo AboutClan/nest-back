@@ -54,6 +54,7 @@ import { SchedulerModule } from './schedule/schedule.module';
 import { AnnouncementModule } from './routes/announcement/announcement.module';
 import { FcmAModule } from './routes/fcm/fcm.module';
 import { GatherRequestModule } from './routes/gatherRequest/gatherRequest.module';
+import { PrizeModule } from './routes/prize/prize.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -128,6 +129,7 @@ const corsOptions = {
     RegisterModule,
     PromotionModule,
     PlaceModule,
+    PrizeModule,
     NoticeModule,
     LogModule,
     ImageModule,

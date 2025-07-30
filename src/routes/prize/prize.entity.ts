@@ -8,6 +8,7 @@ export const ZodPrizeSchema = z.object({
   gift: z.string(),
   winner: z.union([z.string(), z.custom<IUser>()]),
   category: z.string(),
+  description: z.string().optional(),
 });
 
 export type IPrize = z.infer<typeof ZodPrizeSchema> & Document;
@@ -26,6 +27,7 @@ export const PrizeSchema: Schema<IPrize> = new Schema({
     ref: DB_SCHEMA.USER,
   },
   category: String,
+  description: String,
 });
 
 export const Prize =

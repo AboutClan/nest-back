@@ -15,7 +15,16 @@ export class PrizeRepository implements IPrizeRepository {
     prize: string,
     date: Date,
     category: string,
-  ) {}
+    description?: string,
+  ) {
+    await this.Prize.create({
+      winner: userId,
+      gift: prize,
+      date,
+      category,
+      description,
+    });
+  }
 
   async findPrizes(category: string, cursor: number): Promise<IPrize[]> {
     const offset = 20 * (cursor - 1);
@@ -26,6 +35,6 @@ export class PrizeRepository implements IPrizeRepository {
     return await this.Prize.find(findQuery)
       .skip(offset)
       .limit(20)
-      .sort({ date: -1 });
+      .populate('winner', '_id uid name');
   }
 }
