@@ -81,6 +81,19 @@ const corsOptions = {
           format: winston.format.json(),
         }),
       ],
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+        winston.format.printf((info: any) =>
+          JSON.stringify({
+            timestamp: info.timestamp,
+            level: info.level,
+            message: info.message,
+            // metadata 안에 우리가 넘긴 method, url, params, query, body 가 담깁니다
+            ...info.metadata,
+          }),
+        ),
+      ),
     }),
     BullModule.forRoot({
       redis: {
