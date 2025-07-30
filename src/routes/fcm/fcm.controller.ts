@@ -60,9 +60,8 @@ export class FcmController {
       );
       return registered;
     } catch (err) {
-      logger.error(err);
       throw new HttpException(
-        'Error registering token',
+        `Error registering token: ${err}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
