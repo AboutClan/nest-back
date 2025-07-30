@@ -4,7 +4,7 @@ import { Inject } from '@nestjs/common';
 import { IPRIZE_REPOSITORY } from 'src/utils/di.tokens';
 
 export class PrizeService {
-  prizeList = null;
+  prizeList = PRIZE;
   constructor(
     @Inject(IPRIZE_REPOSITORY)
     private readonly PrizeRepository: IPrizeRepository,
@@ -19,9 +19,16 @@ export class PrizeService {
       const userId = userIds[i];
       const date = new Date();
       const category = 'ranking';
+      const description = `월간 ${tier} 상위 ${i + 1}등 상품`;
 
       if (userId) {
-        this.PrizeRepository.recordPrize(userId, prize[i], date, category);
+        this.PrizeRepository.recordPrize(
+          userId,
+          prize[i],
+          date,
+          category,
+          description,
+        );
       }
     }
   }
