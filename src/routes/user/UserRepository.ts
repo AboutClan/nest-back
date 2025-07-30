@@ -161,6 +161,39 @@ export class UserRepository implements IUserRepository {
     );
   }
 
+  async processMonthScore() {
+    // 1. gold로 변경 (30점 이상)
+    await this.UserModel.updateMany(
+      { monthScore: { $gte: 30 } },
+      { $set: { rank: 'gold' } },
+    );
+
+    // 2. silver로 변경 (10점 초과 30점 미만)
+    await this.UserModel.updateMany(
+      { monthScore: { $gt: 10, $lt: 30 } },
+      { $set: { rank: 'silver' } },
+    );
+
+    // 3. bronze로 변경 (10점 이하)
+    await this.UserModel.updateMany(
+      { monthScore: { $lte: 10 } },
+      { $set: { rank: 'bronze' } },
+    );
+  }
+
+  async findMonthPrize(ranks: any[]) {
+    const result = {};
+
+    for (const rank of ranks) {
+      result[rank] = await this.UserModel.find({ rank: rank })
+        .sort({ monthScore: -1 })
+        .limit(5)
+        .lean();
+    }
+
+    return result;
+  }
+
   async resetMonthScore() {
     await this.UserModel.updateMany({}, { monthScore: 0 });
   }

@@ -12,6 +12,7 @@ import { ImageModule } from 'src/imagez/image.module';
 import { CollectionModule } from 'src/routes/collection/collection.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { UserRepository } from './UserRepository';
+import { PrizeModule } from '../prize/prize.module';
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
@@ -27,6 +28,7 @@ const userRepositoryProvider: ClassProvider = {
     forwardRef(() => NoticeModule),
     ImageModule,
     CollectionModule,
+    PrizeModule,
   ],
   controllers: [UserController],
   providers: [UserService, userRepositoryProvider],

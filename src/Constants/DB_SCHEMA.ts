@@ -13,6 +13,7 @@ export const DB_SCHEMA = {
   NOTICE: 'Notice',
   PAYMENT: 'Payment',
   PLACE: 'Place',
+  PRIZE: 'Prize',
   PROMOTION: 'Promotion',
   REALTIME: 'Realtime',
   REGISTER: 'Registered',
