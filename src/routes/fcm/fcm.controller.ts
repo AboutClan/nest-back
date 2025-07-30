@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { FcmService } from './fcm.service';
+import { logger } from 'src/logger';
 
 @ApiTags('fcm')
 @Controller('fcm')
@@ -19,7 +20,7 @@ export class FcmController {
   async test() {
     try {
       await this.fcmService.sendNotificationToX('3869980826', 'hello', 'hello');
-      
+
       return { message: 'Notification sent' };
     } catch (err) {
       throw new HttpException(
@@ -59,6 +60,7 @@ export class FcmController {
       );
       return registered;
     } catch (err) {
+      logger.error(err);
       throw new HttpException(
         'Error registering token',
         HttpStatus.INTERNAL_SERVER_ERROR,
