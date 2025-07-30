@@ -963,5 +963,7 @@ export class UserService {
 
   async test() {
     // await this.UserRepository.test();
+
+    throw new Error('Test error');
   }
 }
