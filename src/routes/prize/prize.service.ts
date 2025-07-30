@@ -1,6 +1,3 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { PRIZE } from 'src/Constants/PRIZE';
 import { IPrizeRepository } from './PrizeRepository.interface';
 import { Inject } from '@nestjs/common';
@@ -15,7 +12,7 @@ export class PrizeService {
     this.prizeList = PRIZE;
   }
 
-  async distributeMonthPrize(tier: string, userIds: string) {
+  async recordMonthPrize(tier: string, userIds: string) {
     const prize = this.prizeList[tier];
 
     for (let i = 0; i < prize.length; i++) {
@@ -27,5 +24,11 @@ export class PrizeService {
         this.PrizeRepository.recordPrize(userId, prize[i], date, category);
       }
     }
+  }
+
+  async getPrizeList(category: string, cursor: string) {
+    const cursorNumber = parseInt(cursor, 10) || 1;
+
+    return this.PrizeRepository.findPrizes(category, cursorNumber);
   }
 }

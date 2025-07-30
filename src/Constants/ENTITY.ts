@@ -143,7 +143,11 @@ export const ENTITY = {
     ] as const,
     DEFAULT_ROLE: 'member' as const,
 
+    RANK_BRONZE: 'bronze' as const,
+    RANK_SILVER: 'silver' as const,
+    RANK_GOLD: 'gold' as const,
     ENUM_RANK: ['bronze', 'silver', 'gold'] as const,
+
     DEFAULT_RANK: 'bronze' as const,
 
     DEFAULT_COMMENT: '안녕하세요! 잘 부탁드립니다~!' as const,

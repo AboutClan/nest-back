@@ -20,4 +20,4 @@ const placeRepositoryProvider: ClassProvider = {
   providers: [PrizeService, placeRepositoryProvider],
   exports: [PrizeService, MongooseModule, placeRepositoryProvider],
 })
-export class PlaceModule {}
+export class PrizeModule {}

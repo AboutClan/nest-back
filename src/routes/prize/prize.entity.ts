@@ -3,16 +3,16 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/domain/entities/User/User';
 import { z } from 'zod';
 
-export const PrizeSchema = z.object({
+export const ZodPrizeSchema = z.object({
   date: z.date(),
   gift: z.string(),
   winner: z.union([z.string(), z.custom<IUser>()]),
   category: z.string(),
 });
 
-export type IPrize = z.infer<typeof PrizeSchema> & Document;
+export type IPrize = z.infer<typeof ZodPrizeSchema> & Document;
 
-export const PlaceSchema: Schema<IPrize> = new Schema({
+export const PrizeSchema: Schema<IPrize> = new Schema({
   date: {
     type: Date,
     required: true,
@@ -28,6 +28,6 @@ export const PlaceSchema: Schema<IPrize> = new Schema({
   category: String,
 });
 
-export const Place =
-  (mongoose.models.Place as Model<IPrize, {}, {}, {}>) ||
-  model<IPrize>(DB_SCHEMA.PRIZE, PlaceSchema);
+export const Prize =
+  (mongoose.models.Prize as Model<IPrize, {}, {}, {}>) ||
+  model<IPrize>(DB_SCHEMA.PRIZE, PrizeSchema);

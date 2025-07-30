@@ -16,4 +16,16 @@ export class PrizeRepository implements IPrizeRepository {
     date: Date,
     category: string,
   ) {}
+
+  async findPrizes(category: string, cursor: number): Promise<IPrize[]> {
+    const offset = 20 * (cursor - 1);
+
+    const findQuery: any = {};
+    if (category) findQuery.category = category;
+
+    return await this.Prize.find(findQuery)
+      .skip(offset)
+      .limit(20)
+      .sort({ date: -1 });
+  }
 }
