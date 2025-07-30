@@ -939,9 +939,14 @@ export class UserService {
 
     await this.UserRepository.processMonthScore();
     const ranks = ENTITY.USER.ENUM_RANK;
+
     const top5 = await this.UserRepository.findMonthPrize(
       ranks as unknown as any[],
     );
+
+    for (const rank of ranks) {
+    }
+
     await this.UserRepository.resetMonthScore();
 
     uids.forEach((tempUid) => {
