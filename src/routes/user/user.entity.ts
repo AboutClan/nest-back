@@ -6,7 +6,7 @@ import {
   ILocationDetail,
   InterestSchema,
   IRegistered,
-  MajorSchema,
+  MajorSchema
 } from 'src/routes/register/register.entity';
 import { z } from 'zod';
 
@@ -47,6 +47,13 @@ const badgeZodSchema = z
   .object({
     badgeIdx: z.number(),
     badgeList: z.array(z.string()),
+  })
+  .optional();
+
+const rankZodSchema = z
+  .object({
+    num: z.number(),
+    medal: z.string(),
   })
   .optional();
 
@@ -260,6 +267,16 @@ export const studyRecordSchema: Schema<studyRecordType> = new Schema(
   },
 );
 export const badgeSchema: Schema<badgeType> = new Schema(
+  {
+    badgeIdx: Number,
+    badgeList: [String],
+  },
+  {
+    _id: false,
+    timestamps: false,
+  },
+);
+export const rankSchema: Schema<badgeType> = new Schema(
   {
     badgeIdx: Number,
     badgeList: [String],
