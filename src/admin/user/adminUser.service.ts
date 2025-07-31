@@ -1,10 +1,10 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserFilterType } from './adminUser.controller';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ENTITY } from 'src/Constants/ENTITY';
 
 const logger = require('../../logger');
 
@@ -14,6 +14,7 @@ type UserQueryProps = {
   score?: { $gt: number };
   monthScore?: { $gt: number };
   weekStudyAccumulationMinutes?: { $gt: number };
+  'temperature.temperature'?: { $gt: number };
 };
 export default class AdminUserService {
   constructor(@InjectModel(DB_SCHEMA.USER) private User: Model<IUser>) {}
@@ -23,10 +24,18 @@ export default class AdminUserService {
 
     if (type === 'study') {
       query.monthScore = { $gt: 0 };
+    } else if (type === 'temperature') {
+      query['temperature.temperature'] = { $gt: 0 };
     }
 
+    const filterArr = ['2283035576', '3224546232'];
+
     const addField = type === 'study' ? 'studyRecord monthScore score' : '';
-    return await this.User.find(query, ENTITY.USER.C_SIMPLE_USER + addField);
+    const res = await this.User.find(
+      query,
+      ENTITY.USER.C_SIMPLE_USER + addField,
+    );
+    return res.filter((who) => !filterArr.includes(who.uid));
   }
 
   async updateProfile(profile: Partial<IUser>) {

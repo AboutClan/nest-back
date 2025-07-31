@@ -2,19 +2,19 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { GatherService } from 'src/routes/gather/gather.service';
+import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
+import GroupStudyService from 'src/routes/groupStudy/groupStudy.service';
+import { IGroupStudyRepository } from 'src/routes/groupStudy/GroupStudyRepository.interface';
 import { IUser } from 'src/routes/user/user.entity';
+import { UserService } from 'src/routes/user/user.service';
+import { Vote2Service } from 'src/routes/vote2/vote2.service';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { Vote2Service } from 'src/routes/vote2/vote2.service';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
-import { GatherService } from 'src/routes/gather/gather.service';
-import { UserService } from 'src/routes/user/user.service';
-import { IGroupStudyRepository } from 'src/routes/groupStudy/GroupStudyRepository.interface';
-import GroupStudyService from 'src/routes/groupStudy/groupStudy.service';
 
 @Injectable()
 export class NotificationScheduler {
@@ -153,14 +153,13 @@ export class NotificationScheduler {
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
     timeZone: 'Asia/Seoul',
   })
-  async processTicket() {
-    try {
-      await this.userService.processTicket();
-    } catch (err: any) {
-      throw new Error(err);
-    }
-  }
-
+  // async processTicket() {
+  //   try {
+  //     await this.userService.processTicket();
+  //   } catch (err: any) {
+  //     throw new Error(err);
+  //   }
+  // }
   @Cron('0 10 0 1 * *', {
     timeZone: 'Asia/Seoul',
   })
