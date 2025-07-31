@@ -3,11 +3,6 @@ export const ENTITY = {
     ENUM_TYPE: ['main', 'sub', 'event', 'update'] as const,
   },
 
-  CHAT: {
-    ENUM_STATUS: ['normal', 'inactive', 'deleted'] as const,
-    DEFAULT_STATUS: 'normal' as const,
-  },
-
   COLLECTION: {
     ENUM_ALPHABET: ['A', 'B', 'O', 'U', 'T'] as const,
   },
