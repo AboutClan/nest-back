@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -391,6 +393,10 @@ export class UserController {
 
   @Get('test')
   async test() {
-    return await this.userService.processTemperature();
+    try {
+      return await this.userService.test();
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

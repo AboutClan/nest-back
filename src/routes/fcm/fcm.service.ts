@@ -94,6 +94,8 @@ export class FcmService {
   }
 
   async registerToken(uid: string, fcmToken: string, platform: string) {
+    if (!uid || !fcmToken) return;
+
     const token = RequestContext.getDecodedToken();
 
     const fcmTokenOne = await this.fcmRepository.findByUid(uid);

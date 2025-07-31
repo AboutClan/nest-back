@@ -8,11 +8,11 @@ import { IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { Vote2Controller } from './vote2.controller';
 import { Vote2Schema } from './vote2.entity';
-import { Vote2Repository } from './vote2.repository';
 import { Vote2Service } from './vote2.service';
 import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../fcm/fcm.module';
+import { Vote2Repository } from './Vote2Repository';
 
 const vote2RepositoryProvider: ClassProvider = {
   provide: IVOTE2_REPOSITORY,

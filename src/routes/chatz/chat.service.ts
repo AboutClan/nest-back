@@ -3,12 +3,11 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Chat } from 'src/domain/entities/chat/Chat';
 import { RequestContext } from 'src/request-context';
-import { IUser } from 'src/routes/user/user.entity';
-import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
 import { IChatRepository } from './ChatRepository.interface';
+import { UserRepository } from '../user/UserRepository';
 
 @Injectable()
 export class ChatService {
@@ -25,30 +24,32 @@ export class ChatService {
   async getChat(userId: string) {
     const token = RequestContext.getDecodedToken();
 
+    //bring chatting
     const user1 = token.id > userId ? userId : token.id;
     const user2 = token.id < userId ? userId : token.id;
 
-    const chat = await this.chatRepository.findByUser1AndUser2WithUser(
-      user1,
-      user2,
-    );
-
+    const chat = await this.chatRepository.findByUser1AndUser2(user1, user2);
     if (!chat)
       throw new NotFoundException(`can't find chat ${user1} and ${user2}`);
 
+    //bring opponent information
     const opponent =
-      (chat.user1 as IUser)._id == token.id
-        ? (chat.user2 as IUser)
-        : (chat.user1 as IUser);
+      chat.user1.toString() == token.id.toString()
+        ? chat.user2.toString()
+        : chat.user1.toString();
+
+    const opponentUser = await this.UserRepository.findById(opponent);
+    if (!opponentUser) {
+      throw new NotFoundException(`can't find user ${opponent}`);
+    }
 
     const conversationForm = {
-      opponent,
+      opponent: opponentUser,
       contents: chat.contents.map((c) => c.toPrimitives()),
     };
     return conversationForm;
   }
 
-  //todo: User 제거 가능?
   async getChats() {
     const token = RequestContext.getDecodedToken();
 
@@ -59,12 +60,12 @@ export class ChatService {
       await Promise.all(
         chats.map(async (chat) => {
           const opponentId =
-            chat.user1.toString() === token.id ? chat.user2 : chat.user1;
+            chat.user1.toString() === token.id.toString()
+              ? chat.user2.toString()
+              : chat.user1.toString();
 
-          const opponent = await this.UserRepository.findById(
-            opponentId as string,
-          );
-         
+          const opponent = await this.UserRepository.findById(opponentId);
+
           if (!opponent) {
             return null; // opponent 없으면 스킵
           }
@@ -103,15 +104,12 @@ export class ChatService {
     const user1 = token.id > toUserId ? toUserId : token.id;
     const user2 = token.id < toUserId ? toUserId : token.id;
 
+    const chat = await this.chatRepository.findByUser1AndUser2(user1, user2);
+
     const contentFill = {
       content: message,
       userId: token.id,
     };
-
-    const chat = await this.chatRepository.findByUser1AndUser2WithUser(
-      user1,
-      user2,
-    );
 
     if (chat) {
       chat.addContent(contentFill);

@@ -273,6 +273,7 @@ export class GatherService {
         userId,
       );
     } catch (err) {
+      console.log(err);
       logger.error(err);
       throw new AppError(err, 500);
     }

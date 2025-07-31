@@ -1,23 +1,20 @@
 import { Inject } from '@nestjs/common';
-import { type Types } from 'mongoose';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import ImageService from 'src/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
 import { WebPushService } from '../webpush/webpush.service';
-import {
-  SecretSquareCategory,
-  SecretSquareItem,
-  SecretSquareZodSchema,
-  subCommentType,
-} from './square.entity';
-import { SquareRepository } from './square.repository.interface';
+import { Square } from 'src/domain/entities/Square/Square';
+import { SquareComment } from 'src/domain/entities/Square/SquareComment';
+import { SquareSubComment } from 'src/domain/entities/Square/SquareSubComment';
+import { SquarePoll } from 'src/domain/entities/Square/SquarePoll';
+import { ISquareRepository } from './square.repository.interface';
 
 export default class SquareService {
   constructor(
     @Inject(ISQUARE_REPOSITORY)
-    private readonly squareRepository: SquareRepository,
+    private readonly squareRepository: ISquareRepository,
     private readonly imageServiceInstance: ImageService,
     private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
@@ -27,22 +24,29 @@ export default class SquareService {
     category,
     cursorNum,
   }: {
-    category: SecretSquareCategory | 'normalAll' | 'secretAll';
+    category: string | 'all';
     cursorNum: number | null;
   }) {
     const gap = 12;
     let start = gap * (cursorNum || 0);
 
-    return await this.squareRepository.findSquareByCategory(
-      category,
-      start,
-      gap,
-    );
+    if (category === 'all') {
+      const result = await this.squareRepository.findWithPagination(
+        Math.floor(start / gap) + 1,
+        gap,
+      );
+      return result.squares;
+    } else {
+      const squares = await this.squareRepository.findByCategory(
+        category,
+        start,
+        gap,
+      );
+      return squares.slice(start, start + gap);
+    }
   }
 
-  async createSquare(
-    square: Partial<SecretSquareItem> & { buffers: Buffer[] },
-  ) {
+  async createSquare(square: Partial<Square> & { buffers: Buffer[] }) {
     const token = RequestContext.getDecodedToken();
     console.log(42, square);
     const {
@@ -64,48 +68,39 @@ export default class SquareService {
 
     const author = token.id;
 
-    const validatedSquare =
-      squareType === 'poll'
-        ? SecretSquareZodSchema.parse({
-            category,
-            title,
-            content,
-            author,
-            poll,
-            type: squareType,
-            images,
-          })
-        : SecretSquareZodSchema.parse({
-            category,
-            title,
-            content,
-            author,
-            type: squareType,
-            images,
-          });
+    const squareEntity = new Square({
+      category,
+      title,
+      content,
+      type: squareType,
+      poll: new SquarePoll(poll),
+      images,
+      author,
+      viewers: [],
+      like: [],
+      comments: [],
+    });
 
-    console.log(5, validatedSquare);
-    const { _id: squareId } =
-      await this.squareRepository.create(validatedSquare);
-    return { squareId };
+    console.log(squareEntity);
+
+    const createdSquare = await this.squareRepository.create(squareEntity);
+    return { squareId: createdSquare._id };
   }
 
   async deleteSquare(squareId: string) {
-    await this.squareRepository.findByIdAndDelete(squareId);
+    await this.squareRepository.delete(squareId);
   }
 
   async getSquare(squareId: string) {
     const token = RequestContext.getDecodedToken();
-    await this.squareRepository.findByIdAndUpdate(squareId, token.id);
-   
-    const secretSquare = await this.squareRepository.findById(squareId);
+    await this.squareRepository.addViewer(squareId, token.id);
 
-    // TODO 404 NOT FOUND
+    const secretSquare = await this.squareRepository.findById(squareId);
     if (!secretSquare) {
-      throw new Error('not found');
+      throw new Error(`Square with id ${squareId} not found`);
     }
 
-    return secretSquare;
+    return secretSquare.toPrimitives();
   }
 
   async createSquareComment({
@@ -116,22 +111,36 @@ export default class SquareService {
     squareId: string;
   }) {
     const token = RequestContext.getDecodedToken();
-    const updated = await this.squareRepository.updateComment(
-      squareId,
-      token.id,
-      comment,
-    );
 
-    await this.webPushServiceInstance.sendNotificationToXWithId(
-      updated.author.toString(),
-      WEBPUSH_MSG.SQUARE.TITLE,
-      WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
-    );
-    await this.fcmServiceInstance.sendNotificationToXWithId(
-      updated.author.toString(),
-      WEBPUSH_MSG.SQUARE.TITLE,
-      WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
-    );
+    const squareComment = new SquareComment({
+      user: token.id,
+      comment,
+      subComments: [],
+      likeList: [],
+    });
+
+    const square = await this.squareRepository.findById(squareId);
+
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
+    }
+
+    square.addComment(squareComment);
+    await this.squareRepository.save(square);
+
+    // 웹푸시 알림 발송
+    if (square && square.author !== token.id) {
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        square.author,
+        WEBPUSH_MSG.SQUARE.TITLE,
+        WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+      );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        square.author,
+        WEBPUSH_MSG.SQUARE.TITLE,
+        WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+      );
+    }
   }
 
   async deleteSquareComment({
@@ -141,52 +150,39 @@ export default class SquareService {
     squareId: string;
     commentId: string;
   }) {
-    await this.squareRepository.deleteComment(squareId, commentId);
+    const square = await this.squareRepository.findById(squareId);
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
+    }
+    square.removeComment(commentId);
+    await this.squareRepository.save(square);
   }
 
   async createSubComment(squareId: string, commentId: string, content: string) {
     const token = RequestContext.getDecodedToken();
-    try {
-      const message: subCommentType = {
-        user: token.id,
-        comment: content,
-      };
-      const updated = await this.squareRepository.createSubComment(
-        squareId,
-        commentId,
-        message,
-      );
 
-      //댓글 알림
-      updated.comments.forEach((comment) => {
-        if (comment._id.toString() === commentId.toString()) {
-          this.webPushServiceInstance.sendNotificationToXWithId(
-            comment.user.toString(),
-            WEBPUSH_MSG.SQUARE.TITLE,
-            WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
-          );
-          this.fcmServiceInstance.sendNotificationToXWithId(
-            comment.user.toString(),
-            WEBPUSH_MSG.SQUARE.TITLE,
-            WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
-          );
-        }
-      });
+    const subComment = new SquareSubComment({
+      user: token.id,
+      comment: content,
+      likeList: [],
+    });
 
+    const square = await this.squareRepository.findById(squareId);
+    square.addSubComment(commentId, subComment);
+    await this.squareRepository.save(square);
+
+    // 웹푸시 알림 발송
+    if (square && square.author !== token.id) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
-        updated.author.toString(),
+        square.author,
         WEBPUSH_MSG.SQUARE.TITLE,
         WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
       );
       await this.fcmServiceInstance.sendNotificationToXWithId(
-        updated.author.toString(),
+        square.author,
         WEBPUSH_MSG.SQUARE.TITLE,
         WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
       );
-
-      return;
-    } catch (err: any) {
-      throw new Error(err);
     }
   }
 
@@ -195,15 +191,12 @@ export default class SquareService {
     commentId: string,
     subCommentId: string,
   ) {
-    try {
-      await this.squareRepository.deleteSubComment(
-        squareId,
-        commentId,
-        subCommentId,
-      );
-    } catch (err: any) {
-      throw new Error(err);
+    const square = await this.squareRepository.findById(squareId);
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
     }
+    square.removeSubComment(commentId, subCommentId);
+    await this.squareRepository.save(square);
   }
 
   async updateSubComment(
@@ -212,35 +205,23 @@ export default class SquareService {
     subCommentId: string,
     comment: string,
   ) {
-    try {
-      await this.squareRepository.updateSubComment(
-        squareId,
-        commentId,
-        subCommentId,
-        comment,
-      );
-      return;
-    } catch (err: any) {
-      throw new Error(err);
+    const square = await this.squareRepository.findById(squareId);
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
     }
+
+    square.updateSubComment(commentId, subCommentId, comment);
+
+    await this.squareRepository.save(square);
   }
 
   async createCommentLike(squareId: string, commentId: string) {
     const token = RequestContext.getDecodedToken();
+    const square = await this.squareRepository.findById(squareId);
 
-    try {
-      const feed = await this.squareRepository.createCommentLike(
-        squareId,
-        commentId,
-        token.id,
-      );
+    square.addCommentLike(commentId, token.id);
 
-      if (!feed) {
-        throw new Error('해당 feedId 또는 commentId를 찾을 수 없습니다.');
-      }
-    } catch (err: any) {
-      throw new Error(err);
-    }
+    await this.squareRepository.update(squareId, square);
   }
 
   async createSubCommentLike(
@@ -249,21 +230,16 @@ export default class SquareService {
     subCommentId: string,
   ) {
     const token = RequestContext.getDecodedToken();
-    try {
-      const square = await this.squareRepository.createSubCommentLike(
-        squareId,
-        commentId,
-        subCommentId,
-        token.id,
-      );
+    const square = await this.squareRepository.findById(squareId);
 
-      if (!square) {
-        throw new Error('해당 feedId 또는 commentId를 찾을 수 없습니다.');
-      }
-    } catch (err: any) {
-      throw new Error(err);
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
     }
+    square.addSubCommentLike(commentId, subCommentId, token.id);
+
+    await this.squareRepository.save(square);
   }
+
   async patchPoll({
     squareId,
     pollItems,
@@ -272,98 +248,67 @@ export default class SquareService {
     pollItems: string[];
   }) {
     const token = RequestContext.getDecodedToken();
+    const square = await this.squareRepository.findById(squareId);
 
-    const secretSquare = await this.squareRepository.findById(squareId);
-
-    // TODO 404 NOT FOUND
-    if (!secretSquare) {
-      throw new Error('not found');
+    if (!square) {
+      throw new Error(`Square with poll not found`);
     }
 
-    // HACK Is it correct to write type assertion? Another solution?
-    const user = token.id as unknown as Types.ObjectId;
+    square.patchPoll(token.id, pollItems);
 
-    secretSquare.poll.pollItems.forEach((pollItem) => {
-      const index = pollItem.users.indexOf(user);
-      if (index > -1) {
-        pollItem.users.splice(index, 1);
-      }
-    });
-
-    if (pollItems.length !== 0) {
-      pollItems.forEach((pollItemId) => {
-        const index = secretSquare.poll.pollItems.findIndex((pollItem) =>
-          pollItem._id.equals(pollItemId),
-        );
-        if (index > -1) {
-          secretSquare.poll.pollItems[index].users.push(user);
-        }
-      });
-    }
-
-    await secretSquare.save();
+    await this.squareRepository.update(squareId, square);
   }
 
   async getCurrentPollItems({ squareId }: { squareId: string }) {
+    const square = await this.squareRepository.findById(squareId);
+    if (!square || !square.poll) {
+      throw new Error(`Square with poll not found`);
+    }
+
     const token = RequestContext.getDecodedToken();
-    const secretSquare = await this.squareRepository.findById(squareId);
 
-    // TODO 404 NOT FOUND
-    if (!secretSquare) {
-      throw new Error('not found');
-    }
-
-    if (secretSquare.type === 'general') {
-      throw new Error('The type of this square is general');
-    }
-
-    // TODO remove type assertion
-    const user = token.id as unknown as Types.ObjectId;
     const pollItems: string[] = [];
 
-    secretSquare.poll.pollItems.forEach((pollItem) => {
-      if (!pollItem.users.includes(user)) return;
+    square.poll.pollItems.forEach((pollItem) => {
+      if (!pollItem.users.includes(token.id)) return;
       pollItems.push(pollItem._id.toString());
     });
 
     return pollItems;
   }
 
-  //todo: 수정가능
   async putLikeSquare({ squareId }: { squareId: string }) {
     const token = RequestContext.getDecodedToken();
-    const secretSquare = await this.squareRepository.updateLike(
-      squareId,
-      token.id,
-    );
-
-    return;
+    const square = await this.squareRepository.findById(squareId);
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
+    }
+    square.addLike(token.id);
+    await this.squareRepository.save(square);
   }
 
   async deleteLikeSquare({ squareId }: { squareId: string }) {
     const token = RequestContext.getDecodedToken();
-    await this.squareRepository.deleteLikeSquare(squareId, token.id);
-    return;
+    const square = await this.squareRepository.findById(squareId);
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
+    }
+    square.removeLike(token.id);
+    await this.squareRepository.save(square);
   }
 
-  //todo: 수정가능
   async getIsLike({ squareId }: { squareId: string }) {
     const token = RequestContext.getDecodedToken();
+    const square = await this.squareRepository.findById(squareId);
 
-    const secretSquare = await this.squareRepository.findById(squareId);
-
-    if (!secretSquare) {
-      throw new Error('not found');
+    if (!square) {
+      throw new Error(`Square with id ${squareId} not found`);
     }
 
-    // TODO remove type assertion
-    const user = token.id as unknown as Types.ObjectId;
-    const isLike = secretSquare.like.includes(user);
-
-    return isLike;
+    return square.like.includes(token.id);
   }
 
-  async test() {
-    await this.squareRepository.test();
-  }
+  // async test() {
+  //   await this.squareRepository.test();
+  // }
 }

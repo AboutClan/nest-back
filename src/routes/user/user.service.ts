@@ -14,12 +14,12 @@ import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../../logger';
 import { IUser, restType } from './user.entity';
-import { UserRepository } from './user.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DateUtils } from 'src/utils/Date';
 import { IUserRepository } from './UserRepository.interface';
+import { PrizeService } from '../prize/prize.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -32,6 +32,7 @@ export class UserService {
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
     private readonly collectionServiceInstance: CollectionService,
+    private readonly prizeService: PrizeService,
   ) {}
 
   async decodeByAES256(encodedTel: string) {
@@ -513,7 +514,6 @@ export class UserService {
         );
       }
 
-      console.log(user?.studyPreference?.subPlace);
       // 기존 sub preference 감소
       if (user?.studyPreference?.subPlace?.length) {
         await Promise.all(
@@ -933,29 +933,79 @@ export class UserService {
     return +final;
   }
 
+  async processMonthPrize() {
+    const ranks = ENTITY.USER.ENUM_RANK;
+
+    const top5 = await this.UserRepository.findMonthPrize(
+      ranks as unknown as any[],
+    );
+
+    for (const rank of ranks) {
+      const top5UserIds = top5[rank].map((user) => user._id.toString());
+      this.prizeService.recordMonthPrize(rank, top5UserIds);
+
+      // if (rank === ENTITY.USER.RANK_SILVER) {
+      //   const pointList = [5000, 3000, 2000, 1000, 100];
+      //   for (let i = 0; i < top5UserIds.length; i++) {
+      //     const userId = top5UserIds[i];
+      //     const point = pointList[i] || 1000; // 기본값 1000
+      //     await this.updatePointById(
+      //       point,
+      //       `월간 ${rank} 등수 보상`,
+      //       '월간 점수 보상',
+      //       userId,
+      //     );
+      //   }
+      // } else if (rank === ENTITY.USER.RANK_BRONZE) {
+      //   const pointList = [3000, 2000, 1000, 1000, 1000];
+      //   for (let i = 0; i < top5UserIds.length; i++) {
+      //     const userId = top5UserIds[i];
+      //     const point = pointList[i] || 1000; // 기본값 1000
+      //     await this.updatePointById(
+      //       point,
+      //       `월간 ${rank} 등수 보상`,
+      //       '월간 점수 보상',
+      //       userId,
+      //     );
+      //   }
+      // }
+    }
+  }
+
   async processMonthScore() {
-    const firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth();
+    try {
+      const firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth();
 
-    const uids =
-      await this.UserRepository.resetPointByMonthScore(firstDayOfLastMonth);
-    await this.UserRepository.resetMonthScore();
+      // const uids =
+      //   await this.UserRepository.resetPointByMonthScore(firstDayOfLastMonth);
 
-    uids.forEach((tempUid) => {
-      const point = -1000;
-      const uid = tempUid;
+      await this.UserRepository.processMonthScore();
 
-      const message = `월간 점수 정산`;
-      logger.logger.info(message, {
-        type: 'point',
-        sub: '월간 점수 초기화',
-        uid,
-        value: point,
-      });
-    });
+      await this.processMonthPrize();
+
+      // await this.UserRepository.resetMonthScore();
+
+      // uids.forEach((tempUid) => {
+      //   const point = -1000;
+      //   const uid = tempUid;
+
+      //   const message = `월간 점수 정산`;
+      //   logger.logger.info(message, {
+      //     type: 'point',
+      //     sub: '월간 점수 초기화',
+      //     uid,
+      //     value: point,
+      //   });
+      // });
+    } catch (error) {
+      console.error('Error processing month score:', error);
+      throw new AppError('Failed to process month score', 500);
+    }
   }
 
   async processTicket() {
-    await this.UserRepository.processTicket();
+    const whiteList = [];
+    await this.UserRepository.processTicket(whiteList);
   }
 
   async updateTicketWithUserIds(userIds: string[], ticketNum: number) {
@@ -963,6 +1013,8 @@ export class UserService {
   }
 
   async test() {
-    // await this.UserRepository.test();
+    await this.processMonthScore();
+
+    // throw new Error('Test error');
   }
 }

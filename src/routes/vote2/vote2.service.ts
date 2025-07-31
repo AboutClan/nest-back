@@ -9,13 +9,14 @@ import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
-import { IVote2Repository } from './vote2.repository.interface';
 import { IUser } from 'src/routes/user/user.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { FcmService } from '../fcm/fcm.service';
+import { IVote2Repository } from './Vote2Repository.interface';
+import { Result } from 'src/domain/entities/Vote2/Vote2Result';
 
 export class Vote2Service {
   constructor(
@@ -169,7 +170,7 @@ export class Vote2Service {
     const unmatchedUsers = [];
 
     const resultMembers = voteData.results.flatMap((result) =>
-      result.members.map((member) => member.userId._id.toString()),
+      result.members.map((member) => member.userId.toString()),
     );
 
     participations?.forEach((par) => {
@@ -181,7 +182,7 @@ export class Vote2Service {
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
-        members: result.members.map((member) =>
+        members: result.members.map((member: any) =>
           this.formatResultMember(member),
         ),
       })),
@@ -198,13 +199,7 @@ export class Vote2Service {
   }
 
   async getArrivedPeriod(startDay: string, endDay: string) {
-    const formattedStartDay = DateUtils.getDayJsDate(startDay);
-    const formattedEndDay = DateUtils.getDayJsDate(endDay);
-
-    const votes = await this.Vote2Repository.getVoteByPeriod(
-      formattedStartDay,
-      formattedEndDay,
-    );
+    const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
 
     const result = [];
     votes.forEach((vote) => {
@@ -235,6 +230,8 @@ export class Vote2Service {
   async setVote(date: string, createVote: CreateNewVoteDTO) {
     const token = RequestContext.getDecodedToken();
 
+    const vote2 = await this.Vote2Repository.findByDate(date);
+
     const { latitude, longitude, start, end } = createVote;
 
     const voteData: any = {};
@@ -246,7 +243,9 @@ export class Vote2Service {
     if (start !== null) voteData.start = start;
     if (end !== null) voteData.end = end;
 
-    await this.Vote2Repository.setVote(date, voteData);
+    vote2.setOrUpdateParticipation(voteData);
+
+    await this.Vote2Repository.save(vote2);
 
     await this.userServiceInstance.updateScore(
       CONST.SCORE.VOTE_STUDY,
@@ -257,7 +256,12 @@ export class Vote2Service {
 
   async deleteVote(date: string) {
     const token = RequestContext.getDecodedToken();
-    await this.Vote2Repository.deleteVote(date, token.id);
+
+    const vote2 = await this.Vote2Repository.findByDate(date);
+
+    vote2.removeParticipationByUserId(token.id);
+
+    await this.Vote2Repository.save(vote2);
 
     await this.userServiceInstance.updateScore(
       -CONST.SCORE.VOTE_STUDY,
@@ -318,7 +322,10 @@ export class Vote2Service {
   async setComment(date: string, comment: string) {
     const token = RequestContext.getDecodedToken();
 
-    await this.Vote2Repository.setComment(date, token.id, comment);
+    const vote = await this.Vote2Repository.findByDate(date);
+    vote.setComment(token.id, comment);
+
+    await this.Vote2Repository.save(vote);
   }
 
   async setResult(date: string) {
@@ -326,11 +333,14 @@ export class Vote2Service {
 
     //vote2에서 realtime 성공한 유저 삭제
     const realtimeSuccessUsers = await this.RealtimeService.setResult();
-    await this.Vote2Repository.deleteUsers(today, realtimeSuccessUsers);
+    const vote2 = await this.Vote2Repository.findByDate(today);
+
+    for (const user of realtimeSuccessUsers) {
+      vote2.removeParticipationByUserId(user);
+    }
 
     //투표 결과 계산 시작
-    const participations: IParticipation[] =
-      await this.Vote2Repository.findParticipationsByDate(today);
+    const participations: IParticipation[] = vote2.participations;
 
     const { voteResults, successParticipations, failedParticipations } =
       await this.doAlgorithm(participations);
@@ -343,6 +353,11 @@ export class Vote2Service {
       (par) => (par.userId as IUser)._id,
     );
 
+    const resultInstances = voteResults.map((r) => new Result(r as any));
+    vote2.setResult(resultInstances);
+
+    await this.Vote2Repository.save(vote2);
+
     this.webPushServiceInstance.sendNotificationUserIds(
       successUserIds,
       WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
@@ -365,12 +380,15 @@ export class Vote2Service {
       WEBPUSH_MSG.VOTE.FAILURE_TITLE,
       WEBPUSH_MSG.VOTE.FAILURE_DESC,
     );
-    await this.Vote2Repository.setVoteResult(today, voteResults);
   }
 
   async updateResult(date: string, start: string, end: string) {
     const token = RequestContext.getDecodedToken();
-    await this.Vote2Repository.updateResult(date, token.id, start, end);
+
+    const vote = await this.Vote2Repository.findByDate(date);
+
+    vote.updateResult(token.id, start, end);
+    await this.Vote2Repository.save(vote);
   }
 
   async getFilteredVoteOne(date: string) {
@@ -387,28 +405,16 @@ export class Vote2Service {
   async setArrive(date: string, memo: string, end: string) {
     const token = RequestContext.getDecodedToken();
 
-    const vote = await this.Vote2Repository.findByDate(date);
-
     const arriveData = {
       memo,
       arrived: new Date(),
       end,
     };
 
-    const targetMember = vote?.results
-      .flatMap((r) => r.members)
-      .find((m) => m.userId?._id.toString() === token.id)
-      .toObject();
+    const vote = await this.Vote2Repository.findByDate(date);
+    vote.setArrive(token.id, memo, end);
 
-    if (!targetMember) return;
-
-    const merged = {
-      ...targetMember,
-      ...arriveData,
-      start: DateUtils.getNowDate(),
-    };
-
-    await this.Vote2Repository.setArrive(date, token.id, merged);
+    await this.Vote2Repository.save(vote);
 
     return await this.userServiceInstance.setVoteArriveInfo(
       token.id,
@@ -424,11 +430,15 @@ export class Vote2Service {
     const token = RequestContext.getDecodedToken();
     const { placeId, start, end } = createParticipate;
 
-    await this.Vote2Repository.setParticipate(date, placeId, {
+    const vote = await this.Vote2Repository.findByDate(date);
+
+    vote.setParticipate(placeId, {
       start,
       end,
       userId: token.id,
     });
+
+    await this.Vote2Repository.save(vote);
   }
 
   async getAbsence(date: string) {
@@ -452,6 +462,14 @@ export class Vote2Service {
   async setAbsence(date: string, message: string, fee: number) {
     const token = RequestContext.getDecodedToken();
 
-    await this.Vote2Repository.setAbsence(date, message, token.id, fee);
+    const vote = await this.Vote2Repository.findByDate(date);
+
+    vote.setAbsence(token.id, message);
+
+    await this.userServiceInstance.updatePoint(fee, '스터디 당일 불참');
+
+    await this.Vote2Repository.save(vote);
+
+    // await this.Vote2Repository.setAbsence(date, message, token.id, fee);
   }
 }

@@ -11,11 +11,11 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Collection } from 'src/domain/entities/Collection';
 import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/routes/request/request.entity';
-import { UserRepository } from 'src/routes/user/user.repository.interface';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
 import { WebPushService } from '../webpush/webpush.service';
 import { ICollectionRepository } from './CollectionRepository.interface';
+import { UserRepository } from '../user/UserRepository';
 
 @Injectable()
 export class CollectionService {
@@ -149,9 +149,7 @@ export class CollectionService {
   async setCollectionCompleted() {
     const token = RequestContext.getDecodedToken();
 
-    console.log(32);
     const collection = await this.collectionRepository.findByUser(token.id);
-    console.log(3);
     const myAlphabets = [...collection?.collects];
 
     if (

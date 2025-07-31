@@ -1,56 +1,44 @@
-import { SecretSquareItem } from './square.entity';
+import { Square } from 'src/domain/entities/Square/Square';
+import { SquareComment } from 'src/domain/entities/Square/SquareComment';
 
-export interface SquareRepository {
-  findSquareByCategory(
-    category: string,
-    start: number,
-    gap: number,
-  ): Promise<SecretSquareItem[]>;
-  create(squareData: any): Promise<SecretSquareItem>;
-  findByIdAndDelete(squareId: string): Promise<null>;
-  findByIdAndUpdate(squareId: string, userId: string): Promise<null>;
-  findByIdCustom(squareId: string, userId): Promise<SecretSquareItem>;
-  updateComment(
-    squareId: string,
-    userId: string,
-    comment: string,
-  ): Promise<SecretSquareItem>;
-  deleteComment(squareId: string, commentId: string): Promise<null>;
-  createSubComment(
-    squareId: string,
-    commentId: string,
-    message: any,
-  ): Promise<SecretSquareItem>;
-  deleteSubComment(
-    squareId: string,
-    commentId: string,
-    subCommentId: string,
-  ): Promise<null>;
-  updateSubComment(
-    squareId: string,
-    commentId: string,
-    subCommentId: string,
-    comment: string,
-  ): Promise<null>;
+export interface ISquareRepository {
+  // 기본 CRUD
+  create(square: Square): Promise<Square>;
+  findById(id: string): Promise<Square | null>;
+  findAll(): Promise<Square[]>;
+  update(id: string, square: Square): Promise<Square | null>;
+  save(square: Square): Promise<Square>;
+  delete(id: string): Promise<boolean>;
 
-  createCommentLike(
-    squareId: string,
-    commentId: string,
-    userId: string,
-  ): Promise<SecretSquareItem>;
+  // 카테고리별 조회
+  findByCategory(category: string, start: number, gap: number): Promise<any[]>;
 
-  createSubCommentLike(
-    squareId: string,
-    commentId: string,
-    subCommentId: string,
-    userId: string,
-  ): Promise<SecretSquareItem>;
+  // 타입별 조회
+  findByType(type: string): Promise<Square[]>;
 
-  findById(squareId: string): Promise<SecretSquareItem>;
+  // 작성자별 조회
+  findByAuthor(authorId: string): Promise<Square[]>;
 
-  updateLike(squareId: string, userId: string): Promise<SecretSquareItem>;
+  // 조회수 관련
+  addViewer(squareId: string, userId: string): Promise<void>;
 
-  deleteLikeSquare(squareId: string, userId: string): Promise<null>;
+  // 이미지 관련
+  addImage(squareId: string, imageUrl: string): Promise<void>;
+  removeImage(squareId: string, imageUrl: string): Promise<void>;
 
-  test();
+  // 검색
+  searchByTitle(title: string): Promise<Square[]>;
+  searchByContent(content: string): Promise<Square[]>;
+
+  // 페이지네이션
+  findWithPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ squares: Square[]; total: number }>;
+
+  // 인기순 정렬
+  findPopularSquares(limit: number): Promise<Square[]>;
+
+  // 최신순 정렬
+  findRecentSquares(limit: number): Promise<Square[]>;
 }

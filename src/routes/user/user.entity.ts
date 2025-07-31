@@ -85,6 +85,10 @@ export const userZodSchema = z.object({
     .enum(ENTITY.USER.ENUM_ROLE)
     .default(ENTITY.USER.DEFAULT_ROLE)
     .optional(),
+  rank: z
+    .enum(ENTITY.USER.ENUM_RANK)
+    .default(ENTITY.USER.DEFAULT_RANK)
+    .optional(),
   score: z.number().default(0),
   monthScore: z.number().default(0),
   point: z.number().default(0),
@@ -144,6 +148,7 @@ export interface IUser extends Document, IRegistered {
   isLocationSharingDenided: boolean;
   temperature: temperatureType;
   introduceText: string;
+  rank: string;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -305,6 +310,10 @@ export const UserSchema: Schema<IUser> = new Schema({
   birth: {
     type: String,
     default: '',
+  },
+  rank: {
+    type: String,
+    default: ENTITY.USER.DEFAULT_RANK,
   },
   isPrivate: {
     type: Boolean,

@@ -1,6 +1,7 @@
 import { User } from 'src/domain/entities/User/User';
 
 export interface IUserRepository {
+  findById(userId: string): Promise<User>;
   findByUid(uid: string, queryString?: string): Promise<User | null>;
   findByUserId(userId: string): Promise<User | null>;
   findByUids(uids: string[]): Promise<User[]>;
@@ -16,13 +17,15 @@ export interface IUserRepository {
   save(user: User): Promise<User>;
   initMonthScore(): Promise<null>;
   resetGatherTicket(): Promise<null>;
-  processTicket();
+  processTicket(whiteList: any);
   resetMonthScore();
   findByUidProjection(
     uid: string,
     projection?: string,
   ): Promise<Partial<Record<keyof User, any>> | null>;
   resetPointByMonthScore(maxDate: string);
+  processMonthScore();
+  findMonthPrize(ranks: any[]);
   updateUser(uid: string, updateInfo: any): Promise<null>;
   updateGroupStudyTicket(uid: string, value: number);
   updateTicketWithUserIds(userIds: string[], ticketNum: number);

@@ -20,8 +20,13 @@ export class UserRepository implements IUserRepository {
     @InjectModel(DB_SCHEMA.USER) private readonly UserModel: Model<IUser>,
   ) {}
 
+  async findById(userId: string): Promise<User> {
+    const user = await this.UserModel.findById(userId);
+    if (!user) return null;
+    return this.mapToDomain(user);
+  }
+
   async updateUser(uid: string, updateInfo: any): Promise<null> {
-    console.log(uid, updateInfo);
     await this.UserModel.findOneAndUpdate(
       { uid },
       { $set: updateInfo },
@@ -156,11 +161,44 @@ export class UserRepository implements IUserRepository {
     );
   }
 
+  async processMonthScore() {
+    // 1. gold로 변경 (30점 이상)
+    await this.UserModel.updateMany(
+      { monthScore: { $gte: 30 } },
+      { $set: { rank: 'gold' } },
+    );
+
+    // 2. silver로 변경 (10점 초과 30점 미만)
+    await this.UserModel.updateMany(
+      { monthScore: { $gt: 10, $lt: 30 } },
+      { $set: { rank: 'silver' } },
+    );
+
+    // 3. bronze로 변경 (10점 이하)
+    await this.UserModel.updateMany(
+      { monthScore: { $lte: 10 } },
+      { $set: { rank: 'bronze' } },
+    );
+  }
+
+  async findMonthPrize(ranks: any[]) {
+    const result = {};
+
+    for (const rank of ranks) {
+      result[rank] = await this.UserModel.find({ rank: rank })
+        .sort({ monthScore: -1 })
+        .limit(5)
+        .lean();
+    }
+
+    return result;
+  }
+
   async resetMonthScore() {
     await this.UserModel.updateMany({}, { monthScore: 0 });
   }
 
-  async processTicket() {
+  async processTicket(whiteList: any) {
     // A유형 (<36.5)
     await this.UserModel.updateMany(
       { 'temperature.temperature': { $lt: 36.5 } },
@@ -220,6 +258,54 @@ export class UserRepository implements IUserRepository {
         },
       ],
     );
+
+    await this.UserModel.updateMany(
+      { 'temperature.temperature': { $gte: 40, $lt: 42 } },
+      [
+        { $set: { 'ticket.gatherTicket': 3 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': 5,
+          },
+        },
+      ],
+    );
+
+    await this.UserModel.updateMany(
+      { 'temperature.temperature': { $gte: 42 } },
+      [
+        { $set: { 'ticket.gatherTicket': 4 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': 6,
+          },
+        },
+      ],
+    );
+
+    //여성: gather 1, group 2장 추가
+    await this.UserModel.updateMany(
+      { gender: '여성' },
+      {
+        $inc: {
+          'ticket.gatherTicket': 1,
+          'ticket.groupStudyTicket': 2,
+        },
+      },
+    );
+
+    for (const item of whiteList) {
+      await this.UserModel.updateMany(
+        { uid: item.uid },
+        { $set: { 'ticket.gatherTicket': 4 } },
+        {
+          $inc: {
+            'ticket.gatherTicket': item.gatherTicket,
+            'ticket.groupStudyTicket': item.groupStudyTicket,
+          },
+        },
+      );
+    }
   }
 
   private mapToDomain(doc: IUser): User {
@@ -251,7 +337,7 @@ export class UserRepository implements IUserRepository {
             o.toString(),
           ),
         )
-      : undefined;
+      : null;
     const ticket = new Ticket(
       doc?.ticket?.gatherTicket,
       doc?.ticket?.groupStudyTicket,
@@ -314,41 +400,51 @@ export class UserRepository implements IUserRepository {
 
   private mapToDb(user: User): Partial<IUser> {
     const p = user.toPrimitives();
-    return {
-      uid: p.uid,
-      name: p.name,
-      location: p.location,
-      mbti: p.mbti,
-      gender: p.gender,
-      belong: p.belong,
-      profileImage: p.profileImage,
-      registerDate: p.registerDate,
-      isActive: p.isActive,
-      birth: p.birth,
-      isPrivate: p.isPrivate,
-      monthStudyTarget: p.monthStudyTarget,
-      isLocationSharingDenided: p.isLocationSharingDenied,
-      role: p.role,
-      score: p.score,
-      monthScore: p.monthScore,
-      point: p.point,
-      comment: p.comment,
-      rest: p.rest,
-      avatar: p.avatar,
-      majors: p.majors,
-      interests: p.interests,
-      telephone: p.telephone,
-      deposit: p.deposit,
-      friend: p.friend,
-      like: p.like,
-      instagram: p.instagram,
-      studyPreference: p.studyPreference,
-      locationDetail: p.locationDetail,
-      ticket: p.ticket,
-      badge: p.badge,
-      studyRecord: p.studyRecord,
-      temperature: p.temperature,
-      introduceText: p.introduceText,
-    };
+
+    const result: any = {};
+
+    if (p.uid !== null) result.uid = p.uid;
+    if (p.name !== null) result.name = p.name || '';
+    if (p.location !== null) result.location = p.location || '';
+    if (p.mbti !== null) result.mbti = p.mbti || '';
+    if (p.gender !== null) result.gender = p.gender || '';
+    if (p.belong !== null) result.belong = p.belong || '';
+    if (p.profileImage !== null) result.profileImage = p.profileImage || '';
+    if (p.registerDate !== null) result.registerDate = p.registerDate;
+    if (p.isActive !== null) result.isActive = p.isActive ?? true;
+    if (p.birth !== null) result.birth = p.birth;
+    if (p.isPrivate !== null) result.isPrivate = p.isPrivate ?? false;
+    if (p.monthStudyTarget !== null)
+      result.monthStudyTarget = p.monthStudyTarget || 0;
+    if (p.isLocationSharingDenied !== null)
+      result.isLocationSharingDenided = p.isLocationSharingDenied ?? false;
+    if (p.role !== null) result.role = p.role || 'user';
+    if (p.score !== null) result.score = p.score || 0;
+    if (p.monthScore !== null) result.monthScore = p.monthScore || 0;
+    if (p.point !== null) result.point = p.point || 0;
+    if (p.comment !== null) result.comment = p.comment || '';
+    if (p.rest !== null) result.rest = p.rest || {};
+    if (p.avatar !== null) result.avatar = p.avatar || {};
+    if (p.majors !== null) result.majors = p.majors || [];
+    if (p.interests !== null) result.interests = p.interests || {};
+    if (p.telephone !== null) result.telephone = p.telephone || '';
+    if (p.deposit !== null) result.deposit = p.deposit || 0;
+    if (p.friend !== null) result.friend = p.friend || [];
+    if (p.like !== null) result.like = p.like || 0;
+    if (p.instagram !== null) result.instagram = p.instagram || '';
+    if (p.studyPreference !== null)
+      result.studyPreference = p.studyPreference || {};
+    if (p.locationDetail !== null)
+      result.locationDetail = p.locationDetail || {};
+    if (p.ticket !== null) result.ticket = p.ticket || [];
+    if (p.badge !== null) result.badge = p.badge || [];
+    if (p.studyRecord !== null) result.studyRecord = p.studyRecord || [];
+    if (p.temperature !== null) result.temperature = p.temperature || 0;
+    if (p.introduceText !== null) result.introduceText = p.introduceText || '';
+
+    if (result.studyPreference?.place?.length === 0)
+      result.studyPreference.place = null;
+
+    return result;
   }
 }

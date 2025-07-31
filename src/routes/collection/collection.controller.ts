@@ -27,7 +27,6 @@ export class CollectionController {
     const { alphabet } = updateAlpabetDTO;
     const alphabetCollection =
       await this.collectionService.setCollection(alphabet);
-    console.log(1234, alphabetCollection);
     return { alphabet: alphabetCollection };
   }
   @Post('alphabet/completed')

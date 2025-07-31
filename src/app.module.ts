@@ -54,6 +54,7 @@ import { SchedulerModule } from './schedule/schedule.module';
 import { AnnouncementModule } from './routes/announcement/announcement.module';
 import { FcmAModule } from './routes/fcm/fcm.module';
 import { GatherRequestModule } from './routes/gatherRequest/gatherRequest.module';
+import { PrizeModule } from './routes/prize/prize.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -81,6 +82,29 @@ const corsOptions = {
           format: winston.format.json(),
         }),
       ],
+      format: winston.format.combine(
+        // 1) 타임스탬프 자동 추가
+        winston.format.timestamp(),
+
+        // 2) 에러 객체를 넘겼을 때 stack까지 담아줌
+        winston.format.errors({ stack: true }),
+
+        // 3) 두 번째 인자로 넘긴 메타데이터를 info.metadata에 채워줌
+        winston.format.metadata({
+          fillExcept: ['message', 'level', 'timestamp', 'label'],
+        }),
+
+        // 4) 최종적으로 한 줄짜리 JSON으로 출력
+        winston.format.printf((info: any) => {
+          // info.metadata 안에 method, url, params, query, body 가 들어있습니다.
+          return JSON.stringify({
+            timestamp: info.timestamp,
+            level: info.level,
+            message: info.message,
+            ...info.metadata,
+          });
+        }),
+      ),
     }),
     BullModule.forRoot({
       redis: {
@@ -105,6 +129,7 @@ const corsOptions = {
     RegisterModule,
     PromotionModule,
     PlaceModule,
+    PrizeModule,
     NoticeModule,
     LogModule,
     ImageModule,

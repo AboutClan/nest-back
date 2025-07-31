@@ -6,6 +6,7 @@ import { Content } from 'src/domain/entities/chat/Content';
 import { IChat } from './chat.entity';
 import { IChatRepository } from './ChatRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { VO_User } from 'src/domain/valueObject/VO_User';
 
 export class ChatRepository implements IChatRepository {
   constructor(
@@ -46,14 +47,15 @@ export class ChatRepository implements IChatRepository {
     return this.mapToDomain(doc);
   }
 
-  async findByUser1AndUser2WithUser(
+  async findByUser1AndUser2(
     user1Id: string,
     user2Id: string,
   ): Promise<Chat | null> {
     const doc = await this.ChatModel.findOne({
       user1: user1Id,
       user2: user2Id,
-    }).populate('user1 user2');
+    });
+
     if (!doc) return null;
     return this.mapToDomain(doc);
   }
@@ -82,17 +84,14 @@ export class ChatRepository implements IChatRepository {
   private mapToDomain(doc: IChat): Chat {
     const chat = new Chat({
       id: doc._id.toString(),
-      user1: doc.user1,
-      user2: doc.user2,
+      user1: doc.user1.toString(),
+      user2: doc.user2.toString(),
       status: doc.status,
-      contents: doc.contents.map(
-        (c) =>
-          new Content({
-            userId: c.userId,
-            content: c.content,
-            createdAt: c.createdAt,
-          }),
-      ),
+      contents: doc.contents.map((c) => ({
+        userId: c.userId.toString(),
+        content: c.content,
+        createdAt: c.createdAt,
+      })),
     });
 
     return chat;
