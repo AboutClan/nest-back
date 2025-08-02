@@ -330,11 +330,12 @@ export class GatherRepository implements IGatherRepository {
         { path: 'participants.user', select: ENTITY.USER.C_SIMPLE_USER },
       ])
       .sort({ createdAt: -1 });
-
+    console.log(3, result);
     return result.map((doc) => this.mapToDomain(doc));
   }
 
   private mapToDomain(doc: IGatherData): Gather {
+    console.log(44, doc);
     return new Gather({
       _id: doc._id as string,
       title: doc.title,
@@ -408,7 +409,9 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDB(gather: Gather): Partial<IGatherData> {
+    console.log(53);
     const props = gather.toPrimitives();
+    console.log(44);
     return {
       _id: props._id,
       title: props.title,
@@ -424,10 +427,12 @@ export class GatherRepository implements IGatherRepository {
         },
       })),
       content: props.content,
-      location: {
-        main: props.location.main,
-        sub: props.location.sub,
-      },
+      location: props?.location
+        ? {
+            main: props.location.main,
+            sub: props.location.sub,
+          }
+        : null,
       memberCnt: {
         min: props.memberCnt.min,
         max: props.memberCnt.max,

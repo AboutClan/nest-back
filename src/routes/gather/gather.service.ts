@@ -226,7 +226,7 @@ export class GatherService {
 
     const nextId =
       await this.counterServiceInstance.getNextSequence('counterid');
-
+    console.log(1234);
     const gatherInfo = {
       ...data,
       user: token.id,
@@ -396,19 +396,19 @@ export class GatherService {
       user.uid,
     );
 
-    if (userId) {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
-      );
+    // if (userId) {
+    //   await this.webPushServiceInstance.sendNotificationToXWithId(
+    //     userId,
+    //     WEBPUSH_MSG.GATHER.TITLE,
+    //     WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
+    //   );
 
-      await this.fcmServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
-      );
-    }
+    //   await this.fcmServiceInstance.sendNotificationToXWithId(
+    //     userId,
+    //     WEBPUSH_MSG.GATHER.TITLE,
+    //     WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
+    //   );
+    // }
 
     return;
   }
