@@ -24,7 +24,7 @@ export class GatherRequestRepository implements IGatherRequestRepository {
   }
   async create(gatherRequest: GatherRequest): Promise<void> {
     const gatherRequestDb = this.mapToDb(gatherRequest);
-    console.log(53, gatherRequestDb);
+   
     await this.GatherRequest.create(gatherRequestDb);
   }
 

@@ -2,24 +2,24 @@ import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import { Model } from 'mongoose';
-import { CollectionService } from 'src/routes/collection/collection.service';
+import { CONST } from 'src/Constants/CONSTANTS';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
 import ImageService from 'src/imagez/image.service';
+import { RequestContext } from 'src/request-context';
+import { CollectionService } from 'src/routes/collection/collection.service';
 import { ILog } from 'src/routes/logz/log.entity';
 import NoticeService from 'src/routes/notice/notice.service';
 import PlaceService from 'src/routes/place/place.service';
-import { RequestContext } from 'src/request-context';
+import { DateUtils } from 'src/utils/Date';
 import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../../logger';
-import { IUser, restType } from './user.entity';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ENTITY } from 'src/Constants/ENTITY';
-import { CONST } from 'src/Constants/CONSTANTS';
-import { DateUtils } from 'src/utils/Date';
-import { IUserRepository } from './UserRepository.interface';
 import { PrizeService } from '../prize/prize.service';
+import { IUser, restType } from './user.entity';
+import { IUserRepository } from './UserRepository.interface';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -96,7 +96,7 @@ export class UserService {
   //유저의 _id도 같이 전송. 유저 로그인 정보 불일치 문제를 클라이언트에서 접속중인 session의 _id와 DB에서 호출해서 가져오는 _id의 일치여부로 판단할 것임
   async getUserInfo(strArr: string[]) {
     const token = RequestContext.getDecodedToken();
-
+  
     // 1) UID로 도메인 User 객체 조회
     const user = await this.UserRepository.findByUid(token.uid);
     if (!user) {

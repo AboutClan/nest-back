@@ -226,7 +226,7 @@ export class GatherService {
 
     const nextId =
       await this.counterServiceInstance.getNextSequence('counterid');
-    console.log(1234);
+   
     const gatherInfo = {
       ...data,
       user: token.id,

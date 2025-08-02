@@ -12,7 +12,7 @@ export class GatherRequestController {
 
   @Post()
   async createGatherRequest(@Body() gatherRequestData: any) {
-    console.log(gatherRequestData);
+   
     return await this.gatherService.createGatherRequest(gatherRequestData);
   }
 

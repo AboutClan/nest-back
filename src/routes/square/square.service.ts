@@ -48,7 +48,7 @@ export default class SquareService {
 
   async createSquare(square: Partial<Square> & { buffers: Buffer[] }) {
     const token = RequestContext.getDecodedToken();
-    console.log(42, square);
+  
     const {
       category,
       title,
@@ -81,7 +81,7 @@ export default class SquareService {
       comments: [],
     });
 
-    console.log(squareEntity);
+
 
     const createdSquare = await this.squareRepository.create(squareEntity);
     return { squareId: createdSquare._id };

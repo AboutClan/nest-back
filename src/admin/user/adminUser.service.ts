@@ -44,7 +44,7 @@ export default class AdminUserService {
       ENTITY.USER.C_SIMPLE_USER + addField,
     )
       .sort({ 'temperature.temperature': -1 }) // 내림차순 정렬
-      .limit(50);
+      .limit(100);
 
     return res.filter((who) => !filterArr.includes(who.uid));
   }
