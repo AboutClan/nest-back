@@ -1,19 +1,19 @@
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { Avatar } from 'src/domain/entities/User/Avatar';
+import { Badge } from 'src/domain/entities/User/Badge';
+import { Interest } from 'src/domain/entities/User/Interest';
+import { LocationDetail } from 'src/domain/entities/User/Location';
+import { Major } from 'src/domain/entities/User/Major';
+import { Preference } from 'src/domain/entities/User/Preference';
+import { Rest } from 'src/domain/entities/User/Rest';
+import { StudyRecord } from 'src/domain/entities/User/StudyRecord';
+import { Temperature } from 'src/domain/entities/User/Temperature';
+import { Ticket } from 'src/domain/entities/User/Ticket';
 import { User } from 'src/domain/entities/User/User';
 import { IUser } from './user.entity';
 import { IUserRepository } from './UserRepository.interface';
-import { Rest } from 'src/domain/entities/User/Rest';
-import { Avatar } from 'src/domain/entities/User/Avatar';
-import { Major } from 'src/domain/entities/User/Major';
-import { Interest } from 'src/domain/entities/User/Interest';
-import { LocationDetail } from 'src/domain/entities/User/Location';
-import { Preference } from 'src/domain/entities/User/Preference';
-import { Ticket } from 'src/domain/entities/User/Ticket';
-import { Badge } from 'src/domain/entities/User/Badge';
-import { StudyRecord } from 'src/domain/entities/User/StudyRecord';
-import { Temperature } from 'src/domain/entities/User/Temperature';
-import { InjectModel } from '@nestjs/mongoose';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { Model } from 'mongoose';
 
 export class UserRepository implements IUserRepository {
   constructor(
@@ -359,6 +359,8 @@ export class UserRepository implements IUserRepository {
       doc?.temperature?.cnt,
     );
 
+    console.log(123, doc);
+
     return new User(
       doc?._id?.toString(),
       doc?.uid,
@@ -395,6 +397,7 @@ export class UserRepository implements IUserRepository {
       studyRecord,
       temperature,
       doc?.introduceText,
+      doc?.rank,
     );
   }
 

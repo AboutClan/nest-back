@@ -24,17 +24,30 @@ export default class AdminUserService {
 
     if (type === 'study') {
       query.monthScore = { $gt: 0 };
+    } else if (type === 'monthScore') {
+      query.monthScore = { $gt: 0 };
     } else if (type === 'temperature') {
-      query['temperature.temperature'] = { $gt: 0 };
+      query['temperature.temperature'] = { $gt: 36.5 };
     }
 
     const filterArr = ['2283035576', '3224546232'];
 
-    const addField = type === 'study' ? 'studyRecord monthScore score' : '';
+    const addField =
+      type === 'study'
+        ? 'studyRecord'
+        : type === 'monthScore'
+          ? 'monthScore rank'
+          : '';
+
     const res = await this.User.find(
       query,
       ENTITY.USER.C_SIMPLE_USER + addField,
     );
+
+    if (type === 'temperature') {
+      return res.filter((who) => !filterArr.includes(who.uid)).slice(0, 50);
+    }
+
     return res.filter((who) => !filterArr.includes(who.uid));
   }
 
