@@ -145,6 +145,21 @@ export class UserRepository implements IUserRepository {
     return null;
   }
 
+  async resetTemperature(): Promise<null> {
+    await this.UserModel.updateMany(
+      {},
+      {
+        $set: {
+          'temperature.temperature': 36.5,
+          'temperature.sum': 0,
+          'temperature.cnt': 0,
+        },
+      },
+      { new: true, upsert: false },
+    );
+    return null;
+  }
+
   async initMonthScore(): Promise<null> {
     await this.UserModel.updateMany({}, { $set: { monthScore: 0 } });
     return null;
@@ -358,8 +373,6 @@ export class UserRepository implements IUserRepository {
       doc?.temperature?.sum,
       doc?.temperature?.cnt,
     );
-
-    console.log(123, doc);
 
     return new User(
       doc?._id?.toString(),

@@ -22,4 +22,5 @@ export const DB_SCHEMA = {
   USER: 'User',
   VOTE: 'vote2',
   WEBPUSH: 'NotificationSub',
+  SCHEDULE_LOG: 'ScheduleLog',
 };

@@ -96,7 +96,7 @@ export class UserService {
   //유저의 _id도 같이 전송. 유저 로그인 정보 불일치 문제를 클라이언트에서 접속중인 session의 _id와 DB에서 호출해서 가져오는 _id의 일치여부로 판단할 것임
   async getUserInfo(strArr: string[]) {
     const token = RequestContext.getDecodedToken();
-  
+
     // 1) UID로 도메인 User 객체 조회
     const user = await this.UserRepository.findByUid(token.uid);
     if (!user) {
@@ -856,8 +856,10 @@ export class UserService {
   }
 
   async processTemperature() {
-    const end = new Date();
-    const start = new Date();
+    const baseDate = new Date('2025-08-01T00:00:00.000Z');
+
+    const end = new Date(baseDate);
+    const start = new Date(baseDate);
     start.setDate(end.getDate() - 45);
     end.setDate(end.getDate() - 15);
 
@@ -1013,8 +1015,8 @@ export class UserService {
   }
 
   async test() {
-    await this.processMonthScore();
-
+    // await this.processTemperature();
+    // await this.processMonthScore();
     // throw new Error('Test error');
   }
 }
