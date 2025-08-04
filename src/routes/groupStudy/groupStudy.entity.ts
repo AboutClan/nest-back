@@ -60,18 +60,10 @@ const weekRecordZodSchema = z.object({
   attendRecordSub: z.array(z.string()).optional(),
 });
 
-// IAttendance Zod schema
-const attendanceZodSchema = z.object({
-  firstDate: z.string().optional(),
-  lastWeek: z.array(weekRecordZodSchema).default([]),
-  thisWeek: z.array(weekRecordZodSchema).default([]),
-});
-
 // IGroupStudyData Zod schema
 const groupStudyZodSchema = z.object({
   title: z.string(),
   category: categoryZodSchema,
-  challenge: z.string().optional(),
   rules: z.array(z.string()),
   content: z.string(),
   period: z.string(),
@@ -86,19 +78,15 @@ const groupStudyZodSchema = z.object({
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
   comments: z.array(commentZodSchema).optional(),
   id: z.number(),
-  location: z.enum(ENTITY.USER.ENUM_LOCATION),
   image: z.string().optional(),
   isFree: z.boolean(),
-  feeText: z.string().optional(),
   fee: z.number().optional(),
   questionText: z.array(z.string()).optional(),
   hashTag: z.string(),
-  attendance: attendanceZodSchema,
   link: z.string().optional(),
   isSecret: z.boolean().optional(),
   waiting: z.array(waitingZodSchema).optional().default([]),
   squareImage: z.string().optional(),
-  meetingType: z.enum(ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE).optional(),
   notionUrl: z.string().optional(),
   requiredTicket: z.number().default(1),
   totalDeposit: z.number().default(0),
@@ -111,7 +99,6 @@ export type memberCntType = z.infer<typeof memberCntZodSchema>;
 export type participantsType = z.infer<typeof participantsZodSchema>;
 export type IWaiting = z.infer<typeof waitingZodSchema>;
 export type commentType = z.infer<typeof commentZodSchema>;
-export type IAttendance = z.infer<typeof attendanceZodSchema>;
 export type IWeekRecord = z.infer<typeof weekRecordZodSchema>;
 export type IGroupStudyData = z.infer<typeof groupStudyZodSchema> & Document;
 
@@ -131,19 +118,6 @@ export const weekSchema: Schema<IWeekRecord> = new Schema(
     attendRecordSub: {
       type: [String],
     },
-  },
-  { _id: false },
-);
-
-export const attendanceSchema: Schema<IAttendance> = new Schema(
-  {
-    firstDate: {
-      type: String,
-    },
-    lastWeek: {
-      type: [weekSchema],
-    },
-    thisWeek: { type: [weekSchema] },
   },
   { _id: false },
 );
@@ -270,20 +244,11 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     fee: {
       type: Number,
     },
-    challenge: {
-      type: String,
-    },
-    feeText: {
-      type: String,
-    },
     rules: {
       type: [String],
     },
     category: {
       type: categorySchema,
-    },
-    attendance: {
-      type: attendanceSchema,
     },
     hashTag: {
       type: String,
@@ -344,20 +309,11 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     link: {
       type: String,
     },
-    location: {
-      type: String,
-      enum: ENTITY.USER.ENUM_LOCATION,
-    },
-
     image: {
       type: String,
     },
     squareImage: {
       type: String,
-    },
-    meetingType: {
-      type: String,
-      enum: ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE,
     },
     notionUrl: {
       type: String,

@@ -290,12 +290,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       attendRecordSub: w.attendRecordSub || [],
     });
 
-    const attendance: AttendanceProps = {
-      firstDate: doc.attendance.firstDate,
-      lastWeek: (doc.attendance.lastWeek || []).map(toWeekRecord),
-      thisWeek: (doc.attendance.thisWeek || []).map(toWeekRecord),
-    };
-
     let questionText = doc.questionText || [''];
     if (!Array.isArray(questionText)) {
       questionText = [questionText];
@@ -306,7 +300,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       id: doc.id,
       title: doc.title,
       category,
-      challenge: doc.challenge,
       rules: doc.rules,
       content: doc.content,
       period: doc.period,
@@ -320,19 +313,15 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       participants,
       userId: doc.user,
       comments,
-      location: doc.location,
       image: doc.image,
       isFree: doc.isFree,
-      feeText: doc.feeText,
       fee: doc.fee,
       questionText: questionText,
       hashTag: doc.hashTag,
-      attendance,
       link: doc.link,
       isSecret: doc.isSecret,
       waiting,
       squareImage: doc.squareImage,
-      meetingType: doc.meetingType,
       createdAt: (doc as any).createdAt,
       updatedAt: (doc as any).updatedAt,
       notionUrl: doc?.notionUrl,
@@ -381,12 +370,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       attendRecordSub: w.attendRecordSub || [],
     });
 
-    const attendanceDb = {
-      firstDate: p.attendance.firstDate,
-      lastWeek: p.attendance.lastWeek.map(toWeekDoc),
-      thisWeek: p.attendance.thisWeek.map(toWeekDoc),
-    };
-
     return {
       _id: p._id || undefined,
       title: p.title,
@@ -394,7 +377,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
         main: p.category.main,
         sub: p.category.sub,
       },
-      challenge: p.challenge,
       rules: p.rules,
       content: p.content,
       period: p.period,
@@ -411,19 +393,15 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       participants: participantsDb as IGroupStudyData['participants'],
       user: p.userId,
       comments: commentsDb,
-      location: p.location as IGroupStudyData['location'],
       image: p.image,
       isFree: p.isFree,
-      feeText: p.feeText,
       fee: p.fee,
       questionText: p.questionText,
       hashTag: p.hashTag,
-      attendance: attendanceDb,
       link: p.link,
       isSecret: p.isSecret,
       waiting: waitingDb,
       squareImage: p.squareImage,
-      meetingType: p.meetingType as IGroupStudyData['meetingType'],
       id: p.id,
       requiredTicket: p.requiredTicket,
     };

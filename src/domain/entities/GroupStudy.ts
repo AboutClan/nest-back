@@ -65,7 +65,6 @@ export interface GroupStudyProps {
   id?: number;
   title?: string;
   category?: CategoryProps;
-  challenge?: string;
   rules?: string[];
   content?: string;
   period?: string;
@@ -79,19 +78,15 @@ export interface GroupStudyProps {
   participants?: ParticipantProps[];
   userId?: string; // 작성자(creator) ID
   comments?: CommentProps[];
-  location?: string;
   image?: string;
   isFree?: boolean;
-  feeText?: string;
   fee?: number;
   questionText?: string[];
   hashTag?: string;
-  attendance?: AttendanceProps;
   link?: string;
   isSecret?: boolean;
   waiting?: WaitingProps[];
   squareImage?: string;
-  meetingType?: string;
   createdAt?: Date;
   updatedAt?: Date;
   notionUrl?: string;
@@ -144,7 +139,6 @@ export class GroupStudy {
     this.id = props.id;
     this.title = props.title || 'no title';
     this.category = props.category || { main: '기타', sub: '기타' };
-    this.challenge = props.challenge || '';
     this.rules = props.rules || [];
     this.content = props.content || '';
     this.period = props.period || '';
@@ -158,19 +152,15 @@ export class GroupStudy {
     this.participants = props.participants || [];
     this.userId = props.userId;
     this.comments = props.comments ?? [];
-    this.location = props.location || '수원';
     this.image = props.image || null;
     this.isFree = props.isFree || false;
-    this.feeText = props.feeText || '';
     this.fee = props.fee || 0;
     this.questionText = props.questionText || [''];
     this.hashTag = props.hashTag || '';
-    this.attendance = props.attendance || null;
     this.link = props.link || '';
     this.isSecret = props.isSecret || false;
     this.waiting = props.waiting ?? [];
     this.squareImage = props.squareImage || null;
-    this.meetingType = props.meetingType || 'offline';
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
     this.notionUrl = props.notionUrl;
@@ -526,7 +516,6 @@ export class GroupStudy {
       id: this.id,
       title: this.title,
       category: { ...this.category },
-      challenge: this.challenge,
       rules: [...this.rules],
       content: this.content,
       period: this.period,
@@ -545,23 +534,15 @@ export class GroupStudy {
         subComments: (c.subComments ?? []).map((s) => ({ ...s })),
         likeList: [...(c.likeList ?? [])],
       })),
-      location: this.location,
       image: this.image,
       isFree: this.isFree,
-      feeText: this.feeText,
       fee: this.fee,
       questionText: this.questionText,
       hashTag: this.hashTag,
-      attendance: {
-        firstDate: this.attendance.firstDate,
-        lastWeek: this.attendance.lastWeek.map((w) => ({ ...w })),
-        thisWeek: this.attendance.thisWeek.map((w) => ({ ...w })),
-      },
       link: this.link,
       isSecret: this.isSecret,
       waiting: this.waiting.map((w) => ({ ...w })),
       squareImage: this.squareImage,
-      meetingType: this.meetingType,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       requiredTicket: this.requiredTicket,
