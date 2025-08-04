@@ -19,7 +19,6 @@ export const InterestZodSchema = z.object({
 export const RegisteredZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
-  location: z.string(),
   mbti: z.string().optional(),
   gender: z.string(),
   profileImage: z.string().optional(),
@@ -82,10 +81,6 @@ export const RegisteredSchema: Schema<IRegistered> = new Schema(
       required: true,
     },
     telephone: {
-      type: String,
-      required: true,
-    },
-    location: {
       type: String,
       required: true,
     },

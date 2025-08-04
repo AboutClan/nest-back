@@ -345,14 +345,7 @@ export class UserRepository implements IUserRepository {
       doc?.locationDetail?.lat,
       doc?.locationDetail?.lon,
     );
-    const preference = doc.studyPreference
-      ? new Preference(
-          doc?.studyPreference?.place?.toString(),
-          ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
-            o.toString(),
-          ),
-        )
-      : null;
+
     const ticket = new Ticket(
       doc?.ticket?.gatherTicket,
       doc?.ticket?.groupStudyTicket,
@@ -378,10 +371,8 @@ export class UserRepository implements IUserRepository {
       doc?._id?.toString(),
       doc?.uid,
       doc?.name,
-      doc?.location,
       doc?.mbti,
       doc?.gender,
-      doc?.belong,
       doc?.profileImage,
       doc?.registerDate,
       doc?.isActive,
@@ -399,11 +390,9 @@ export class UserRepository implements IUserRepository {
       majors,
       interests,
       doc?.telephone,
-      doc?.deposit,
       doc?.friend,
       doc?.like,
       doc?.instagram,
-      preference,
       locationDetail,
       ticket,
       badge,
@@ -421,10 +410,8 @@ export class UserRepository implements IUserRepository {
 
     if (p.uid !== null) result.uid = p.uid;
     if (p.name !== null) result.name = p.name || '';
-    if (p.location !== null) result.location = p.location || '';
     if (p.mbti !== null) result.mbti = p.mbti || '';
     if (p.gender !== null) result.gender = p.gender || '';
-    if (p.belong !== null) result.belong = p.belong || '';
     if (p.profileImage !== null) result.profileImage = p.profileImage || '';
     if (p.registerDate !== null) result.registerDate = p.registerDate;
     if (p.isActive !== null) result.isActive = p.isActive ?? true;
@@ -444,12 +431,9 @@ export class UserRepository implements IUserRepository {
     if (p.majors !== null) result.majors = p.majors || [];
     if (p.interests !== null) result.interests = p.interests || {};
     if (p.telephone !== null) result.telephone = p.telephone || '';
-    if (p.deposit !== null) result.deposit = p.deposit || 0;
     if (p.friend !== null) result.friend = p.friend || [];
     if (p.like !== null) result.like = p.like || 0;
     if (p.instagram !== null) result.instagram = p.instagram || '';
-    if (p.studyPreference !== null)
-      result.studyPreference = p.studyPreference || {};
     if (p.locationDetail !== null)
       result.locationDetail = p.locationDetail || {};
     if (p.ticket !== null) result.ticket = p.ticket || [];

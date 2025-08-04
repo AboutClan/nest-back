@@ -53,10 +53,8 @@ export class User {
     public readonly _id?: string,
     public uid?: string,
     public name?: string,
-    public location?: string,
     public mbti?: string,
     public gender?: string,
-    public belong?: string | undefined,
     public profileImage?: string,
     public registerDate?: string,
     public isActive?: boolean,
@@ -74,11 +72,9 @@ export class User {
     public majors?: Major[],
     public interests?: Interest,
     public telephone?: string,
-    public deposit?: number,
     public friend?: string[],
     public like?: number,
     public instagram?: string | undefined,
-    public studyPreference?: Preference | undefined,
     public locationDetail?: LocationDetail,
     public ticket?: Ticket,
     public badge?: Badge | undefined,
@@ -90,10 +86,8 @@ export class User {
     this._id = _id || '';
     this.uid = uid || '';
     this.name = name || '';
-    this.location = location || '';
     this.mbti = mbti || '';
     this.gender = gender || '';
-    this.belong = belong || '';
     this.profileImage = profileImage || '';
     this.registerDate = registerDate || new Date().toISOString();
     this.isActive = isActive || true;
@@ -111,11 +105,9 @@ export class User {
     this.majors = majors || [];
     this.interests = interests || null;
     this.telephone = telephone || '';
-    this.deposit = deposit || 0;
     this.friend = friend || [];
     this.like = like || 0;
     this.instagram = instagram || '';
-    this.studyPreference = studyPreference || null;
     this.locationDetail = locationDetail || null;
     this.ticket = ticket || new Ticket();
     this.badge = badge || new Badge();
@@ -140,9 +132,6 @@ export class User {
   }
   increaseScore(score: number): void {
     this.score += score;
-  }
-  increaseDeposit(deposit: number): void {
-    this.deposit += deposit;
   }
   increaseMonthScore(monthScore: number): void {
     this.monthScore += monthScore;
@@ -208,10 +197,8 @@ export class User {
       _id: this._id,
       uid: this.uid,
       name: this.name,
-      location: this.location,
       mbti: this.mbti,
       gender: this.gender,
-      belong: this.belong,
       profileImage: this.profileImage,
       registerDate: this.registerDate,
       isActive: this.isActive,
@@ -229,11 +216,9 @@ export class User {
       majors: this.majors.map((m) => m.toPrimitives()),
       interests: this.interests.toPrimitives(),
       telephone: this.telephone,
-      deposit: this.deposit,
       friend: this.friend,
       like: this.like,
       instagram: this.instagram,
-      studyPreference: this.studyPreference?.toPrimitives(),
       locationDetail: this.locationDetail.toPrimitives(),
       ticket: this.ticket.toPrimitives(),
       badge: this.badge?.toPrimitives(),

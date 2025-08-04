@@ -14,7 +14,6 @@ import { DatabaseModule } from './database.module';
 import { WebPushModule } from './routes/webpush/webpush.module';
 import { VoteModule } from './vote/vote.module';
 import { UserModule } from './routes/user/user.module';
-import { StaticModule } from './routes/statics/static.module';
 import { SquareModule } from './routes/square/square.module';
 import { RequestModule } from './routes/request/request.module';
 import { RegisterModule } from './routes/register/register.module';
@@ -123,7 +122,6 @@ const corsOptions = {
     WebPushModule,
     VoteModule,
     UserModule,
-    StaticModule,
     SquareModule,
     RequestModule,
     RegisterModule,

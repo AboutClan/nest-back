@@ -49,17 +49,6 @@ export class VoteController {
     return result;
   }
 
-  @Get(':date')
-  async getFilteredVote(
-    @Req() req: Request,
-    @Query('location') location: string,
-  ): Promise<any> {
-    const { date } = req;
-
-    const filteredVote = await this.voteService.getFilteredVote(date, location);
-    return filteredVote;
-  }
-
   @Post(':date')
   async setVote(
     @Req() req: Request,

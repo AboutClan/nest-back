@@ -259,160 +259,160 @@ export class VoteService {
       throw new Error(`Error fetching filtered vote data`);
     }
   }
-  async getFilteredVote(date: any, location: string) {
-    const token = RequestContext.getDecodedToken();
+  // async getFilteredVote(date: any, location: string) {
+  //   const token = RequestContext.getDecodedToken();
 
-    try {
-      const STUDY_RESULT_HOUR = 23;
-      const vote: IVote = await this.getVote(date);
+  //   try {
+  //     const STUDY_RESULT_HOUR = 23;
+  //     const vote: IVote = await this.getVote(date);
 
-      const user = await this.User.findOne({ uid: token.uid });
+  //     const user = await this.User.findOne({ uid: token.uid });
 
-      const studyPreference = user?.studyPreference;
+  //     const studyPreference = user?.studyPreference;
 
-      const filterStudy = (filteredVote: IVote) => {
-        const voteDate = filteredVote?.date;
+  //     const filterStudy = (filteredVote: IVote) => {
+  //       const voteDate = filteredVote?.date;
 
-        // 위치에 맞는 참여자 필터링 (location이나 '전체'에 해당하는 것만)
-        filteredVote.participations = filteredVote?.participations.filter(
-          (participation) => {
-            if (location === '전체') return true;
-            const placeLocation = participation.place?.location;
-            return placeLocation === location || placeLocation === '전체';
-          },
-        );
+  //       // 위치에 맞는 참여자 필터링 (location이나 '전체'에 해당하는 것만)
+  //       filteredVote.participations = filteredVote?.participations.filter(
+  //         (participation) => {
+  //           if (location === '전체') return true;
+  //           const placeLocation = participation.place?.location;
+  //           return placeLocation === location || placeLocation === '전체';
+  //         },
+  //       );
 
-        // 유저 정보 없는 참석자 제거
-        filteredVote.participations = filteredVote?.participations
-          .map((par) => ({
-            ...par,
-            attendences: par?.attendences?.filter((who) => who?.user),
-          }))
-          .filter((par) => par.place?.brand !== '자유 신청');
+  //       // 유저 정보 없는 참석자 제거
+  //       filteredVote.participations = filteredVote?.participations
+  //         .map((par) => ({
+  //           ...par,
+  //           attendences: par?.attendences?.filter((who) => who?.user),
+  //         }))
+  //         .filter((par) => par.place?.brand !== '자유 신청');
 
-        // isConfirmed 여부 확인
-        const currentDate = dayjs().add(9, 'hour').startOf('day');
-        const currentHours = dayjs().add(9, 'hour').hour();
-        const selectedDate = dayjs(voteDate).add(9, 'hour').startOf('day');
+  //       // isConfirmed 여부 확인
+  //       const currentDate = dayjs().add(9, 'hour').startOf('day');
+  //       const currentHours = dayjs().add(9, 'hour').hour();
+  //       const selectedDate = dayjs(voteDate).add(9, 'hour').startOf('day');
 
-        const isConfirmed =
-          selectedDate.isBefore(currentDate) || // 선택한 날짜가 현재 날짜 이전인지
-          (selectedDate.isSame(currentDate) &&
-            currentHours >= STUDY_RESULT_HOUR); // 같은 날이고 특정 시간(STUDY_RESULT_HOUR)이 지났는지
+  //       const isConfirmed =
+  //         selectedDate.isBefore(currentDate) || // 선택한 날짜가 현재 날짜 이전인지
+  //         (selectedDate.isSame(currentDate) &&
+  //           currentHours >= STUDY_RESULT_HOUR); // 같은 날이고 특정 시간(STUDY_RESULT_HOUR)이 지났는지
 
-        // 정렬에 사용할 함수들
-        const getCount = (participation: IParticipation) => {
-          if (!isConfirmed) return participation?.attendences?.length;
-          return participation?.attendences?.filter((who) => who.firstChoice)
-            .length;
-        };
+  //       // 정렬에 사용할 함수들
+  //       const getCount = (participation: IParticipation) => {
+  //         if (!isConfirmed) return participation?.attendences?.length;
+  //         return participation?.attendences?.filter((who) => who.firstChoice)
+  //           .length;
+  //       };
 
-        const getStatusPriority = (status?: string) => {
-          switch (status) {
-            case 'open':
-              return 1;
-            case 'free':
-              return 2;
-            default:
-              return 3;
-          }
-        };
+  //       const getStatusPriority = (status?: string) => {
+  //         switch (status) {
+  //           case 'open':
+  //             return 1;
+  //           case 'free':
+  //             return 2;
+  //           default:
+  //             return 3;
+  //         }
+  //       };
 
-        const getPlacePriority = (placeId?: string) => {
-          if (!studyPreference?.place) return 3; // 선호 장소 없으면 기본 우선순위
+  //       const getPlacePriority = (placeId?: string) => {
+  //         if (!studyPreference?.place) return 3; // 선호 장소 없으면 기본 우선순위
 
-          if (placeId === studyPreference.place.toString()) return 1; // 메인 장소 우선순위
+  //         if (placeId === studyPreference.place.toString()) return 1; // 메인 장소 우선순위
 
-          if (
-            (studyPreference.subPlace as string[])
-              .map((sub) => sub.toString())
-              .includes(placeId as string)
-          ) {
-            return 2; // 서브 장소 우선순위
-          }
+  //         if (
+  //           (studyPreference.subPlace as string[])
+  //             .map((sub) => sub.toString())
+  //             .includes(placeId as string)
+  //         ) {
+  //           return 2; // 서브 장소 우선순위
+  //         }
 
-          return 3; // 그 외 우선순위
-        };
+  //         return 3; // 그 외 우선순위
+  //       };
 
-        // 정렬 수행
-        filteredVote.participations = filteredVote.participations
-          .map((par) => {
-            const count = getCount(par); // getCount 호출을 한 번으로 줄임
+  //       // 정렬 수행
+  //       filteredVote.participations = filteredVote.participations
+  //         .map((par) => {
+  //           const count = getCount(par); // getCount 호출을 한 번으로 줄임
 
-            const statusPriority = getStatusPriority(par.status);
+  //           const statusPriority = getStatusPriority(par.status);
 
-            const placePriority = getPlacePriority(par.place?._id.toString());
+  //           const placePriority = getPlacePriority(par.place?._id.toString());
 
-            return {
-              ...par,
-              count,
-              statusPriority,
-              placePriority,
-            };
-          })
-          .sort((a, b) => {
-            // 상태 우선순위 비교
-            if (a.statusPriority !== b.statusPriority) {
-              return a.statusPriority - b.statusPriority;
-            }
-            // 참석자 수 비교
-            if (a.count !== b.count) {
-              return (b?.count as number) - (a?.count as number);
-            }
-            // 장소 우선순위 비교
-            return a.placePriority - b.placePriority;
-          })
-          .map(({ statusPriority, placePriority, count, ...rest }) => rest);
+  //           return {
+  //             ...par,
+  //             count,
+  //             statusPriority,
+  //             placePriority,
+  //           };
+  //         })
+  //         .sort((a, b) => {
+  //           // 상태 우선순위 비교
+  //           if (a.statusPriority !== b.statusPriority) {
+  //             return a.statusPriority - b.statusPriority;
+  //           }
+  //           // 참석자 수 비교
+  //           if (a.count !== b.count) {
+  //             return (b?.count as number) - (a?.count as number);
+  //           }
+  //           // 장소 우선순위 비교
+  //           return a.placePriority - b.placePriority;
+  //         })
+  //         .map(({ statusPriority, placePriority, count, ...rest }) => rest);
 
-        filteredVote.participations = filteredVote.participations.filter(
-          (par) => par?.place?.brand !== '자유 신청',
-        );
+  //       filteredVote.participations = filteredVote.participations.filter(
+  //         (par) => par?.place?.brand !== '자유 신청',
+  //       );
 
-        // 기본 모드일 경우 상위 3개만 반환
+  //       // 기본 모드일 경우 상위 3개만 반환
 
-        return {
-          date: filteredVote.date,
-          participations: filteredVote.participations.map((par) => ({
-            place: par.place,
-            absences: par.absences,
-            status: par.status,
-            members:
-              par.attendences?.map((who) => ({
-                time: who.time,
-                isMainChoice: who.firstChoice,
-                attendance: {
-                  attendanceImage: who?.imageUrl,
-                  arrived: who?.arrived,
-                  arrivedMessage: who?.memo,
-                },
-                user: convertUserToSummary(who.user as IUser),
-                comment: who?.comment,
-                // absenceInfo
-              })) || [], // attendences가 없을 경우 빈 배열로 처리
-          })),
-        };
-      };
+  //       return {
+  //         date: filteredVote.date,
+  //         participations: filteredVote.participations.map((par) => ({
+  //           place: par.place,
+  //           absences: par.absences,
+  //           status: par.status,
+  //           members:
+  //             par.attendences?.map((who) => ({
+  //               time: who.time,
+  //               isMainChoice: who.firstChoice,
+  //               attendance: {
+  //                 attendanceImage: who?.imageUrl,
+  //                 arrived: who?.arrived,
+  //                 arrivedMessage: who?.memo,
+  //               },
+  //               user: convertUserToSummary(who.user as IUser),
+  //               comment: who?.comment,
+  //               // absenceInfo
+  //             })) || [], // attendences가 없을 경우 빈 배열로 처리
+  //         })),
+  //       };
+  //     };
 
-      const data = await this.Realtime.findOne({ date })
-        .populate(['userList.user'])
-        .lean();
-      const realTime =
-        data?.userList?.map((props) => ({
-          ...props,
-          attendance: {
-            attendanceImage: props?.image,
-            arrived: props?.arrived,
-            arrivedMessage: props?.memo,
-          },
-          user: convertUserToSummary(props.user as IUser),
-        })) || [];
+  //     const data = await this.Realtime.findOne({ date })
+  //       .populate(['userList.user'])
+  //       .lean();
+  //     const realTime =
+  //       data?.userList?.map((props) => ({
+  //         ...props,
+  //         attendance: {
+  //           attendanceImage: props?.image,
+  //           arrived: props?.arrived,
+  //           arrivedMessage: props?.memo,
+  //         },
+  //         user: convertUserToSummary(props.user as IUser),
+  //       })) || [];
 
-      return { ...filterStudy(vote), realTime };
-    } catch (err) {
-      // 에러 메시지를 구체적으로 기록
-      throw new Error(`Error fetching filtered vote data`);
-    }
-  }
+  //     return { ...filterStudy(vote), realTime };
+  //   } catch (err) {
+  //     // 에러 메시지를 구체적으로 기록
+  //     throw new Error(`Error fetching filtered vote data`);
+  //   }
+  // }
 
   //todo: 어디에 위치시킬지 고민
   async getWeekDates(date: any) {

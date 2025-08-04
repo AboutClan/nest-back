@@ -72,9 +72,6 @@ export default class AdminUserService {
         case 'score':
           user.score += parseInt(value);
           break;
-        case 'deposit':
-          user.deposit += parseInt(value);
-          break;
       }
 
       await user.save();

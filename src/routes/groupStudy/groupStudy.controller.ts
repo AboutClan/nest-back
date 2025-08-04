@@ -416,20 +416,6 @@ export class GroupStudyController {
     }
   }
 
-  @Patch('belong/match')
-  async belongToParticipateGroupStudy() {
-    try {
-      const result =
-        await this.groupStudyService.belongToParticipateGroupStudy();
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error matching participation',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
   @Get('attendance/:id')
   async getAttendanceGroupStudy(@Param('id') id: string): Promise<any> {
     try {

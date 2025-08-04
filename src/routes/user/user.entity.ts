@@ -6,7 +6,7 @@ import {
   ILocationDetail,
   InterestSchema,
   IRegistered,
-  MajorSchema
+  MajorSchema,
 } from 'src/routes/register/register.entity';
 import { z } from 'zod';
 
@@ -30,12 +30,6 @@ const temperatureZodSchema = z.object({
 const avatarZodSchema = z.object({
   type: z.number().default(1),
   bg: z.number().default(1),
-});
-
-// preferenceType Zod schema
-const preferenceZodSchema = z.object({
-  place: z.union([z.string(), z.custom<IPlace>()]), // Assuming IPlace type should be replaced or handled properly
-  subPlace: z.union([z.array(z.string()), z.array(z.custom<IPlace>())]), // Replace z.any() with IPlace if necessary
 });
 
 const ticketZodSchema = z.object({
@@ -68,7 +62,6 @@ const studyRecordZodSchema = z
 
 export type restType = z.infer<typeof restZodSchema>;
 export type avatarType = z.infer<typeof avatarZodSchema>;
-export type preferenceType = z.infer<typeof preferenceZodSchema>;
 export type ticketType = z.infer<typeof ticketZodSchema>;
 export type badgeType = z.infer<typeof badgeZodSchema>;
 export type studyRecordType = z.infer<typeof studyRecordZodSchema>;
@@ -78,12 +71,8 @@ export type temperatureType = z.infer<typeof temperatureZodSchema>;
 export const userZodSchema = z.object({
   uid: z.string(),
   name: z.string(),
-  location: z
-    .enum(ENTITY.USER.ENUM_LOCATION)
-    .default(ENTITY.USER.DEFAULT_LOCATION),
   mbti: z.string().default(''),
   gender: z.string().default(''),
-  belong: z.string().optional(),
   profileImage: z.string().default(ENTITY.USER.DEAFULT_IMAGE).optional(),
   registerDate: z.string().default(''),
   isActive: z.boolean().default(false).optional(),
@@ -115,12 +104,10 @@ export const userZodSchema = z.object({
   comment: z.string().default(ENTITY.USER.DEFAULT_COMMENT),
   rest: restZodSchema,
   avatar: avatarZodSchema,
-  deposit: z.number().default(ENTITY.USER.DEFAULT_DEPOSIT),
   friend: z.array(z.string()).default([]),
   like: z.number().default(0),
   isPrivate: z.boolean().default(false).optional(),
   instagram: z.string().default('').optional(),
-  studyPreference: preferenceZodSchema.optional(),
   weekStudyTragetHour: z.number().default(0),
   weekStudyAccumulationMinutes: z.number().default(0),
   ticket: ticketZodSchema,
@@ -140,11 +127,8 @@ export interface IUser extends Document, IRegistered {
   comment: string;
   rest: restType;
   avatar: avatarType;
-  deposit: number;
-  studyPreference: preferenceType;
   friend: string[];
   like: number;
-  belong?: string;
   monthScore: number;
   isPrivate?: boolean;
   instagram?: string;
@@ -197,24 +181,6 @@ export const locationDetailSchema: Schema<ILocationDetail> = new Schema(
     lon: Number,
   },
   { timestamps: false, _id: false },
-);
-
-//Todo: Error
-export const preferenceSchema: Schema<preferenceType> = new Schema(
-  {
-    subPlace: {
-      type: [Schema.Types.ObjectId],
-      ref: DB_SCHEMA.PLACE,
-    },
-    place: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.PLACE,
-    },
-  },
-  {
-    _id: false,
-    timestamps: false,
-  },
 );
 
 export const temperatureSchema: Schema<temperatureType> = new Schema(
@@ -296,11 +262,6 @@ export const UserSchema: Schema<IUser> = new Schema({
     type: String,
     required: true,
   },
-  location: {
-    type: String,
-    enum: ENTITY.USER.ENUM_LOCATION,
-    default: ENTITY.USER.DEFAULT_LOCATION,
-  },
   mbti: {
     type: String,
     default: '',
@@ -308,9 +269,6 @@ export const UserSchema: Schema<IUser> = new Schema({
   gender: {
     type: String,
     default: '',
-  },
-  belong: {
-    type: String,
   },
   profileImage: {
     type: String,
@@ -378,10 +336,6 @@ export const UserSchema: Schema<IUser> = new Schema({
     type: String,
     default: '',
   },
-  deposit: {
-    type: Number,
-    default: ENTITY.USER.DEFAULT_DEPOSIT,
-  },
   friend: {
     type: [String],
     default: [],
@@ -393,9 +347,6 @@ export const UserSchema: Schema<IUser> = new Schema({
   instagram: {
     type: String,
     default: '',
-  },
-  studyPreference: {
-    type: preferenceSchema,
   },
   locationDetail: { type: locationDetailSchema },
 

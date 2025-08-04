@@ -15,14 +15,4 @@ export class AdminManageController {
       next(err);
     }
   }
-
-  @Patch('/monthCalc')
-  async calculateMonthly(@Res() res: Response, @Next() next: NextFunction) {
-    try {
-      const result = await this.adminManageService.monthCalc();
-      return res.status(200).json(result);
-    } catch (err) {
-      next(err);
-    }
-  }
 }

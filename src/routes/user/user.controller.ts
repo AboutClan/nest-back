@@ -122,46 +122,6 @@ export class UserController {
     return { message: 'Rest information updated successfully' };
   }
 
-  @Get('participationrate/all')
-  async getParticipationRateAll(
-    @Query()
-    query: {
-      startDay: string;
-      endDay: string;
-      location: string | null;
-      summary: boolean;
-    },
-  ) {
-    const participationResult = await this.userService.getParticipationRate(
-      query.startDay,
-      query.endDay,
-      true,
-      query.location,
-      query.summary,
-    );
-    return participationResult;
-  }
-
-  @Get('participationrate')
-  async getParticipationRate(
-    @Query()
-    query: {
-      startDay: string;
-      endDay: string;
-      location: string | null;
-      summary: boolean;
-    },
-  ) {
-    const participationResult = await this.userService.getParticipationRate(
-      query.startDay,
-      query.endDay,
-      false,
-      query.location,
-      query.summary,
-    );
-    return participationResult;
-  }
-
   @Get('voterate')
   async getVoteRate(@Query() query: { startDay: string; endDay: string }) {
     const voteResult = await this.userService.getVoteRate(
@@ -209,15 +169,6 @@ export class UserController {
     return { message: 'Belong updated successfully' };
   }
 
-  @Post('preference')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async setPreference(@Body() setPreferenceDto: SetPreferenceDto) {
-    const { place, subPlace } = setPreferenceDto;
-
-    await this.userService.setPreference(place, subPlace);
-    return { message: 'Preference updated successfully' };
-  }
-
   @Get('preference')
   async getPreference() {
     const result = await this.userService.getPreference();
@@ -242,14 +193,6 @@ export class UserController {
   async deleteFriend(@Body() setFriendDto: SetFriendDto) {
     await this.userService.deleteFriend(setFriendDto.toUid);
     return { message: 'Friend deleted successfully' };
-  }
-
-  @Patch('deposit')
-  async updateUserDeposit(
-    @Body() body: { deposit: number; message: string; sub: any },
-  ) {
-    await this.userService.updateDeposit(body.deposit, body.message, body.sub);
-    return { message: 'Deposit updated successfully' };
   }
 
   @Get('deposit')
