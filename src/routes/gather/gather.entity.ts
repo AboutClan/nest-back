@@ -19,10 +19,6 @@ export const TitleZodSchema = z.object({
   subtitle: z.string().nullable().optional(),
 });
 
-export const LocationZodSchema = z.object({
-  main: z.string(),
-  sub: z.string().optional(),
-});
 export const MemberCntZodSchema = z.object({
   min: z.number(),
   max: z.number(),
@@ -58,10 +54,8 @@ export const GatherZodSchema = z.object({
   type: TitleZodSchema,
   gatherList: z.array(GathersZodSchema),
   content: z.string(),
-  location: LocationZodSchema,
   memberCnt: MemberCntZodSchema,
   age: z.array(z.number()).nullable().optional(),
-  preCnt: z.number().nullable().optional(),
   genderCondition: z.boolean(),
   password: z.string().nullable().optional(),
   status: z
@@ -73,7 +67,6 @@ export const GatherZodSchema = z.object({
   id: z.number(),
   date: z.string(),
   place: z.string().nullable().optional(),
-  isAdminOpen: z.boolean().nullable().optional(),
   image: z.string().nullable().optional(),
   postImage: z.string().nullable().optional(),
   coverImage: z.string().nullable().optional(),
@@ -90,7 +83,6 @@ export const GatherZodSchema = z.object({
 export type ITime = z.infer<typeof TimeZodSchema>;
 export type IWaiting = z.infer<typeof WaitingZodSchema>;
 export type TitleType = z.infer<typeof TitleZodSchema>;
-export type LocationType = z.infer<typeof LocationZodSchema>;
 export type memberCntType = z.infer<typeof MemberCntZodSchema>;
 export type GatherType = z.infer<typeof GathersZodSchema>;
 export type participantsType = z.infer<typeof ParticipantsZodSchema>;
@@ -131,19 +123,6 @@ export const gatherListSchema: Schema<GatherType> = new Schema(
     },
     time: {
       type: timeSchema,
-    },
-  },
-  { _id: false, timestamps: false },
-);
-
-export const locationSchema: Schema<LocationType> = new Schema(
-  {
-    main: {
-      type: String,
-    },
-    sub: {
-      type: String,
-      default: '',
     },
   },
   { _id: false, timestamps: false },
@@ -252,17 +231,11 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     content: {
       type: String,
     },
-    location: {
-      type: locationSchema,
-    },
     memberCnt: {
       type: memberCntSchema,
     },
     age: {
       type: [Number],
-    },
-    preCnt: {
-      type: Number,
     },
     genderCondition: {
       type: Boolean,
@@ -302,9 +275,6 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     place: {
       type: String,
       enum: ENTITY.USER.ENUM_LOCATION,
-    },
-    isAdminOpen: {
-      type: Boolean,
     },
     image: {
       type: String,

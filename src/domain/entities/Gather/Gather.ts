@@ -17,10 +17,8 @@ export interface GatherProps {
   type?: TitleProps;
   gatherList?: GatherListProps[];
   content?: string;
-  location?: LocationProps;
   memberCnt?: MemberCntProps;
   age?: number[] | null;
-  preCnt?: number | null;
   genderCondition?: boolean;
   password?: string | null;
   status?: GatherStatus;
@@ -31,7 +29,6 @@ export interface GatherProps {
   date?: string;
   waiting?: WaitingProps[];
   place?: string | null;
-  isAdminOpen?: boolean | null;
   image?: string | null;
   coverImage?: string | null;
   postImage?: string | null;
@@ -49,10 +46,8 @@ export class Gather {
   public type: Title;
   public gatherList: GatherList[];
   public content: string;
-  public location: Location;
   public memberCnt: MemberCnt;
   public age: number[] | null;
-  public preCnt: number | null;
   public genderCondition: boolean;
   public password: string | null;
   public status: GatherStatus;
@@ -63,7 +58,6 @@ export class Gather {
   public date: string;
   public waiting: Waiting[];
   public place: string | null;
-  public isAdminOpen: boolean | null;
   public image: string | null;
   public coverImage: string | null;
   public postImage: string | null;
@@ -80,10 +74,8 @@ export class Gather {
     this.type = new Title(props.type);
     this.gatherList = props.gatherList.map((gl) => new GatherList(gl));
     this.content = props.content;
-    this.location = new Location(props.location);
     this.memberCnt = new MemberCnt(props.memberCnt);
     this.age = props.age ?? null;
-    this.preCnt = props.preCnt ?? null;
     this.genderCondition = props.genderCondition;
     this.password = props.password ?? null;
     this.status = props.status ?? 'pending';
@@ -95,7 +87,6 @@ export class Gather {
     this.date = props.date;
     this.waiting = props.waiting?.map((w) => new Waiting(w)) || [];
     this.place = props.place ?? null;
-    this.isAdminOpen = props.isAdminOpen ?? null;
     this.image = props.image ?? null;
     this.coverImage = props.coverImage ?? null;
     this.kakaoUrl = props.kakaoUrl ?? null;
@@ -240,10 +231,8 @@ export class Gather {
       type: this.type.toPrimitives(),
       gatherList: this.gatherList.map((gl) => gl.toPrimitives()),
       content: this.content,
-      location: this.location.toPrimitives(),
       memberCnt: this.memberCnt.toPrimitives(),
       age: this.age,
-      preCnt: this.preCnt,
       genderCondition: this.genderCondition,
       password: this.password,
       status: this.status,
@@ -254,7 +243,6 @@ export class Gather {
       date: this.date,
       waiting: this.waiting.map((w) => w.toPrimitives()),
       place: this.place,
-      isAdminOpen: this.isAdminOpen,
       image: this.image,
       coverImage: this.coverImage,
       kakaoUrl: this.kakaoUrl,

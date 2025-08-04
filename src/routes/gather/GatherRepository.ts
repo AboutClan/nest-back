@@ -335,7 +335,6 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDomain(doc: IGatherData): Gather {
-
     return new Gather({
       _id: doc._id as string,
       title: doc.title,
@@ -351,16 +350,11 @@ export class GatherRepository implements IGatherRepository {
         },
       })),
       content: doc.content,
-      location: {
-        main: doc.location.main,
-        sub: doc.location.sub,
-      },
       memberCnt: {
         min: doc.memberCnt.min,
         max: doc.memberCnt.max,
       },
       age: doc.age,
-      preCnt: doc.preCnt,
       genderCondition: doc.genderCondition,
       password: doc.password ?? null,
       status: doc.status,
@@ -390,7 +384,6 @@ export class GatherRepository implements IGatherRepository {
       id: doc.id,
       date: doc.date,
       place: doc.place ?? null,
-      isAdminOpen: doc.isAdminOpen ?? null,
       image: doc.image ?? null,
       coverImage: doc.coverImage ?? null,
       postImage: doc.postImage ?? null,
@@ -409,9 +402,8 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDB(gather: Gather): Partial<IGatherData> {
-  
     const props = gather.toPrimitives();
-   
+
     return {
       _id: props._id,
       title: props.title,
@@ -427,18 +419,11 @@ export class GatherRepository implements IGatherRepository {
         },
       })),
       content: props.content,
-      location: props?.location
-        ? {
-            main: props.location.main,
-            sub: props.location.sub,
-          }
-        : null,
       memberCnt: {
         min: props.memberCnt.min,
         max: props.memberCnt.max,
       },
       age: props.age,
-      preCnt: props.preCnt,
       genderCondition: props.genderCondition,
       password: props.password,
       status: props.status,
@@ -463,7 +448,6 @@ export class GatherRepository implements IGatherRepository {
       id: props.id,
       date: props.date,
       place: props.place,
-      isAdminOpen: props.isAdminOpen,
       image: props.image,
       coverImage: props.coverImage,
       kakaoUrl: props.kakaoUrl,
