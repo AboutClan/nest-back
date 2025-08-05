@@ -17,6 +17,7 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { FcmService } from '../fcm/fcm.service';
 import { IVote2Repository } from './Vote2Repository.interface';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
+import { ParticipationProps } from 'src/domain/entities/Vote2/Vote2Participation';
 
 export class Vote2Service {
   constructor(
@@ -269,48 +270,76 @@ export class Vote2Service {
     );
   }
 
-  private async doAlgorithm(participations) {
-    const coords: coordType[] = participations.map((loc) => {
-      return {
-        lat: parseFloat(loc.latitude),
-        lon: parseFloat(loc.longitude),
-      };
-    });
-
-    //시작 거리
-    let eps = 0.05;
-    const maxMember = 8;
-
-    const { clusters, noise } = ClusterUtils.DBSCANClustering(coords, eps);
-
-    //클러스터 결과 8명이 넘는 클러스터가 있을 경우, 더 작게 더 분해.
-    while (ClusterUtils.findLongestArrayLength(clusters) > maxMember) {
-      clusters.forEach((cluster: number[], i) => {
-        if (cluster.length <= 8) return;
-        const newCoords = coords.filter((coord, j) => cluster.includes(j));
-
-        const { clusters: newClusters, noise: newNoise } =
-          ClusterUtils.DBSCANClustering(newCoords, (eps /= 2));
-
-        clusters.splice(i, 1, ...newClusters);
-      });
+  private refineClusters(
+    coords: coordType[],
+    clusters: number[][],
+    maxMember: number,
+    eps: number,
+  ): number[][] {
+    // 더 이상 분해가 필요 없으면 그대로 반환
+    if (ClusterUtils.findLongestArrayLength(clusters) <= maxMember) {
+      return clusters;
     }
 
-    //cluster결과(인덱스)를 실제 데이터로 치환
-    const formedClusters = ClusterUtils.transformArray(
-      clusters,
-      participations,
-    );
+    // 각 클러스터를 순회하면서, 너무 크면 반으로 재클러스터링
+    return clusters.flatMap((cluster) => {
+      if (cluster.length <= maxMember) {
+        return [cluster];
+      }
+      // cluster에 속한 좌표만 뽑아서 DBSCAN
+      const subCoords = cluster.map((i) => coords[i]);
+      const { clusters: subClusters } = ClusterUtils.DBSCANClustering(
+        subCoords,
+        eps / 2,
+      );
 
-    // 2) 전체 성공 데이터(flat)만 뽑고 싶다면
-    const successParticipations: (typeof participations)[] = clusters
+      // subClusters는 subCoords 기준 인덱스이므로 원본 인덱스로 매핑
+      const remapped = subClusters.map((sub) =>
+        sub.map((localIdx) => cluster[localIdx]),
+      );
+
+      // 재귀 호출로 깊이가 남아있다면 계속 분해
+      return this.refineClusters(coords, remapped, maxMember, eps / 2);
+    });
+  }
+
+  private async doAlgorithm(participations: IParticipation[]) {
+    const coords = participations.map((loc) => ({
+      lat: parseFloat(loc.latitude),
+      lon: parseFloat(loc.longitude),
+    }));
+
+    let eps = 0.05;
+    const maxMember = 8;
+    const maxRetries = 2;
+    let attempt = 0;
+
+    let clusters: number[][] = [];
+    let noise: number[] = [];
+    let formedClusters: IParticipation[][] = [];
+
+    // 1) eps 조정+클러스터링 재시도 루프
+    while (attempt++ < maxRetries) {
+      const result = ClusterUtils.DBSCANClustering(coords, eps);
+      clusters = this.refineClusters(coords, result.clusters, maxMember, eps);
+      noise = result.noise;
+
+      formedClusters = ClusterUtils.transformArray(clusters, participations);
+
+      if (formedClusters.length > 0) {
+        break; // 성공
+      }
+      eps *= 2; // 빈 결과면 eps 키워서 재시도
+    }
+
+    // 2) 성공／실패 참여자 정리
+    const successParticipations = clusters
       .flat()
       .map((idx) => participations[idx]);
     const failedParticipations = noise.map((idx) => participations[idx]);
 
-    const places: IPlace[] = await this.PlaceRepository.findByStatus('active');
-
-    //클러스터링 결과 계산
+    // 3) 최종 장소 매핑
+    const places = await this.PlaceRepository.findByStatus('active');
     const voteResults = await ClusterUtils.findClosestPlace(
       formedClusters,
       places,
@@ -346,11 +375,11 @@ export class Vote2Service {
       await this.doAlgorithm(participations);
 
     const successUserIds = successParticipations.map(
-      (par) => (par.userId as IUser)._id,
+      (par) => (par.userId as unknown as IUser)._id,
     );
 
     const failedUserIds = failedParticipations.map(
-      (par) => (par.userId as IUser)._id,
+      (par) => (par.userId as unknown as IUser)._id,
     );
 
     const resultInstances = voteResults.map((r) => new Result(r as any));
