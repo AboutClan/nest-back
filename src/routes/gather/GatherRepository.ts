@@ -189,7 +189,7 @@ export class GatherRepository implements IGatherRepository {
       'participants.9': { $exists: true },
     })
       .sort({ createdAt: -1 })
-      .limit(6)
+      .limit(7)
       .populate({
         path: 'user',
         select: ENTITY.USER.C_MINI_USER,
@@ -198,7 +198,7 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
-
+   
     return [...gatherData1, ...gatherData2, ...gatherData3].map((doc) =>
       this.mapToDomain(doc),
     );
@@ -335,7 +335,6 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDomain(doc: IGatherData): Gather {
-
     return new Gather({
       _id: doc._id as string,
       title: doc.title,
@@ -409,9 +408,8 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDB(gather: Gather): Partial<IGatherData> {
-  
     const props = gather.toPrimitives();
-   
+
     return {
       _id: props._id,
       title: props.title,

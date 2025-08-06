@@ -15,7 +15,7 @@ import { NextFunction, Response } from 'express';
 import { IUser } from 'src/routes/user/user.entity';
 import AdminUserService from './adminUser.service';
 
-export type UserFilterType = 'study' | 'monthScore' | 'temperature';
+export type UserFilterType = 'study' | 'monthScore' | 'temperature' | null;
 
 // DTO for validation
 class ValueDto {

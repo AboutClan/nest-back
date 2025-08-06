@@ -9,7 +9,9 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
 import {
   CreateGatherDto,
   DeleteGatherDto,
@@ -20,9 +22,6 @@ import {
 } from './dto';
 import { gatherStatus } from './gather.entity';
 import { GatherService } from './gather.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
-
 @ApiTags('gather')
 @Controller('gather')
 export class GatherController {

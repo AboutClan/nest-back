@@ -39,14 +39,21 @@ export default class AdminUserService {
           ? 'monthScore rank'
           : '';
 
-    const res = await this.User.find(
-      query,
-      ENTITY.USER.C_SIMPLE_USER + addField,
-    )
-      .sort({ 'temperature.temperature': -1 }) // 내림차순 정렬
-      .limit(101);
-
-    return res.filter((who) => !filterArr.includes(who.uid));
+    if (type === 'temperature') {
+      const res = await this.User.find(
+        query,
+        ENTITY.USER.C_SIMPLE_USER + addField,
+      )
+        .sort({ 'temperature.temperature': -1, 'temperature.cnt': -1 }) // 내림차순 정렬
+        .limit(101);
+      return res.filter((who) => !filterArr.includes(who.uid));
+    } else {
+      const res = await this.User.find(
+        query,
+        ENTITY.USER.C_SIMPLE_USER + addField,
+      );
+      return res.filter((who) => !filterArr.includes(who.uid));
+    }
   }
 
   async updateProfile(profile: Partial<IUser>) {
