@@ -24,6 +24,7 @@ export interface IUserRepository {
     projection?: string,
   ): Promise<Partial<Record<keyof User, any>> | null>;
   resetPointByMonthScore(maxDate: string);
+  resetTemperature(): Promise<null>;
   processMonthScore();
   findMonthPrize(ranks: any[]);
   updateUser(uid: string, updateInfo: any): Promise<null>;

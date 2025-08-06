@@ -15,6 +15,9 @@ import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
+import { IScheduleLog } from './schedule_log.entity';
+import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
+import { error } from 'console';
 
 @Injectable()
 export class NotificationScheduler {
@@ -31,7 +34,28 @@ export class NotificationScheduler {
     private readonly gatherService: GatherService,
     private readonly userService: UserService,
     @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
+    @InjectModel(DB_SCHEMA.SCHEDULE_LOG)
+    private readonly ScheduleLog: Model<IScheduleLog>,
   ) {}
+
+  async logSchedule(
+    scheduleName: string,
+    status: string = 'success',
+    err?: string,
+  ): Promise<void> {
+    const scheduleLog = {
+      date: new Date(),
+      scheduleName,
+      status,
+      error: err ? err.toString() : undefined,
+    };
+
+    try {
+      await this.ScheduleLog.create(scheduleLog);
+    } catch (error) {
+      this.logger.error(`Failed to create schedule log: ${error.message}`);
+    }
+  }
 
   //투표 결과 알림
   @Cron(CronExpression.EVERY_DAY_AT_9AM, {
@@ -40,36 +64,9 @@ export class NotificationScheduler {
   async announceVoteResult() {
     try {
       await this.vote2Service.setResult(DateUtils.getTodayYYYYMMDD());
-      this.logger.log('Vote result notifications sent successfully.');
+      this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'success');
     } catch (error) {
-      this.logger.error('Error sending vote result notifications:', error);
-      throw new Error(error);
-    }
-  }
-
-  //매달 gatherTicket 3개로
-  @Cron('0 0 1 * *', {
-    timeZone: 'Asia/Seoul',
-  })
-  async resetGatherTicket() {
-    try {
-      await this.User.updateMany(
-        {},
-        {
-          $inc: { 'ticket.groupStudyTicket': 1 },
-        },
-      );
-
-      await this.User.updateMany(
-        { 'ticket.gatherTicket': { $lt: 3 } },
-        {
-          $set: { 'ticket.gatherTicket': 3 },
-        },
-      );
-
-      this.logger.log('Gather ticket reset successfully.');
-    } catch (error) {
-      this.logger.error('Error resetting monthly scores:', error);
+      this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'failure', error);
       throw new Error(error);
     }
   }
@@ -82,7 +79,9 @@ export class NotificationScheduler {
     try {
       await this.User.updateMany({}, { weekStudyTragetHour: 0 });
       await this.User.updateMany({}, { weekStudyAccumulationMinutes: 0 });
+      this.logSchedule(SCHEDULE_CONST.INIT_TARGET_HOUR, 'success');
     } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.INIT_TARGET_HOUR, 'failure', err);
       throw new Error(err);
     }
   }
@@ -95,7 +94,13 @@ export class NotificationScheduler {
   async initGroupstudyAttend() {
     try {
       await this.groupstudyRepository.initWeekAttendance();
+      this.logSchedule(SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE, 'success');
     } catch (err: any) {
+      this.logSchedule(
+        SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE,
+        'failure',
+        err,
+      );
       throw new Error(err);
     }
   }
@@ -108,7 +113,13 @@ export class NotificationScheduler {
     try {
       const current = new Date();
       await this.gatherRepository.updateNotOpened(current);
+      this.logSchedule(SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS, 'success');
     } catch (err: any) {
+      this.logSchedule(
+        SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS,
+        'failure',
+        err,
+      );
       throw new Error(err);
     }
   }
@@ -120,7 +131,13 @@ export class NotificationScheduler {
   async distributeGatherDeposit() {
     try {
       await this.gatherService.distributeDeposit();
+      this.logSchedule(SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT, 'success');
     } catch (err: any) {
+      this.logSchedule(
+        SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT,
+        'failure',
+        err,
+      );
       throw new Error(err);
     }
   }
@@ -132,7 +149,9 @@ export class NotificationScheduler {
   async processTemperature() {
     try {
       await this.userService.processTemperature();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success');
     } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', err);
       throw new Error(err);
     }
   }
@@ -144,19 +163,23 @@ export class NotificationScheduler {
   async processMonthScore() {
     try {
       await this.userService.processMonthScore();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'success');
     } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'failure', err);
       throw new Error(err);
     }
   }
 
   //ticket 정산
-  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
-    timeZone: 'Asia/Seoul',
-  })
+  // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+  //   timeZone: 'Asia/Seoul',
+  // })
   // async processTicket() {
   //   try {
   //     await this.userService.processTicket();
+  //     this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'success');
   //   } catch (err: any) {
+  //     this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'failure', err);
   //     throw new Error(err);
   //   }
   // }
@@ -166,7 +189,9 @@ export class NotificationScheduler {
   async processGroupStudyAttend() {
     try {
       await this.groupStudyService.processGroupStudyAttend();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'success');
     } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'failure', err);
       throw new Error(err);
     }
   }
