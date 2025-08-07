@@ -4,7 +4,7 @@ import GroupStudyService from './groupStudy.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GroupStudySchema } from './groupStudy.entity';
 import { UserModule } from 'src/routes/user/user.module';
-import { CounterModule } from 'src/counter/couter.module';
+import { CounterModule } from 'src/routes/counter/couter.module';
 import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { RedisModule } from 'src/redis/redis.module';

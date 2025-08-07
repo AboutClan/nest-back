@@ -6,7 +6,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserFilterType } from './adminUser.controller';
 
-const logger = require('../../logger');
+const logger = require('../../../logger');
 
 type UserQueryProps = {
   isActive: true;

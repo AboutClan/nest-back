@@ -8,7 +8,7 @@ import { ValidationError } from 'src/errors/ValidationError';
 
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import ImageService from 'src/imagez/image.service';
+import ImageService from 'src/routes/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';

@@ -7,13 +7,13 @@ import {
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { CounterService } from 'src/counter/counter.service';
+import { CounterService } from 'src/routes/counter/counter.service';
 import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
 import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
 import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import ImageService from 'src/imagez/image.service';
+import ImageService from 'src/routes/imagez/image.service';
 import { logger } from 'src/logger';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
