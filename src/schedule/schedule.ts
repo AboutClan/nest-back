@@ -43,8 +43,10 @@ export class NotificationScheduler {
     status: string = 'success',
     err?: string,
   ): Promise<void> {
+    const currentKrTime = DateUtils.getKoreaTime();
+
     const scheduleLog = {
-      date: new Date(),
+      date: currentKrTime,
       scheduleName,
       status,
       error: err ? err.toString() : undefined,

@@ -1,5 +1,5 @@
 import { ClassProvider, Module } from '@nestjs/common';
-import { CounterSchema } from 'src/counter/counter.entity';
+import { CounterSchema } from 'src/routes/counter/counter.entity';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CounterService } from './counter.service';
 import { ICOUNTER_REPOSITORY } from 'src/utils/di.tokens';

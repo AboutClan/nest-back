@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { CounterService } from 'src/counter/counter.service';
+import { CounterService } from 'src/routes/counter/counter.service';
 import { GroupStudy, GroupStudyProps } from 'src/domain/entities/GroupStudy';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';

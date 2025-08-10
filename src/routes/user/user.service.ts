@@ -6,7 +6,7 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
-import ImageService from 'src/imagez/image.service';
+import ImageService from 'src/routes/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/routes/collection/collection.service';
 import { ILog } from 'src/routes/logz/log.entity';

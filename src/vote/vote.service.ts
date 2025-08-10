@@ -4,16 +4,24 @@ import dayjs, { Dayjs } from 'dayjs';
 import { Model } from 'mongoose';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { convertUserToSummary } from 'src/convert';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/routes/collection/collection.service';
 import { IPlace } from 'src/routes/place/place.entity';
 import { IRealtime } from 'src/routes/realtime/realtime.entity';
-import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { now } from './util';
 import { IParticipation, IVote, IVoteStudyInfo } from './vote.entity';
+import { avatarType, IUser } from '../routes/user/user.entity';
+
+export interface IUserSummary {
+  uid: string;
+  _id: string;
+  avatar: avatarType;
+  name: string;
+  profileImage: string;
+  score: number;
+}
 
 @Injectable()
 export class VoteService {
@@ -32,6 +40,18 @@ export class VoteService {
       'participations.attendences.user',
       'participations.absences.user',
     ]);
+
+  convertUserToSummary = (user: IUser): IUserSummary => {
+    const { avatar, name, profileImage, uid, _id, score } = user;
+    return {
+      avatar,
+      score,
+      name,
+      profileImage,
+      _id,
+      uid,
+    };
+  };
 
   async getArrivedPeriod(startDay: string, endDay: string) {
     try {
@@ -219,7 +239,7 @@ export class VoteService {
               arrived: who?.arrived,
               arrivedMessage: who?.memo,
             },
-            user: convertUserToSummary(who.user as IUser),
+            user: this.convertUserToSummary(who.user as IUser),
             comment: who?.comment,
           })),
         };
@@ -248,7 +268,7 @@ export class VoteService {
             arrivedMessage: props?.memo,
           },
           user: {
-            ...convertUserToSummary(props.user as IUser),
+            ...this.convertUserToSummary(props.user as IUser),
             comment: (props.user as IUser).comment,
           },
         })),
@@ -385,7 +405,7 @@ export class VoteService {
                   arrived: who?.arrived,
                   arrivedMessage: who?.memo,
                 },
-                user: convertUserToSummary(who.user as IUser),
+                user: this.convertUserToSummary(who.user as IUser),
                 comment: who?.comment,
                 // absenceInfo
               })) || [], // attendences가 없을 경우 빈 배열로 처리
@@ -404,7 +424,7 @@ export class VoteService {
             arrived: props?.arrived,
             arrivedMessage: props?.memo,
           },
-          user: convertUserToSummary(props.user as IUser),
+          user: this.convertUserToSummary(props.user as IUser),
         })) || [];
 
       return { ...filterStudy(vote), realTime };

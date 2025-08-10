@@ -10,7 +10,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { TokenValidatorMiddleware } from './middlewares/tokenValidator';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './database.module';
+import { DatabaseModule } from './Database/database.module';
 import { WebPushModule } from './routes/webpush/webpush.module';
 import { VoteModule } from './vote/vote.module';
 import { UserModule } from './routes/user/user.module';
@@ -22,32 +22,31 @@ import { PromotionModule } from './routes/promotion/promotion.module';
 import { PlaceModule } from './routes/place/place.module';
 import { NoticeModule } from './routes/notice/notice.module';
 import { LogModule } from './routes/logz/log.module';
-import { ImageModule } from './imagez/image.module';
+import { ImageModule } from './routes/imagez/image.module';
 import { GroupStudyModule } from './routes/groupStudy/groupStudy.module';
 import { GiftModule } from './routes/gift/gift.module';
 import { GatherModule } from './routes/gather/gather.module';
 import { ChatModule } from './routes/chatz/chat.module';
-import { BookModule } from './book/book.module';
 import { FeedModule } from './routes/feed/feed.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 // import { RequestContextInterceptor } from './request-context.intercepter';
 import { CollectionModule } from './routes/collection/collection.module';
 import { RealtimeModule } from './routes/realtime/realtime.module';
-import { AdminCounterModule } from './admin/counter/adminCounter.module';
-import { AdminLogModule } from './admin/log/adminLog.module';
-import { AdminUserModule } from './admin/user/adminUser.module';
-import { AdminVoteModule } from './admin/vote/adminVote.module';
-import { AdminManageModule } from './admin/manage/adminManage.module';
+import { AdminCounterModule } from './routes/admin/counter/adminCounter.module';
+import { AdminLogModule } from './routes/admin/log/adminLog.module';
+import { AdminUserModule } from './routes/admin/user/adminUser.module';
+import { AdminVoteModule } from './routes/admin/vote/adminVote.module';
+import { AdminManageModule } from './routes/admin/manage/adminManage.module';
 import { DailyCheckModule } from './routes/dailycheck/dailyCheck.module';
 import { Vote2Module } from './routes/vote2/vote2.module';
 import { PaymentModule } from './routes/payment/payment.module';
 import { AsyncContextInterceptor } from './async-context.interceptor';
 import { BullModule } from '@nestjs/bull';
-import { HttpExceptionFilter } from './http-exception.filter';
+import { HttpExceptionFilter } from './errors/http-exception.filter';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
-import { ZodExceptionFilter } from './zod-exception.filter';
+import { ZodExceptionFilter } from './errors/zod-exception.filter';
 import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
@@ -139,7 +138,6 @@ const corsOptions = {
     GatherRequestModule,
     FeedModule,
     ChatModule,
-    BookModule,
     CollectionModule,
     RealtimeModule,
     DailyCheckModule,

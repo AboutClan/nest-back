@@ -3,7 +3,7 @@ import { JWT } from 'next-auth/jwt';
 import { Dayjs } from 'dayjs';
 import { User } from 'src/routes/user/user.entity';
 import { Account } from 'src/routes/account/account.entity';
-import dbConnect from 'src/conn';
+import dbConnect from 'src/Database/conn';
 
 export interface kakaoProfileInfo {
   name: string;

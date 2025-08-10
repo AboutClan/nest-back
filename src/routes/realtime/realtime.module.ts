@@ -8,7 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RealtimeSchema } from './realtime.entity';
 import { RealtimeController } from './realtime.controller';
 import RealtimeService from './realtime.service';
-import { ImageModule } from 'src/imagez/image.module';
+import { ImageModule } from 'src/routes/imagez/image.module';
 import { VoteModule } from 'src/vote/vote.module';
 import { CollectionModule } from 'src/routes/collection/collection.module';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';

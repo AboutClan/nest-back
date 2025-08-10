@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CONST } from 'src/Constants/CONSTANTS';
-import ImageService from 'src/imagez/image.service';
+import ImageService from 'src/routes/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/routes/collection/collection.service';
 import { UserService } from 'src/routes/user/user.service';

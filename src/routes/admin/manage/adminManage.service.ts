@@ -9,7 +9,7 @@ import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { VoteService } from 'src/vote/vote.service';
-const logger = require('../../logger');
+const logger = require('../../../logger');
 
 export default class AdminManageService {
   constructor(

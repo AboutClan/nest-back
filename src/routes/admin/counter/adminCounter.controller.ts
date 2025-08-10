@@ -9,7 +9,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
-import { CounterService } from 'src/counter/counter.service';
+import { CounterService } from 'src/routes/counter/counter.service';
 
 @Controller('admin/counter')
 export class AdminCounterController {

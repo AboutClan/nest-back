@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import ImageService from 'src/imagez/image.service';
+import ImageService from 'src/routes/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
@@ -48,7 +48,7 @@ export default class SquareService {
 
   async createSquare(square: Partial<Square> & { buffers: Buffer[] }) {
     const token = RequestContext.getDecodedToken();
-  
+
     const {
       category,
       title,
@@ -80,8 +80,6 @@ export default class SquareService {
       like: [],
       comments: [],
     });
-
-
 
     const createdSquare = await this.squareRepository.create(squareEntity);
     return { squareId: createdSquare._id };
