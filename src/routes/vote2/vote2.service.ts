@@ -1,23 +1,21 @@
 import { Inject } from '@nestjs/common';
-import { IPlace } from 'src/routes/place/place.entity';
+import { CONST } from 'src/Constants/CONSTANTS';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { Result } from 'src/domain/entities/Vote2/Vote2Result';
+import { RequestContext } from 'src/request-context';
 import { PlaceRepository } from 'src/routes/place/place.repository.interface';
 import { IRealtimeUser } from 'src/routes/realtime/realtime.entity';
 import RealtimeService from 'src/routes/realtime/realtime.service';
-import { RequestContext } from 'src/request-context';
-import { UserService } from 'src/routes/user/user.service';
-import { DateUtils } from 'src/utils/Date';
-import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
-import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
-import { IMember, IParticipation } from './vote2.entity';
 import { IUser } from 'src/routes/user/user.entity';
+import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { CONST } from 'src/Constants/CONSTANTS';
+import { DateUtils } from 'src/utils/Date';
+import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
+import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
+import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
-import { Result } from 'src/domain/entities/Vote2/Vote2Result';
-import { ParticipationProps } from 'src/domain/entities/Vote2/Vote2Participation';
 
 export class Vote2Service {
   constructor(
@@ -93,7 +91,7 @@ export class Vote2Service {
         } else {
           const before = await this.getBeforeVoteInfo(date);
           const realtime = await this.RealtimeService.getTodayData(date);
-          return { ...before, realtime };
+          return { ...before, realTimes: realtime };
         }
       }),
     );
