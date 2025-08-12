@@ -222,18 +222,11 @@ export class GroupStudyController {
 
   @Post('comment')
   async createComment(@Body() commentDto: CommentDto) {
-    try {
-      await this.groupStudyService.createComment(
-        commentDto.id,
-        commentDto.comment,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error creating comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.groupStudyService.createComment(
+      commentDto.id,
+      commentDto.comment,
+    );
+    return { status: 'success' };
   }
 
   @Delete('comment')

@@ -266,7 +266,6 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     isFree: {
       type: Boolean,
     },
-
     fee: {
       type: Number,
     },

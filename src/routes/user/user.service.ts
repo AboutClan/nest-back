@@ -946,31 +946,31 @@ export class UserService {
       const top5UserIds = top5[rank].map((user) => user._id.toString());
       this.prizeService.recordMonthPrize(rank, top5UserIds);
 
-      // if (rank === ENTITY.USER.RANK_SILVER) {
-      //   const pointList = [5000, 3000, 2000, 1000, 100];
-      //   for (let i = 0; i < top5UserIds.length; i++) {
-      //     const userId = top5UserIds[i];
-      //     const point = pointList[i] || 1000; // 기본값 1000
-      //     await this.updatePointById(
-      //       point,
-      //       `월간 ${rank} 등수 보상`,
-      //       '월간 점수 보상',
-      //       userId,
-      //     );
-      //   }
-      // } else if (rank === ENTITY.USER.RANK_BRONZE) {
-      //   const pointList = [3000, 2000, 1000, 1000, 1000];
-      //   for (let i = 0; i < top5UserIds.length; i++) {
-      //     const userId = top5UserIds[i];
-      //     const point = pointList[i] || 1000; // 기본값 1000
-      //     await this.updatePointById(
-      //       point,
-      //       `월간 ${rank} 등수 보상`,
-      //       '월간 점수 보상',
-      //       userId,
-      //     );
-      //   }
-      // }
+      if (rank === ENTITY.USER.RANK_SILVER) {
+        const pointList = [5000, 3000, 2000, 1000, 100];
+        for (let i = 0; i < top5UserIds.length; i++) {
+          const userId = top5UserIds[i];
+          const point = pointList[i] || 1000; // 기본값 1000
+          await this.updatePointById(
+            point,
+            `월간 ${rank} 등수 보상`,
+            '월간 점수 보상',
+            userId,
+          );
+        }
+      } else if (rank === ENTITY.USER.RANK_BRONZE) {
+        const pointList = [3000, 2000, 1000, 1000, 1000];
+        for (let i = 0; i < top5UserIds.length; i++) {
+          const userId = top5UserIds[i];
+          const point = pointList[i] || 1000; // 기본값 1000
+          await this.updatePointById(
+            point,
+            `월간 ${rank} 등수 보상`,
+            '월간 점수 보상',
+            userId,
+          );
+        }
+      }
     }
   }
 
@@ -978,8 +978,8 @@ export class UserService {
     try {
       const firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth();
 
-      // const uids =
-      //   await this.UserRepository.resetPointByMonthScore(firstDayOfLastMonth);
+      const uids =
+        await this.UserRepository.resetPointByMonthScore(firstDayOfLastMonth);
 
       await this.UserRepository.processMonthScore();
 
@@ -987,18 +987,18 @@ export class UserService {
 
       await this.UserRepository.resetMonthScore();
 
-      // uids.forEach((tempUid) => {
-      //   const point = -1000;
-      //   const uid = tempUid;
+      uids.forEach((tempUid) => {
+        const point = -1000;
+        const uid = tempUid;
 
-      //   const message = `월간 점수 정산`;
-      //   logger.logger.info(message, {
-      //     type: 'point',
-      //     sub: '월간 점수 초기화',
-      //     uid,
-      //     value: point,
-      //   });
-      // });
+        const message = `월간 점수 정산`;
+        logger.logger.info(message, {
+          type: 'point',
+          sub: '월간 점수 초기화',
+          uid,
+          value: point,
+        });
+      });
     } catch (error) {
       console.error('Error processing month score:', error);
       throw new AppError('Failed to process month score', 500);
