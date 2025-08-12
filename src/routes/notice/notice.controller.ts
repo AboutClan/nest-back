@@ -20,96 +20,47 @@ export class NoticeController {
 
   @Get()
   async findActiveLog() {
-    try {
-      const result = await this.noticeService.findActiveLog();
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching active log',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.findActiveLog();
+    return result;
   }
 
   //todo: 이름 무슨의미?
   @Get('score')
   async getActiveLog() {
-    try {
-      const result = await this.noticeService.getActiveLog();
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching active log',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.getActiveLog();
+    return result;
   }
 
   @Get('like')
   async getLike() {
-    try {
-      const result = await this.noticeService.getLike();
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching like log',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.getLike();
+    return result;
   }
 
   //todo: 동일 유저 방어 로직 필요
   @Post('like')
   async setLike(@Body('to') to: string, @Body('message') message: string) {
-    try {
-      await this.noticeService.setLike(to, message);
+    await this.noticeService.setLike(to, message);
 
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error setting like',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return { status: 'success' };
   }
 
   @Delete('like')
   async deleteLike(@Body('to') to: string) {
-    try {
-      await this.noticeService.deleteLike(to);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting like',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.noticeService.deleteLike(to);
+    return { status: 'success' };
   }
 
   @Get('like/all')
   async getLikeAll() {
-    try {
-      const result = await this.noticeService.getLikeAll();
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching all likes',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.getLikeAll();
+    return result;
   }
 
   @Get('friend')
   async getFriendRequest() {
-    try {
-      const result = await this.noticeService.getFriendRequest();
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching friend requests',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.getFriendRequest();
+    return result;
   }
 
   @Post('friend')
@@ -117,20 +68,8 @@ export class NoticeController {
     @Body('toUid') toUid: string,
     @Body('message') message: string,
   ) {
-    try {
-      await this.noticeService.requestNotice('friend', toUid, message);
-      // await this.webPushService.sendNotificationToX(
-      //   toUid,
-      //   '친구 요청을 받았어요!',
-      //   `님이 친구 요청을 보냈어요!`,
-      // );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error sending friend request notice',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.noticeService.requestNotice('friend', toUid, message);
+    return { status: 'success' };
   }
 
   @Patch('friend')
@@ -138,15 +77,8 @@ export class NoticeController {
     @Body('from') from: string,
     @Body('status') status: string,
   ) {
-    try {
-      await this.noticeService.updateRequestFriend('friend', from, status);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error updating friend request',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.noticeService.updateRequestFriend('friend', from, status);
+    return { status: 'success' };
   }
 
   @Post('alphabet')
@@ -155,15 +87,8 @@ export class NoticeController {
     @Body('message') message: string,
     @Body('sub') sub: string,
   ) {
-    try {
-      await this.noticeService.requestNotice('alphabet', toUid, message, sub);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error sending alphabet request notice',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.noticeService.requestNotice('alphabet', toUid, message, sub);
+    return { status: 'success' };
   }
 
   @Patch('alphabet')
@@ -171,54 +96,26 @@ export class NoticeController {
     @Body('from') from: string,
     @Body('status') status: string,
   ) {
-    try {
-      await this.noticeService.updateRequestFriend('alphabet', from, status);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error updating alphabet request',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.noticeService.updateRequestFriend('alphabet', from, status);
+    return { status: 'success' };
   }
 
   @Get('temperature')
   async getTemperature() {
-    try {
-      const result = await this.noticeService.getTemperature();
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching friend requests',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.getTemperature();
+    return result;
   }
 
   @Get('temperature/mine')
   async getMyTemperature(@Query('uid') uid) {
-    try {
-      const result = await this.noticeService.getMyTemperature(uid);
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching friend requests',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.getMyTemperature(uid);
+    return result;
   }
 
   @Get('temperature/all')
   async getAllTemperature(@Query('page') page = 1, @Query('page') userId) {
-    try {
-      const result = await this.noticeService.getAllTemperature(page, userId);
-      return result;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching friend requests',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const result = await this.noticeService.getAllTemperature(page, userId);
+    return result;
   }
 
   @Post('temperature')
@@ -226,11 +123,7 @@ export class NoticeController {
     @Body('infos') infos: { toUid: string; message: string; rating: string }[],
     @Body('gatherId') gatherId: string,
   ) {
-    try {
-      await this.noticeService.createTemperature(infos, gatherId);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    await this.noticeService.createTemperature(infos, gatherId);
+    return { status: 'success' };
   }
 }
