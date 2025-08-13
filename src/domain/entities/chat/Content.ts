@@ -14,7 +14,7 @@ export class Content {
   constructor(props: ContentProps) {
     this.userId = new VO_User(props.userId);
     this.content = props.content;
-    this.createdAt = props.createdAt ?? new Date(); // createdAt 기본값 추가
+    this.createdAt = props.createdAt;
   }
 
   toPrimitives(): ContentProps {

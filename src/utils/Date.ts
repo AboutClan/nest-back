@@ -104,19 +104,11 @@ export class DateUtils {
   }
 
   static getKoreaDate(date: string): Date {
-    const today = new Date(date);
-    const koreaToday = new Date(
-      today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }),
-    );
-    return koreaToday;
+    return dayjs(date).tz('Asia/Seoul').toDate();
   }
 
   static getKoreaToday(): Date {
-    const today = new Date();
-    const koreaToday = new Date(
-      today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }),
-    );
-    return koreaToday;
+    return dayjs().tz('Asia/Seoul').toDate();
   }
 
   static getTodayYYYYMMDD(): string {

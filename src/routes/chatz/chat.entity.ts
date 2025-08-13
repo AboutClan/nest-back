@@ -24,21 +24,20 @@ export const ChatZodSchema = z.object({
 export type IContent = z.infer<typeof ContentZodSchema>;
 export type IChat = z.infer<typeof ChatZodSchema> & Document;
 
-const ContentSchema: Schema<IContent> = new Schema(
-  {
-    userId: {
-      type: String,
-      required: true,
-    },
-    content: {
-      type: String,
-      require: true,
-    },
+const ContentSchema: Schema<IContent> = new Schema({
+  userId: {
+    type: String,
+    required: true,
   },
-  {
-    timestamps: true,
+  content: {
+    type: String,
+    require: true,
   },
-);
+  createdAt: {
+    type: Date,
+    required: true,
+  },
+});
 
 export const ChatSchema: Schema<IChat> = new Schema({
   user1: {

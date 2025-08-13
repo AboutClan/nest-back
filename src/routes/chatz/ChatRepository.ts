@@ -2,11 +2,10 @@ import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/domain/entities/chat/Chat';
-import { Content } from 'src/domain/entities/chat/Content';
 import { IChat } from './chat.entity';
 import { IChatRepository } from './ChatRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { VO_User } from 'src/domain/valueObject/VO_User';
+import { ContentProps } from 'src/domain/entities/chat/Content';
 
 export class ChatRepository implements IChatRepository {
   constructor(
@@ -60,6 +59,13 @@ export class ChatRepository implements IChatRepository {
     return this.mapToDomain(doc);
   }
 
+  async addContent(chatId: string, content: ContentProps): Promise<Chat> {
+    const doc = await this.ChatModel.findByIdAndUpdate(chatId, {
+      $push: { contents: content },
+    });
+    return this.mapToDomain(doc);
+  }
+
   async create(chat: Chat): Promise<Chat> {
     const docToSave = this.mapToDB(chat);
     const createdDoc = await this.ChatModel.create(docToSave);
@@ -107,6 +113,7 @@ export class ChatRepository implements IChatRepository {
       contents: chatProps.contents?.map((c) => ({
         userId: c.userId,
         content: c.content,
+        createdAt: c.createdAt,
       })),
     };
   }

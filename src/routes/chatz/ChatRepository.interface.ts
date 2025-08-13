@@ -1,4 +1,5 @@
 import { Chat } from 'src/domain/entities/chat/Chat';
+import { ContentProps } from 'src/domain/entities/chat/Content';
 
 export interface IChatRepository {
   findAll(): Promise<Chat[] | null>;
@@ -7,5 +8,6 @@ export interface IChatRepository {
   findRecentChatByUserId(userId: string): Promise<Chat | null>;
   findByUser1AndUser2(user1Id: string, user2Id: string): Promise<Chat | null>;
   create(chat: Chat): Promise<Chat>;
+  addContent(chatId: string, content: ContentProps): Promise<Chat>;
   save(chat: Chat): Promise<Chat>;
 }

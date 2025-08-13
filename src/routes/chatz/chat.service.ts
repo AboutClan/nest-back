@@ -8,6 +8,8 @@ import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
 import { IChatRepository } from './ChatRepository.interface';
 import { UserRepository } from '../user/UserRepository';
+import { DateUtils } from 'src/utils/Date';
+import { Content } from 'src/domain/entities/chat/Content';
 
 @Injectable()
 export class ChatService {
@@ -109,12 +111,14 @@ export class ChatService {
     const contentFill = {
       content: message,
       userId: token.id,
+      createdAt: DateUtils.getKoreaToday(),
     };
 
-    if (chat) {
-      chat.addContent(contentFill);
+    console.log(contentFill.createdAt);
 
-      await this.chatRepository.save(chat);
+    if (chat) {
+      const content = new Content(contentFill);
+      await this.chatRepository.addContent(chat._id, content.toPrimitives());
     } else {
       const newChat = new Chat({
         user1,
