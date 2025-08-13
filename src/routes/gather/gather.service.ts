@@ -565,7 +565,11 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      const user = { user: token.id, phase };
+      const user = {
+        user: token.id,
+        phase,
+        createdAt: DateUtils.getKoreaToday(),
+      };
 
       gather.setWaiting(user);
 

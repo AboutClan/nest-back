@@ -193,7 +193,7 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
       type: String,
     },
   },
-  { _id: false, timestamps: true },
+  { _id: false },
 );
 
 export const subCommentSchema: Schema<subCommentType> = new Schema(
