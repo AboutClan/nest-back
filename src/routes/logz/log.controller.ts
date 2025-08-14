@@ -37,6 +37,13 @@ export class LogController {
     const logs = await this.logService.getLog('point');
     return logs;
   }
+
+  @Get('point/total')
+  async getTotalPointLog() {
+    const logs = await this.logService.getTotalPointLog();
+    return logs;
+  }
+
   @Get('point/coupon')
   async getPointCouponLog(@Query('scope') scope?: 'all') {
     const log = await this.logService.getCuoponLog('point', scope);
