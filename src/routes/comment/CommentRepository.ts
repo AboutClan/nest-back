@@ -1,16 +1,33 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { ICommentRepository } from './CommentRepository.interface';
 import { Comment } from 'src/domain/entities/Comment';
 import { Model } from 'mongoose';
 import { ICommentData } from './comment.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 @Injectable()
 export class CommentRepository implements ICommentRepository {
-  constructor(private readonly commentModel: Model<Comment>) {}
+  constructor(
+    @InjectModel(DB_SCHEMA.COMMENT)
+    private readonly commentModel: Model<ICommentData>,
+  ) {}
 
   async findById(commentId: string): Promise<Comment> {
     const commentDoc = await this.commentModel.findById(commentId);
     return this.mapToDomain(commentDoc);
+  }
+
+  async findSubComments(commentIds: string[]): Promise<Comment[]> {
+    const subComments = await this.commentModel.find({
+      parentId: { $in: commentIds },
+    });
+    return subComments.map((comment) => this.mapToDomain(comment));
+  }
+
+  async findByPostId(postId: string): Promise<Comment[]> {
+    const comments = await this.commentModel.find({ postId });
+    return comments.map((comment) => this.mapToDomain(comment));
   }
 
   async save(comment: Comment): Promise<Comment> {
@@ -24,6 +41,10 @@ export class CommentRepository implements ICommentRepository {
     return this.mapToDomain(newCommentDoc);
   }
 
+  async delete(commentId: string): Promise<void> {
+    await this.commentModel.findByIdAndDelete(commentId);
+  }
+
   mapToDomain(comment: ICommentData): Comment {
     return new Comment({
       _id: comment._id,
@@ -32,7 +53,7 @@ export class CommentRepository implements ICommentRepository {
       postType: comment.postType,
       user: comment.user as string,
       comment: comment.comment,
-      likeList: comment.likeList,
+      likeList: comment.likeList as string[],
       createdAt: comment.createdAt,
     });
   }

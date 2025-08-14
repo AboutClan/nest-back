@@ -11,6 +11,24 @@ export default class CommentService {
     private readonly commentRepository: ICommentRepository,
   ) {}
 
+  async findCommentsByPostId(postId: string): Promise<Comment[]> {
+    const comments = await this.commentRepository.findByPostId(postId);
+
+    const commentIds = comments.map((comment) => comment._id);
+
+    const subComments =
+      await this.commentRepository.findSubComments(commentIds);
+
+    comments.forEach((comment: any) => {
+      comment.subComments = subComments.filter(
+        (subComment) =>
+          subComment.parentId.toString() === comment._id.toString(),
+      );
+    });
+
+    return comments;
+  }
+
   async updateComment({
     commentId,
     content,
@@ -30,9 +48,27 @@ export default class CommentService {
     comment,
     postId,
     postType,
-    parentId,
     user,
   }: Partial<CommentProps>): Promise<Comment> {
+    const newComment = new Comment({
+      comment,
+      postId,
+      postType,
+      user,
+      likeList: [],
+      createdAt: DateUtils.getKoreaToday(),
+    });
+
+    return await this.commentRepository.create(newComment);
+  }
+
+  async createSubComment({
+    comment,
+    postId,
+    postType,
+    parentId,
+    user,
+  }: Partial<CommentProps>): Promise<string> {
     const newComment = new Comment({
       comment,
       postId,
@@ -43,6 +79,12 @@ export default class CommentService {
       createdAt: DateUtils.getKoreaToday(),
     });
 
-    return await this.commentRepository.create(newComment);
+    await this.commentRepository.create(newComment);
+
+    return (await this.commentRepository.findById(parentId)).user;
+  }
+
+  async deleteComment({ commentId }: { commentId: string }): Promise<void> {
+    await this.commentRepository.delete(commentId);
   }
 }

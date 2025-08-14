@@ -7,24 +7,40 @@ import { ENTITY } from 'src/Constants/ENTITY';
 export const commentZodSchema = z.object({
   _id: z.string().optional(),
   postId: z.string(),
-  parentId: z.string().optional(),
+  parentId: z.union([z.string(), z.custom<any>()]),
   postType: z.enum(ENTITY.COMMENT.ENUM_POST_TYPE),
   user: z.union([z.string(), z.custom<IUser>()]),
   comment: z.string(),
-  likeList: z.array(z.string()).optional().default([]),
+  likeList: z
+    .union([z.array(z.string()), z.array(z.custom<IUser>())])
+    .optional(),
   createdAt: z.date().optional(),
 });
 
 export type ICommentData = z.infer<typeof commentZodSchema>;
 
 export const commentSchema: Schema<ICommentData> = new Schema({
-  _id: { type: String, required: true },
   postId: { type: String, required: true },
-  parentId: { type: String, required: false },
+  parentId: {
+    type: Schema.Types.ObjectId,
+    ref: DB_SCHEMA.COMMENT,
+  },
   postType: { type: String, required: true },
-  user: { type: String, required: true },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: DB_SCHEMA.USER,
+  },
   comment: { type: String, required: true },
-  likeList: { type: [String], required: false, default: [] },
+  likeList: {
+    type: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: DB_SCHEMA.USER,
+      },
+    ],
+    required: false,
+    default: [],
+  },
   createdAt: { type: Date, required: false },
 });
 

@@ -32,6 +32,16 @@ export class Comment {
     this.createdAt = props.createdAt;
   }
 
+  toSummary(): Partial<CommentProps> {
+    return {
+      _id: this._id,
+      user: this.user,
+      comment: this.comment,
+      likeList: this.likeList,
+      createdAt: this.createdAt,
+    };
+  }
+
   toPrimitives(): CommentProps {
     return {
       _id: this._id,

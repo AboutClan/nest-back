@@ -22,6 +22,7 @@ import { IGatherRepository } from '../gather/GatherRepository.interface';
 import { IFeedRepository } from './FeedRepository.interface';
 import { FcmService } from '../fcm/fcm.service';
 import { IGroupStudyRepository } from '../groupStudy/GroupStudyRepository.interface';
+import CommentService from '../comment/comment.service';
 
 @Injectable()
 export class FeedService {
@@ -38,6 +39,7 @@ export class FeedService {
     private readonly userService: UserService,
     private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
+    private readonly commentService: CommentService,
   ) {
     this.imageServiceInstance = new ImageService();
   }
@@ -101,8 +103,13 @@ export class FeedService {
       modifiedLike = feed?.like.slice(0, 8);
     }
 
+    const feedComments = await this.commentService.findCommentsByPostId(
+      feed._id,
+    );
+
     return {
       ...feed,
+      comments: feedComments,
       like: modifiedLike,
       likeCnt: feed?.like?.length,
     };
@@ -203,41 +210,39 @@ export class FeedService {
     const token = RequestContext.getDecodedToken();
     const feed = await this.feedRepository.findById(feedId);
 
-    feed.addComment({
+    await this.commentService.createComment({
+      postId: feed._id,
+      postType: 'feed',
       user: token.id,
       comment: content,
     });
 
-    const newComment = await this.feedRepository.save(feed);
-    if (!newComment) throw new DatabaseError('create comment failed');
-
     //noti
-    this.webPushServiceInstance.sendNotificationToXWithId(
-      feed.writer,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
+    // this.webPushServiceInstance.sendNotificationToXWithId(
+    //   feed.writer,
+    //   WEBPUSH_MSG.FEED.COMMENT_TITLE,
+    //   content,
+    // );
 
-    await this.fcmServiceInstance.sendNotificationToXWithId(
-      feed.writer,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
+    // await this.fcmServiceInstance.sendNotificationToXWithId(
+    //   feed.writer,
+    //   WEBPUSH_MSG.FEED.COMMENT_TITLE,
+    //   content,
+    // );
 
     return;
   }
 
   async deleteComment(feedId: string, commentId: string) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.removeComment(commentId);
-    await this.feedRepository.save(feed);
+    await this.commentService.deleteComment({ commentId });
     return;
   }
 
   async updateComment(feedId: string, commentId: string, comment: string) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.updateComment(commentId, comment);
-    await this.feedRepository.save(feed);
+    await this.commentService.updateComment({
+      commentId,
+      content: comment,
+    });
     return;
   }
 
@@ -264,36 +269,37 @@ export class FeedService {
 
   async createSubComment(feedId: string, commentId: string, content: string) {
     const token = RequestContext.getDecodedToken();
-    const message: SubCommentProps = {
-      user: token.id,
-      comment: content,
-    };
 
     const feed = await this.feedRepository.findById(feedId);
-    const commentWriter = feed.addSubComment(commentId, message);
-    await this.feedRepository.save(feed);
+    const commentWriter = await this.commentService.createSubComment({
+      postId: feedId,
+      postType: 'feed',
+      user: token.id,
+      comment: content,
+      parentId: commentId,
+    });
 
     //noti
-    this.webPushServiceInstance.sendNotificationToXWithId(
-      commentWriter,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
-    this.webPushServiceInstance.sendNotificationToXWithId(
-      feed.writer,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
-    await this.fcmServiceInstance.sendNotificationToXWithId(
-      commentWriter,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
-    await this.fcmServiceInstance.sendNotificationToXWithId(
-      feed.writer,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
+    // this.webPushServiceInstance.sendNotificationToXWithId(
+    //   commentWriter,
+    //   WEBPUSH_MSG.FEED.COMMENT_TITLE,
+    //   content,
+    // );
+    // this.webPushServiceInstance.sendNotificationToXWithId(
+    //   feed.writer,
+    //   WEBPUSH_MSG.FEED.COMMENT_TITLE,
+    //   content,
+    // );
+    // await this.fcmServiceInstance.sendNotificationToXWithId(
+    //   commentWriter,
+    //   WEBPUSH_MSG.FEED.COMMENT_TITLE,
+    //   content,
+    // );
+    // await this.fcmServiceInstance.sendNotificationToXWithId(
+    //   feed.writer,
+    //   WEBPUSH_MSG.FEED.COMMENT_TITLE,
+    //   content,
+    // );
   }
 
   async deleteSubComment(
