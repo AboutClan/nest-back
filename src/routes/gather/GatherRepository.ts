@@ -108,7 +108,7 @@ export class GatherRepository implements IGatherRepository {
     if (sortBy === 'basic') {
       const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
       const futureResult = await this.Gather.find(futureQuery)
-        .sort({ date: 1 })
+        .sort({ date: -1 })
         .skip(start)
         .limit(gap)
         .select('-_id')
@@ -198,7 +198,7 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
-   
+
     return [...gatherData1, ...gatherData2, ...gatherData3].map((doc) =>
       this.mapToDomain(doc),
     );
