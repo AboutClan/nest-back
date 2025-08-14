@@ -1,11 +1,9 @@
 // src/domain/entities/gather/Gather.ts
 
-import { Comment, CommentProps } from './Comment';
 import { GatherList, GatherListProps } from './GatherList';
 import { Location, LocationProps } from './Location';
 import { MemberCnt, MemberCntProps } from './MemberCnt';
 import { Participants, ParticipantsProps } from './Participants';
-import { SubComment, SubCommentProps } from './SubComment';
 import { Title, TitleProps } from './Title';
 import { Waiting, WaitingProps } from './Waiting';
 
@@ -26,7 +24,6 @@ export interface GatherProps {
   status?: GatherStatus;
   participants?: ParticipantsProps[];
   user?: string; // DB에선 user: ObjectId
-  comments?: CommentProps[];
   id?: number;
   date?: string;
   waiting?: WaitingProps[];
@@ -58,7 +55,6 @@ export class Gather {
   public status: GatherStatus;
   public participants: Participants[];
   public user: string;
-  public comments: Comment[];
   public id: number;
   public date: string;
   public waiting: Waiting[];
@@ -90,7 +86,6 @@ export class Gather {
     this.participants =
       props.participants?.map((p) => new Participants(p)) || [];
     this.user = props.user;
-    this.comments = props.comments?.map((c) => new Comment(c)) || [];
     this.id = props.id;
     this.date = props.date;
     this.waiting = props.waiting?.map((w) => new Waiting(w)) || [];
@@ -168,67 +163,6 @@ export class Gather {
     this.status = 'end';
   }
 
-  public addComment(commentProps: CommentProps): void {
-    this.comments.push(new Comment(commentProps));
-  }
-
-  public removeComment(commentId: string): void {
-    this.comments = this.comments.filter(
-      (c) => c._id.toString() !== commentId.toString(),
-    );
-  }
-
-  public updateComment(commentId: string, content: string): void {
-    this.comments.forEach((c) => {
-      if (c._id.toString() === commentId.toString()) c.comment = content;
-    });
-  }
-
-  public addCommentLike(commentId: string, writerId: string): void {
-    this.comments.forEach((c) => {
-      if (c._id === commentId) c.addLike(writerId);
-    });
-  }
-
-  public addSubComment(
-    commentId: string,
-    subCommentProps: SubCommentProps,
-  ): void {
-    this.comments.forEach((c) => {
-      if (c._id.toString() === commentId.toString())
-        c.addSubComment(new SubComment(subCommentProps));
-    });
-  }
-
-  public removeSubComment(commentId: string, subCommentId: string): void {
-    this.comments.forEach((c) => {
-      if (c._id.toString() === commentId.toString())
-        c.removeSubComment(subCommentId);
-    });
-  }
-
-  public updateSubComment(
-    commentId: string,
-    subCommentId: string,
-    content: string,
-  ): void {
-    this.comments.forEach((c) => {
-      if (c._id.toString() === commentId.toString())
-        c.updateSubComment(subCommentId, content);
-    });
-  }
-
-  public addSubCommentLike(
-    commentId: string,
-    subCommentId: string,
-    writerId: string,
-  ): void {
-    this.comments.forEach((c) => {
-      if (c._id.toString() === commentId.toString())
-        c.addSubCommentLike(subCommentId, writerId);
-    });
-  }
-
   public addReviewers(reviewer: string) {
     this.reviewers.push(reviewer);
   }
@@ -249,7 +183,6 @@ export class Gather {
       status: this.status,
       participants: this.participants.map((p) => p.toPrimitives()),
       user: this.user,
-      comments: this.comments.map((c) => c.toPrimitives()),
       id: this.id,
       date: this.date,
       waiting: this.waiting.map((w) => w.toPrimitives()),

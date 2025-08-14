@@ -9,7 +9,6 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
 import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
-import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { logger } from 'src/logger';
@@ -26,9 +25,9 @@ import {
   gatherStatus,
   IGatherData,
   ParticipantsZodSchema,
-  subCommentType,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import CommentService from '../comment/comment.service';
 
 //commit
 @Injectable()
@@ -41,6 +40,7 @@ export class GatherService {
     private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
+    private readonly commentService: CommentService,
   ) {}
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
@@ -49,7 +49,11 @@ export class GatherService {
   async getGatherById(gatherId: number) {
     const gatherData = await this.gatherRepository.findById(gatherId, true);
 
-    return gatherData;
+    const comments = await this.commentService.findCommentsByPostId(
+      gatherData._id.toString(),
+    );
+
+    return { ...gatherData, comments };
   }
 
   async getThreeGather() {
@@ -682,24 +686,20 @@ export class GatherService {
 
   async createSubComment(gatherId: string, commentId: string, content: string) {
     const token = RequestContext.getDecodedToken();
-    const message: subCommentType = {
-      user: token.id,
-      comment: content,
-    };
 
     const gather = await this.gatherRepository.findById(+gatherId, true);
-    if (!gather) throw new Error('gather not found');
 
-    gather.addSubComment(commentId, message as SubCommentProps);
-    await this.gatherRepository.save(gather);
+    const commentWriter = await this.commentService.createSubComment({
+      postId: gather._id.toString(),
+      postType: 'gather',
+      user: token.id,
+      comment: content,
+      parentId: commentId,
+    });
 
-    const comment = gather.comments.filter(
-      (comment) => comment._id == commentId,
-    );
-
-    if (comment[0] && comment[0].user) {
+    if (commentWriter) {
       await this.webPushServiceInstance.sendNotificationToXWithId(
-        comment[0].user as string,
+        commentWriter as string,
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
@@ -707,7 +707,7 @@ export class GatherService {
         ),
       );
       await this.fcmServiceInstance.sendNotificationToXWithId(
-        comment[0].user as string,
+        commentWriter as string,
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
           token.name,
@@ -740,10 +740,7 @@ export class GatherService {
     commentId: string,
     subCommentId: string,
   ) {
-    const gather = await this.gatherRepository.findById(+gatherId, true);
-    if (!gatherId) throw new Error('gather not found');
-
-    gather.removeSubComment(commentId, subCommentId);
+    await this.commentService.deleteComment({ commentId: subCommentId });
     return;
   }
 
@@ -753,11 +750,10 @@ export class GatherService {
     subCommentId: string,
     comment: string,
   ) {
-    const gather = await this.gatherRepository.findById(+gatherId, true);
-    if (!gatherId) throw new Error('gather not found');
-
-    gather.updateSubComment(commentId, subCommentId, comment);
-    await this.gatherRepository.save(gather);
+    await this.commentService.updateComment({
+      commentId: subCommentId,
+      content: comment,
+    });
 
     return;
   }
@@ -765,15 +761,14 @@ export class GatherService {
   //수정필요
   async createComment(gatherId: string, comment: string) {
     const token = RequestContext.getDecodedToken();
+
     const gather = await this.gatherRepository.findById(+gatherId, true);
-    if (!gather) throw new Error('gather not found');
-
-    gather.addComment({
+    await this.commentService.createComment({
+      postId: gather._id.toString(),
+      postType: 'gather',
       user: token.id,
-      comment,
-    } as SubCommentProps);
-
-    await this.gatherRepository.save(gather);
+      comment: comment,
+    });
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       (gather.user as unknown as IUser)._id.toString(),
@@ -795,35 +790,25 @@ export class GatherService {
     return;
   }
 
-  //수정필요
   async deleteComment(gatherId: string, commentId: string) {
-    const gather = await this.gatherRepository.findById(+gatherId, true);
-    if (!gather) throw new Error('gather not found');
-
-    gather.removeComment(commentId);
-    await this.gatherRepository.save(gather);
+    await this.commentService.deleteComment({ commentId: commentId });
 
     return;
   }
 
-  //수정필요
   async patchComment(gatherId: string, commentId: string, comment: string) {
-    const gather = await this.gatherRepository.findById(+gatherId, true);
-    if (!gather) throw new Error('gather not found');
+    await this.commentService.updateComment({
+      commentId: commentId,
+      content: comment,
+    });
 
-    gather.updateComment(commentId, comment);
-    await this.gatherRepository.save(gather);
     return;
   }
 
   async createCommentLike(gatherId: number, commentId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const gather = await this.gatherRepository.findById(gatherId, true);
-    if (!gather) throw new Error('gather not found');
-
-    gather.addCommentLike(commentId, token.id);
-    await this.gatherRepository.save(gather);
+    await this.commentService.likeComment(commentId, token.id);
   }
 
   async createSubCommentLike(
@@ -833,15 +818,7 @@ export class GatherService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const gather = await this.gatherRepository.findById(+gatherId, true);
-    if (!gather) throw new Error('gather not found');
-
-    gather.addSubCommentLike(commentId, subCommentId, token.id);
-    await this.gatherRepository.save(gather);
-
-    if (!gather) {
-      throw new DatabaseError('cant find gather');
-    }
+    await this.commentService.likeComment(subCommentId, token.id);
   }
 
   async deleteGather(gatherId: string) {
