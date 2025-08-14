@@ -31,7 +31,11 @@ export class CommentRepository implements ICommentRepository {
   }
 
   async save(comment: Comment): Promise<Comment> {
-    return null;
+    await this.commentModel.findByIdAndUpdate(
+      comment._id,
+      this.mapToDb(comment),
+    );
+    return this.findById(comment._id);
   }
 
   async create(comment: Comment): Promise<Comment> {

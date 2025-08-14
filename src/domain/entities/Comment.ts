@@ -32,6 +32,16 @@ export class Comment {
     this.createdAt = props.createdAt;
   }
 
+  toggleLike(userId: string): void {
+    if (this.likeList.includes(userId.toString())) {
+      this.likeList = this.likeList.filter(
+        (id) => id.toString() !== userId.toString(),
+      );
+    } else {
+      this.likeList.push(userId.toString());
+    }
+  }
+
   toSummary(): Partial<CommentProps> {
     return {
       _id: this._id,

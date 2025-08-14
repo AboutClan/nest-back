@@ -11,6 +11,15 @@ export default class CommentService {
     private readonly commentRepository: ICommentRepository,
   ) {}
 
+  async likeComment(commentId: string, userId: string): Promise<void> {
+    const comment = await this.commentRepository.findById(commentId);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    comment.toggleLike(userId);
+    await this.commentRepository.save(comment);
+  }
+
   async findCommentsByPostId(postId: string): Promise<Comment[]> {
     const comments = await this.commentRepository.findByPostId(postId);
 
@@ -41,6 +50,8 @@ export default class CommentService {
       throw new NotFoundException('Comment not found');
     }
     comment.comment = content;
+
+    await this.commentRepository.save(comment);
     return await this.commentRepository.save(comment);
   }
 

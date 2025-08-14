@@ -249,9 +249,7 @@ export class FeedService {
   async createCommentLike(feedId: string, commentId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const feed = await this.feedRepository.findById(feedId);
-    feed.updateComment(commentId, token.id);
-    await this.feedRepository.save(feed);
+    await this.commentService.likeComment(commentId, token.id);
     return;
   }
 
@@ -262,9 +260,7 @@ export class FeedService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const feed = await this.feedRepository.findById(feedId);
-    feed.addSubCommentLike(commentId, subCommentId, token.id);
-    await this.feedRepository.save(feed);
+    await this.commentService.likeComment(subCommentId, token.id);
   }
 
   async createSubComment(feedId: string, commentId: string, content: string) {
@@ -307,9 +303,7 @@ export class FeedService {
     commentId: string,
     subCommentId: string,
   ) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.removeSubComment(commentId, subCommentId);
-    await this.feedRepository.save(feed);
+    await this.commentService.deleteComment({ commentId: subCommentId });
     return;
   }
 
@@ -319,9 +313,10 @@ export class FeedService {
     subCommentId: string,
     comment: string,
   ) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.updateSubComment(commentId, subCommentId, comment);
-    await this.feedRepository.save(feed);
+    await this.commentService.updateComment({
+      commentId: subCommentId,
+      content: comment,
+    });
     return;
   }
 

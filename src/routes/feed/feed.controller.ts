@@ -32,7 +32,6 @@ export class FeedController {
       const feed = await this.feedService.findFeedById(typeId);
       return feed;
     } else if (type) {
-   
       const feed = await this.feedService.findFeedByType(
         type,
         cursorNum,
