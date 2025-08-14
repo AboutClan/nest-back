@@ -71,9 +71,7 @@ export class SquareRepository implements ISquareRepository {
   }
 
   async findAllTemp() {
-    console.log(1);
     const docs = await this.SquareModel.find({}, '_id comments').lean();
-    console.log(2);
     return docs;
   }
 

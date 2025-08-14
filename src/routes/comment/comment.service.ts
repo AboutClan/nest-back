@@ -80,13 +80,14 @@ export default class CommentService {
     postId,
     postType,
     user,
+    likeList,
   }: Partial<CommentProps>): Promise<Comment> {
     const newComment = new Comment({
       comment,
       postId,
       postType,
       user,
-      likeList: [],
+      likeList: likeList || [],
       createdAt: DateUtils.getKoreaToday(),
     });
 
@@ -99,6 +100,7 @@ export default class CommentService {
     postType,
     parentId,
     user,
+    likeList,
   }: Partial<CommentProps>): Promise<string> {
     const newComment = new Comment({
       comment,
@@ -106,7 +108,7 @@ export default class CommentService {
       postType,
       parentId,
       user,
-      likeList: [],
+      likeList: likeList || [],
       createdAt: DateUtils.getKoreaToday(),
     });
 

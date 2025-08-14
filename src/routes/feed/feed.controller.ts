@@ -177,4 +177,9 @@ export class FeedController {
   async findWrittenReview(@Query('type') type: 'gather' | 'group') {
     return await this.feedService.findWrittenReview(type);
   }
+
+  @Get('test')
+  async test() {
+    return await this.feedService.test();
+  }
 }

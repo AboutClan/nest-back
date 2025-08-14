@@ -297,6 +297,7 @@ export default class SquareService {
             postType: 'square',
             user: comment.user,
             comment: comment.comment,
+            likeList: comment?.likeList || [],
           });
 
           const subComments = comment.subComments || [];
@@ -310,6 +311,7 @@ export default class SquareService {
               user: subComment.user,
               comment: subComment.comment,
               parentId: saveComment._id.toString(),
+              likeList: subComment?.likeList || [],
             });
           }
         }

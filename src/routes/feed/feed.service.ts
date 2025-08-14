@@ -394,6 +394,7 @@ export class FeedService {
             postType: 'feed',
             user: comment.user,
             comment: comment.comment,
+            likeList: comment?.likeList || [],
           });
 
           const subComments = comment.subComments || [];
@@ -407,6 +408,7 @@ export class FeedService {
               user: subComment.user,
               comment: subComment.comment,
               parentId: saveComment._id.toString(),
+              likeList: subComment?.likeList || [],
             });
           }
         }

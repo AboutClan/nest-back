@@ -953,6 +953,7 @@ export default class GroupStudyService {
             postType: 'groupStudy',
             user: comment.user,
             comment: comment.comment,
+            likeList: comment?.likeList || [],
           });
 
           const subComments = comment.subComments || [];
@@ -966,6 +967,7 @@ export default class GroupStudyService {
               user: subComment.user,
               comment: subComment.comment,
               parentId: saveComment._id.toString(),
+              likeList: subComment?.likeList || [],
             });
           }
         }
