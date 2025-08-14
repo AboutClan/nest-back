@@ -199,7 +199,8 @@ export class GatherService {
       );
     });
 
-    return notReviewed[0] ?? null;
+    // return notReviewed[0] ?? null;
+    return null;
   }
 
   async getGatherGroup(groupId, type) {
