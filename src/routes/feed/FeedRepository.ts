@@ -32,12 +32,15 @@ export class FeedRepository implements IFeedRepository {
     return this.mapToDomain(updatedDoc);
   }
 
+  async findAllTemp() {
+    const docs = await this.FeedModel.find({}, '_id comments').lean();
+    return docs;
+  }
+
   async findAll(opt: any): Promise<Feed[]> {
     let query = this.FeedModel.find().populate([
       { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
       { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.subComments.user', select: ENTITY.USER.C_SIMPLE_USER },
     ]);
 
     if (opt.start) query = query.skip(opt.start);
@@ -80,12 +83,7 @@ export class FeedRepository implements IFeedRepository {
     if (opt.gap) query = query.limit(opt.gap);
     if (opt.sort) query = query.sort({ createdAt: opt.sort });
 
-    const docs = await query
-      .populate(['writer', 'like', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
+    const docs = await query.populate(['writer', 'like']);
 
     return docs.map((doc) => this.mapToDomain(doc));
   }

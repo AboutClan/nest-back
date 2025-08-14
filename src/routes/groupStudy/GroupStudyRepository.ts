@@ -5,12 +5,10 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import {
   AttendanceProps,
   CategoryProps,
-  CommentProps,
   GroupStudy,
   GroupStudyProps,
   MemberCntProps,
   ParticipantProps,
-  SubCommentProps,
   WaitingProps,
   WeekRecordProps,
 } from 'src/domain/entities/GroupStudy';
@@ -22,6 +20,11 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     @InjectModel(DB_SCHEMA.GROUPSTUDY)
     private readonly GroupStudy: Model<IGroupStudyData>,
   ) {}
+
+  async findAllTemp() {
+    const docs = await this.GroupStudy.find({}, '_id comments').lean();
+    return docs;
+  }
 
   async findMyGroupStudyId(userId: string) {
     const result = await this.GroupStudy.find({
@@ -96,14 +99,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       })
       .populate({
         path: 'waiting.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .populate({
-        path: 'comments.subComments.user',
         select: ENTITY.USER.C_SIMPLE_USER,
       })
       .select('-_id');
@@ -253,28 +248,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       }),
     );
 
-    // comments
-    const comments: CommentProps[] = (doc.comments || []).map((c: any) => {
-      const subComments: SubCommentProps[] = (c.subComments || []).map(
-        (s: any) => ({
-          _id: s._id,
-          user: s.user as string,
-          comment: s.comment,
-          likeList: s.likeList || [],
-          createdAt: s.createdAt || new Date(),
-        }),
-      );
-
-      return {
-        _id: c._id,
-        user: c.user as string,
-        comment: c.comment,
-        subComments,
-        likeList: c.likeList || [],
-        createdAt: c.createdAt || new Date(),
-      };
-    });
-
     // waiting
     const waiting: WaitingProps[] = (doc.waiting || []).map((w) => ({
       user: w.user as string,
@@ -320,7 +293,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       status: doc.status,
       participants,
       userId: doc.user,
-      comments,
       location: doc.location,
       image: doc.image,
       isFree: doc.isFree,
@@ -356,17 +328,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       deposit: pt.deposit,
       monthAttendance: pt.monthAttendance,
       lastMonthAttendance: pt.lastMonthAttendance,
-    }));
-
-    const commentsDb = (p.comments || []).map((c) => ({
-      user: c.user,
-      comment: c.comment,
-      subComments: c.subComments.map((s) => ({
-        user: s.user,
-        comment: s.comment,
-        likeList: s.likeList,
-      })),
-      likeList: c.likeList,
     }));
 
     const waitingDb = (p.waiting || []).map((w) => ({
@@ -412,7 +373,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       status: p.status as IGroupStudyData['status'],
       participants: participantsDb as IGroupStudyData['participants'],
       user: p.userId,
-      comments: commentsDb,
       location: p.location as IGroupStudyData['location'],
       image: p.image,
       isFree: p.isFree,

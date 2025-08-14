@@ -414,7 +414,7 @@ export class GatherService {
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
     }
-  
+
     const user = await this.userServiceInstance.getUserWithUserId(userId);
 
     // await this.userServiceInstance.updateScore(
@@ -852,44 +852,41 @@ export class GatherService {
   }
 
   async test() {
-    const randomGatherData = {
-      title: 'string',
-      type: {
-        title: 'string',
-        subtitle: 'string',
-      },
-      gatherList: [],
-      content: 'string',
-      location: {
-        latitude: 0,
-        longitude: 0,
-      },
-      memberCnt: {
-        min: 0,
-        max: 0,
-      },
-      age: null,
-      preCnt: null,
-      genderCondition: false,
-      password: null,
-      status: 'string',
-      participants: [],
-      user: 'string', // DB에선 user: ObjectId
-      comments: [],
-      date: 'string',
-      waiting: [],
-      place: null,
-      isAdminOpen: null,
-      image: null,
-      coverImage: null,
-      postImage: null,
-      kakaoUrl: null,
-      isApprovalRequired: null,
-      reviewers: [],
-      deposit: 0,
-      category: 'string',
-      groupId: null,
-    };
-    // const gather = new Gather(randomGatherData as GatherProps);
+    try {
+      const feeds = await this.gatherRepository.findAllTemp();
+
+      for (const feed of feeds) {
+        const comments = feed.comments;
+
+        for (const comment of comments) {
+          if (!comment?.comment) continue;
+
+          const saveComment = await this.commentService.createComment({
+            postId: feed._id.toString(),
+            postType: 'gather',
+            user: comment.user,
+            comment: comment.comment,
+          });
+
+          const subComments = comment.subComments || [];
+
+          for (const subComment of subComments) {
+            if (!subComment.comment) continue;
+
+            const saveSubComment = await this.commentService.createSubComment({
+              postId: feed._id.toString(),
+              postType: 'gather',
+              user: subComment.user,
+              comment: subComment.comment,
+              parentId: saveComment._id.toString(),
+            });
+          }
+        }
+      }
+
+      return feeds;
+    } catch (err) {
+      console.log(err);
+    }
   }
 }

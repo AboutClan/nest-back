@@ -1,6 +1,6 @@
 export const ENTITY = {
   COMMENT: {
-    ENUM_POST_TYPE: ['gather', 'groupStudy', 'feed'] as const,
+    ENUM_POST_TYPE: ['gather', 'groupStudy', 'feed', 'square'] as const,
   },
 
   ANNOUNCEMENT: {

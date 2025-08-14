@@ -9,6 +9,7 @@ import { SquareRepository } from './square.repository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WebPushModule } from '../webpush/webpush.module';
 import { FcmAModule } from '../fcm/fcm.module';
+import { CommentModule } from '../comment/comment.module';
 
 const squareRepositoryProvider: ClassProvider = {
   provide: ISQUARE_REPOSITORY,
@@ -22,6 +23,7 @@ const squareRepositoryProvider: ClassProvider = {
     ]),
     WebPushModule,
     FcmAModule,
+    CommentModule,
   ],
   controllers: [SquareController],
   providers: [SquareService, ImageService, squareRepositoryProvider],

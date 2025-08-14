@@ -30,6 +30,11 @@ export class CommentRepository implements ICommentRepository {
     return comments.map((comment) => this.mapToDomain(comment));
   }
 
+  async findByPostIds(postIds: string[]): Promise<Comment[]> {
+    const comments = await this.commentModel.find({ postId: { $in: postIds } });
+    return comments.map((comment) => this.mapToDomain(comment));
+  }
+
   async save(comment: Comment): Promise<Comment> {
     await this.commentModel.findByIdAndUpdate(
       comment._id,

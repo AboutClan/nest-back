@@ -136,6 +136,10 @@ export class FeedService {
       gap,
       isRecent,
     });
+    const feedIds = feeds?.map((feed) => feed._id.toString());
+
+    const comments = await this.commentService.findCommetsByPostIds(feedIds);
+
     return feeds?.map((feed) => {
       const myLike = (feed?.like as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
@@ -153,6 +157,9 @@ export class FeedService {
       }
       return {
         ...feed,
+        comments: comments.filter(
+          (comment) => comment.postId.toString() === feed._id.toString(),
+        ),
         like: modifiedLike,
         likeCnt: feed?.like?.length,
       };
@@ -370,5 +377,44 @@ export class FeedService {
       writtenReviewCnt: (myFeed || []).length,
       reviewReceived: (receivedFeed || []).length,
     };
+  }
+
+  async test() {
+    try {
+      const feeds = await this.feedRepository.findAllTemp();
+
+      for (const feed of feeds) {
+        const comments = feed.comments;
+
+        for (const comment of comments) {
+          if (!comment?.comment) continue;
+
+          const saveComment = await this.commentService.createComment({
+            postId: feed._id.toString(),
+            postType: 'feed',
+            user: comment.user,
+            comment: comment.comment,
+          });
+
+          const subComments = comment.subComments || [];
+
+          for (const subComment of subComments) {
+            if (!subComment.comment) continue;
+
+            const saveSubComment = await this.commentService.createSubComment({
+              postId: feed._id.toString(),
+              postType: 'feed',
+              user: subComment.user,
+              comment: subComment.comment,
+              parentId: saveComment._id.toString(),
+            });
+          }
+        }
+      }
+
+      return feeds;
+    } catch (err) {
+      console.log(err);
+    }
   }
 }

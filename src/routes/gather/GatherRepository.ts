@@ -30,6 +30,11 @@ export class GatherRepository implements IGatherRepository {
     return result.map((doc) => this.mapToDomain(doc));
   }
 
+  async findAllTemp() {
+    const docs = await this.Gather.find({}, '_id comments').lean();
+    return docs;
+  }
+
   async findMyGatherId(userId: string) {
     const result = await this.Gather.find({
       participants: {

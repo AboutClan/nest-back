@@ -38,6 +38,26 @@ export default class CommentService {
     return comments;
   }
 
+  async findCommetsByPostIds(postIds: string[]): Promise<Comment[]> {
+    const comments = await this.commentRepository.findByPostIds(postIds);
+
+    const commentIds = comments.map((comment) => comment._id.toString());
+
+    const subComments =
+      await this.commentRepository.findSubComments(commentIds);
+
+    comments.forEach((comment: any) => {
+      comment.subComments = subComments.filter(
+        (subComment) =>
+          subComment.parentId.toString() === comment._id.toString(),
+      );
+    });
+
+    console.log(comments);
+
+    return comments;
+  }
+
   async updateComment({
     commentId,
     content,
