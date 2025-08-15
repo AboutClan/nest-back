@@ -20,6 +20,7 @@ import * as logger from '../../logger';
 import { PrizeService } from '../prize/prize.service';
 import { IUser, restType } from './user.entity';
 import { IUserRepository } from './UserRepository.interface';
+import { BackupService } from 'src/Database/backup.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -33,6 +34,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly collectionServiceInstance: CollectionService,
     private readonly prizeService: PrizeService,
+    private readonly backupService: BackupService,
   ) {}
 
   async decodeByAES256(encodedTel: string) {
@@ -1015,8 +1017,7 @@ export class UserService {
   }
 
   async test() {
-    // await this.processTemperature();
-    // await this.processMonthScore();
-    // throw new Error('Test error');
+    await this.backupService.backupDatabase();
+    return { message: '백업이 시작되었습니다.' };
   }
 }

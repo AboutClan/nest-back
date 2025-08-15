@@ -14,7 +14,7 @@ export class BackupService {
     this.s3 = new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY,
       secretAccessKey: process.env.AWS_KEY,
-      region: process.env.AWS_REGION,
+      region: 'ap-northeast-2',
     });
   }
 
@@ -40,7 +40,7 @@ export class BackupService {
       // 3) S3 업로드
       const fileStream = fs.createReadStream(ARCHIVE_PATH);
       const uploadParams = {
-        Bucket: process.env.S3_BUCKET_NAME,
+        Bucket: 'studyabout/mongodb',
         Key: `mongodb/${BACKUP_NAME}.gz`,
         Body: fileStream,
       };
