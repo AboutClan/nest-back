@@ -18,6 +18,7 @@ import {
 import { IScheduleLog } from './schedule_log.entity';
 import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
 import { error } from 'console';
+import { BackupService } from 'src/Database/backup.service';
 
 @Injectable()
 export class NotificationScheduler {
@@ -36,6 +37,8 @@ export class NotificationScheduler {
     @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
     @InjectModel(DB_SCHEMA.SCHEDULE_LOG)
     private readonly ScheduleLog: Model<IScheduleLog>,
+
+    private readonly backupService: BackupService,
   ) {}
 
   async logSchedule(
@@ -56,6 +59,19 @@ export class NotificationScheduler {
       await this.ScheduleLog.create(scheduleLog);
     } catch (error) {
       this.logger.error(`Failed to create schedule log: ${error.message}`);
+    }
+  }
+
+  @Cron('0 2 * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async backupDatabase() {
+    try {
+      await this.backupService.backupDatabase();
+      this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'success');
+    } catch (error) {
+      this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'failure', error);
+      throw new Error(error);
     }
   }
 

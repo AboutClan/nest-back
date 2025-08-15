@@ -7,6 +7,7 @@ import { Vote2Module } from 'src/routes/vote2/vote2.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ScheduleLogSchema } from './schedule_log.entity';
+import { BackupModule } from 'src/Database/backup.module';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -19,6 +20,7 @@ const isDev = process.env.NODE_ENV === 'development';
     GroupStudyModule,
     UserModule,
     Vote2Module,
+    BackupModule,
   ],
   controllers: [],
   providers: [...(!isDev ? [NotificationScheduler] : [])],
