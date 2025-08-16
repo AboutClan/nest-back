@@ -1,6 +1,6 @@
+import { Comment, CommentProps } from './Comment';
 import { Place, PlaceProps } from './Place';
 import { Time, TimeProps } from './Time';
-import { Comment, CommentProps } from './Comment';
 
 /**
  * Status enum for RealtimeUser
@@ -47,6 +47,7 @@ export class RealtimeUser {
       props.place.longitude,
       props.place.name,
       props.place.address,
+      props.place._id,
     );
     this.time = new Time(props.time.start, props.time.end);
     this.arrived = props.arrived;

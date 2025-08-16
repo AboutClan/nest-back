@@ -3,6 +3,7 @@ export interface PlaceProps {
   longitude: number;
   name: string;
   address: string;
+  _id: string;
 }
 
 export class Place {
@@ -10,12 +11,14 @@ export class Place {
   public readonly longitude: number;
   public readonly name: string;
   public readonly address: string;
+  public readonly _id: string;
 
   constructor(
     latitude: number,
     longitude: number,
     name: string,
     address: string,
+    _id: string,
   ) {
     if (latitude === undefined) throw new Error('Place.latitude is required');
     if (longitude === undefined) throw new Error('Place.longitude is required');
@@ -25,6 +28,7 @@ export class Place {
     this.longitude = longitude;
     this.name = name;
     this.address = address;
+    this._id = _id;
   }
 
   toPrimitives(): PlaceProps {
@@ -33,6 +37,7 @@ export class Place {
       longitude: this.longitude,
       name: this.name,
       address: this.address,
+      _id: this._id,
     };
   }
 }

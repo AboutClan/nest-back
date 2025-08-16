@@ -9,13 +9,14 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { CONST } from 'src/Constants/CONSTANTS';
 import {
   CreateArriveDTO,
   CreateNewVoteDTO,
+  CreateNewVotesDTO,
   CreateParticipateDTO,
 } from './vote2.dto';
 import { Vote2Service } from './vote2.service';
-import { CONST } from 'src/Constants/CONSTANTS';
 
 @Controller('vote2')
 export class Vote2Controller {
@@ -23,7 +24,6 @@ export class Vote2Controller {
 
   @Get('week')
   async getWeekData(@Req() req: Request): Promise<any> {
-    const { date } = req;
     const filteredVote = await this.voteService2.getWeekData();
     return filteredVote;
   }
@@ -71,7 +71,7 @@ export class Vote2Controller {
   ): Promise<any> {
     const { latitude, longitude, start, end } = createVoteDTO;
     const { date } = req;
-
+    console.log(44);
     await this.voteService2.setVote(date as string, {
       latitude,
       longitude,
@@ -80,6 +80,27 @@ export class Vote2Controller {
     });
 
     return { value: CONST.POINT.STUDY_VOTE };
+  }
+
+  @Post(':date/dateArr')
+  async setVoteArr(
+    @Req() req: Request,
+    @Body() createVoteDTO: CreateNewVotesDTO,
+  ): Promise<any> {
+    const { latitude, longitude, start, end, dates } = createVoteDTO;
+
+    await Promise.all(
+      dates.map((d) =>
+        this.voteService2.setVote(d as string, {
+          latitude,
+          longitude,
+          start,
+          end,
+        }),
+      ),
+    );
+
+    return { value: CONST.POINT.STUDY_VOTE * dates.length };
   }
 
   @Patch(':date')

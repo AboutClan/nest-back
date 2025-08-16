@@ -7,15 +7,15 @@ import {
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { CounterService } from 'src/routes/counter/counter.service';
 import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
 import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
 import { SubCommentProps } from 'src/domain/entities/Gather/SubComment';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import ImageService from 'src/routes/imagez/image.service';
 import { logger } from 'src/logger';
 import { RequestContext } from 'src/request-context';
+import { CounterService } from 'src/routes/counter/counter.service';
+import ImageService from 'src/routes/imagez/image.service';
 import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { DateUtils } from 'src/utils/Date';
@@ -380,35 +380,35 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      await this.useDepositToParticipateGather(gather, userId);
+      // await this.useDepositToParticipateGather(gather, userId);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
     }
-
+    console.log(55);
     const user = await this.userServiceInstance.getUserWithUserId(userId);
 
-    await this.userServiceInstance.updateScore(
-      CONST.SCORE.PARTICIPATE_GATHER,
-      '번개 모임 참여',
-      undefined,
-      user.uid,
-    );
+    // await this.userServiceInstance.updateScore(
+    //   CONST.SCORE.PARTICIPATE_GATHER,
+    //   '번개 모임 참여',
+    //   undefined,
+    //   user.uid,
+    // );
 
-    if (userId) {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
-      );
+    // if (userId) {
+    //   await this.webPushServiceInstance.sendNotificationToXWithId(
+    //     userId,
+    //     WEBPUSH_MSG.GATHER.TITLE,
+    //     WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
+    //   );
 
-      await this.fcmServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
-      );
-    }
+    //   await this.fcmServiceInstance.sendNotificationToXWithId(
+    //     userId,
+    //     WEBPUSH_MSG.GATHER.TITLE,
+    //     WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
+    //   );
+    // }
 
     return;
   }

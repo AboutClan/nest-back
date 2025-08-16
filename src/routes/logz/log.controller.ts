@@ -65,6 +65,7 @@ export class LogController {
       );
     }
   }
+
   @Get('point/coupon')
   async getPointCouponLog(@Query('scope') scope?: 'all') {
     try {

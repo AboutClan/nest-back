@@ -1,10 +1,10 @@
-import { IRealtimeRepository } from './RealtimeRepository.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { IRealtime } from './realtime.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { Model } from 'mongoose';
-import { ENTITY } from 'src/Constants/ENTITY';
+import { IRealtimeRepository } from './RealtimeRepository.interface';
 
 export class RealtimeRepository implements IRealtimeRepository {
   constructor(
@@ -87,6 +87,7 @@ export class RealtimeRepository implements IRealtimeRepository {
           longitude: u.place.longitude,
           name: u.place.name,
           address: u.place.address,
+          _id: u.place._id,
         },
         arrived: u.arrived,
         image: u.image as string,

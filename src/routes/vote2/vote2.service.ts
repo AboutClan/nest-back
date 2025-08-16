@@ -59,6 +59,7 @@ export class Vote2Service {
     return form;
   }
   formatRealtime(member: IRealtimeUser) {
+  
     const form = {
       user: member.user,
       time: {
@@ -136,7 +137,7 @@ export class Vote2Service {
     const resultPlaces = await this.PlaceRepository.findByIds(
       resultPlaceIds as string[],
     );
-
+    const realtimeData = await this.RealtimeService.getTodayData(date);
     const m = new Map<string, any>();
     resultPlaces.forEach((place) => m.set(place._id.toString(), place));
 
@@ -155,6 +156,14 @@ export class Vote2Service {
         };
       }),
       results,
+      realTimes: realtimeData
+        ? {
+            ...realtimeData,
+            userList: realtimeData.userList.map((user) =>
+              this.formatRealtime(user),
+            ),
+          }
+        : null,
     };
   }
 
@@ -177,7 +186,7 @@ export class Vote2Service {
         unmatchedUsers.push(par.userId);
       }
     });
-
+    console.log(realtimeData);
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
