@@ -15,6 +15,7 @@ export interface IParticipation {
   start?: string;
   end?: string;
   comment?: IVoteComment;
+  locationDetail: string;
 }
 
 export interface IMember {

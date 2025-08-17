@@ -100,6 +100,7 @@ export class Vote2 {
               longitude: participateData.longitude || '',
               start: participateData.start,
               end: participateData.end,
+              locationDetail: participateData.locationDetail || '',
               comment: new VoteComment(participateData.comment),
             }),
           ],
@@ -109,19 +110,22 @@ export class Vote2 {
   }
 
   setOrUpdateParticipation(newParticipation: Participation) {
+
     const idx = this.participations.findIndex(
       (p) => p.userId === newParticipation.userId,
     );
     if (idx !== -1) {
-      // 이미 존재하면 갱신
+      
       this.participations[idx] = newParticipation;
     } else {
+     
       // 없으면 추가
       this.participations.push(newParticipation);
     }
   }
 
   toPrimitives(): Vote2Props {
+  
     return {
       date: this.date,
       participations: this.participations.map((p) => p.toPrimitives()),

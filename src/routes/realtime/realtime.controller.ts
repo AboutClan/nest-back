@@ -11,7 +11,7 @@ import {
   Req,
   Res,
   UploadedFiles,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -130,7 +130,7 @@ export class RealtimeController {
     @Next() next: NextFunction,
   ) {
     const { date } = req;
-
+console.log('date',date)
     await this.realtimeService.deleteVote(date as string);
     return res.status(HttpStatus.NO_CONTENT).end();
   }

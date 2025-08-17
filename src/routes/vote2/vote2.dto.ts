@@ -8,6 +8,10 @@ export class CreateNewVoteDTO {
   @IsOptional()
   @IsString()
   longitude: string;
+  
+  @IsOptional()
+  @IsString()
+  locationDetail: string;
 
   @IsOptional()
   @IsString()
@@ -37,6 +41,10 @@ export class CreateNewVotesDTO {
   @IsOptional()
   @IsArray()
   dates: string[];
+
+  @IsOptional()
+  @IsArray()
+  locationDetail: string;
 }
 
 export class CreateParticipateDTO {

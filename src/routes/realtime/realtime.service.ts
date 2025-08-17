@@ -1,8 +1,13 @@
 import { Inject } from '@nestjs/common';
 import { CONST } from 'src/Constants/CONSTANTS';
-import ImageService from 'src/routes/imagez/image.service';
+import { CommentProps } from 'src/domain/entities/Realtime/Comment';
+import { PlaceProps } from 'src/domain/entities/Realtime/Place';
+import { Realtime } from 'src/domain/entities/Realtime/Realtime';
+import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
+import { TimeProps } from 'src/domain/entities/Realtime/Time';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/routes/collection/collection.service';
+import ImageService from 'src/routes/imagez/image.service';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
@@ -14,11 +19,6 @@ import {
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { IRealtimeRepository } from './RealtimeRepository.interface';
-import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
-import { PlaceProps } from 'src/domain/entities/Realtime/Place';
-import { TimeProps } from 'src/domain/entities/Realtime/Time';
-import { CommentProps } from 'src/domain/entities/Realtime/Comment';
-import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 
 export default class RealtimeService {
   constructor(
@@ -240,7 +240,7 @@ export default class RealtimeService {
     const todayData = await this.getTodayData(date);
 
     todayData.deleteVote(token.id);
-
+    console.log(33, todayData, token.id);
     await this.realtimeRepository.save(todayData);
   }
 

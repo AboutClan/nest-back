@@ -43,9 +43,8 @@ export default class LogService {
     const token = RequestContext.getDecodedToken();
     const logs = await this.logRepository.findByUidType(token.uid, 'point');
 
-    const total = logs
-      .filter((log) => log?.meta?.value > 0)
-      .reduce((acc, log) => acc + (log?.meta?.value || 0), 0);
+    const total = logs.filter((log) => log?.meta?.value > 0);
+    // .reduce((acc, log) => acc + (log?.meta?.value || 0), 0);
 
     return { totalPoint: total };
   }

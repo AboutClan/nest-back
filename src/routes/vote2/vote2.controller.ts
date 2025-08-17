@@ -69,7 +69,7 @@ export class Vote2Controller {
     @Req() req: Request,
     @Body() createVoteDTO: CreateNewVoteDTO,
   ): Promise<any> {
-    const { latitude, longitude, start, end } = createVoteDTO;
+    const { latitude, longitude, start, end, locationDetail } = createVoteDTO;
     const { date } = req;
     console.log(44);
     await this.voteService2.setVote(date as string, {
@@ -77,6 +77,7 @@ export class Vote2Controller {
       longitude,
       start,
       end,
+      locationDetail,
     });
 
     return { value: CONST.POINT.STUDY_VOTE };
@@ -87,7 +88,8 @@ export class Vote2Controller {
     @Req() req: Request,
     @Body() createVoteDTO: CreateNewVotesDTO,
   ): Promise<any> {
-    const { latitude, longitude, start, end, dates } = createVoteDTO;
+    const { latitude, longitude, start, end, dates, locationDetail } =
+      createVoteDTO;
 
     await Promise.all(
       dates.map((d) =>
@@ -96,11 +98,12 @@ export class Vote2Controller {
           longitude,
           start,
           end,
+          locationDetail,
         }),
       ),
     );
 
-    return { value: CONST.POINT.STUDY_VOTE * dates.length };
+    return null;
   }
 
   @Patch(':date')
@@ -108,7 +111,7 @@ export class Vote2Controller {
     @Req() req: Request,
     @Body() createVoteDTO: CreateNewVoteDTO,
   ): Promise<any> {
-    const { latitude, longitude, start, end } = createVoteDTO;
+    const { latitude, longitude, start, end, locationDetail } = createVoteDTO;
     const { date } = req;
 
     await this.voteService2.setVote(date as string, {
@@ -116,6 +119,7 @@ export class Vote2Controller {
       longitude,
       start,
       end,
+      locationDetail,
     });
 
     return 'success';

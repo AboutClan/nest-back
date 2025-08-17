@@ -1,13 +1,12 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IVote2 } from './vote2.entity';
-import { IVote2Repository } from './Vote2Repository.interface';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { Vote2 } from 'src/domain/entities/Vote2/Vote2';
+import { Member } from 'src/domain/entities/Vote2/Vote2Member';
 import { Participation } from 'src/domain/entities/Vote2/Vote2Participation';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
-import { Member } from 'src/domain/entities/Vote2/Vote2Member';
-import { ENTITY } from 'src/Constants/ENTITY';
-import { start } from 'node:repl';
+import { IVote2 } from './vote2.entity';
+import { IVote2Repository } from './Vote2Repository.interface';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
@@ -73,6 +72,7 @@ export class Vote2Repository implements IVote2Repository {
             start: p.start,
             end: p.end,
             comment: p.comment,
+            locationDetail: p.locationDetail,
           }),
       ),
       results: (db.results || []).map(
@@ -108,6 +108,7 @@ export class Vote2Repository implements IVote2Repository {
         start: p.start,
         end: p.end,
         comment: p.comment ? p.comment.toPrimitives() : undefined,
+        locationDetail: p.locationDetail,
       })),
       results: domain.results.map((r) => ({
         placeId: r.placeId,

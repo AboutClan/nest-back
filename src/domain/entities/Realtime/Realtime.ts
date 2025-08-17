@@ -1,3 +1,4 @@
+import { IUser } from '../User/User';
 import { Comment } from './Comment';
 import { RealtimeUser, RealtimeUserProps } from './RealtimeUser';
 import { Time } from './Time';
@@ -68,7 +69,10 @@ export class Realtime {
   }
 
   deleteVote(userId: string): void {
-    this.userList = this.userList.filter((user) => user.user !== userId);
+    console.log(this.userList[0].user, 55);
+    this.userList = this.userList.filter(
+      (user) => (user.user as IUser)._id.toString() !== userId,
+    );
   }
 
   toPrimitives(): RealtimeProps {

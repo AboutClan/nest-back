@@ -59,7 +59,6 @@ export class Vote2Service {
     return form;
   }
   formatRealtime(member: IRealtimeUser) {
-  
     const form = {
       user: member.user,
       time: {
@@ -240,7 +239,7 @@ export class Vote2Service {
 
     const vote2 = await this.Vote2Repository.findByDate(date);
 
-    const { latitude, longitude, start, end } = createVote;
+    const { latitude, longitude, start, end, locationDetail } = createVote;
 
     const voteData: any = {};
 
@@ -250,9 +249,10 @@ export class Vote2Service {
     if (longitude !== null) voteData.longitude = longitude;
     if (start !== null) voteData.start = start;
     if (end !== null) voteData.end = end;
+    if (locationDetail !== null) voteData.locationDetail = locationDetail;
 
     vote2.setOrUpdateParticipation(voteData);
-
+  
     await this.Vote2Repository.save(vote2);
 
     await this.userServiceInstance.updateScore(
@@ -263,6 +263,20 @@ export class Vote2Service {
   }
 
   async deleteVote(date: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const vote2 = await this.Vote2Repository.findByDate(date);
+
+    vote2.removeParticipationByUserId(token.id);
+
+    await this.Vote2Repository.save(vote2);
+
+    await this.userServiceInstance.updateScore(
+      -CONST.SCORE.VOTE_STUDY,
+      '스터디 투표 취소',
+    );
+  }
+  async deleteVoteWeek(date: string) {
     const token = RequestContext.getDecodedToken();
 
     const vote2 = await this.Vote2Repository.findByDate(date);
