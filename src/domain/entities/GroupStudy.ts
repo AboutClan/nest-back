@@ -31,6 +31,7 @@ export interface WaitingProps {
   user?: string;
   answer?: string[];
   pointType?: string;
+  createdAt?: Date;
 }
 
 export interface WeekRecordProps {
@@ -411,7 +412,7 @@ export class GroupStudy {
     });
   }
 
-  setWaiting({ userId, answer, pointType }): void {
+  setWaiting({ userId, answer, pointType, createdAt }): void {
     if (!userId || !pointType) {
       throw new Error('Waiting must have a userId and pointType');
     }
@@ -423,7 +424,7 @@ export class GroupStudy {
       existingWaiting.answer = answer;
       existingWaiting.pointType = pointType;
     } else {
-      this.waiting.push({ user: userId, answer, pointType });
+      this.waiting.push({ user: userId, answer, pointType, createdAt });
     }
   }
 

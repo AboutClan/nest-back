@@ -38,6 +38,18 @@ export default class LogService {
     const logs = await this.logRepository.findByUidType(token.uid, type);
     return logs;
   }
+
+  async getTotalPointLog() {
+    const token = RequestContext.getDecodedToken();
+    const logs = await this.logRepository.findByUidType(token.uid, 'point');
+
+    const total = logs
+      .filter((log) => log?.meta?.value > 0)
+      .reduce((acc, log) => acc + (log?.meta?.value || 0), 0);
+
+    return { totalPoint: total };
+  }
+
   async getCuoponLog(type: string, scope?: 'all') {
     const token = RequestContext.getDecodedToken();
 

@@ -32,17 +32,13 @@ export class RealtimeController {
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
-    try {
-      const { date } = req;
+    const { date } = req;
 
-      const newStudy = await this.realtimeService.createBasicVote(
-        createBasicVoteDto,
-        date as string,
-      );
-      return res.status(201).json(newStudy);
-    } catch (err) {
-      next(err);
-    }
+    const newStudy = await this.realtimeService.createBasicVote(
+      createBasicVoteDto,
+      date as string,
+    );
+    return res.status(201).json(newStudy);
   }
 
   @Get(':date')
@@ -51,15 +47,9 @@ export class RealtimeController {
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
-    try {
-      const { date } = req;
-      const realtime = await this.realtimeService.getRecentStudy(
-        date as string,
-      );
-      return res.status(200).json(realtime);
-    } catch (err) {
-      next(err);
-    }
+    const { date } = req;
+    const realtime = await this.realtimeService.getRecentStudy(date as string);
+    return res.status(200).json(realtime);
   }
 
   @Post(':date/attendance')
@@ -70,36 +60,32 @@ export class RealtimeController {
     @Req() req: Request,
     @Body() markAttendanceDto: any,
   ) {
+    const { date } = req;
+
+    let parsedPlace;
+    let parsedTime;
     try {
-      const { date } = req;
-
-      let parsedPlace;
-      let parsedTime;
-      try {
-        parsedPlace = JSON.parse(markAttendanceDto.place);
-        parsedTime = JSON.parse(markAttendanceDto.time);
-      } catch (error) {
-        parsedPlace = markAttendanceDto.place;
-        parsedTime = markAttendanceDto.time;
-      }
-
-      // 필요한 형태로 데이터 가공
-      const parsedData = {
-        ...markAttendanceDto,
-        place: parsedPlace,
-        time: parsedTime,
-      };
-
-      const buffers = files ? files.map((file) => file.buffer) : [];
-      const updatedStudy = await this.realtimeService.markAttendance(
-        parsedData,
-        buffers,
-        date as string,
-      );
-      return res.status(200).json(updatedStudy);
-    } catch (err) {
-      console.log(err);
+      parsedPlace = JSON.parse(markAttendanceDto.place);
+      parsedTime = JSON.parse(markAttendanceDto.time);
+    } catch (error) {
+      parsedPlace = markAttendanceDto.place;
+      parsedTime = markAttendanceDto.time;
     }
+
+    // 필요한 형태로 데이터 가공
+    const parsedData = {
+      ...markAttendanceDto,
+      place: parsedPlace,
+      time: parsedTime,
+    };
+
+    const buffers = files ? files.map((file) => file.buffer) : [];
+    const updatedStudy = await this.realtimeService.markAttendance(
+      parsedData,
+      buffers,
+      date as string,
+    );
+    return res.status(200).json(updatedStudy);
   }
 
   @Patch(':date')
@@ -109,20 +95,16 @@ export class RealtimeController {
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
-    try {
-      const { date } = req;
+    const { date } = req;
 
-      const updatedStudy = await this.realtimeService.updateStudy(
-        updateStudyDto,
-        date as string,
-      );
-      if (updatedStudy) {
-        return res.status(200).json(updatedStudy);
-      } else {
-        return res.status(404).json({ message: 'Study not found' });
-      }
-    } catch (err) {
-      next(err);
+    const updatedStudy = await this.realtimeService.updateStudy(
+      updateStudyDto,
+      date as string,
+    );
+    if (updatedStudy) {
+      return res.status(200).json(updatedStudy);
+    } else {
+      return res.status(404).json({ message: 'Study not found' });
     }
   }
 
@@ -134,14 +116,10 @@ export class RealtimeController {
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
-    try {
-      const { date } = req;
+    const { date } = req;
 
-      await this.realtimeService.patchVote(start, end, date as string);
-      return res.status(HttpStatus.OK).end();
-    } catch (err) {
-      next(err);
-    }
+    await this.realtimeService.patchVote(start, end, date as string);
+    return res.status(HttpStatus.OK).end();
   }
 
   //todo:route명 수정
@@ -151,14 +129,10 @@ export class RealtimeController {
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
-    try {
-      const { date } = req;
+    const { date } = req;
 
-      await this.realtimeService.deleteVote(date as string);
-      return res.status(HttpStatus.NO_CONTENT).end();
-    } catch (err) {
-      next(err);
-    }
+    await this.realtimeService.deleteVote(date as string);
+    return res.status(HttpStatus.NO_CONTENT).end();
   }
 
   @Patch(':date/comment')
@@ -168,14 +142,10 @@ export class RealtimeController {
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
-    try {
-      const { date } = req;
+    const { date } = req;
 
-      await this.realtimeService.patchComment(comment, date as string);
-      return res.status(HttpStatus.OK).end();
-    } catch (err) {
-      next(err);
-    }
+    await this.realtimeService.patchComment(comment, date as string);
+    return res.status(HttpStatus.OK).end();
   }
 
   @Patch(':date/status')
@@ -185,26 +155,18 @@ export class RealtimeController {
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
-    try {
-      const { date } = req;
+    const { date } = req;
 
-      const result = await this.realtimeService.patchStatus(
-        status,
-        date as string,
-      );
-      return res.status(HttpStatus.OK).json(result);
-    } catch (err) {
-      next(err);
-    }
+    const result = await this.realtimeService.patchStatus(
+      status,
+      date as string,
+    );
+    return res.status(HttpStatus.OK).json(result);
   }
 
   @Get(':date/test')
   async test(@Res() res: Response, @Next() next: NextFunction) {
-    try {
-      const result = await this.realtimeService.setResult();
-      return res.status(HttpStatus.OK).json(result);
-    } catch (err) {
-      next(err);
-    }
+    const result = await this.realtimeService.setResult();
+    return res.status(HttpStatus.OK).json(result);
   }
 }

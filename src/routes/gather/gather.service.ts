@@ -199,7 +199,8 @@ export class GatherService {
       );
     });
 
-    return notReviewed[0] ?? null;
+    // return notReviewed[0] ?? null;
+    return null;
   }
 
   async getGatherGroup(groupId, type) {
@@ -565,7 +566,11 @@ export class GatherService {
     if (!gather) throw new Error();
 
     try {
-      const user = { user: token.id, phase };
+      const user = {
+        user: token.id,
+        phase,
+        createdAt: DateUtils.getKoreaToday(),
+      };
 
       gather.setWaiting(user);
 
@@ -844,5 +849,48 @@ export class GatherService {
         );
       }
     }
+  }
+
+  async test() {
+    const randomGatherData = {
+      title: 'string',
+      type: {
+        title: 'string',
+        subtitle: 'string',
+      },
+      gatherList: [],
+      content: 'string',
+      location: {
+        latitude: 0,
+        longitude: 0,
+      },
+      memberCnt: {
+        min: 0,
+        max: 0,
+      },
+      age: null,
+      preCnt: null,
+      genderCondition: false,
+      password: null,
+      status: 'string',
+      participants: [],
+      user: 'string', // DB에선 user: ObjectId
+      comments: [],
+      date: 'string',
+      waiting: [],
+      place: null,
+      isAdminOpen: null,
+      image: null,
+      coverImage: null,
+      postImage: null,
+      kakaoUrl: null,
+      isApprovalRequired: null,
+      reviewers: [],
+      deposit: 0,
+      category: 'string',
+      groupId: null,
+    };
+
+    // const gather = new Gather(randomGatherData as GatherProps);
   }
 }

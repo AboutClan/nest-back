@@ -264,4 +264,9 @@ export class GatherController {
   async getEnthMembers() {
     return await this.gatherService.getEnthMembers();
   }
+
+  @Get('test')
+  async test() {
+    return await this.gatherService.test();
+  }
 }

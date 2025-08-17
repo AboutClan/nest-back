@@ -46,6 +46,7 @@ export interface IUser {
   temperature?: Temperature | undefined;
   introduceText?: string;
   rank?: String;
+  rankPosition?: Number;
 }
 
 export class User {
@@ -86,6 +87,7 @@ export class User {
     public temperature?: Temperature | undefined,
     public introduceText?: string,
     public rank?: string,
+    public rankPosition?: number,
   ) {
     this._id = _id || '';
     this.uid = uid || '';
@@ -123,6 +125,7 @@ export class User {
     this.temperature = temperature || new Temperature();
     this.introduceText = introduceText || '';
     this.rank = rank || 'bronze';
+    this.rankPosition = rankPosition || 0;
   }
 
   setRest(
@@ -240,6 +243,7 @@ export class User {
       studyRecord: this.studyRecord?.toPrimitives(),
       temperature: this.temperature,
       rank: this.rank,
+      rankPosition: this.rankPosition,
       introduceText: this.introduceText,
     };
   }

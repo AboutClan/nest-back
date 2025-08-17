@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Injectable,
   Param,
   Patch,
@@ -51,18 +49,11 @@ export class SquareController {
     @Query('cursor') cursor: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor, 10) : null;
-    try {
-      const squareList = await this.squareService.getSquareList({
-        category,
-        cursorNum,
-      });
-      return { squareList };
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching square list',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const squareList = await this.squareService.getSquareList({
+      category,
+      cursorNum,
+    });
+    return { squareList };
   }
 
   @Post()
@@ -73,41 +64,26 @@ export class SquareController {
   ) {
     const buffers: Buffer[] = files ? files.map((file) => file.buffer) : [];
 
-    try {
-      const { squareId } = await this.squareService.createSquare({
-        ...createSquareDto,
-        poll: {
-          pollItems: createSquareDto.pollItems,
-          canMultiple: createSquareDto.canMultiple,
-        } as any,
-        buffers,
-      });
-      return { squareId };
-    } catch (err) {
-      console.log(err);
-      throw new HttpException(
-        'Error creating square',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const { squareId } = await this.squareService.createSquare({
+      ...createSquareDto,
+      poll: {
+        pollItems: createSquareDto.pollItems,
+        canMultiple: createSquareDto.canMultiple,
+      } as any,
+      buffers,
+    });
+    return { squareId };
   }
 
   @Post('comment')
   async createSquareComment(
     @Body() commentDto: { comment: string; squareId: string },
   ) {
-    try {
-      await this.squareService.createSquareComment({
-        comment: commentDto.comment,
-        squareId: commentDto.squareId,
-      });
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error creating comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.createSquareComment({
+      comment: commentDto.comment,
+      squareId: commentDto.squareId,
+    });
+    return { status: 'success' };
   }
 
   //todo: 왜안됨
@@ -115,16 +91,8 @@ export class SquareController {
   async deleteSquareComment(
     @Body() commentDto: { squareId: string; commentId: string },
   ) {
-    try {
-      await this.squareService.deleteSquareComment(commentDto);
-      return { status: 'success' };
-    } catch (err: any) {
-      console.log(err);
-      throw new HttpException(
-        'Error deleting comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.deleteSquareComment(commentDto);
+    return { status: 'success' };
   }
 
   @Post('subComment')
@@ -136,19 +104,12 @@ export class SquareController {
       comment: string;
     },
   ) {
-    try {
-      await this.squareService.createSubComment(
-        commentDto.squareId,
-        commentDto.commentId,
-        commentDto.comment,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error creating sub-comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.createSubComment(
+      commentDto.squareId,
+      commentDto.commentId,
+      commentDto.comment,
+    );
+    return { status: 'success' };
   }
 
   @Delete('subComment')
@@ -160,45 +121,24 @@ export class SquareController {
       subCommentId: string;
     },
   ) {
-    try {
-      await this.squareService.deleteSubComment(
-        commentDto.squareId,
-        commentDto.commentId,
-        commentDto.subCommentId,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting sub-comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.deleteSubComment(
+      commentDto.squareId,
+      commentDto.commentId,
+      commentDto.subCommentId,
+    );
+    return { status: 'success' };
   }
 
   @Delete(':squareId')
   async deleteSquare(@Param('squareId') squareId: string) {
-    try {
-      await this.squareService.deleteSquare(squareId);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error deleting square',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.deleteSquare(squareId);
+    return { status: 'success' };
   }
 
   @Get(':squareId')
   async getSquare(@Param('squareId') squareId: string) {
-    try {
-      const square = await this.squareService.getSquare(squareId);
-      return { square };
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching square',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const square = await this.squareService.getSquare(squareId);
+    return { square };
   }
 
   // @Get(':squareId')
@@ -212,72 +152,37 @@ export class SquareController {
     @Param('squareId') squareId: string,
     @Body() pollDto: { pollItems: string[] },
   ) {
-    try {
-      await this.squareService.patchPoll({
-        squareId,
-        pollItems: pollDto.pollItems,
-      });
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error patching poll',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.patchPoll({
+      squareId,
+      pollItems: pollDto.pollItems,
+    });
+    return { status: 'success' };
   }
 
   @Get(':squareId/poll')
   async getCurrentPollItems(@Param('squareId') squareId: string) {
-    try {
-      const currentPollItems = await this.squareService.getCurrentPollItems({
-        squareId,
-      });
-      return { pollItems: currentPollItems };
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching poll items',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const currentPollItems = await this.squareService.getCurrentPollItems({
+      squareId,
+    });
+    return { pollItems: currentPollItems };
   }
 
   @Put(':squareId/like')
   async putLikeSquare(@Param('squareId') squareId: string) {
-    try {
-      await this.squareService.putLikeSquare({ squareId });
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error liking square',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.putLikeSquare({ squareId });
+    return { status: 'success' };
   }
 
   @Delete(':squareId/like')
   async deleteLikeSquare(@Param('squareId') squareId: string) {
-    try {
-      await this.squareService.deleteLikeSquare({ squareId });
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error unliking square',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.deleteLikeSquare({ squareId });
+    return { status: 'success' };
   }
 
   @Get(':squareId/like')
   async getIsLike(@Param('squareId') squareId: string) {
-    try {
-      const isLike = await this.squareService.getIsLike({ squareId });
-      return { isLike };
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching like status',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const isLike = await this.squareService.getIsLike({ squareId });
+    return { isLike };
   }
 
   @Post('comment/like')
@@ -285,15 +190,8 @@ export class SquareController {
     @Body('squareId') squareId: string,
     @Body('commentId') commentId: string,
   ) {
-    try {
-      await this.squareService.createCommentLike(squareId, commentId);
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error liking comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.createCommentLike(squareId, commentId);
+    return { status: 'success' };
   }
 
   @Post('subComment/like')
@@ -302,18 +200,11 @@ export class SquareController {
     @Body('commentId') commentId: string,
     @Body('subCommentId') subCommentId: string,
   ) {
-    try {
-      await this.squareService.createSubCommentLike(
-        squareId,
-        commentId,
-        subCommentId,
-      );
-      return { status: 'success' };
-    } catch (err) {
-      throw new HttpException(
-        'Error liking sub-comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.squareService.createSubCommentLike(
+      squareId,
+      commentId,
+      subCommentId,
+    );
+    return { status: 'success' };
   }
 }

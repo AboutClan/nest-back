@@ -534,7 +534,13 @@ export default class GroupStudyService {
     if (!groupStudy) throw new Error();
 
     try {
-      const user = { userId: token.id, answer, pointType };
+      const user = {
+        userId: token.id,
+        answer,
+        pointType,
+        createdAt: DateUtils.getKoreaToday(),
+      };
+
       groupStudy.setWaiting(user);
 
       await this.groupStudyRepository.save(groupStudy);

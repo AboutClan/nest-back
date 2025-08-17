@@ -11,4 +11,5 @@ export const SCHEDULE_CONST = {
   PROCESS_MONTH_SCORE: 'Monthly Score Processing Scheduler',
   PROCESS_TICKET: 'Ticket Processing Scheduler',
   PROCESS_GROUP_ATTENDANCE: 'Group Attendance Processing Scheduler',
+  BACKUP_DATABASE: 'BACKUP_DATABASE',
 };

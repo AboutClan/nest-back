@@ -198,7 +198,7 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
-   
+
     return [...gatherData1, ...gatherData2, ...gatherData3].map((doc) =>
       this.mapToDomain(doc),
     );

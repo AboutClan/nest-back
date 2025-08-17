@@ -14,7 +14,7 @@ export class Waiting {
   constructor(props: WaitingProps) {
     this.user = props.user;
     this.phase = props.phase;
-    this.createdAt = props.createdAt || null;
+    this.createdAt = props.createdAt || new Date();
   }
 
   toPrimitives(): WaitingProps {

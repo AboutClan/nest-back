@@ -26,6 +26,21 @@ import {
   UpdateAvatarDto,
   UpdateCommentDto,
   UpdateInstagramDto,
+  PatchIsPrivateDto,
+  SetMonthStudyTargetDto,
+  PatchIsLocationSharingDeniedDto,
+  PatchRestDto,
+  ParticipationRateQueryDto,
+  VoteRateQueryDto,
+  UpdateProfileDto,
+  UpdateDepositDto,
+  UpdateScoreDto,
+  UpdatePointDto,
+  PatchStudyTargetHourDto,
+  PatchLocationDetailDto,
+  AddBadgeDto,
+  SelectBadgeDto,
+  UpdateTicketDto,
 } from './dto';
 import { UserService } from './user.service';
 
@@ -90,7 +105,8 @@ export class UserController {
 
   //todo: boolean값 들어오는지 check
   @Patch('isPrivate')
-  async patchIsPrivate(@Body() body: { isPrivate: boolean }) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async patchIsPrivate(@Body() body: PatchIsPrivateDto) {
     const { isPrivate } = body;
 
     await this.userService.updateUser({ isPrivate });
@@ -98,39 +114,38 @@ export class UserController {
   }
 
   @Patch('monthStudyTarget')
-  async setMonthStudyTarget(@Body() body: { monthStudyTarget: number }) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async setMonthStudyTarget(@Body() body: SetMonthStudyTargetDto) {
     const { monthStudyTarget } = body;
 
     await this.userService.updateUser({ monthStudyTarget });
-    return { message: 'Privacy setting updated successfully' };
+    return { message: 'Month study target updated successfully' };
   }
 
   @Patch('isLocationSharingDenided')
+  @UsePipes(new ValidationPipe({ transform: true }))
   async patchIsLocationSharingDenided(
-    @Body() body: { isLocationSharingDenided: boolean },
+    @Body() body: PatchIsLocationSharingDeniedDto,
   ) {
     const { isLocationSharingDenided } = body;
 
     await this.userService.updateUser({ isLocationSharingDenided });
-    return { message: 'Privacy setting updated successfully' };
+    return { message: 'Location sharing setting updated successfully' };
   }
 
   //todo: info의 타입
   @Patch('rest')
-  async patchRest(@Body() body: { info: any }) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async patchRest(@Body() body: PatchRestDto) {
     await this.userService.setRest(body.info);
     return { message: 'Rest information updated successfully' };
   }
 
   @Get('participationrate/all')
+  @UsePipes(new ValidationPipe({ transform: true }))
   async getParticipationRateAll(
     @Query()
-    query: {
-      startDay: string;
-      endDay: string;
-      location: string | null;
-      summary: boolean;
-    },
+    query: ParticipationRateQueryDto,
   ) {
     const participationResult = await this.userService.getParticipationRate(
       query.startDay,
@@ -143,14 +158,10 @@ export class UserController {
   }
 
   @Get('participationrate')
+  @UsePipes(new ValidationPipe({ transform: true }))
   async getParticipationRate(
     @Query()
-    query: {
-      startDay: string;
-      endDay: string;
-      location: string | null;
-      summary: boolean;
-    },
+    query: ParticipationRateQueryDto,
   ) {
     const participationResult = await this.userService.getParticipationRate(
       query.startDay,
@@ -163,7 +174,8 @@ export class UserController {
   }
 
   @Get('voterate')
-  async getVoteRate(@Query() query: { startDay: string; endDay: string }) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getVoteRate(@Query() query: VoteRateQueryDto) {
     const voteResult = await this.userService.getVoteRate(
       query.startDay,
       query.endDay,
@@ -190,8 +202,11 @@ export class UserController {
   }
 
   @Post('profile')
-  async updateProfile(@Body() registerForm: any) {
-    const updatedUser = await this.userService.updateUser(registerForm);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateProfile(@Body() registerForm: UpdateProfileDto) {
+    const updatedUser = await this.userService.updateUser(
+      registerForm.registerForm,
+    );
     return updatedUser;
   }
 
@@ -245,9 +260,8 @@ export class UserController {
   }
 
   @Patch('deposit')
-  async updateUserDeposit(
-    @Body() body: { deposit: number; message: string; sub: any },
-  ) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateUserDeposit(@Body() body: UpdateDepositDto) {
     await this.userService.updateDeposit(body.deposit, body.message, body.sub);
     return { message: 'Deposit updated successfully' };
   }
@@ -259,16 +273,14 @@ export class UserController {
   }
 
   @Patch('score')
-  async updateUserScore(
-    @Body() body: { score: number; message: string; sub: any },
-  ) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateUserScore(@Body() body: UpdateScoreDto) {
     await this.userService.updateScore(body.score, body.message, body.sub);
     return { message: 'Score updated successfully' };
   }
   @Patch('point')
-  async updateUserPoint(
-    @Body() body: { point: number; message: string; sub: any },
-  ) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateUserPoint(@Body() body: UpdatePointDto) {
     await this.userService.updatePoint(body.point, body.message, body.sub);
     return { message: 'Point updated successfully' };
   }
@@ -348,46 +360,45 @@ export class UserController {
   }
 
   @Patch('weekStudyTargetHour')
-  async patchStudyTargetHour(@Body('hour') hour) {
-    await this.userService?.patchStudyTargetHour(hour);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async patchStudyTargetHour(@Body() body: PatchStudyTargetHourDto) {
+    await this.userService?.patchStudyTargetHour(body.hour);
     return;
   }
 
   @Patch('locationDetail')
-  async patchLocationDetail(
-    @Body('text') text,
-    @Body('lat') lat,
-    @Body('lon') lon,
-  ) {
-    await this.userService?.patchLocationDetail(text, lat, lon);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async patchLocationDetail(@Body() body: PatchLocationDetailDto) {
+    await this.userService?.patchLocationDetail(body.text, body.lat, body.lon);
     return;
   }
 
   @Post('badgeList')
-  async addBadgeList(@Body('userId') userId, @Body('badgeName') badgeName) {
-    await this.userService.addBadge(userId, badgeName);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async addBadgeList(@Body() body: AddBadgeDto) {
+    await this.userService.addBadge(body.userId, body.badgeName);
     return;
   }
   @Patch('badge')
-  async selectBadge(@Body('badgeIdx') badgeIdx) {
-    await this.userService.selectBadge(badgeIdx);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async selectBadge(@Body() body: SelectBadgeDto) {
+    await this.userService.selectBadge(body.badgeIdx);
     return;
   }
   @Post('profileImg')
   @UseInterceptors(FileInterceptor('image'))
-  async updateProfileImg(@UploadedFile() file: Express.Multer.File) {}
+  async updateProfileImg(@UploadedFile() file: Express.Multer.File) {
+    // TODO: 프로필 이미지 업데이트 로직 구현
+    return { message: 'Profile image uploaded successfully' };
+  }
 
   @Post('ticket')
-  async updateTicket(
-    @Req() req: Request,
-    @Body('ticketNum') ticketNum,
-    @Body('type')
-    type: 'gather' | 'groupStudy' | 'groupOnline' | 'groupOffline',
-  ) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateTicket(@Req() req: Request, @Body() body: UpdateTicketDto) {
     await this.userService.updateAddTicket(
-      type,
+      body.type,
       req.decodedToken.id,
-      ticketNum,
+      body.ticketNum,
     );
   }
 

@@ -6,7 +6,7 @@ import {
   ILocationDetail,
   InterestSchema,
   IRegistered,
-  MajorSchema
+  MajorSchema,
 } from 'src/routes/register/register.entity';
 import { z } from 'zod';
 
@@ -96,6 +96,7 @@ export const userZodSchema = z.object({
     .enum(ENTITY.USER.ENUM_RANK)
     .default(ENTITY.USER.DEFAULT_RANK)
     .optional(),
+  rankPosition: z.number(),
   score: z.number().default(0),
   monthScore: z.number().default(0),
   point: z.number().default(0),
@@ -156,6 +157,7 @@ export interface IUser extends Document, IRegistered {
   temperature: temperatureType;
   introduceText: string;
   rank: string;
+  rankPosition: number;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -332,6 +334,7 @@ export const UserSchema: Schema<IUser> = new Schema({
     type: String,
     default: ENTITY.USER.DEFAULT_RANK,
   },
+  rankPosition: Number,
   isPrivate: {
     type: Boolean,
     default: false,

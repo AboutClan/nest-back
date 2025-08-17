@@ -41,6 +41,7 @@ const waitingZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]), // IUser type should be handled appropriately
   answer: z.array(z.string()).optional(),
   pointType: z.string(),
+  createdAt: z.date().optional(),
 });
 
 // commentType Zod schema
@@ -254,8 +255,11 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
     pointType: {
       type: String,
     },
+    createdAt: {
+      type: Date,
+    },
   },
-  { _id: false, timestamps: true },
+  { _id: false },
 );
 
 export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
@@ -266,7 +270,6 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     isFree: {
       type: Boolean,
     },
-
     fee: {
       type: Number,
     },

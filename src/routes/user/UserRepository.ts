@@ -177,23 +177,40 @@ export class UserRepository implements IUserRepository {
   }
 
   async processMonthScore() {
-    // 1. gold로 변경 (30점 이상)
-    await this.UserModel.updateMany(
-      { monthScore: { $gte: 30 } },
-      { $set: { rank: 'gold' } },
-    );
-
-    // 2. silver로 변경 (10점 초과 30점 미만)
-    await this.UserModel.updateMany(
-      { monthScore: { $gt: 10, $lt: 30 } },
-      { $set: { rank: 'silver' } },
-    );
-
-    // 3. bronze로 변경 (10점 이하)
-    await this.UserModel.updateMany(
-      { monthScore: { $lte: 10 } },
-      { $set: { rank: 'bronze' } },
-    );
+    await this.UserModel.aggregate([
+      {
+        $addFields: {
+          tier: {
+            $switch: {
+              branches: [
+                { case: { $gte: ['$monthScore', 30] }, then: 'gold' },
+                { case: { $gt: ['$monthScore', 10] }, then: 'silver' },
+              ],
+              default: 'bronze',
+            },
+          },
+        },
+      },
+      {
+        $setWindowFields: {
+          partitionBy: '$tier',
+          sortBy: { monthScore: -1 },
+          output: {
+            rankPosition: { $rank: {} },
+          },
+        },
+      },
+      {
+        $project: { _id: 1, rank: '$tier', rankPosition: 1 },
+      },
+      {
+        $merge: {
+          into: 'users',
+          whenMatched: 'merge',
+          whenNotMatched: 'discard',
+        },
+      },
+    ]);
   }
 
   async findMonthPrize(ranks: any[]) {
@@ -411,6 +428,7 @@ export class UserRepository implements IUserRepository {
       temperature,
       doc?.introduceText,
       doc?.rank,
+      doc?.rankPosition,
     );
   }
 
@@ -457,6 +475,8 @@ export class UserRepository implements IUserRepository {
     if (p.studyRecord !== null) result.studyRecord = p.studyRecord || [];
     if (p.temperature !== null) result.temperature = p.temperature || 0;
     if (p.introduceText !== null) result.introduceText = p.introduceText || '';
+    if (p.rank !== null) result.rank = p.rank;
+    if (p.rankPosition !== null) result.rankPosition = p.rankPosition;
 
     if (result.studyPreference?.place?.length === 0)
       result.studyPreference.place = null;

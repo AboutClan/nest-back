@@ -280,6 +280,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       user: w.user as string,
       answer: Array.isArray(w.answer) ? w.answer : [w.answer],
       pointType: w.pointType,
+      createdAt: w.createdAt,
     }));
 
     // week records (attendance.lastWeek, attendance.thisWeek)
@@ -372,6 +373,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       user: w.user,
       answer: w.answer,
       pointType: w.pointType,
+      createdAt: w.createdAt,
     }));
 
     const toWeekDoc = (w: WeekRecordProps) => ({
