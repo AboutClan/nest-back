@@ -106,7 +106,7 @@ export class GatherRepository implements IGatherRepository {
     const start = gap * (cursor || 0);
 
     const results = await this.Gather.find(query)
-      .sort({ date: 1 })
+      .sort(sort)
       .skip(start)
       .limit(gap)
       .select('-_id')
