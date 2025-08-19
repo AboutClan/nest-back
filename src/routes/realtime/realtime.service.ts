@@ -240,7 +240,7 @@ export default class RealtimeService {
     const todayData = await this.getTodayData(date);
 
     todayData.deleteVote(token.id);
-    console.log(33, todayData, token.id);
+  
     await this.realtimeRepository.save(todayData);
   }
 

@@ -11,7 +11,7 @@ export default class PlaceService {
     @Inject(IPLACE_REPOSITORY)
     private readonly placeRepository: PlaceRepository,
   ) {}
-  async getActivePlace(status: 'main' | 'sub' | 'inactive') {
+  async getActivePlace(status: 'main' |"all"| 'sub' | 'inactive') {
     try {
       const places = await this.placeRepository.findByStatus(status);
       return places;

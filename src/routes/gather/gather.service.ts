@@ -410,7 +410,7 @@ export class GatherService {
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
     }
-    console.log(55);
+  
     const user = await this.userServiceInstance.getUserWithUserId(userId);
 
     // await this.userServiceInstance.updateScore(

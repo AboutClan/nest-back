@@ -69,7 +69,6 @@ export class Realtime {
   }
 
   deleteVote(userId: string): void {
-    console.log(this.userList[0].user, 55);
     this.userList = this.userList.filter(
       (user) => (user.user as IUser)._id.toString() !== userId,
     );

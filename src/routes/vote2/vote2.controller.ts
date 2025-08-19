@@ -71,7 +71,7 @@ export class Vote2Controller {
   ): Promise<any> {
     const { latitude, longitude, start, end, locationDetail } = createVoteDTO;
     const { date } = req;
-    console.log(44);
+   
     await this.voteService2.setVote(date as string, {
       latitude,
       longitude,

@@ -29,7 +29,7 @@ export class Participation {
     this.locationDetail = props.locationDetail;
   }
   toPrimitives(): ParticipationProps {
-    console.log(24, this.locationDetail);
+   
     return {
       userId: this.userId,
       latitude: this.latitude,
