@@ -99,60 +99,24 @@ export class GatherRepository implements IGatherRepository {
 
   async findWithQueryPop(
     query: any,
-    start?: number,
-    gap?: number,
-    sortBy: 'createdAt' | 'date' | 'basic' = 'basic',
+    cursor?: number,
+    sort?: any,
   ): Promise<Gather[] | null> {
-    const todayMidnightKST = dayjs().startOf('day').toISOString();
+    const gap = 15;
+    const start = gap * (cursor || 0);
 
-    if (sortBy === 'basic') {
-      const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
-      const futureResult = await this.Gather.find(futureQuery)
-        .sort({ date: 1 })
-        .skip(start)
-        .limit(gap)
-        .select('-_id')
-        .populate({ path: 'user', select: ENTITY.USER.C_MINI_USER })
-        .populate({
-          path: 'participants.user',
-          select: ENTITY.USER.C_MINI_USER,
-        });
+    const results = await this.Gather.find(query)
+      .sort(sort ? sort : { date: 1 })
+      .skip(start)
+      .limit(gap)
+      .select('-_id')
+      .populate({ path: 'user', select: ENTITY.USER.C_MINI_USER })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_MINI_USER,
+      });
 
-      const futureCount = futureResult.length;
-      if (futureCount < gap) {
-        const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
-        const pastResult = await this.Gather.find(pastQuery)
-          .sort({ date: -1 })
-          .limit(gap - futureCount)
-          .select('-_id')
-          .populate({ path: 'user', select: ENTITY.USER.C_MINI_USER })
-          .populate({
-            path: 'participants.user',
-            select: ENTITY.USER.C_MINI_USER,
-          });
-
-        const merged = [...futureResult, ...pastResult];
-        return merged.map((doc) => this.mapToDomain(doc));
-      }
-
-      return futureResult.map((doc) => this.mapToDomain(doc));
-    } else {
-      // createdAt 또는 date 기준 정렬
-      const sortOption: { [key: string]: SortOrder } = { [sortBy]: -1 };
-
-      const result = await this.Gather.find(query)
-        .sort(sortOption)
-        .skip(start)
-        .limit(gap)
-        .select('-_id')
-        .populate({ path: 'user', select: ENTITY.USER.C_MINI_USER })
-        .populate({
-          path: 'participants.user',
-          select: ENTITY.USER.C_MINI_USER,
-        });
-
-      return result.map((doc) => this.mapToDomain(doc));
-    }
+    return results.map((doc) => this.mapToDomain(doc));
   }
 
   async findThree(): Promise<Gather[] | null> {
