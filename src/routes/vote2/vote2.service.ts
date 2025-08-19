@@ -252,7 +252,7 @@ export class Vote2Service {
     if (locationDetail !== null) voteData.locationDetail = locationDetail;
 
     vote2.setOrUpdateParticipation(voteData);
-  
+
     await this.Vote2Repository.save(vote2);
 
     await this.userServiceInstance.updateScore(
@@ -360,7 +360,7 @@ export class Vote2Service {
     const failedParticipations = noise.map((idx) => participations[idx]);
 
     // 3) 최종 장소 매핑
-    const places = await this.PlaceRepository.findByStatus('active');
+    const places = await this.PlaceRepository.findByStatus('sub');
     const voteResults = await ClusterUtils.findClosestPlace(
       formedClusters,
       places,

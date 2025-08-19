@@ -20,6 +20,10 @@ export class MongoPlaceReposotory implements PlaceRepository {
     ]);
   }
 
+  async findAll(): Promise<IPlace[]> {
+    return await this.Place.find({});
+  }
+
   async findByStatus(status: string): Promise<IPlace[]> {
     //임시로 status 제거
     return await this.Place.find({}).populate({
@@ -30,6 +34,12 @@ export class MongoPlaceReposotory implements PlaceRepository {
   async createPlace(placeData: Partial<IPlace>): Promise<IPlace> {
     return await this.Place.create(placeData);
   }
+
+  async updateLocation(placeId: string, location: any) {
+    await this.Place.updateOne({ _id: placeId }, { $set: { location } });
+    return null;
+  }
+
   async updateStatus(placeId: string, status: string): Promise<null> {
     await this.Place.updateOne({ _id: placeId }, { status });
     return null;
@@ -66,5 +76,15 @@ export class MongoPlaceReposotory implements PlaceRepository {
       },
     );
     return null;
+  }
+
+  async test() {
+    console.log(1);
+    await this.Place.updateMany(
+      {},
+      {
+        $set: { rating: null },
+      },
+    );
   }
 }

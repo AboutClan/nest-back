@@ -113,6 +113,10 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   reviews: {
     type: [ReviewZReviewZodSchema],
   },
+  rating: {
+    type: Number,
+    default: null,
+  },
   registrant: {
     type: Schema.Types.ObjectId,
     ref: DB_SCHEMA.USER,
