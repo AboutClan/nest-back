@@ -111,15 +111,9 @@ export class GatherService {
         cursor,
         sortOption,
       );
+
+      return gatherData;
     }
-
-    const gatherData = await this.gatherRepository.findWithQueryPop(
-      query,
-      cursor,
-      sortBy,
-    );
-
-    return gatherData;
   }
 
   async getStatusGather(status: string, cursor: number) {
