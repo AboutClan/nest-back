@@ -17,7 +17,7 @@ export class PlaceController {
 
   @Get()
   async getActivePlace(
-    @Query('status') status: 'active' | 'inactive' = 'active',
+    @Query('status') status: 'main' | 'sub' | 'inactive' = 'sub',
   ) {
     try {
       const places = await this.placeService.getActivePlace(status);

@@ -4,7 +4,7 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
-export const reviewSchema = z.object({
+export const ReviewZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
   review: z.string(),
   rating: z.number(),
@@ -12,30 +12,49 @@ export const reviewSchema = z.object({
   isFixed: z.boolean(),
 });
 
-export const PlaceZodSchema = z.object({
-  status: z.string(),
-  fullname: z.string(),
-  brand: z.string().optional(),
-  branch: z.string().optional(),
-  image: z.string().optional(),
-  coverImage: z.string().optional(),
+export const LocationZodSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
-  priority: z.number().optional(),
-  _id: z.string().optional(),
-  locationDetail: z.string().optional(),
-  time: z.string().optional(),
-  registerDate: z.string().optional(),
-  registrant: z.union([z.string(), z.custom<IUser>()]),
-  mapURL: z.string(),
-  reviews: z.array(reviewSchema).optional(),
-  prefCnt: z.number().optional(),
+  address: z.string(),
 });
 
-export type IReview = z.infer<typeof reviewSchema> & Document;
-export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
+export const PlaceZodSchema = z.object({
+  title: z.string(),
+  status: z.enum(ENTITY.PLACE.ENUM_STATUS),
+  location: LocationZodSchema,
+  image: z.string().optional(),
+  coverImage: z.string().optional(),
+  registerDate: z.string(),
+  prefCnt: z.number().optional().default(0),
+  reviews: z.array(ReviewZodSchema).optional(),
+  rating: z.number().optional(),
+  registrant: z.union([z.string(), z.custom<IUser>()]),
+  _id: z.string().optional(),
+});
 
-export const ReviewSchema: Schema<IReview> = new Schema(
+export type ReviewType = z.infer<typeof ReviewZodSchema> & Document;
+export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
+export type LocationType = z.infer<typeof LocationZodSchema>;
+
+export const locationSchema: Schema<LocationType> = new Schema(
+  {
+    latitude: {
+      type: Number,
+      required: true,
+    },
+    longitude: {
+      type: Number,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false, timestamps: false },
+);
+
+export const ReviewZReviewZodSchema: Schema<ReviewType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -55,7 +74,6 @@ export const ReviewSchema: Schema<IReview> = new Schema(
     },
     rating: {
       type: Number,
-      required: true,
     },
   },
   {
@@ -70,41 +88,22 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     enum: ENTITY.PLACE.ENUM_STATUS,
     default: ENTITY.PLACE.DEFAULT_STATUS,
   },
-  fullname: {
+  title: {
     type: String,
     required: true,
   },
-  brand: {
+  image: {
     type: String,
+  },
+  coverImage: {
+    type: String,
+  },
+  location: {
+    type: locationSchema,
     required: true,
   },
-  branch: String,
-  image: String,
-  coverImage: String,
 
-  latitude: {
-    type: Number,
-    required: true,
-  },
-  longitude: {
-    type: Number,
-    required: true,
-  },
-  locationDetail: {
-    type: String,
-  },
-  time: {
-    type: String,
-  },
-  priority: Number,
   registerDate: {
-    type: String,
-  },
-  registrant: {
-    type: Schema.Types.ObjectId,
-    ref: DB_SCHEMA.USER,
-  },
-  mapURL: {
     type: String,
   },
   prefCnt: {
@@ -112,7 +111,11 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     default: 0,
   },
   reviews: {
-    type: [ReviewSchema],
+    type: [ReviewZReviewZodSchema],
+  },
+  registrant: {
+    type: Schema.Types.ObjectId,
+    ref: DB_SCHEMA.USER,
   },
 });
 

@@ -47,8 +47,8 @@ export const ENTITY = {
   },
 
   PLACE: {
-    ENUM_STATUS: ['active', 'inactive', 'pending'] as const,
-    DEFAULT_STATUS: 'active' as const,
+    ENUM_STATUS: ['main', 'sub', 'inactive'] as const,
+    DEFAULT_STATUS: 'sub' as const,
   },
 
   REALTIME: {

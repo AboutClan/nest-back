@@ -10,9 +10,9 @@ import { IPlace } from 'src/routes/place/place.entity';
 import { IRealtime } from 'src/routes/realtime/realtime.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
+import { avatarType, IUser } from '../routes/user/user.entity';
 import { now } from './util';
 import { IParticipation, IVote, IVoteStudyInfo } from './vote.entity';
-import { avatarType, IUser } from '../routes/user/user.entity';
 
 export interface IUserSummary {
   uid: string;
@@ -175,7 +175,7 @@ export class VoteService {
             attendences: [],
             absences: [],
             invitations: [],
-            status: place.brand === '자유 신청' ? 'free' : 'pending',
+            status: 'pending',
           } as any;
         });
 

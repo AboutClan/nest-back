@@ -1,132 +1,97 @@
 // src/domain/entities/Place.ts
 
-export type PlaceStatus = 'active' | 'inactive' | 'pending';
+export type PlaceStatus = 'main' | 'sub' | 'inactive';
+
+interface LocationProps {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
 
 export interface PlaceProps {
-  status?: PlaceStatus;
-  fullname: string;
-  brand?: string;
-  branch?: string;
+  title: string;
+  status: PlaceStatus;
+  location: LocationProps;
+  registerDate: string;
+  prefCnt: number;
   image?: string;
   coverImage?: string;
-  latitude: string;
-  longitude: string;
-  priority?: number;
-  location: string;
-  locationDetail?: string;
-  time?: string;
-  registerDate?: string;
-  registrantId?: string;
-  mapURL: string;
-  prefCnt?: number;
+  registrant?: string;
 }
 
 /**
  * Place 도메인 엔티티
  */
 export class Place {
+  private title: string;
   private status: PlaceStatus;
-  private fullname: string;
-  private brand: string;
-  private branch?: string;
+  private location: LocationProps;
+  private registerDate: string;
+  private prefCnt: number;
   private image?: string;
   private coverImage?: string;
-  private latitude: string;
-  private longitude: string;
-  private priority: number;
-  private location: string;
-  private locationDetail?: string;
-  private time?: string;
-  private registerDate?: string;
-  private registrantId?: string;
-  private mapURL: string;
-  private prefCnt: number;
+  private registrant?: string;
 
   constructor(props: PlaceProps) {
-    // // 필수값 검증
-    // if (!props.fullname) {
-    //   throw new Error('Place fullname is required');
-    // }
-    // if (!props.latitude) {
-    //   throw new Error('Place latitude is required');
-    // }
-    // if (!props.longitude) {
-    //   throw new Error('Place longitude is required');
-    // }
-    // if (!props.location) {
-    //   throw new Error('Place location is required');
-    // }
-    // if (!props.mapURL) {
-    //   throw new Error('Place mapURL is required');
-    // }
-
-    this.status = props.status ?? 'active';
-    this.fullname = props.fullname;
-    this.brand = props.brand ?? '';
-    this.branch = props.branch;
+    this.title = props.title;
+    this.status = props.status ?? 'sub';
+    this.location = props.location;
+    this.registerDate = props.registerDate;
+    this.prefCnt = props.prefCnt ?? 0;
     this.image = props.image;
     this.coverImage = props.coverImage;
-    this.latitude = props.latitude;
-    this.longitude = props.longitude;
-    this.priority = props.priority ?? 0;
-    this.location = props.location;
-    this.locationDetail = props.locationDetail;
-    this.time = props.time;
-    this.registerDate = props.registerDate;
-    this.registrantId = props.registrantId;
-    this.mapURL = props.mapURL;
-    this.prefCnt = props.prefCnt ?? 0;
+    this.registrant = props.registrant;
   }
 
   // getters
-  getStatus(): PlaceStatus {
-    return this.status;
-  }
-  getFullname(): string {
-    return this.fullname;
-  }
-  getBrand(): string {
-    return this.brand;
-  }
-  getBranch(): string | undefined {
-    return this.branch;
-  }
-  getImage(): string | undefined {
-    return this.image;
-  }
-  getCoverImage(): string | undefined {
-    return this.coverImage;
-  }
-  getLatitude(): string {
-    return this.latitude;
-  }
-  getLongitude(): string {
-    return this.longitude;
-  }
-  getPriority(): number {
-    return this.priority;
-  }
-  getLocation(): string {
-    return this.location;
-  }
-  getLocationDetail(): string | undefined {
-    return this.locationDetail;
-  }
-  getTime(): string | undefined {
-    return this.time;
-  }
-  getRegisterDate(): string | undefined {
-    return this.registerDate;
-  }
-  getRegistrantId(): string | undefined {
-    return this.registrantId;
-  }
-  getMapURL(): string {
-    return this.mapURL;
-  }
-  getPrefCnt(): number {
-    return this.prefCnt;
-  }
+  // getStatus(): PlaceStatus {
+  //   return this.status;
+  // }
+  // getFullname(): string {
+  //   return this.fullname;
+  // }
+  // getBrand(): string {
+  //   return this.brand;
+  // }
+  // getBranch(): string | undefined {
+  //   return this.branch;
+  // }
+  // getImage(): string | undefined {
+  //   return this.image;
+  // }
+  // getCoverImage(): string | undefined {
+  //   return this.coverImage;
+  // }
+  // getLatitude(): string {
+  //   return this.latitude;
+  // }
+  // getLongitude(): string {
+  //   return this.longitude;
+  // }
+  // getPriority(): number {
+  //   return this.priority;
+  // }
+  // getLocation(): string {
+  //   return this.location;
+  // }
+  // getLocationDetail(): string | undefined {
+  //   return this.locationDetail;
+  // }
+  // getTime(): string | undefined {
+  //   return this.time;
+  // }
+  // getRegisterDate(): string | undefined {
+  //   return this.registerDate;
+  // }
+  // getRegistrant(): string | undefined {
+  //   return this.registrant;
+  // }
+  // getMapURL(): string {
+  //   return this.mapURL;
+  // }
+  // getPrefCnt(): number {
+  //   return this.prefCnt;
+  // }
 
   // 예시 비즈니스 로직
   increasePrefCnt(count: number = 1): number {
@@ -142,22 +107,14 @@ export class Place {
 
   toPrimitives(): PlaceProps {
     return {
-      status: this.status,
-      fullname: this.fullname,
-      brand: this.brand,
-      branch: this.branch,
+      title: this.title,
+      status: this.status ?? 'sub',
+      location: this.location,
+      registerDate: this.registerDate,
+      prefCnt: this.prefCnt ?? 0,
       image: this.image,
       coverImage: this.coverImage,
-      latitude: this.latitude,
-      longitude: this.longitude,
-      priority: this.priority,
-      location: this.location,
-      locationDetail: this.locationDetail,
-      time: this.time,
-      registerDate: this.registerDate,
-      registrantId: this.registrantId,
-      mapURL: this.mapURL,
-      prefCnt: this.prefCnt,
+      registrant: this.registrant,
     };
   }
 }

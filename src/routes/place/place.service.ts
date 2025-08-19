@@ -1,8 +1,9 @@
 import { Inject } from '@nestjs/common';
+import { PlaceProps } from 'src/domain/entities/Place';
 import { ValidationError } from 'src/errors/ValidationError';
 import { RequestContext } from 'src/request-context';
 import { IPLACE_REPOSITORY } from 'src/utils/di.tokens';
-import { IPlace, PlaceZodSchema } from './place.entity';
+import { PlaceZodSchema } from './place.entity';
 import { PlaceRepository } from './place.repository.interface';
 
 export default class PlaceService {
@@ -10,7 +11,7 @@ export default class PlaceService {
     @Inject(IPLACE_REPOSITORY)
     private readonly placeRepository: PlaceRepository,
   ) {}
-  async getActivePlace(status: 'active' | 'inactive') {
+  async getActivePlace(status: 'main' | 'sub' | 'inactive') {
     try {
       const places = await this.placeRepository.findByStatus(status);
       return places;
@@ -19,45 +20,20 @@ export default class PlaceService {
     }
   }
 
-  async addPlace(placeData: IPlace) {
+  async addPlace(placeData: PlaceProps) {
     try {
       const token = RequestContext.getDecodedToken();
-      const {
-        fullname,
-        brand,
-        branch,
-        image,
-        latitude,
-        longitude,
-        coverImage,
-        locationDetail,
-        time,
-        registerDate,
+      const { title, location, status } = placeData;
 
-        mapURL,
-      } = placeData;
-
-      if (!time) placeData.time = 'unknown';
-      if (!registerDate) placeData.registerDate = new Date().toString();
-      placeData.status = 'active';
+      placeData.registerDate = new Date().toString();
+      placeData.status = status || 'sub';
       placeData.registrant = token.id as string;
 
-      if (
-        !fullname ||
-        !brand ||
-        !branch ||
-        !image ||
-        !latitude ||
-        !longitude ||
-        !coverImage ||
-        !locationDetail ||
-        !mapURL
-      )
-        throw new ValidationError(
-          `fullname ||brand ||branch ||image ||latitude ||longitude ||coverImage ||locationDetail ||mapURL not exist`,
-        );
-
+      if (!title || !location)
+        throw new ValidationError(`title ||location not exist`);
+ 
       const validatedPlace = PlaceZodSchema.parse(placeData);
+     
       await this.placeRepository.createPlace(validatedPlace);
       return;
     } catch (err: any) {
