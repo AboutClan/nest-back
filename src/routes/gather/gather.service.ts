@@ -63,8 +63,6 @@ export class GatherService {
     category: '취미' | '스터디',
     sortBy: 'createdAt' | 'date' | 'basic',
   ) {
-    const gap = 20;
-    const start = gap * (cursor || 0);
     const query =
       category === '스터디'
         ? { 'type.title': '스터디' }
@@ -72,10 +70,52 @@ export class GatherService {
           ? { 'type.title': { $ne: '스터디' } }
           : {};
 
+    if (sortBy === 'basic') {
+      const todayMidnightKST = dayjs().startOf('day').toISOString();
+      const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
+
+      if (cursor === 0) {
+        const futureResult = await this.gatherRepository.findWithQueryPop(
+          futureQuery,
+          cursor,
+          { date: 1 },
+        );
+
+        const futureCount = futureResult.length;
+
+        if (futureCount === 15) return futureResult;
+
+        const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
+        const pastResult = (
+          await this.gatherRepository.findWithQueryPop(pastQuery, cursor, {
+            date: -1,
+          })
+        ).slice(0, 15 - futureCount);
+
+        return [...futureResult, ...pastResult];
+      } else {
+        const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
+        const pastResult = await this.gatherRepository.findWithQueryPop(
+          pastQuery,
+          cursor,
+          { date: -1 },
+        );
+
+        return [...pastResult];
+      }
+    } else {
+      const sortOption: { [key: string]: any } = { [sortBy]: -1 };
+
+      const gatherData = await this.gatherRepository.findWithQueryPop(
+        query,
+        cursor,
+        sortOption,
+      );
+    }
+
     const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
-      start,
-      gap,
+      cursor,
       sortBy,
     );
 
@@ -98,9 +138,6 @@ export class GatherService {
   async getMyOpenGather(cursor: number | null) {
     const token = RequestContext.getDecodedToken();
 
-    const gap = 12;
-    const start = gap * (cursor || 0);
-
     const todayString = dayjs().startOf('day').toISOString();
     const query = {
       $and: [
@@ -116,8 +153,7 @@ export class GatherService {
 
     const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
-      start,
-      gap,
+      cursor,
     );
 
     return gatherData;
@@ -125,8 +161,6 @@ export class GatherService {
 
   async getMyFinishGather(cursor: number | null) {
     const token = RequestContext.getDecodedToken();
-    const gap = 12;
-    const start = gap * (cursor || 0);
 
     const todayString = dayjs().startOf('day').toISOString();
     const query = {
@@ -143,8 +177,7 @@ export class GatherService {
 
     const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
-      start,
-      gap,
+      cursor,
     );
 
     if (cursor === -1) {
@@ -156,16 +189,12 @@ export class GatherService {
   async getMyGather(cursor: number | null) {
     const token = RequestContext.getDecodedToken();
 
-    const gap = 12;
-    const start = gap * (cursor || 0);
-
     const query = {
       user: token.id,
     };
     const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
-      start,
-      gap,
+      cursor,
     );
 
     return gatherData;
@@ -890,7 +919,6 @@ export class GatherService {
       category: 'string',
       groupId: null,
     };
-
     // const gather = new Gather(randomGatherData as GatherProps);
   }
 }

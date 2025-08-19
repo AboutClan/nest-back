@@ -11,9 +11,8 @@ export interface IGatherRepository {
   createGather(gatherData: Partial<Gather>): Promise<Gather>;
   findWithQueryPop(
     query: any,
-    start?: number,
-    gap?: number,
-    sortBy?: string,
+    cursor?: number,
+    sortBy?: any,
   ): Promise<Gather[] | null>;
   updateGather(
     gatherId: number,
