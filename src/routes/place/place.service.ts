@@ -20,6 +20,11 @@ export default class PlaceService {
     }
   }
 
+  async getAllPlace() {
+    const places = await this.placeRepository.findAll();
+    return places;
+  }
+
   async addPlace(placeData: PlaceProps) {
     try {
       const token = RequestContext.getDecodedToken();
@@ -31,9 +36,9 @@ export default class PlaceService {
 
       if (!title || !location)
         throw new ValidationError(`title ||location not exist`);
- 
+
       const validatedPlace = PlaceZodSchema.parse(placeData);
-     
+
       await this.placeRepository.createPlace(validatedPlace);
       return;
     } catch (err: any) {
@@ -53,6 +58,11 @@ export default class PlaceService {
 
   async updatePrefCnt(placeId: string, num: number) {
     await this.placeRepository.updatePrefCnt(placeId, num);
+    return;
+  }
+
+  async updateLocation(placeId: string, location: any) {
+    await this.placeRepository.updateLocation(placeId, location);
     return;
   }
 
@@ -77,5 +87,9 @@ export default class PlaceService {
     } catch (err: any) {
       throw new Error(err);
     }
+  }
+
+  async test() {
+    const places = await this.placeRepository.test();
   }
 }

@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -19,15 +20,14 @@ export class PlaceController {
   async getActivePlace(
     @Query('status') status: 'main' | 'sub' | 'inactive' = 'sub',
   ) {
-    try {
-      const places = await this.placeService.getActivePlace(status);
-      return places;
-    } catch (err) {
-      throw new HttpException(
-        'Error fetching places',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const places = await this.placeService.getActivePlace(status);
+    return places;
+  }
+
+  @Get('all')
+  async getAllPlace() {
+    const places = await this.placeService.getAllPlace();
+    return places;
   }
 
   //todo: 타입 정의 필요
@@ -81,5 +81,20 @@ export class PlaceController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Patch('location')
+  async updateLocation(
+    @Body('placeId') placeId: string,
+    @Body('location') location: any,
+  ) {
+    const places = await this.placeService.updateLocation(placeId, location);
+    return places;
+  }
+
+  @Get('test')
+  async test() {
+    const places = await this.placeService.test();
+    return places;
   }
 }
