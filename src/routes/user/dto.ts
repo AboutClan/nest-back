@@ -1,9 +1,9 @@
 import {
-  IsNotEmpty,
-  IsString,
   IsArray,
-  IsOptional,
+  IsNotEmpty,
   IsNumber,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 
 export class UpdateAvatarDto {
@@ -168,11 +168,11 @@ export class PatchLocationDetailDto {
   text: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   lat: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   lon: string;
 }
 
