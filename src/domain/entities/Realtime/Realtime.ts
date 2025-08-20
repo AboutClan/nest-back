@@ -24,6 +24,22 @@ export class Realtime {
     this.userList = (props.userList ?? []).map((u) => new RealtimeUser(u));
   }
 
+  public isSolo(userId: string) {
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+    return user.status === 'solo';
+  }
+
+  public isOpen(userId: string) {
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+    return user.status === 'open';
+  }
+
   public addUser(user: RealtimeUserProps) {
     this.userList.push(new RealtimeUser(user));
   }

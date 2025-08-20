@@ -20,6 +20,14 @@ export class Vote2 {
     this.results = props.results.map((r) => new Result(r));
   }
 
+  isVoteBefore(userId: string) {
+    const participant = this.participations.find((p) => p.userId === userId);
+    if (!participant) {
+      return false;
+    }
+    return participant.isBeforeResult;
+  }
+
   updateResult(userId: string, start: string, end: string) {
     this.results.forEach((result) => {
       result.members.forEach((member) => {

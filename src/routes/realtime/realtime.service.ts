@@ -181,14 +181,23 @@ export default class RealtimeService {
 
       await this.realtimeRepository.save(todayData);
 
-      const result = this.collectionServiceInstance.setCollectionStamp(
-        token.id,
-      );
+      this.collectionServiceInstance.setCollectionStamp(token.id);
 
       await this.userServiceInstance.updateScore(
         CONST.SCORE.ATTEND_PRIVATE_STUDY,
         '스터디 출석',
       );
+
+      if (todayData.isSolo(token.id)) {
+        const point = CONST.POINT.REALTIME_ATTEND_SOLO();
+        await this.userServiceInstance.updatePoint(point, 'realtime solo 출석');
+      }
+
+      if (todayData.isOpen(token.id)) {
+        const point = CONST.POINT.REALTIME_ATTEND_BEFORE();
+        await this.userServiceInstance.updatePoint(point, 'realtime open 출석');
+      }
+
       return;
     } catch (err) {
       console.log(err);
@@ -240,7 +249,7 @@ export default class RealtimeService {
     const todayData = await this.getTodayData(date);
 
     todayData.deleteVote(token.id);
-  
+
     await this.realtimeRepository.save(todayData);
   }
 
