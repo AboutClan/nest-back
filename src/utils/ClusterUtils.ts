@@ -82,8 +82,8 @@ export class ClusterUtils {
       let closestPlaceIndex = -1; // 가장 가까운 장소의 인덱스를 저장
 
       places.forEach((place, j) => {
-        const placeLat = (place as any).lat;
-        const placeLon = (place as any).lon;
+        const placeLat = (place as any).location.latitude;
+        const placeLon = (place as any).location.longitude;
 
         const dist = this.haversineDistance(
           centerLat,

@@ -15,12 +15,16 @@ export class Vote2Repository implements IVote2Repository {
   ) {}
 
   async findByDate(date: string): Promise<Vote2 | null> {
-    const db = await this.Vote2Model.findOne({ date });
+    const db = await this.Vote2Model.findOne({ date }).populate({
+      path: 'results.placeId',
+    });
     return db ? this.mapToDomain(db) : null;
   }
 
   async findById(id: string): Promise<Vote2 | null> {
-    const db = await this.Vote2Model.findById(id);
+    const db = await this.Vote2Model.findById(id).populate({
+      path: 'results.placeId',
+    });
     return db ? this.mapToDomain(db) : null;
   }
 
@@ -79,7 +83,7 @@ export class Vote2Repository implements IVote2Repository {
       results: (db.results || []).map(
         (r: any) =>
           new Result({
-            placeId: r.placeId.toString(),
+            placeId: r.placeId,
             members: (r.members || []).map(
               (m: any) =>
                 new Member({
