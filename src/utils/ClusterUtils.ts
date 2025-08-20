@@ -103,6 +103,7 @@ export class ClusterUtils {
           userId: clusterData.userId as string,
           start: clusterData.start,
           end: clusterData.end,
+          isBeforeResult: clusterData.isBeforeResult,
         };
       });
 

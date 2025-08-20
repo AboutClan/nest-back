@@ -16,6 +16,7 @@ export interface IParticipation {
   end?: string;
   comment?: IVoteComment;
   locationDetail: string;
+  isBeforeResult?: boolean;
 }
 
 export interface IMember {
@@ -88,6 +89,11 @@ export const ParticipationSchema: Schema<IParticipation> = new Schema(
     },
     comment: {
       type: voteCommentSchema,
+    },
+    locationDetail: String,
+    isBeforeResult: {
+      type: Boolean,
+      default: false,
     },
   },
   { _id: false },

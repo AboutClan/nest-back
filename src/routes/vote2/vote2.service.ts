@@ -185,7 +185,7 @@ export class Vote2Service {
         unmatchedUsers.push(par.userId);
       }
     });
-    console.log(realtimeData);
+
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
@@ -245,6 +245,9 @@ export class Vote2Service {
 
     voteData.userId = token.id;
     // null이 아닌 경우만 필드에 추가
+    if (vote2.results.length === undefined || vote2.results.length === 0) {
+      voteData.isBeforeResult = true;
+    }
     if (latitude !== null) voteData.latitude = latitude;
     if (longitude !== null) voteData.longitude = longitude;
     if (start !== null) voteData.start = start;
@@ -260,6 +263,18 @@ export class Vote2Service {
       '스터디 투표',
     );
     return;
+  }
+
+  async setVoteWithArr(dates: string[], createVote: CreateNewVoteDTO) {
+    const thisWeek = DateUtils.getWeekDate();
+
+    for (const date of thisWeek) {
+      if (dates.includes(date)) {
+        await this.setVote(date, createVote);
+      } else {
+        await this.deleteVote(date);
+      }
+    }
   }
 
   async deleteVote(date: string) {
@@ -464,6 +479,7 @@ export class Vote2Service {
     const vote = await this.Vote2Repository.findByDate(date);
     vote.setArrive(token.id, memo, end);
 
+    //todo: score, point 추가
     await this.Vote2Repository.save(vote);
 
     return await this.userServiceInstance.setVoteArriveInfo(

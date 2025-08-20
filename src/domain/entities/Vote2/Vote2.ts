@@ -102,6 +102,7 @@ export class Vote2 {
               end: participateData.end,
               locationDetail: participateData.locationDetail || '',
               comment: new VoteComment(participateData.comment),
+              isBeforeResult: false,
             }),
           ],
         }),
@@ -110,22 +111,18 @@ export class Vote2 {
   }
 
   setOrUpdateParticipation(newParticipation: Participation) {
-
     const idx = this.participations.findIndex(
       (p) => p.userId === newParticipation.userId,
     );
     if (idx !== -1) {
-      
       this.participations[idx] = newParticipation;
     } else {
-     
       // 없으면 추가
       this.participations.push(newParticipation);
     }
   }
 
   toPrimitives(): Vote2Props {
-  
     return {
       date: this.date,
       participations: this.participations.map((p) => p.toPrimitives()),

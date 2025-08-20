@@ -71,7 +71,7 @@ export class Vote2Controller {
   ): Promise<any> {
     const { latitude, longitude, start, end, locationDetail } = createVoteDTO;
     const { date } = req;
-   
+
     await this.voteService2.setVote(date as string, {
       latitude,
       longitude,
@@ -91,17 +91,13 @@ export class Vote2Controller {
     const { latitude, longitude, start, end, dates, locationDetail } =
       createVoteDTO;
 
-    await Promise.all(
-      dates.map((d) =>
-        this.voteService2.setVote(d as string, {
-          latitude,
-          longitude,
-          start,
-          end,
-          locationDetail,
-        }),
-      ),
-    );
+    await this.voteService2.setVoteWithArr(dates, {
+      latitude,
+      longitude,
+      start,
+      end,
+      locationDetail,
+    });
 
     return null;
   }

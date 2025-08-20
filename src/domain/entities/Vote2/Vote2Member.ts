@@ -9,6 +9,7 @@ export interface MemberProps {
   end?: string;
   absence?: boolean;
   comment?: VoteCommentProps;
+  isBeforeResult?: boolean;
 }
 
 export class Member {
@@ -20,6 +21,7 @@ export class Member {
   end?: string;
   absence?: boolean;
   comment?: VoteComment;
+  isBeforeResult?: boolean;
 
   constructor(props: MemberProps) {
     this.userId = props.userId;
@@ -30,6 +32,7 @@ export class Member {
     this.end = props.end;
     this.absence = props.absence;
     this.comment = props.comment ? new VoteComment(props.comment) : undefined;
+    this.isBeforeResult = props.isBeforeResult;
   }
 
   toPrimitives(): MemberProps {
@@ -42,6 +45,7 @@ export class Member {
       end: this.end,
       absence: this.absence,
       comment: this.comment ? this.comment.toPrimitives() : undefined,
+      isBeforeResult: this.isBeforeResult,
     };
   }
 }
