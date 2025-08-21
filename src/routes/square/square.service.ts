@@ -58,6 +58,18 @@ export default class SquareService {
         start,
         gap,
       );
+
+      const squareIds = squares.map((square) => square._id.toString());
+
+      const comments =
+        await this.commentService.findCommetsByPostIds(squareIds);
+
+      squares.forEach((square) => {
+        (square as any).commentsCount = comments.filter(
+          (comment) => comment.postId === square._id.toString(),
+        ).length;
+      });
+
       return squares.slice(start, start + gap);
     }
   }
