@@ -65,13 +65,12 @@ export default class SquareService {
         await this.commentService.findCommetsByPostIds(squareIds);
 
       const squaresWithComments = squares.map((square) => ({
-        ...square,
+        ...square?._doc,
         commentsCount: comments.filter(
           (comment) => comment.postId === square._id.toString(),
         ).length,
       }));
 
-      console.log(squaresWithComments);
       return squaresWithComments.slice(start, start + gap);
     }
   }
