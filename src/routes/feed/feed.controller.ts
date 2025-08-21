@@ -32,7 +32,6 @@ export class FeedController {
       const feed = await this.feedService.findFeedById(typeId);
       return feed;
     } else if (type) {
-   
       const feed = await this.feedService.findFeedByType(
         type,
         cursorNum,
@@ -177,5 +176,10 @@ export class FeedController {
   @Get('written')
   async findWrittenReview(@Query('type') type: 'gather' | 'group') {
     return await this.feedService.findWrittenReview(type);
+  }
+
+  @Get('test')
+  async test() {
+    return await this.feedService.test();
   }
 }

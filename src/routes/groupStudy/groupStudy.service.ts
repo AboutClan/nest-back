@@ -20,6 +20,7 @@ import * as zlib from 'zlib';
 import { FcmService } from '../fcm/fcm.service';
 import { IGroupStudyData } from './groupStudy.entity';
 import { IGroupStudyRepository } from './GroupStudyRepository.interface';
+import CommentService from '../comment/comment.service';
 
 //test
 export default class GroupStudyService {
@@ -33,6 +34,7 @@ export default class GroupStudyService {
     private webPushServiceInstance: WebPushService,
     private readonly counterServiceInstance: CounterService,
     private readonly fcmServiceInstance: FcmService,
+    private readonly commentService: CommentService,
   ) {}
 
   async getStatusGroupStudy(cursor: number, status: string) {
@@ -313,7 +315,11 @@ export default class GroupStudyService {
     const groupStudyData =
       await this.groupStudyRepository.findByIdWithPop(groupStudyIdNum);
 
-    return groupStudyData;
+    const comments = await this.commentService.findCommentsByPostId(
+      groupStudyData._id?.toString(),
+    );
+
+    return { ...groupStudyData, comments };
   }
 
   async getUserParticipatingGroupStudy() {
@@ -350,11 +356,14 @@ export default class GroupStudyService {
     const token = RequestContext.getDecodedToken();
 
     const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
-    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
-    groupStudy.createSubComment(commentId, token.id, content);
-
-    await this.groupStudyRepository.save(groupStudy);
+    await this.commentService.createSubComment({
+      postId: groupStudy._id.toString(),
+      postType: 'groupStudy',
+      user: token.id,
+      comment: content,
+      parentId: commentId,
+    });
 
     return;
   }
@@ -364,12 +373,7 @@ export default class GroupStudyService {
     commentId: string,
     subCommentId: string,
   ) {
-    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
-    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
-
-    groupStudy.deleteSubComment(commentId, subCommentId);
-
-    await this.groupStudyRepository.save(groupStudy);
+    await this.commentService.deleteComment({ commentId: subCommentId });
 
     return;
   }
@@ -380,11 +384,10 @@ export default class GroupStudyService {
     subCommentId: string,
     comment: string,
   ) {
-    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
-    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
-
-    groupStudy.updateSubComment(commentId, subCommentId, comment);
-    await this.groupStudyRepository.save(groupStudy);
+    await this.commentService.updateComment({
+      commentId: subCommentId,
+      content: comment,
+    });
     return;
   }
 
@@ -694,23 +697,26 @@ export default class GroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
-    groupStudy.addComment(token.id, comment);
+    await this.commentService.createComment({
+      postId: groupStudy._id.toString(),
+      postType: 'groupStudy',
+      user: token.id,
+      comment: comment,
+    });
 
-    if (groupStudy.comments.length === 1) {
-      await this.userServiceInstance.updatePoint(
-        CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
-        '소모임 최초 리뷰 작성',
-        token.uid,
-      );
-      groupStudy.comments = [
-        {
-          user: token.id,
-          comment,
-        },
-      ];
-    }
-
-    await this.groupStudyRepository.save(groupStudy);
+    // if (groupStudy.comments.length === 1) {
+    //   await this.userServiceInstance.updatePoint(
+    //     CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
+    //     '소모임 최초 리뷰 작성',
+    //     token.uid,
+    //   );
+    //   groupStudy.comments = [
+    //     {
+    //       user: token.id,
+    //       comment,
+    //     },
+    //   ];
+    // }
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
@@ -726,21 +732,14 @@ export default class GroupStudyService {
 
   //comment방식 바꾸기
   async deleteComment(groupStudyId: string, commentId: string) {
-    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
-    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
-
-    groupStudy.deleteComment(commentId);
-
-    await this.groupStudyRepository.save(groupStudy);
+    await this.commentService.deleteComment({ commentId: commentId });
   }
 
   async patchComment(groupStudyId: string, commentId: string, comment: string) {
-    const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
-    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
-
-    groupStudy.updateComment(commentId, comment);
-
-    await this.groupStudyRepository.save(groupStudy);
+    await this.commentService.updateComment({
+      commentId: commentId,
+      content: comment,
+    });
 
     return;
   }
@@ -748,18 +747,7 @@ export default class GroupStudyService {
   async createCommentLike(groupStudyId: number, commentId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const groupStudy = await this.groupStudyRepository.findById(
-      groupStudyId.toString(),
-    );
-    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
-
-    try {
-      groupStudy.likeComment(commentId, token.id);
-    } catch (err) {
-      throw new DatabaseError('해당 Id 또는 commentId를 찾을 수 없습니다.');
-    }
-
-    await this.groupStudyRepository.save(groupStudy);
+    await this.commentService.likeComment(commentId, token.id);
   }
 
   async createSubCommentLike(
@@ -769,14 +757,7 @@ export default class GroupStudyService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const groupStudy = await this.groupStudyRepository.findById(
-      groupStudyId.toString(),
-    );
-    if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
-
-    groupStudy.likeSubComment(commentId, subCommentId, token.id);
-
-    await this.groupStudyRepository.save(groupStudy);
+    await this.commentService.likeComment(subCommentId, token.id);
     return;
   }
 
@@ -958,6 +939,43 @@ export default class GroupStudyService {
   }
 
   async test() {
-    return await this.groupStudyRepository.test();
+    try {
+      const feeds = await this.groupStudyRepository.findAllTemp();
+
+      for (const feed of feeds) {
+        const comments = feed.comments;
+
+        for (const comment of comments) {
+          if (!comment?.comment) continue;
+
+          const saveComment = await this.commentService.createComment({
+            postId: feed._id.toString(),
+            postType: 'groupStudy',
+            user: comment.user,
+            comment: comment.comment,
+            likeList: comment?.likeList || [],
+          });
+
+          const subComments = comment.subComments || [];
+
+          for (const subComment of subComments) {
+            if (!subComment.comment) continue;
+
+            const saveSubComment = await this.commentService.createSubComment({
+              postId: feed._id.toString(),
+              postType: 'groupStudy',
+              user: subComment.user,
+              comment: subComment.comment,
+              parentId: saveComment._id.toString(),
+              likeList: subComment?.likeList || [],
+            });
+          }
+        }
+      }
+
+      return feeds;
+    } catch (err) {
+      console.log(err);
+    }
   }
 }

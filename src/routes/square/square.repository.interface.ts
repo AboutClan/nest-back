@@ -6,6 +6,7 @@ export interface ISquareRepository {
   create(square: Square): Promise<Square>;
   findById(id: string): Promise<Square | null>;
   findAll(): Promise<Square[]>;
+  findAllTemp();
   update(id: string, square: Square): Promise<Square | null>;
   save(square: Square): Promise<Square>;
   delete(id: string): Promise<boolean>;

@@ -12,6 +12,7 @@ export interface IGroupStudyRepository {
   getSigningGroupByStatus(userId: string, status: string): Promise<any>;
   findByIdWithPop(groupStudyId: number): Promise<GroupStudy | null>;
   findAll(): Promise<GroupStudy[]>;
+  findAllTemp();
   findById(groupStudyId: string): Promise<GroupStudy | null>;
   findBy_Id(groupStudyId: string): Promise<GroupStudy | null>;
   initWeekAttendance(): Promise<void>;

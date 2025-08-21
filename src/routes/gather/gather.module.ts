@@ -11,6 +11,7 @@ import { GatherRepository } from './GatherRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../fcm/fcm.module';
 import { ImageModule } from 'src/routes/imagez/image.module';
+import { CommentModule } from '../comment/comment.module';
 
 const gatherRepositoryProvider: ClassProvider = {
   provide: IGATHER_REPOSITORY,
@@ -27,6 +28,7 @@ const gatherRepositoryProvider: ClassProvider = {
     WebPushModule,
     FcmAModule,
     ImageModule,
+    CommentModule,
   ],
   controllers: [GatherController],
   providers: [GatherService, gatherRepositoryProvider],

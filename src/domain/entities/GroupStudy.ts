@@ -9,24 +9,6 @@ export interface CategoryProps {
   main?: string;
   sub?: string;
 }
-
-export interface SubCommentProps {
-  _id?: string; // Optional for new comments
-  user?: string;
-  comment?: string;
-  likeList?: string[];
-  createdAt?: Date;
-}
-
-export interface CommentProps {
-  _id?: string; // Optional for new comments
-  user?: string;
-  comment?: string;
-  subComments?: SubCommentProps[];
-  likeList?: string[];
-  createdAt?: Date;
-}
-
 export interface WaitingProps {
   user?: string;
   answer?: string[];
@@ -79,7 +61,6 @@ export interface GroupStudyProps {
   status?: string;
   participants?: ParticipantProps[];
   userId?: string; // 작성자(creator) ID
-  comments?: CommentProps[];
   location?: string;
   image?: string;
   isFree?: boolean;
@@ -120,7 +101,6 @@ export class GroupStudy {
   public status: string;
   public participants: ParticipantProps[];
   public userId: string;
-  public comments: CommentProps[];
   public location: string;
   public image?: string;
   public isFree: boolean;
@@ -158,7 +138,6 @@ export class GroupStudy {
     this.status = props.status || 'pending';
     this.participants = props.participants || [];
     this.userId = props.userId;
-    this.comments = props.comments ?? [];
     this.location = props.location || '수원';
     this.image = props.image || null;
     this.isFree = props.isFree || false;
@@ -177,131 +156,6 @@ export class GroupStudy {
     this.notionUrl = props.notionUrl;
     this.requiredTicket = props.requiredTicket ?? 1;
     this.totalDeposit = props.totalDeposit ?? 0;
-  }
-
-  addComment(userId: string, comment: string): void {
-    if (!userId || !comment) {
-      throw new Error('User ID and comment cannot be empty');
-    }
-
-    const newComment: CommentProps = {
-      user: userId,
-      comment,
-      subComments: [],
-      likeList: [],
-      createdAt: new Date(),
-    };
-    this.comments.push(newComment);
-  }
-
-  updateComment(commentId: string, newComment: string): void {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      comment.comment = newComment;
-    } else {
-      throw new Error('Comment not found');
-    }
-  }
-
-  likeComment(commentId: string, userId: string): void {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      if (!comment.likeList.includes(userId)) {
-        comment.likeList.push(userId);
-      }
-    } else {
-      throw new Error('Comment not found');
-    }
-  }
-
-  deleteComment(commentId: string): void {
-    const commentIndex = this.comments.findIndex((c) => c._id === commentId);
-    if (commentIndex !== -1) {
-      this.comments.splice(commentIndex, 1);
-    } else {
-      throw new Error('Comment not found');
-    }
-  }
-
-  deleteSubComment(commentId: string, subCommentId: string): void {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      const subCommentIndex = comment.subComments.findIndex(
-        (s) => s._id === subCommentId,
-      );
-      if (subCommentIndex !== -1) {
-        comment.subComments.splice(subCommentIndex, 1);
-      } else {
-        throw new Error('Sub-comment not found');
-      }
-    } else {
-      throw new Error('Comment not found');
-    }
-  }
-
-  updateSubComment(
-    commentId: string,
-    subCommentId: string,
-    newComment: string,
-  ): void {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      const subComment = comment.subComments.find(
-        (s) => s._id === subCommentId,
-      );
-      if (subComment) {
-        subComment.comment = newComment;
-      } else {
-        throw new Error('Sub-comment not found');
-      }
-    } else {
-      throw new Error('Comment not found');
-    }
-  }
-
-  likeSubComment(
-    commentId: string,
-    subCommentId: string,
-    userId: string,
-  ): void {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      const subComment = comment.subComments.find(
-        (s) => s._id === subCommentId,
-      );
-      if (subComment) {
-        if (!subComment.likeList.includes(userId)) {
-          subComment.likeList.push(userId);
-        }
-      } else {
-        throw new Error('Sub-comment not found');
-      }
-    } else {
-      throw new Error('Comment not found');
-    }
-  }
-
-  createSubComment(
-    commentId: string,
-    userId: string,
-    subComment: string,
-  ): void {
-    if (!userId || !subComment) {
-      throw new Error('User ID and sub-comment cannot be empty');
-    }
-
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      const newSubComment: SubCommentProps = {
-        user: userId,
-        comment: subComment,
-        likeList: [],
-        createdAt: new Date(),
-      };
-      comment.subComments.push(newSubComment);
-    } else {
-      throw new Error('Comment not found');
-    }
   }
 
   participateGroupStudy(userId: string, role: UserRole): void {
@@ -540,12 +394,6 @@ export class GroupStudy {
       status: this.status,
       participants: this.participants.map((p) => ({ ...p })),
       userId: this.userId,
-      comments: this.comments.map((c) => ({
-        user: c.user,
-        comment: c.comment,
-        subComments: (c.subComments ?? []).map((s) => ({ ...s })),
-        likeList: [...(c.likeList ?? [])],
-      })),
       location: this.location,
       image: this.image,
       isFree: this.isFree,

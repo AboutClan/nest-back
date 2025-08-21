@@ -164,6 +164,21 @@ export class RealtimeController {
     return res.status(HttpStatus.OK).json(result);
   }
 
+  @Post(':date/absence')
+  async patchAbsence(
+    @Body('absence') absence: boolean,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
+    const { date } = req;
+
+    const result = await this.realtimeService.patchAbsence(
+      absence,
+      date as string,
+    );
+    return res.status(HttpStatus.OK).json(result);
+  }
+
   @Get(':date/test')
   async test(@Res() res: Response, @Next() next: NextFunction) {
     const result = await this.realtimeService.setResult();

@@ -10,6 +10,7 @@ import { SquareComment } from 'src/domain/entities/Square/SquareComment';
 import { SquareSubComment } from 'src/domain/entities/Square/SquareSubComment';
 import { SquarePoll } from 'src/domain/entities/Square/SquarePoll';
 import { ISquareRepository } from './square.repository.interface';
+import CommentService from '../comment/comment.service';
 
 export default class SquareService {
   constructor(
@@ -18,6 +19,7 @@ export default class SquareService {
     private readonly imageServiceInstance: ImageService,
     private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
+    private readonly commentService: CommentService,
   ) {}
 
   async getSquareList({
@@ -35,14 +37,41 @@ export default class SquareService {
         Math.floor(start / gap) + 1,
         gap,
       );
-      return result.squares;
+      const squareIds = result.squares.map((square) => square._id.toString());
+
+      const comments =
+        await this.commentService.findCommetsByPostIds(squareIds);
+
+      result.squares.forEach((square) => {
+        (square as any).commentsCount = comments.filter(
+          (comment) => comment.postId === square._id.toString(),
+        ).length;
+      });
+
+      return {
+        squares: result.squares,
+        comments,
+      };
     } else {
       const squares = await this.squareRepository.findByCategory(
         category,
         start,
         gap,
       );
-      return squares.slice(start, start + gap);
+
+      const squareIds = squares.map((square) => square._id.toString());
+
+      const comments =
+        await this.commentService.findCommetsByPostIds(squareIds);
+
+      const squaresWithComments = squares.map((square) => ({
+        ...square?._doc,
+        commentsCount: comments.filter(
+          (comment) => comment.postId === square._id.toString(),
+        ).length,
+      }));
+
+      return squaresWithComments.slice(start, start + gap);
     }
   }
 
@@ -78,7 +107,6 @@ export default class SquareService {
       author,
       viewers: [],
       like: [],
-      comments: [],
     });
 
     const createdSquare = await this.squareRepository.create(squareEntity);
@@ -98,7 +126,14 @@ export default class SquareService {
       throw new Error(`Square with id ${squareId} not found`);
     }
 
-    return secretSquare.toPrimitives();
+    const comment = await this.commentService.findCommentsByPostId(
+      secretSquare._id.toString(),
+    );
+
+    return {
+      ...secretSquare.toPrimitives(),
+      comments: comment,
+    };
   }
 
   async createSquareComment({
@@ -110,21 +145,18 @@ export default class SquareService {
   }) {
     const token = RequestContext.getDecodedToken();
 
-    const squareComment = new SquareComment({
-      user: token.id,
-      comment,
-      subComments: [],
-      likeList: [],
-    });
-
     const square = await this.squareRepository.findById(squareId);
 
     if (!square) {
       throw new Error(`Square with id ${squareId} not found`);
     }
 
-    square.addComment(squareComment);
-    await this.squareRepository.save(square);
+    await this.commentService.createComment({
+      postId: square._id.toString(),
+      postType: 'square',
+      user: token.id,
+      comment,
+    });
 
     // 웹푸시 알림 발송
     if (square && square.author !== token.id) {
@@ -148,26 +180,20 @@ export default class SquareService {
     squareId: string;
     commentId: string;
   }) {
-    const square = await this.squareRepository.findById(squareId);
-    if (!square) {
-      throw new Error(`Square with id ${squareId} not found`);
-    }
-    square.removeComment(commentId);
-    await this.squareRepository.save(square);
+    await this.commentService.deleteComment({ commentId });
   }
 
   async createSubComment(squareId: string, commentId: string, content: string) {
     const token = RequestContext.getDecodedToken();
 
-    const subComment = new SquareSubComment({
+    const square = await this.squareRepository.findById(squareId);
+    await this.commentService.createSubComment({
+      postId: square._id.toString(),
+      postType: 'square',
+      parentId: commentId,
       user: token.id,
       comment: content,
-      likeList: [],
     });
-
-    const square = await this.squareRepository.findById(squareId);
-    square.addSubComment(commentId, subComment);
-    await this.squareRepository.save(square);
 
     // 웹푸시 알림 발송
     if (square && square.author !== token.id) {
@@ -189,12 +215,9 @@ export default class SquareService {
     commentId: string,
     subCommentId: string,
   ) {
-    const square = await this.squareRepository.findById(squareId);
-    if (!square) {
-      throw new Error(`Square with id ${squareId} not found`);
-    }
-    square.removeSubComment(commentId, subCommentId);
-    await this.squareRepository.save(square);
+    await this.commentService.deleteComment({
+      commentId: subCommentId,
+    });
   }
 
   async updateSubComment(
@@ -203,23 +226,16 @@ export default class SquareService {
     subCommentId: string,
     comment: string,
   ) {
-    const square = await this.squareRepository.findById(squareId);
-    if (!square) {
-      throw new Error(`Square with id ${squareId} not found`);
-    }
-
-    square.updateSubComment(commentId, subCommentId, comment);
-
-    await this.squareRepository.save(square);
+    await this.commentService.updateComment({
+      commentId: subCommentId,
+      content: comment,
+    });
   }
 
   async createCommentLike(squareId: string, commentId: string) {
     const token = RequestContext.getDecodedToken();
-    const square = await this.squareRepository.findById(squareId);
 
-    square.addCommentLike(commentId, token.id);
-
-    await this.squareRepository.update(squareId, square);
+    await this.commentService.likeComment(commentId, token.id);
   }
 
   async createSubCommentLike(
@@ -228,14 +244,8 @@ export default class SquareService {
     subCommentId: string,
   ) {
     const token = RequestContext.getDecodedToken();
-    const square = await this.squareRepository.findById(squareId);
 
-    if (!square) {
-      throw new Error(`Square with id ${squareId} not found`);
-    }
-    square.addSubCommentLike(commentId, subCommentId, token.id);
-
-    await this.squareRepository.save(square);
+    await this.commentService.likeComment(subCommentId, token.id);
   }
 
   async patchPoll({
@@ -306,7 +316,44 @@ export default class SquareService {
     return square.like.includes(token.id);
   }
 
-  // async test() {
-  //   await this.squareRepository.test();
-  // }
+  async test() {
+    try {
+      const feeds = await this.squareRepository.findAllTemp();
+
+      for (const feed of feeds) {
+        const comments = feed.comments;
+
+        for (const comment of comments) {
+          if (!comment?.comment) continue;
+
+          const saveComment = await this.commentService.createComment({
+            postId: feed._id.toString(),
+            postType: 'square',
+            user: comment.user,
+            comment: comment.comment,
+            likeList: comment?.likeList || [],
+          });
+
+          const subComments = comment.subComments || [];
+
+          for (const subComment of subComments) {
+            if (!subComment.comment) continue;
+
+            const saveSubComment = await this.commentService.createSubComment({
+              postId: feed._id.toString(),
+              postType: 'square',
+              user: subComment.user,
+              comment: subComment.comment,
+              parentId: saveComment._id.toString(),
+              likeList: subComment?.likeList || [],
+            });
+          }
+        }
+      }
+
+      return feeds;
+    } catch (err) {
+      console.log(err);
+    }
+  }
 }

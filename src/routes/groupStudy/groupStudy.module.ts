@@ -11,6 +11,7 @@ import { RedisModule } from 'src/redis/redis.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../fcm/fcm.module';
 import { GroupStudyRepository } from './GroupStudyRepository';
+import { CommentModule } from '../comment/comment.module';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
@@ -27,6 +28,7 @@ const groupStudyRepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.GROUPSTUDY, schema: GroupStudySchema },
     ]),
     FcmAModule,
+    CommentModule,
   ],
   controllers: [GroupStudyController],
   providers: [GroupStudyService, groupStudyRepositoryProvider],

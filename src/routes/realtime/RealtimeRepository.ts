@@ -82,7 +82,7 @@ export class RealtimeRepository implements IRealtimeRepository {
       date: doc.date as unknown as string,
       userList: (doc.userList ?? []).map((u) => ({
         user: u.user as string,
-        place: {
+        location: {
           latitude: u.place.latitude,
           longitude: u.place.longitude,
           name: u.place.name,
@@ -98,6 +98,7 @@ export class RealtimeRepository implements IRealtimeRepository {
           start: u.time.start,
           end: u.time.end,
         },
+        absence: u.absence,
       })),
     });
   }
@@ -110,13 +111,14 @@ export class RealtimeRepository implements IRealtimeRepository {
       date: date as unknown as Date,
       userList: (userList ?? []).map((u) => ({
         user: u.user,
-        place: u.place,
+        place: u.location,
         arrived: u.arrived,
         image: u.image,
         memo: u.memo,
         comment: u.comment ? { text: u.comment.text } : undefined,
         status: u.status,
         time: u.time,
+        absence: u.absence,
       })),
     };
   }

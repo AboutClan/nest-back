@@ -32,6 +32,14 @@ export class Realtime {
     return user.status === 'solo';
   }
 
+  public updateAbsence(userId: string, absence: boolean) {
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+    user.updateAbsence(userId, absence);
+  }
+
   public isOpen(userId: string) {
     const user = this.userList.find((u) => u.user === userId);
     if (!user) {

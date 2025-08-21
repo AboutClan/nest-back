@@ -30,6 +30,11 @@ export class GatherRepository implements IGatherRepository {
     return result.map((doc) => this.mapToDomain(doc));
   }
 
+  async findAllTemp() {
+    const docs = await this.Gather.find({}, '_id comments').lean();
+    return docs;
+  }
+
   async findMyGatherId(userId: string) {
     const result = await this.Gather.find({
       participants: {
@@ -63,14 +68,6 @@ export class GatherRepository implements IGatherRepository {
       query = query
         .populate({
           path: 'participants.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        })
-        .populate({
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        })
-        .populate({
-          path: 'comments.user',
           select: ENTITY.USER.C_SIMPLE_USER,
         })
         .populate({
@@ -334,22 +331,6 @@ export class GatherRepository implements IGatherRepository {
         absence: p.absence,
       })),
       user: doc.user as string,
-      // comments는 하위 도메인 엔티티로 매핑할 수 있지만, 여기서는 간단하게 plain object로 전달
-      comments: doc.comments.map((c: any) => ({
-        id: c._id as string,
-        user: c.user as string,
-        comment: c.comment as string,
-        likeList: c.likeList || [],
-        subComments: (c.subComments || []).map((sc: any) => ({
-          id: sc._id as string,
-          user: sc.user,
-          comment: sc.comment,
-          likeList: sc.likeList || [],
-          createdAt: sc.createdAt || '',
-        })),
-        createdAt: c?.createdAt || '',
-        updatedAt: c?.updatedAt || '',
-      })),
       id: doc.id,
       date: doc.date,
       place: doc.place ?? null,
@@ -411,17 +392,6 @@ export class GatherRepository implements IGatherRepository {
         absence: p.absence,
       })),
       user: props.user,
-      comments: props.comments.map((c) => ({
-        user: c.user,
-        comment: c.comment,
-        likeList: c.likeList,
-        subComments: c.subComments?.map((sc) => ({
-          id: sc.id,
-          user: sc.user,
-          comment: sc.comment,
-          likeList: sc.likeList,
-        })),
-      })),
       id: props.id,
       date: props.date,
       place: props.place,

@@ -80,7 +80,7 @@ export class Vote2Repository implements IVote2Repository {
       participations: (db.participations || []).map(
         (p) =>
           new Participation({
-            userId: p.userId.toString(),
+            userId: p.userId as string,
             latitude: p.latitude,
             longitude: p.longitude,
             start: p.start,
@@ -97,7 +97,7 @@ export class Vote2Repository implements IVote2Repository {
             members: (r.members || []).map(
               (m: any) =>
                 new Member({
-                  userId: m.userId.toString(),
+                  userId: m.userId as string,
                   arrived: m.arrived ? new Date(m.arrived) : undefined,
                   memo: m.memo,
                   img: m.img,

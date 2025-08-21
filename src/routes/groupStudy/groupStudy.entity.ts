@@ -13,14 +13,6 @@ const categoryZodSchema = z.object({
   sub: z.string(),
 });
 
-// subCommentType Zod schema
-const subCommentZodSchema = z.object({
-  _id: z.string().optional(),
-  user: z.union([z.string(), z.custom<IUser>()]),
-  comment: z.string(),
-  likeList: z.array(z.string()).optional().default([]),
-});
-
 // memberCntType Zod schema
 const memberCntZodSchema = z.object({
   min: z.number(),
@@ -42,15 +34,6 @@ const waitingZodSchema = z.object({
   answer: z.array(z.string()).optional(),
   pointType: z.string(),
   createdAt: z.date().optional(),
-});
-
-// commentType Zod schema
-const commentZodSchema = z.object({
-  _id: z.string().optional(),
-  user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
-  comment: z.string(),
-  subComments: z.array(subCommentZodSchema).optional().default([]),
-  likeList: z.array(z.string()).optional().default([]),
 });
 
 // IWeekRecord Zod schema
@@ -85,7 +68,6 @@ const groupStudyZodSchema = z.object({
   status: z.enum(ENTITY.GROUPSTUDY.ENUM_STATUS),
   participants: z.array(participantsZodSchema),
   user: z.union([z.string(), z.any()]), // IUser type should be handled appropriately
-  comments: z.array(commentZodSchema).optional(),
   id: z.number(),
   location: z.enum(ENTITY.USER.ENUM_LOCATION),
   image: z.string().optional(),
@@ -107,11 +89,9 @@ const groupStudyZodSchema = z.object({
 
 export type GroupStudyStatus = 'end' | 'pending';
 export type ICategory = z.infer<typeof categoryZodSchema>;
-export type subCommentType = z.infer<typeof subCommentZodSchema>;
 export type memberCntType = z.infer<typeof memberCntZodSchema>;
 export type participantsType = z.infer<typeof participantsZodSchema>;
 export type IWaiting = z.infer<typeof waitingZodSchema>;
-export type commentType = z.infer<typeof commentZodSchema>;
 export type IAttendance = z.infer<typeof attendanceZodSchema>;
 export type IWeekRecord = z.infer<typeof weekRecordZodSchema>;
 export type IGroupStudyData = z.infer<typeof groupStudyZodSchema> & Document;
@@ -199,48 +179,6 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
   },
   { _id: false },
-);
-
-export const subCommentSchema: Schema<subCommentType> = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-    },
-    comment: {
-      type: String,
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-export const commentSchema: Schema<commentType> = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-    },
-    comment: {
-      type: String,
-    },
-    subComments: {
-      type: [subCommentSchema],
-      default: [],
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
 );
 
 export const waitingSchema: Schema<IWaiting> = new Schema(
@@ -340,9 +278,6 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     period: {
       type: String,
-    },
-    comments: {
-      type: [commentSchema],
     },
     link: {
       type: String,

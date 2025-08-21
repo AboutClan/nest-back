@@ -39,21 +39,6 @@ export class SquareRepository implements ISquareRepository {
       author: dbEntity.author,
       viewers: dbEntity.viewers || [],
       like: dbEntity.like || [],
-      comments:
-        dbEntity.comments?.map((comment) => ({
-          _id: comment._id?.toString(),
-          user: comment.user,
-          comment: comment.comment,
-          subComments:
-            comment.subComments?.map((subComment) => ({
-              user: subComment.user,
-              comment: subComment.comment,
-              likeList: subComment.likeList || [],
-            })) || [],
-          likeList: comment.likeList || [],
-          createdAt: (comment as any).createdAt,
-          updatedAt: (comment as any).updatedAt,
-        })) || [],
       createdAt: (dbEntity as any).createdAt,
       updatedAt: (dbEntity as any).updatedAt,
     });
@@ -80,24 +65,14 @@ export class SquareRepository implements ISquareRepository {
       author: domainEntity.author,
       viewers: domainEntity.viewers,
       like: domainEntity.like,
-      comments:
-        domainEntity.comments?.map((comment) => ({
-          _id: comment._id,
-          user: comment.user,
-          comment: comment.comment,
-          subComments:
-            comment.subComments?.map((subComment) => ({
-              user: subComment.user,
-              comment: subComment.comment,
-              likeList: subComment.likeList,
-            })) || [],
-          likeList: comment.likeList,
-          createdAt: comment.createdAt,
-          updatedAt: comment.updatedAt,
-        })) || [],
       createdAt: domainEntity.createdAt,
       updatedAt: domainEntity.updatedAt,
     };
+  }
+
+  async findAllTemp() {
+    const docs = await this.SquareModel.find({}, '_id comments').lean();
+    return docs;
   }
 
   async create(square: Square): Promise<Square> {
@@ -121,10 +96,6 @@ export class SquareRepository implements ISquareRepository {
         path: 'like',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
-      await square.populate({
-        path: 'comments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
     }
 
     return this.mapToDomain(square);
@@ -140,11 +111,6 @@ export class SquareRepository implements ISquareRepository {
       if (square.type === 'info' || square.type === 'poll2') {
         square.populate([
           { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-          {
-            path: 'comments.subComments.user',
-            select: ENTITY.USER.C_SIMPLE_USER,
-          },
         ]);
       }
     });
@@ -156,11 +122,7 @@ export class SquareRepository implements ISquareRepository {
     const dbData = this.mapToDb(square);
     const updatedSquare = await this.SquareModel.findByIdAndUpdate(id, dbData, {
       new: true,
-    }).populate([
-      { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.subComments.user', select: ENTITY.USER.C_SIMPLE_USER },
-    ]);
+    }).populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]);
 
     if (!updatedSquare) return null;
     return this.mapToDomain(updatedSquare);
@@ -211,7 +173,6 @@ export class SquareRepository implements ISquareRepository {
       },
       viewCount: { $size: '$viewers' },
       likeCount: { $size: '$like' },
-      commentsCount: { $size: '$comments' },
       createdAt: 1,
       author: 1,
       like: 1,
@@ -227,7 +188,6 @@ export class SquareRepository implements ISquareRepository {
         await square.populate([
           { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
           { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
-          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
         ]);
       }
     }
@@ -238,14 +198,7 @@ export class SquareRepository implements ISquareRepository {
   async findByType(type: string): Promise<Square[]> {
     const squares = await this.SquareModel.find({ type })
       .sort({ createdAt: -1 })
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ]);
+      .populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]);
 
     return squares.map((square) => this.mapToDomain(square));
   }
@@ -253,14 +206,7 @@ export class SquareRepository implements ISquareRepository {
   async findByAuthor(authorId: string): Promise<Square[]> {
     const squares = await this.SquareModel.find({ author: authorId })
       .sort({ createdAt: -1 })
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ]);
+      .populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]);
 
     return squares.map((square) => this.mapToDomain(square));
   }
@@ -288,14 +234,7 @@ export class SquareRepository implements ISquareRepository {
       title: { $regex: title, $options: 'i' },
     })
       .sort({ createdAt: -1 })
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ]);
+      .populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]);
 
     return squares.map((square) => this.mapToDomain(square));
   }
@@ -305,14 +244,7 @@ export class SquareRepository implements ISquareRepository {
       content: { $regex: content, $options: 'i' },
     })
       .sort({ createdAt: -1 })
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ]);
+      .populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]);
 
     return squares.map((square) => this.mapToDomain(square));
   }
@@ -327,14 +259,7 @@ export class SquareRepository implements ISquareRepository {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate([
-          { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-          { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-          {
-            path: 'comments.subComments.user',
-            select: ENTITY.USER.C_SIMPLE_USER,
-          },
-        ]),
+        .populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]),
       this.SquareModel.countDocuments(),
     ]);
 
@@ -365,14 +290,7 @@ export class SquareRepository implements ISquareRepository {
       _id: { $in: squareIds },
     })
       .sort({ createdAt: -1 })
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ]);
+      .populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]);
 
     return populatedSquares.map((square) => this.mapToDomain(square));
   }
@@ -381,14 +299,7 @@ export class SquareRepository implements ISquareRepository {
     const squares = await this.SquareModel.find()
       .sort({ createdAt: -1 })
       .limit(limit)
-      .populate([
-        { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ]);
+      .populate([{ path: 'author', select: ENTITY.USER.C_SIMPLE_USER }]);
 
     return squares.map((square) => this.mapToDomain(square));
   }
