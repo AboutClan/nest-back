@@ -98,6 +98,7 @@ export class RealtimeRepository implements IRealtimeRepository {
           start: u.time.start,
           end: u.time.end,
         },
+        absence: u.absence,
       })),
     });
   }
@@ -117,6 +118,7 @@ export class RealtimeRepository implements IRealtimeRepository {
         comment: u.comment ? { text: u.comment.text } : undefined,
         status: u.status,
         time: u.time,
+        absence: u.absence,
       })),
     };
   }

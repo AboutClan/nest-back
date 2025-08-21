@@ -11,7 +11,7 @@ import {
   Req,
   Res,
   UploadedFiles,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -130,7 +130,7 @@ export class RealtimeController {
     @Next() next: NextFunction,
   ) {
     const { date } = req;
-console.log('date',date)
+    console.log('date', date);
     await this.realtimeService.deleteVote(date as string);
     return res.status(HttpStatus.NO_CONTENT).end();
   }
@@ -159,6 +159,21 @@ console.log('date',date)
 
     const result = await this.realtimeService.patchStatus(
       status,
+      date as string,
+    );
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Post(':date/absence')
+  async patchAbsence(
+    @Body('absence') absence: boolean,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
+    const { date } = req;
+
+    const result = await this.realtimeService.patchAbsence(
+      absence,
       date as string,
     );
     return res.status(HttpStatus.OK).json(result);

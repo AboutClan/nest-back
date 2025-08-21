@@ -24,6 +24,7 @@ export interface RealtimeUserProps {
   comment?: CommentProps;
   status?: RealtimeUserStatus;
   time: TimeProps;
+  absence?: boolean;
 }
 
 export class RealtimeUser {
@@ -35,6 +36,7 @@ export class RealtimeUser {
   public comment?: Comment;
   public status: RealtimeUserStatus;
   public time: Time;
+  public absence: boolean;
 
   constructor(props: RealtimeUserProps) {
     if (!props.user) throw new Error('RealtimeUser.userId is required');
@@ -55,6 +57,11 @@ export class RealtimeUser {
     this.memo = props.memo;
     this.comment = props.comment ? new Comment(props.comment.text) : undefined;
     this.status = props.status ?? 'solo';
+    this.absence = props.absence ?? false;
+  }
+
+  updateAbsence(userId: string, absence: boolean) {
+    if (this.user === userId) this.absence = absence;
   }
 
   toPrimitives(): RealtimeUserProps {

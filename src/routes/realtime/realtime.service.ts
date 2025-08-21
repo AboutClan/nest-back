@@ -243,6 +243,16 @@ export default class RealtimeService {
     }
   }
 
+  async patchAbsence(absence: boolean, date: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const todayData = await this.getTodayData(date);
+
+    todayData.updateAbsence(token.id, absence);
+
+    await this.realtimeRepository.save(todayData);
+  }
+
   async deleteVote(date: string) {
     const token = RequestContext.getDecodedToken();
 
