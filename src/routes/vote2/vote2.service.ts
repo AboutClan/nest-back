@@ -99,6 +99,9 @@ export class Vote2Service {
     return dates.map((date, idx) => ({
       date,
       ...rawData[idx],
+      ...(rawData[idx].realTimes && {
+        realTimes: rawData[idx].realTimes.userList,
+      }),
     }));
   }
 
@@ -155,6 +158,7 @@ export class Vote2Service {
         };
       }),
       results,
+      status: 'expected',
       realTimes: realtimeData
         ? {
             ...realtimeData,
@@ -193,6 +197,7 @@ export class Vote2Service {
           this.formatResultMember(member),
         ),
       })),
+      status: 'open',
       realTimes: realtimeData
         ? {
             ...realtimeData,

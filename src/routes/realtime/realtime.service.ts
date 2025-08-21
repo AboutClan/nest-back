@@ -40,7 +40,7 @@ export default class RealtimeService {
     const realtimeMap = new Map<string, any[]>();
 
     realtimeData.userList.forEach((data) => {
-      const key = `${data.place.latitude}${data.place.longitude}`;
+      const key = `${data.location.latitude}${data.location.longitude}`;
 
       if (realtimeMap.has(key)) {
         realtimeMap.set(key, [
@@ -131,7 +131,7 @@ export default class RealtimeService {
     realtime.addUser(
       new RealtimeUser({
         user: token.id,
-        place: validatedUserData.place as PlaceProps,
+        location: validatedUserData.place as PlaceProps,
         time: validatedUserData.time as TimeProps,
         arrived: validatedUserData.arrived,
         image: validatedUserData.image as string,
