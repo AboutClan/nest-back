@@ -4,20 +4,6 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
-export const SubCommentZodSchema = z.object({
-  user: z.union([z.string(), z.custom<IUser>()]),
-  comment: z.string(),
-  likeList: z.array(z.string()).default([]).optional(),
-});
-
-export const CommentZodSchema = z.object({
-  _id: z.custom<Types.ObjectId>().optional(),
-  user: z.union([z.string(), z.custom<IUser>()]),
-  comment: z.string(),
-  subComments: z.array(SubCommentZodSchema).optional(),
-  likeList: z.array(z.string()).optional(),
-});
-
 export const PollItemZodSchema = z.object({
   _id: z.custom<Types.ObjectId>().optional(),
   name: z.string(),
@@ -40,60 +26,13 @@ export const SecretSquareZodSchema = z.object({
   author: z.custom<Types.ObjectId>(),
   viewers: z.array(z.custom<Types.ObjectId>()).optional(),
   like: z.array(z.custom<Types.ObjectId>()).optional(),
-  comments: z.array(CommentZodSchema).optional(),
 });
 
-export type subCommentType = z.infer<typeof SubCommentZodSchema>;
-export type Comment = z.infer<typeof CommentZodSchema> & Document;
 export type PollItem = z.infer<typeof PollItemZodSchema>;
 export type SecretSquareItem = z.infer<typeof SecretSquareZodSchema> & Document;
 
 export type SecretSquareCategory = (typeof ENTITY.SQUARE.ENUM_CATEGORY)[number];
 export type SecretSquareType = (typeof ENTITY.SQUARE.ENUM_TYPE)[number];
-
-export const subCommentSchema: Schema<subCommentType> = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-    },
-    comment: {
-      type: String,
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-export const commentSchema = new Schema<Comment>(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-      required: true,
-    },
-    comment: {
-      type: String,
-      required: true,
-    },
-    subComments: {
-      type: [subCommentSchema],
-      default: [],
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
 
 const pollItemSchema = new Schema<PollItem>({
   name: {
@@ -163,10 +102,6 @@ export const secretSquareSchema = new Schema<SecretSquareItem>(
     like: {
       type: [Schema.Types.ObjectId],
       ref: DB_SCHEMA.USER,
-    },
-    comments: {
-      type: [commentSchema],
-      default: [],
     },
   },
   {

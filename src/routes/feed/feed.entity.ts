@@ -3,21 +3,6 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IUser } from 'src/routes/user/user.entity';
 import { z } from 'zod';
 
-export const SubCommentZodSchema = z.object({
-  id: z.string().optional(),
-  user: z.union([z.string(), z.custom<IUser>()]),
-  comment: z.string(),
-  likeList: z.array(z.string()).nullable().optional(),
-});
-
-export const CommentZodSchema = z.object({
-  id: z.string().optional(),
-  user: z.union([z.string(), z.custom<IUser>()]),
-  comment: z.string(),
-  subComments: z.array(SubCommentZodSchema).optional(),
-  likeList: z.array(z.string()).nullable().optional(),
-});
-
 export const FeedZodSchema = z.object({
   _id: z.string().optional(),
   title: z.string(),
@@ -28,58 +13,13 @@ export const FeedZodSchema = z.object({
   typeId: z.string(),
   isAnonymous: z.boolean().default(false),
   like: z.union([z.array(z.string()), z.array(z.custom<IUser>())]).optional(),
-  comments: z.array(CommentZodSchema).optional(),
   createdAt: z.string().optional(),
   subCategory: z.string().optional(),
 });
 
-export type commentType = z.infer<typeof CommentZodSchema>;
-export type subCommentType = z.infer<typeof SubCommentZodSchema>;
 export type IFeed = z.infer<typeof FeedZodSchema> & {
   addLike: (userId: string) => Promise<boolean> | null;
 } & Document;
-
-export const subCommentSchema: Schema<subCommentType> = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-    },
-    comment: {
-      type: String,
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-export const commentSchema: Schema<commentType> = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-    },
-    comment: {
-      type: String,
-    },
-    subComments: {
-      type: [subCommentSchema],
-      default: [],
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
 
 export const FeedSchema: Schema<IFeed> = new Schema(
   {
@@ -108,10 +48,6 @@ export const FeedSchema: Schema<IFeed> = new Schema(
     },
     subCategory: {
       type: String,
-    },
-    comments: {
-      type: [commentSchema],
-      default: [],
     },
     like: [
       {

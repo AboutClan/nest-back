@@ -39,20 +39,6 @@ export const ParticipantsZodSchema = z.object({
   absence: z.boolean().default(false),
 });
 
-export const SubCommentZodSchema = z.object({
-  user: z.union([z.string(), z.custom<IUser>()]),
-  comment: z.string(),
-  likeList: z.array(z.string()).nullable().optional(),
-});
-
-export const CommentZodSchema = z.object({
-  _id: z.string().optional(),
-  user: z.union([z.string(), z.custom<IUser>()]),
-  comment: z.string(),
-  subComments: z.array(SubCommentZodSchema).optional(),
-  likeList: z.array(z.string()).nullable().optional(),
-});
-
 export const GatherZodSchema = z.object({
   title: z.string(),
   type: TitleZodSchema,
@@ -69,7 +55,6 @@ export const GatherZodSchema = z.object({
     .default(ENTITY.GATHER.DEFAULT_STATUS),
   participants: z.array(ParticipantsZodSchema),
   user: z.union([z.string(), z.custom<IUser>()]),
-  comments: z.array(CommentZodSchema),
   id: z.number(),
   date: z.string(),
   place: z.string().nullable().optional(),
@@ -94,8 +79,6 @@ export type LocationType = z.infer<typeof LocationZodSchema>;
 export type memberCntType = z.infer<typeof MemberCntZodSchema>;
 export type GatherType = z.infer<typeof GathersZodSchema>;
 export type participantsType = z.infer<typeof ParticipantsZodSchema>;
-export type subCommentType = z.infer<typeof SubCommentZodSchema>;
-export type commentType = z.infer<typeof CommentZodSchema>;
 export type IGatherData = z.infer<typeof GatherZodSchema> & Document;
 
 export const typeSchema: Schema<TitleType> = new Schema(
@@ -196,48 +179,6 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
   { _id: false },
 );
 
-export const subCommentSchema: Schema<subCommentType> = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-    },
-    comment: {
-      type: String,
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-export const commentSchema: Schema<commentType> = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: DB_SCHEMA.USER,
-    },
-    comment: {
-      type: String,
-    },
-    subComments: {
-      type: [subCommentSchema],
-      default: [],
-    },
-    likeList: {
-      type: [String],
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
 export const GatherSchema: Schema<IGatherData> = new Schema(
   {
     title: {
@@ -283,9 +224,6 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
       enum: ENTITY.GATHER.ENUM_STATUS,
       default: ENTITY.GATHER.DEFAULT_STATUS,
       required: true,
-    },
-    comments: {
-      type: [commentSchema],
     },
     id: {
       type: Number,

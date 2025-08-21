@@ -39,21 +39,6 @@ export class SquareRepository implements ISquareRepository {
       author: dbEntity.author,
       viewers: dbEntity.viewers || [],
       like: dbEntity.like || [],
-      comments:
-        dbEntity.comments?.map((comment) => ({
-          _id: comment._id?.toString(),
-          user: comment.user,
-          comment: comment.comment,
-          subComments:
-            comment.subComments?.map((subComment) => ({
-              user: subComment.user,
-              comment: subComment.comment,
-              likeList: subComment.likeList || [],
-            })) || [],
-          likeList: comment.likeList || [],
-          createdAt: (comment as any).createdAt,
-          updatedAt: (comment as any).updatedAt,
-        })) || [],
       createdAt: (dbEntity as any).createdAt,
       updatedAt: (dbEntity as any).updatedAt,
     });
@@ -80,24 +65,14 @@ export class SquareRepository implements ISquareRepository {
       author: domainEntity.author,
       viewers: domainEntity.viewers,
       like: domainEntity.like,
-      comments:
-        domainEntity.comments?.map((comment) => ({
-          _id: comment._id,
-          user: comment.user,
-          comment: comment.comment,
-          subComments:
-            comment.subComments?.map((subComment) => ({
-              user: subComment.user,
-              comment: subComment.comment,
-              likeList: subComment.likeList,
-            })) || [],
-          likeList: comment.likeList,
-          createdAt: comment.createdAt,
-          updatedAt: comment.updatedAt,
-        })) || [],
       createdAt: domainEntity.createdAt,
       updatedAt: domainEntity.updatedAt,
     };
+  }
+
+  async findAllTemp() {
+    const docs = await this.SquareModel.find({}, '_id comments').lean();
+    return docs;
   }
 
   async create(square: Square): Promise<Square> {

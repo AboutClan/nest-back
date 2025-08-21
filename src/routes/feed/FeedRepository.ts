@@ -32,12 +32,15 @@ export class FeedRepository implements IFeedRepository {
     return this.mapToDomain(updatedDoc);
   }
 
+  async findAllTemp() {
+    const docs = await this.FeedModel.find({}, '_id comments').lean();
+    return docs;
+  }
+
   async findAll(opt: any): Promise<Feed[]> {
     let query = this.FeedModel.find().populate([
       { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
       { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'comments.subComments.user', select: ENTITY.USER.C_SIMPLE_USER },
     ]);
 
     if (opt.start) query = query.skip(opt.start);
@@ -54,11 +57,6 @@ export class FeedRepository implements IFeedRepository {
       .populate([
         { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
         { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
-        { path: 'comments.user', select: ENTITY.USER.C_SIMPLE_USER },
-        {
-          path: 'comments.subComments.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
       ])
       .exec(); // ← exec()로 쿼리 실행
 
@@ -85,12 +83,7 @@ export class FeedRepository implements IFeedRepository {
     if (opt.gap) query = query.limit(opt.gap);
     if (opt.sort) query = query.sort({ createdAt: opt.sort });
 
-    const docs = await query
-      .populate(['writer', 'like', 'comments.user'])
-      .populate({
-        path: 'comments.subComments.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
+    const docs = await query.populate(['writer', 'like']);
 
     return docs.map((doc) => this.mapToDomain(doc));
   }
@@ -124,18 +117,6 @@ export class FeedRepository implements IFeedRepository {
       typeId: doc.typeId,
       isAnonymous: doc.isAnonymous,
       like: doc.like as string[],
-      comments: (doc.comments ?? []).map((c) => ({
-        id: c.id,
-        user: c.user as string,
-        likeList: c.likeList,
-        comment: c.comment,
-        subComments: (c.subComments ?? []).map((sub) => ({
-          id: sub.id as string,
-          user: sub.user as string,
-          likeList: sub.likeList,
-          comment: sub.comment,
-        })),
-      })),
       subCategory: doc.subCategory,
       createdAt: doc.createdAt,
     });
@@ -154,17 +135,6 @@ export class FeedRepository implements IFeedRepository {
       typeId: feedProps.typeId,
       isAnonymous: feedProps.isAnonymous,
       like: feedProps.like as string[],
-      comments: (feedProps.comments ?? []).map((c) => ({
-        id: c.id as string,
-        user: c.user as string,
-        likeList: c.likeList,
-        comment: c.comment,
-        subComments: (c.subComments ?? []).map((sub) => ({
-          user: sub.user as string,
-          likeList: sub.likeList,
-          comment: sub.comment,
-        })),
-      })),
       subCategory: feedProps.subCategory,
       createdAt: feedProps.createdAt,
       addLike: null,

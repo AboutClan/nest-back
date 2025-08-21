@@ -5,6 +5,7 @@ export interface IFeedRepository {
   findById(id: string): Promise<Feed>;
   findByIdJoin(id: string): Promise<Feed>;
   findAll(opt: any): Promise<Feed[]>;
+  findAllTemp();
   create(doc: Feed): Promise<Feed>;
   save(doc: Feed): Promise<Feed>;
   findMyFeed(feedType: string, userId: string): Promise<Feed[]>;

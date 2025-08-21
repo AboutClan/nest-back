@@ -20,17 +20,6 @@ export interface SquareProps {
   author: any;
   viewers: any[];
   like: any[];
-  comments: Array<{
-    _id?: string;
-    user: any;
-    comment: string;
-    subComments: Array<{
-      user: any;
-      comment: string;
-      likeList: string[];
-    }>;
-    likeList: string[];
-  }>;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -46,7 +35,6 @@ export class Square {
   author: string;
   viewers: string[];
   like: string[];
-  comments: SquareComment[];
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -61,95 +49,13 @@ export class Square {
     this.author = props.author;
     this.viewers = props.viewers || [];
     this.like = props.like || [];
-    this.comments =
-      props.comments?.map((comment) => new SquareComment(comment)) || [];
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
-  }
-
-  addComment(comment: SquareComment) {
-    this.comments.push(comment);
-  }
-
-  addSubComment(commentId: string, subComment: SquareSubComment) {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      comment.addSubComment(subComment);
-    }
-  }
-
-  updateSubComment(commentId: string, subCommentId: string, comment: string) {
-    const commentObj = this.comments.find((c) => c._id === commentId);
-    if (!commentObj) {
-      throw new Error(`Comment with id ${commentId} not found`);
-    }
-
-    const subComment = commentObj.subComments.find(
-      (sc) => sc._id === subCommentId,
-    );
-    if (!subComment) {
-      throw new Error(`SubComment with id ${subCommentId} not found`);
-    }
-    subComment.updateComment(comment);
-  }
-
-  removeSubComment(commentId: string, subCommentId: string) {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      comment.removeSubComment(subCommentId);
-    }
-  }
-
-  removeComment(commentId: string) {
-    this.comments = this.comments.filter(
-      (comment) => comment._id !== commentId,
-    );
   }
 
   addLike(userId: string) {
     if (!this.like.includes(userId)) {
       this.like.push(userId);
-    }
-  }
-
-  addCommentLike(commentId: string, userId: string) {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      comment.addLike(userId);
-    }
-  }
-  removeCommentLike(commentId: string, userId: string) {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      comment.removeLike(userId);
-    }
-  }
-
-  addSubCommentLike(commentId: string, subCommentId: string, userId: string) {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      const subComment = comment.subComments.find(
-        (sc) => sc._id === subCommentId,
-      );
-      if (subComment) {
-        subComment.addLike(userId.toString());
-      }
-    }
-  }
-
-  removeSubCommentLike(
-    commentId: string,
-    subCommentId: string,
-    userId: string,
-  ) {
-    const comment = this.comments.find((c) => c._id === commentId);
-    if (comment) {
-      const subComment = comment.subComments.find(
-        (sc) => sc._id === subCommentId,
-      );
-      if (subComment) {
-        subComment.removeLike(userId.toString());
-      }
     }
   }
 
@@ -226,7 +132,6 @@ export class Square {
       author: this.author,
       viewers: this.viewers,
       like: this.like,
-      comments: this.comments.map((comment) => comment.toPrimitives()),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

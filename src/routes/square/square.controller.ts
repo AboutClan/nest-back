@@ -42,6 +42,12 @@ export class ValidationPipe implements PipeTransform {
 export class SquareController {
   constructor(private readonly squareService: SquareService) {}
 
+  @Get('test')
+  async test() {
+    await this.squareService.test();
+    return { status: 'success' };
+  }
+
   @Get()
   async getSquareList(
     @Query('category')
@@ -140,12 +146,6 @@ export class SquareController {
     const square = await this.squareService.getSquare(squareId);
     return { square };
   }
-
-  // @Get(':squareId')
-  // async test() {
-  //   const square = await this.squareService.test();
-  //   return { square };
-  // }
 
   @Patch(':squareId/poll')
   async patchPoll(

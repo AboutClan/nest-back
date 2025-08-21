@@ -22,6 +22,7 @@ import { IGatherRepository } from '../gather/GatherRepository.interface';
 import { IFeedRepository } from './FeedRepository.interface';
 import { FcmService } from '../fcm/fcm.service';
 import { IGroupStudyRepository } from '../groupStudy/GroupStudyRepository.interface';
+import CommentService from '../comment/comment.service';
 
 @Injectable()
 export class FeedService {
@@ -38,6 +39,7 @@ export class FeedService {
     private readonly userService: UserService,
     private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
+    private readonly commentService: CommentService,
   ) {
     this.imageServiceInstance = new ImageService();
   }
@@ -101,8 +103,13 @@ export class FeedService {
       modifiedLike = feed?.like.slice(0, 8);
     }
 
+    const feedComments = await this.commentService.findCommentsByPostId(
+      feed._id,
+    );
+
     return {
       ...feed,
+      comments: feedComments,
       like: modifiedLike,
       likeCnt: feed?.like?.length,
     };
@@ -129,6 +136,10 @@ export class FeedService {
       gap,
       isRecent,
     });
+    const feedIds = feeds?.map((feed) => feed._id.toString());
+
+    const comments = await this.commentService.findCommetsByPostIds(feedIds);
+
     return feeds?.map((feed) => {
       const myLike = (feed?.like as unknown as IUser[])?.find(
         (who) => who.uid === token.uid,
@@ -146,6 +157,9 @@ export class FeedService {
       }
       return {
         ...feed,
+        comments: comments.filter(
+          (comment) => comment.postId.toString() === feed._id.toString(),
+        ),
         like: modifiedLike,
         likeCnt: feed?.like?.length,
       };
@@ -203,13 +217,12 @@ export class FeedService {
     const token = RequestContext.getDecodedToken();
     const feed = await this.feedRepository.findById(feedId);
 
-    feed.addComment({
+    await this.commentService.createComment({
+      postId: feed._id,
+      postType: 'feed',
       user: token.id,
       comment: content,
     });
-
-    const newComment = await this.feedRepository.save(feed);
-    if (!newComment) throw new DatabaseError('create comment failed');
 
     //noti
     this.webPushServiceInstance.sendNotificationToXWithId(
@@ -228,25 +241,22 @@ export class FeedService {
   }
 
   async deleteComment(feedId: string, commentId: string) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.removeComment(commentId);
-    await this.feedRepository.save(feed);
+    await this.commentService.deleteComment({ commentId });
     return;
   }
 
   async updateComment(feedId: string, commentId: string, comment: string) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.updateComment(commentId, comment);
-    await this.feedRepository.save(feed);
+    await this.commentService.updateComment({
+      commentId,
+      content: comment,
+    });
     return;
   }
 
   async createCommentLike(feedId: string, commentId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const feed = await this.feedRepository.findById(feedId);
-    feed.updateComment(commentId, token.id);
-    await this.feedRepository.save(feed);
+    await this.commentService.likeComment(commentId, token.id);
     return;
   }
 
@@ -257,21 +267,21 @@ export class FeedService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const feed = await this.feedRepository.findById(feedId);
-    feed.addSubCommentLike(commentId, subCommentId, token.id);
-    await this.feedRepository.save(feed);
+    await this.commentService.likeComment(subCommentId, token.id);
   }
 
   async createSubComment(feedId: string, commentId: string, content: string) {
     const token = RequestContext.getDecodedToken();
-    const message: SubCommentProps = {
-      user: token.id,
-      comment: content,
-    };
 
     const feed = await this.feedRepository.findById(feedId);
-    const commentWriter = feed.addSubComment(commentId, message);
-    await this.feedRepository.save(feed);
+
+    const commentWriter = await this.commentService.createSubComment({
+      postId: feed._id.toString(),
+      postType: 'feed',
+      user: token.id,
+      comment: content,
+      parentId: commentId,
+    });
 
     //noti
     this.webPushServiceInstance.sendNotificationToXWithId(
@@ -301,9 +311,7 @@ export class FeedService {
     commentId: string,
     subCommentId: string,
   ) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.removeSubComment(commentId, subCommentId);
-    await this.feedRepository.save(feed);
+    await this.commentService.deleteComment({ commentId: subCommentId });
     return;
   }
 
@@ -313,9 +321,10 @@ export class FeedService {
     subCommentId: string,
     comment: string,
   ) {
-    const feed = await this.feedRepository.findById(feedId);
-    feed.updateSubComment(commentId, subCommentId, comment);
-    await this.feedRepository.save(feed);
+    await this.commentService.updateComment({
+      commentId: subCommentId,
+      content: comment,
+    });
     return;
   }
 
@@ -368,5 +377,46 @@ export class FeedService {
       writtenReviewCnt: (myFeed || []).length,
       reviewReceived: (receivedFeed || []).length,
     };
+  }
+
+  async test() {
+    try {
+      const feeds = await this.feedRepository.findAllTemp();
+
+      for (const feed of feeds) {
+        const comments = feed.comments;
+
+        for (const comment of comments) {
+          if (!comment?.comment) continue;
+
+          const saveComment = await this.commentService.createComment({
+            postId: feed._id.toString(),
+            postType: 'feed',
+            user: comment.user,
+            comment: comment.comment,
+            likeList: comment?.likeList || [],
+          });
+
+          const subComments = comment.subComments || [];
+
+          for (const subComment of subComments) {
+            if (!subComment.comment) continue;
+
+            const saveSubComment = await this.commentService.createSubComment({
+              postId: feed._id.toString(),
+              postType: 'feed',
+              user: subComment.user,
+              comment: subComment.comment,
+              parentId: saveComment._id.toString(),
+              likeList: subComment?.likeList || [],
+            });
+          }
+        }
+      }
+
+      return feeds;
+    } catch (err) {
+      console.log(err);
+    }
   }
 }

@@ -11,6 +11,7 @@ import { FeedRepository } from './FeedRepository';
 import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../fcm/fcm.module';
+import { CommentModule } from '../comment/comment.module';
 
 const feedRepositoryProvider: ClassProvider = {
   provide: IFEED_REPOSITORY,
@@ -25,6 +26,7 @@ const feedRepositoryProvider: ClassProvider = {
     GroupStudyModule,
     WebPushModule,
     FcmAModule,
+    CommentModule,
   ],
   controllers: [FeedController],
   providers: [FeedService, feedRepositoryProvider],
