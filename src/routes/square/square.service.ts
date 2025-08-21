@@ -37,7 +37,21 @@ export default class SquareService {
         Math.floor(start / gap) + 1,
         gap,
       );
-      return result.squares;
+      const squareIds = result.squares.map((square) => square._id.toString());
+
+      const comments =
+        await this.commentService.findCommetsByPostIds(squareIds);
+
+      result.squares.forEach((square) => {
+        (square as any).commentsCount = comments.filter(
+          (comment) => comment.postId === square._id.toString(),
+        ).length;
+      });
+
+      return {
+        squares: result.squares,
+        comments,
+      };
     } else {
       const squares = await this.squareRepository.findByCategory(
         category,
