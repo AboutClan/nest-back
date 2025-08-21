@@ -173,7 +173,6 @@ export class SquareRepository implements ISquareRepository {
       },
       viewCount: { $size: '$viewers' },
       likeCount: { $size: '$like' },
-      commentsCount: 0,
       createdAt: 1,
       author: 1,
       like: 1,
