@@ -53,8 +53,6 @@ export default class CommentService {
       );
     });
 
-    console.log(comments);
-
     return comments;
   }
 

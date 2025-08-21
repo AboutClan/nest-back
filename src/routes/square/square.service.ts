@@ -64,13 +64,15 @@ export default class SquareService {
       const comments =
         await this.commentService.findCommetsByPostIds(squareIds);
 
-      squares.forEach((square) => {
-        (square as any).commentsCount = comments.filter(
+      const squaresWithComments = squares.map((square) => ({
+        ...square,
+        commentsCount: comments.filter(
           (comment) => comment.postId === square._id.toString(),
-        ).length;
-      });
+        ).length,
+      }));
 
-      return squares.slice(start, start + gap);
+      console.log(squaresWithComments);
+      return squaresWithComments.slice(start, start + gap);
     }
   }
 

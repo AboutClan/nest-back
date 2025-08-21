@@ -181,6 +181,7 @@ export class SquareRepository implements ISquareRepository {
       .sort({ createdAt: 'desc' })
       .skip(start)
       .limit(gap)
+      .lean()
       .exec();
 
     for (const square of squares) {
