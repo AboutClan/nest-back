@@ -52,7 +52,7 @@ export const ENTITY = {
   },
 
   REALTIME: {
-    ENUM_STATUS: ['pending', 'solo', 'open', 'free', 'cancel'] as const,
+    ENUM_STATUS: ['solo', 'open', 'participation'] as const,
     DEFAULT_STATUS: 'solo' as const,
   },
 

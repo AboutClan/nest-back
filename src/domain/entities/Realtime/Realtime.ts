@@ -42,7 +42,9 @@ export class Realtime {
   }
 
   updateUserTime(userId: string, start: string, end: string): void {
-    const user = this.userList.find((u) => u.user === userId);
+    const user = this.userList.find(
+      (u) => (u.user as IUser)._id.toString() === userId,
+    );
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }
