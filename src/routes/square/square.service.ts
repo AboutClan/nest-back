@@ -99,7 +99,14 @@ export default class SquareService {
       throw new Error(`Square with id ${squareId} not found`);
     }
 
-    return secretSquare.toPrimitives();
+    const comment = await this.commentService.findCommentsByPostId(
+      secretSquare._id.toString(),
+    );
+
+    return {
+      ...secretSquare.toPrimitives(),
+      comments: comment,
+    };
   }
 
   async createSquareComment({
@@ -118,7 +125,7 @@ export default class SquareService {
     }
 
     await this.commentService.createComment({
-      postId: squareId,
+      postId: square._id.toString(),
       postType: 'square',
       user: token.id,
       comment,
@@ -154,7 +161,7 @@ export default class SquareService {
 
     const square = await this.squareRepository.findById(squareId);
     await this.commentService.createSubComment({
-      postId: squareId,
+      postId: square._id.toString(),
       postType: 'square',
       parentId: commentId,
       user: token.id,
