@@ -478,14 +478,21 @@ export class Vote2Service {
 
     const vote = await this.Vote2Repository.findByDate(date);
     vote.setArrive(token.id, memo, end);
-
     //todo: score, point 추가
     await this.Vote2Repository.save(vote);
 
-    return await this.userServiceInstance.setVoteArriveInfo(
-      token.id,
-      arriveData.end,
-    );
+    await this.userServiceInstance.setVoteArriveInfo(token.id, arriveData.end);
+
+    const isArriveBefore = vote.isVoteBefore(token.id);
+
+    let point = 0;
+    if (isArriveBefore) {
+      point = CONST.POINT.STUDY_ATTEND_BEFORE();
+      await this.userServiceInstance.updatePoint(point, '스터디 before 참여');
+    } else {
+      point = CONST.POINT.STUDY_ATTEND_AFTER();
+      await this.userServiceInstance.updatePoint(point, '스터디 after 참여');
+    }
   }
 
   patchArrive(date: string) {
