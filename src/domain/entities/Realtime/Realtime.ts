@@ -33,7 +33,9 @@ export class Realtime {
   }
 
   public updateAbsence(userId: string, absence: boolean) {
-    const user = this.userList.find((u) => u.user === userId);
+    const user = this.userList.find(
+      (u) => (u.user as IUser)._id.toString() === userId.toString(),
+    );
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }

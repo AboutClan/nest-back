@@ -164,7 +164,7 @@ export class RealtimeController {
     return res.status(HttpStatus.OK).json(result);
   }
 
-  @Post(':date/absence')
+  @Patch(':date/absence')
   async patchAbsence(
     @Body('absence') absence: boolean,
     @Res() res: Response,
