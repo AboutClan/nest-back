@@ -117,7 +117,7 @@ export class RealtimeController {
     @Next() next: NextFunction,
   ) {
     const { date } = req;
-
+    console.log(15, date);
     await this.realtimeService.patchVote(start, end, date as string);
     return res.status(HttpStatus.OK).end();
   }

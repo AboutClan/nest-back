@@ -116,11 +116,10 @@ export default class RealtimeService {
   //todo: date:YYYYMMDD라 가정
   async createBasicVote(studyData: Partial<IRealtime>, date: string) {
     const token = RequestContext.getDecodedToken();
-
+    console.log(studyData);
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
-      status: 'pending',
       user: token.id,
     });
 
@@ -235,8 +234,9 @@ export default class RealtimeService {
     const todayData = await this.getTodayData(date);
 
     try {
+      console.log(123, start, end);
       todayData.updateUserTime(token.id, start, end);
-
+      console.log(55);
       await this.realtimeRepository.save(todayData);
     } catch (err) {
       throw new Error();

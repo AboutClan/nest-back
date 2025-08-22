@@ -59,6 +59,7 @@ export class Vote2Service {
     return form;
   }
   formatRealtime(member: IRealtimeUser) {
+    console.log(42, member);
     const form = {
       user: member.user,
       time: {
@@ -74,7 +75,7 @@ export class Vote2Service {
       comment: {
         text: member.comment?.text,
       },
-      place: member.place,
+      place: { location: (member as any).location },
       status: member.status,
     };
 
@@ -90,8 +91,8 @@ export class Vote2Service {
           return await this.getAfterVoteInfo(date);
         } else {
           const before = await this.getBeforeVoteInfo(date);
-          const realtime = await this.RealtimeService.getTodayData(date);
-          return { ...before, realTimes: realtime };
+          // const realtime = await this.RealtimeService.getTodayData(date);
+          return { ...before };
         }
       }),
     );
