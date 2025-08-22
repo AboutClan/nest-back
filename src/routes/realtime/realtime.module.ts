@@ -16,6 +16,7 @@ import { UserModule } from 'src/routes/user/user.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { RealtimeRepository } from './RealtimeRepository';
+import { PlaceModule } from '../place/place.module';
 
 const realtimeRepositoryProvider: ClassProvider = {
   provide: IREALTIME_REPOSITORY,
@@ -31,6 +32,7 @@ const realtimeRepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.REALTIME, schema: RealtimeSchema },
     ]),
     forwardRef(() => UserModule),
+    PlaceModule,
   ],
   controllers: [RealtimeController],
   providers: [RealtimeService, realtimeRepositoryProvider],

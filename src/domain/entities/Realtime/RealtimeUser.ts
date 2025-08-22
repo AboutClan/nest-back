@@ -12,7 +12,7 @@ export type RealtimeUserStatus = 'solo' | 'open' | 'participation';
  */
 export interface RealtimeUserProps {
   user: string;
-  location: PlaceProps;
+  place: PlaceProps;
   arrived?: Date;
   image?: string;
   memo?: string;
@@ -24,7 +24,7 @@ export interface RealtimeUserProps {
 
 export class RealtimeUser {
   public readonly user: string;
-  public location: Place;
+  public place: Place;
   public arrived?: Date;
   public image?: string;
   public memo?: string;
@@ -35,16 +35,16 @@ export class RealtimeUser {
 
   constructor(props: RealtimeUserProps) {
     if (!props.user) throw new Error('RealtimeUser.userId is required');
-    if (!props.location) throw new Error('RealtimeUser.place is required');
+    if (!props.place) throw new Error('RealtimeUser.place is required');
     if (!props.time) throw new Error('RealtimeUser.time is required');
     this.user = props.user;
     // instantiate nested entities from raw props
-    this.location = new Place(
-      props.location.latitude,
-      props.location.longitude,
-      props.location.name,
-      props.location.address,
-      props.location._id,
+    this.place = new Place(
+      props.place.latitude,
+      props.place.longitude,
+      props.place.name,
+      props.place.address,
+      props.place._id,
     );
     this.time = new Time(props.time.start, props.time.end);
     this.arrived = props.arrived;
@@ -62,7 +62,7 @@ export class RealtimeUser {
   toPrimitives(): RealtimeUserProps {
     return {
       user: this.user,
-      location: this.location.toPrimitives(),
+      place: this.place.toPrimitives(),
       arrived: this.arrived,
       image: this.image,
       memo: this.memo,

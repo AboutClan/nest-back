@@ -140,7 +140,7 @@ export class Vote2Service {
     const resultPlaces = await this.PlaceRepository.findByIds(
       resultPlaceIds as string[],
     );
-    const realtimeData = await this.RealtimeService.getTodayData(date);
+    const realtimeData = await this.RealtimeService.getTodayDataWithPlace(date);
     const m = new Map<string, any>();
     resultPlaces.forEach((place) => m.set(place._id.toString(), place));
 
@@ -174,7 +174,7 @@ export class Vote2Service {
   //todo: locationDetail 등록해야함
   private async getAfterVoteInfo(date: string) {
     const voteData = await this.Vote2Repository.findByDate(date);
-    const realtimeData = await this.RealtimeService.getTodayData(date);
+    const realtimeData = await this.RealtimeService.getTodayDataWithPlace(date);
     //results
 
     const participations = voteData?.participations;

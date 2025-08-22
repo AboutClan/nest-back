@@ -19,6 +19,7 @@ import {
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { IRealtimeRepository } from './RealtimeRepository.interface';
+import PlaceService from '../place/place.service';
 
 export default class RealtimeService {
   constructor(
@@ -28,6 +29,7 @@ export default class RealtimeService {
     private readonly imageServiceInstance: ImageService,
     private readonly voteServiceInstance: VoteService,
     private readonly collectionServiceInstance: CollectionService,
+    private readonly placeServiceInstance: PlaceService,
   ) {}
 
   private getToday() {
@@ -40,7 +42,7 @@ export default class RealtimeService {
     const realtimeMap = new Map<string, any[]>();
 
     realtimeData.userList.forEach((data) => {
-      const key = `${data.location.latitude}${data.location.longitude}`;
+      const key = `${data.place.latitude}${data.place.longitude}`;
 
       if (realtimeMap.has(key)) {
         realtimeMap.set(key, [
@@ -116,7 +118,6 @@ export default class RealtimeService {
   //todo: date:YYYYMMDD라 가정
   async createBasicVote(studyData: Partial<IRealtime>, date: string) {
     const token = RequestContext.getDecodedToken();
-    console.log(studyData);
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
@@ -130,7 +131,7 @@ export default class RealtimeService {
     realtime.addUser(
       new RealtimeUser({
         user: token.id,
-        location: validatedUserData.place as PlaceProps,
+        place: validatedUserData.place as PlaceProps,
         time: validatedUserData.time as TimeProps,
         arrived: validatedUserData.arrived,
         image: validatedUserData.image as string,
@@ -234,9 +235,7 @@ export default class RealtimeService {
     const todayData = await this.getTodayData(date);
 
     try {
-      console.log(123, start, end);
       todayData.updateUserTime(token.id, start, end);
-      console.log(55);
       await this.realtimeRepository.save(todayData);
     } catch (err) {
       throw new Error();
@@ -285,5 +284,28 @@ export default class RealtimeService {
   // 가장 최근의 스터디 가져오기
   async getRecentStudy(date: string) {
     return this.getTodayData(date);
+  }
+
+  async getTodayDataWithPlace(date?: string) {
+    // const date = this.getToday();
+    if (!date) date = this.getToday();
+    const data = await this.realtimeRepository.findByDate(date);
+
+    if (!data) {
+      const newRealtime = new Realtime({ date });
+      return await this.realtimeRepository.create(newRealtime);
+    }
+
+    for (const user of data.userList) {
+      const lat = user.place.latitude;
+      const lng = user.place.longitude;
+
+      const place = await this.placeServiceInstance.getPlaceByLatLng(lat, lng);
+      if (place) {
+        (user as any).place = place;
+      }
+    }
+
+    return data;
   }
 }

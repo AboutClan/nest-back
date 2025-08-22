@@ -36,6 +36,19 @@ export class MongoPlaceReposotory implements PlaceRepository {
       select: ENTITY.USER.C_SIMPLE_USER,
     });
   }
+
+  async findByLatLng(
+    lowerLat: number,
+    upperLat: number,
+    lowerLng: number,
+    upperLng: number,
+  ) {
+    return await this.Place.findOne({
+      'location.latitude': { $gte: lowerLat, $lte: upperLat },
+      'location.longitude': { $gte: lowerLng, $lte: upperLng },
+    });
+  }
+
   async createPlace(placeData: Partial<IPlace>): Promise<IPlace> {
     return await this.Place.create(placeData);
   }

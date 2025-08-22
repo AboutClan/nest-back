@@ -11,7 +11,25 @@ export default class PlaceService {
     @Inject(IPLACE_REPOSITORY)
     private readonly placeRepository: PlaceRepository,
   ) {}
-  async getActivePlace(status: 'main' |"all"| 'sub' | 'inactive') {
+  async getPlaceByLatLng(lat: number, lng: number) {
+    const multiplier = Math.pow(10, 5);
+
+    const lowerLat = Math.trunc(lat * multiplier) / multiplier;
+    const upperLat = lowerLat + 1 / multiplier;
+
+    const lowerLng = Math.trunc(lng * multiplier) / multiplier;
+    const upperLng = lowerLng + 1 / multiplier;
+
+    const place = await this.placeRepository.findByLatLng(
+      lowerLat,
+      upperLat,
+      lowerLng,
+      upperLng,
+    );
+
+    return place;
+  }
+  async getActivePlace(status: 'main' | 'all' | 'sub' | 'inactive') {
     try {
       const places = await this.placeRepository.findByStatus(status);
       return places;

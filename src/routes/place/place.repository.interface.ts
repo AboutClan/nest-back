@@ -15,5 +15,11 @@ export interface PlaceRepository {
     rating: number,
     isSecret: boolean,
   ): Promise<null>;
+  findByLatLng(
+    lowerLat: number,
+    upperLat: number,
+    lowerLng: number,
+    upperLng: number,
+  );
   test();
 }
