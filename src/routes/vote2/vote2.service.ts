@@ -201,9 +201,9 @@ export class Vote2Service {
       realTimes: realtimeData
         ? {
             ...realtimeData,
-            userList: realtimeData.userList.map((user) =>
-              this.formatRealtime(user),
-            ),
+            // userList: realtimeData.userList.map((user) =>
+            //   this.formatRealtime(user),
+            // ),
           }
         : null,
       unmatchedUsers,
@@ -273,6 +273,8 @@ export class Vote2Service {
   async setVoteWithArr(dates: string[], createVote: CreateNewVoteDTO) {
     const thisWeek = DateUtils.getWeekDate();
 
+    console.log(thisWeek);
+    console.log(dates);
     for (const date of thisWeek) {
       if (dates.includes(date)) {
         await this.setVote(date, createVote);
@@ -285,16 +287,25 @@ export class Vote2Service {
   async deleteVote(date: string) {
     const token = RequestContext.getDecodedToken();
 
-    const vote2 = await this.Vote2Repository.findByDate(date);
+    const vote2 = await this.Vote2Repository.findByDateWithoutPopulate(date);
 
-    vote2.removeParticipationByUserId(token.id);
+    const isRemoved = vote2.removeParticipationByUserId(token.id);
 
-    await this.Vote2Repository.save(vote2);
+    if (!isRemoved) {
+      return;
+    }
 
     await this.userServiceInstance.updateScore(
       -CONST.SCORE.VOTE_STUDY,
       '스터디 투표 취소',
     );
+
+    await this.userServiceInstance.updateScore(
+      -CONST.SCORE.VOTE_STUDY,
+      '스터디 투표 취소',
+    );
+
+    await this.Vote2Repository.save(vote2);
   }
   async deleteVoteWeek(date: string) {
     const token = RequestContext.getDecodedToken();

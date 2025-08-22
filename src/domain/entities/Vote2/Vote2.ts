@@ -54,9 +54,16 @@ export class Vote2 {
   }
 
   removeParticipationByUserId(userId: string) {
-    this.participations = this.participations.filter(
-      (p) => p.userId !== userId,
-    );
+    if (
+      this.participations.some((p) => p.userId.toString() === userId.toString())
+    ) {
+      this.participations = this.participations.filter(
+        (p) => p.userId.toString() !== userId.toString(),
+      );
+      return true;
+    } else {
+      return false;
+    }
   }
 
   setArrive(userId: string, memo: any, end: string) {

@@ -26,6 +26,11 @@ export class Vote2Repository implements IVote2Repository {
     return db ? this.mapToDomain(db) : null;
   }
 
+  async findByDateWithoutPopulate(date: string): Promise<Vote2 | null> {
+    const db = await this.Vote2Model.findOne({ date });
+    return db ? this.mapToDomain(db) : null;
+  }
+
   async findById(id: string): Promise<Vote2 | null> {
     const db = await this.Vote2Model.findById(id)
       .populate({
