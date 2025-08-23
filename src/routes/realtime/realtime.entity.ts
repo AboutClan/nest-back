@@ -90,7 +90,7 @@ const realtimeUserSchema: Schema<IRealtimeUser> = new Schema({
 });
 
 export const RealtimeSchema: Schema<IRealtime> = new Schema({
-  date: Date,
+  date: String,
   userList: {
     type: [realtimeUserSchema],
     default: [],

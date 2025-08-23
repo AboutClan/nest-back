@@ -183,7 +183,6 @@ export class RealtimeController {
 
   @Get(':date/test')
   async test(@Res() res: Response, @Next() next: NextFunction) {
-    const result = await this.realtimeService.setResult();
-    return res.status(HttpStatus.OK).json(result);
+    await this.realtimeService.test();
   }
 }

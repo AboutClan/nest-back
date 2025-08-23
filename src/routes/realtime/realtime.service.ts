@@ -108,7 +108,9 @@ export default class RealtimeService {
     const data = await this.realtimeRepository.findByDate(date);
 
     if (!data) {
+      console.log(date);
       const newRealtime = new Realtime({ date });
+      console.log(newRealtime);
       return await this.realtimeRepository.create(newRealtime);
     }
 
@@ -129,7 +131,7 @@ export default class RealtimeService {
         CONST.POINT.REALTIME_OPEN,
         'realtime open 출석',
         'realtime',
-        token.id,
+        token.uid,
       );
     }
 
@@ -361,4 +363,6 @@ export default class RealtimeService {
 
     return data;
   }
+
+  async test() {}
 }
