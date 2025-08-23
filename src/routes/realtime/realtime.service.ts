@@ -363,4 +363,6 @@ export default class RealtimeService {
 
     return data;
   }
+
+  async test() {}
 }

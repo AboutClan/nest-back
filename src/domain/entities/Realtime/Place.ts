@@ -20,10 +20,6 @@ export class Place {
     address: string,
     _id: string,
   ) {
-    if (latitude === undefined) throw new Error('Place.latitude is required');
-    if (longitude === undefined) throw new Error('Place.longitude is required');
-    if (!name) throw new Error('Place.name is required');
-    if (!address) throw new Error('Place.address is required');
     this.latitude = latitude;
     this.longitude = longitude;
     this.name = name;
