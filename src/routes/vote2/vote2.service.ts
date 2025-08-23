@@ -476,14 +476,20 @@ export class Vote2Service {
     await this.userServiceInstance.setVoteArriveInfo(token.id, arriveData.end);
 
     const isArriveBefore = vote.isVoteBefore(token.id);
-
+    const isLate = vote.isLate(token.id);
     let point = 0;
+
     if (isArriveBefore) {
-      point = CONST.POINT.STUDY_ATTEND_BEFORE();
+      point = isLate
+        ? CONST.POINT.STUDY_ATTEND_BEFORE() + CONST.POINT.LATE
+        : CONST.POINT.STUDY_ATTEND_BEFORE();
       await this.userServiceInstance.updatePoint(point, '스터디 before 참여');
     } else {
-      point = CONST.POINT.STUDY_ATTEND_AFTER();
-      await this.userServiceInstance.updatePoint(point, '스터디 after 참여');
+      point = isLate
+        ? CONST.POINT.STUDY_ATTEND_AFTER() + CONST.POINT.LATE
+        : CONST.POINT.STUDY_ATTEND_AFTER();
+      const message = isLate ? '스터디 지각' : '스터디 참여';
+      await this.userServiceInstance.updatePoint(point, message);
     }
   }
 
@@ -524,14 +530,17 @@ export class Vote2Service {
     return resultArr;
   }
 
-  async setAbsence(date: string, message: string, fee: number) {
+  async setAbsence(date: string, message: string, fee?: number) {
     const token = RequestContext.getDecodedToken();
 
     const vote = await this.Vote2Repository.findByDate(date);
 
     vote.setAbsence(token.id, message);
 
-    await this.userServiceInstance.updatePoint(fee, '스터디 당일 불참');
+    await this.userServiceInstance.updatePoint(
+      CONST.POINT.ABSENCE,
+      '스터디 당일 불참',
+    );
 
     await this.Vote2Repository.save(vote);
 

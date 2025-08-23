@@ -34,5 +34,10 @@ export const CONST = {
     REALTIME_ATTEND_SOLO: () => Math.floor(Math.random() * 181) + 20,
     REALTIME_ATTEND_BEFORE: () => Math.floor(Math.random() * 251) + 50,
     REALTIME_ATTEND_AFTER: () => Math.floor(Math.random() * 181) + 20,
+
+    LATE: -50,
+    ABSENCE: -500,
+    NO_SHOW: -1000,
+    REALTIME_OPEN: 100,
   },
 };

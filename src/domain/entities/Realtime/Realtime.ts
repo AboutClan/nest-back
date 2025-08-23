@@ -25,6 +25,22 @@ export class Realtime {
     this.userList = (props.userList ?? []).map((u) => new RealtimeUser(u));
   }
 
+  public isLate(userId: string) {
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+    const userStart = user.time.start;
+    const userAttend = user.arrived;
+
+    const start = new Date(userStart);
+    const attend = new Date(userAttend);
+
+    const diff = attend.getTime() - start.getTime();
+    const diffMinutes = diff / (60 * 1000); // 분 단위로 계산
+    return diffMinutes >= 60; // 60분 이상
+  }
+
   public isSolo(userId: string) {
     const user = this.userList.find((u) => u.user === userId);
     if (!user) {
@@ -97,10 +113,18 @@ export class Realtime {
     user.comment = new Comment(comment);
   }
 
-  deleteVote(userId: string): void {
+  deleteVote(userId: string): boolean {
+    //user list에 있으면 status 반환
+    const user = this.userList.find((u) => u.user === userId);
+    if (!user) {
+      return false;
+    }
     this.userList = this.userList.filter(
       (user) => (user.user as IUser)._id.toString() !== userId,
     );
+    if (user.status === 'open') {
+      return true;
+    }
   }
 
   toPrimitives(): RealtimeProps {

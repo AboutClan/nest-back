@@ -28,6 +28,24 @@ export class Vote2 {
     return participant.isBeforeResult;
   }
 
+  isLate(userId: string) {
+    const result = this.results.find((r) =>
+      r.members.some((m) => m.userId === userId),
+    );
+    if (!result) {
+      return false;
+    }
+    const member = result.members.find((m) => m.userId === userId);
+    if (!member) {
+      return false;
+    }
+    const start = new Date(member.start);
+    const arrived = new Date(member.arrived);
+    const diff = arrived.getTime() - start.getTime();
+    const diffMinutes = diff / (60 * 1000);
+    return diffMinutes >= 60;
+  }
+
   updateResult(userId: string, start: string, end: string) {
     this.results.forEach((result) => {
       result.members.forEach((member) => {

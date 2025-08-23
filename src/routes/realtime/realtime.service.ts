@@ -124,6 +124,15 @@ export default class RealtimeService {
       user: token.id,
     });
 
+    if (validatedUserData?.status === 'open') {
+      await this.userServiceInstance.updatePoint(
+        CONST.POINT.REALTIME_OPEN,
+        'realtime open 출석',
+        'realtime',
+        token.id,
+      );
+    }
+
     this.voteServiceInstance.deleteVote(date);
 
     const realtime = await this.getTodayData(date);
@@ -188,14 +197,24 @@ export default class RealtimeService {
         '스터디 출석',
       );
 
+      const isLate = todayData.isLate(token.id);
+
       if (todayData.isSolo(token.id)) {
-        const point = CONST.POINT.REALTIME_ATTEND_SOLO();
-        await this.userServiceInstance.updatePoint(point, 'realtime solo 출석');
+        const point = isLate
+          ? CONST.POINT.REALTIME_ATTEND_SOLO() + CONST.POINT.LATE
+          : CONST.POINT.REALTIME_ATTEND_SOLO();
+
+        const message = isLate ? 'realtime solo 지각' : 'realtime solo 출석';
+        await this.userServiceInstance.updatePoint(point, message);
       }
 
       if (todayData.isOpen(token.id)) {
-        const point = CONST.POINT.REALTIME_ATTEND_BEFORE();
-        await this.userServiceInstance.updatePoint(point, 'realtime open 출석');
+        const point = isLate
+          ? CONST.POINT.REALTIME_ATTEND_BEFORE() + CONST.POINT.LATE
+          : CONST.POINT.REALTIME_ATTEND_BEFORE();
+
+        const message = isLate ? 'realtime open 지각' : 'realtime open 출석';
+        await this.userServiceInstance.updatePoint(point, message);
       }
 
       return;
@@ -249,6 +268,13 @@ export default class RealtimeService {
 
     todayData.updateAbsence(token.id, absence);
 
+    if (absence) {
+      await this.userServiceInstance.updatePoint(
+        CONST.POINT.ABSENCE,
+        'realtime solo 결석',
+      );
+    }
+
     await this.realtimeRepository.save(todayData);
   }
 
@@ -257,9 +283,18 @@ export default class RealtimeService {
 
     const todayData = await this.getTodayData(date);
 
-    todayData.deleteVote(token.id);
+    const isOpen = todayData.deleteVote(token.id);
 
     await this.realtimeRepository.save(todayData);
+
+    if (isOpen) {
+      await this.userServiceInstance.updatePoint(
+        -CONST.POINT.REALTIME_OPEN,
+        'realtime open 출석 취소',
+        'realtime',
+        token.id,
+      );
+    }
   }
 
   async patchStatus(status: any, date: string) {
