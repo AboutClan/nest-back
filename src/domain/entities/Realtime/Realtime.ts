@@ -151,7 +151,7 @@ export class Realtime {
       comment: {
         text: member.comment?.text,
       },
-      place: { location: (member as any).place },
+      place: { location: member.place },
       status: member.status,
     };
 

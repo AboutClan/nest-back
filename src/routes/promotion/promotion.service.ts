@@ -1,11 +1,10 @@
 import { Inject } from '@nestjs/common';
 import { RequestContext } from 'src/request-context';
 import { UserService } from 'src/routes/user/user.service';
+import { DateUtils } from 'src/utils/Date';
 import { IPROMOTION_REPOSITORY } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from './promotion.entity';
 import { PromotionRepository } from './promotion.repository';
-import { CONST } from 'src/Constants/CONSTANTS';
-import { DateUtils } from 'src/utils/Date';
 
 export default class PromotionService {
   constructor(
@@ -40,17 +39,17 @@ export default class PromotionService {
             validatedPromotion,
           );
 
-          await this.userServiceInstance.updatePoint(
-            CONST.POINT.PROMOTION_EVENT,
-            '홍보 이벤트 참여',
-          );
+          // await this.userServiceInstance.updatePoint(
+          //   CONST.POINT.PROMOTION_EVENT,
+          //   '홍보 이벤트 참여',
+          // );
         }
       } else {
         await this.promotionRepository.createPromotion(validatedPromotion);
-        await this.userServiceInstance.updatePoint(
-          CONST.POINT.PROMOTION_EVENT_DOUBLE,
-          '홍보 이벤트 참여',
-        );
+        // await this.userServiceInstance.updatePoint(
+        //   CONST.POINT.PROMOTION_EVENT_DOUBLE,
+        //   '홍보 이벤트 참여',
+        // );
       }
     } catch (err: any) {
       throw new Error(err);
