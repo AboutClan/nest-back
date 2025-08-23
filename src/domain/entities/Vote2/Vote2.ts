@@ -145,7 +145,7 @@ export class Vote2 {
 
   setOrUpdateParticipation(newParticipation: Participation) {
     const idx = this.participations.findIndex(
-      (p) => p.userId === newParticipation.userId,
+      (p) => p.userId.toString() === newParticipation.userId.toString(),
     );
     if (idx !== -1) {
       this.participations[idx] = newParticipation;
