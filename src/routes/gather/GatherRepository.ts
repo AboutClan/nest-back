@@ -1,7 +1,6 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
-import { Model, SortOrder, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { Gather } from 'src/domain/entities/Gather/Gather';
@@ -147,7 +146,7 @@ export class GatherRepository implements IGatherRepository {
       });
 
     const gatherData3 = await this.Gather.find({
-      'participants.9': { $exists: true },
+      'participants.12': { $exists: true },
     })
       .sort({ createdAt: -1 })
       .limit(7)
