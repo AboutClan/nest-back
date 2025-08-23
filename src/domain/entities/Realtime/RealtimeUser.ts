@@ -55,8 +55,11 @@ export class RealtimeUser {
     this.absence = props.absence ?? false;
   }
 
-  updateAbsence(userId: string, absence: boolean) {
-    if (this.user.toString() === userId.toString()) this.absence = absence;
+  updateAbsence(userId: string, absence: boolean, message?: string) {
+    if (this.user.toString() === userId.toString()) {
+      this.absence = absence;
+      this.comment = new Comment(message);
+    }
   }
 
   toPrimitives(): RealtimeUserProps {

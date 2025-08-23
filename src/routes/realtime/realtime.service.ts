@@ -206,6 +206,11 @@ export default class RealtimeService {
 
         const message = isLate ? 'realtime solo 지각' : 'realtime solo 출석';
         await this.userServiceInstance.updatePoint(point, message);
+
+        return {
+          point,
+          message,
+        };
       }
 
       if (todayData.isOpen(token.id)) {
@@ -215,9 +220,12 @@ export default class RealtimeService {
 
         const message = isLate ? 'realtime open 지각' : 'realtime open 출석';
         await this.userServiceInstance.updatePoint(point, message);
-      }
 
-      return;
+        return {
+          point,
+          message,
+        };
+      }
     } catch (err) {
       console.log(err);
     }
@@ -261,21 +269,26 @@ export default class RealtimeService {
     }
   }
 
-  async patchAbsence(absence: boolean, date: string) {
+  async patchAbsence(absence: boolean, date: string, message?: string) {
     const token = RequestContext.getDecodedToken();
 
     const todayData = await this.getTodayData(date);
 
-    todayData.updateAbsence(token.id, absence);
+    todayData.updateAbsence(token.id, absence, message);
+
+    await this.realtimeRepository.save(todayData);
 
     if (absence) {
       await this.userServiceInstance.updatePoint(
         CONST.POINT.ABSENCE,
         'realtime solo 결석',
       );
-    }
 
-    await this.realtimeRepository.save(todayData);
+      return {
+        point: CONST.POINT.ABSENCE,
+        message: 'realtime solo 결석',
+      };
+    }
   }
 
   async deleteVote(date: string) {
@@ -294,6 +307,11 @@ export default class RealtimeService {
         'realtime',
         token.id,
       );
+
+      return {
+        point: -CONST.POINT.REALTIME_OPEN,
+        message: 'realtime open 출석 취소',
+      };
     }
   }
 

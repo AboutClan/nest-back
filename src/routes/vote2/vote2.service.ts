@@ -484,12 +484,22 @@ export class Vote2Service {
         ? CONST.POINT.STUDY_ATTEND_BEFORE() + CONST.POINT.LATE
         : CONST.POINT.STUDY_ATTEND_BEFORE();
       await this.userServiceInstance.updatePoint(point, '스터디 before 참여');
+
+      return {
+        point,
+        message: '스터디 before 참여',
+      };
     } else {
       point = isLate
         ? CONST.POINT.STUDY_ATTEND_AFTER() + CONST.POINT.LATE
         : CONST.POINT.STUDY_ATTEND_AFTER();
       const message = isLate ? '스터디 지각' : '스터디 참여';
       await this.userServiceInstance.updatePoint(point, message);
+
+      return {
+        point,
+        message: '스터디 after 참여',
+      };
     }
   }
 
@@ -537,13 +547,16 @@ export class Vote2Service {
 
     vote.setAbsence(token.id, message);
 
+    await this.Vote2Repository.save(vote);
+
     await this.userServiceInstance.updatePoint(
       CONST.POINT.ABSENCE,
       '스터디 당일 불참',
     );
 
-    await this.Vote2Repository.save(vote);
-
-    // await this.Vote2Repository.setAbsence(date, message, token.id, fee);
+    return {
+      point: CONST.POINT.ABSENCE,
+      message: '스터디 당일 불참',
+    };
   }
 }

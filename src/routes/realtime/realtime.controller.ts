@@ -167,6 +167,7 @@ export class RealtimeController {
   @Patch(':date/absence')
   async patchAbsence(
     @Body('absence') absence: boolean,
+    @Body('message') message: string,
     @Res() res: Response,
     @Req() req: Request,
   ) {
@@ -175,6 +176,7 @@ export class RealtimeController {
     const result = await this.realtimeService.patchAbsence(
       absence,
       date as string,
+      message,
     );
     return res.status(HttpStatus.OK).json(result);
   }
