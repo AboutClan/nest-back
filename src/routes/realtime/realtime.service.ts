@@ -13,13 +13,13 @@ import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { VoteService } from 'src/vote/vote.service';
 import { DatabaseError } from '../../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
+import PlaceService from '../place/place.service';
 import {
   IRealtime,
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { IRealtimeRepository } from './RealtimeRepository.interface';
-import PlaceService from '../place/place.service';
 
 export default class RealtimeService {
   constructor(
@@ -204,7 +204,7 @@ export default class RealtimeService {
           ? CONST.POINT.REALTIME_ATTEND_SOLO() + CONST.POINT.LATE
           : CONST.POINT.REALTIME_ATTEND_SOLO();
 
-        const message = isLate ? 'realtime solo 지각' : 'realtime solo 출석';
+        const message = isLate ? '개인 스터디 인증 (지각)' : '개인 스터디 인증';
         await this.userServiceInstance.updatePoint(point, message);
 
         return {
