@@ -130,9 +130,9 @@ export class RealtimeController {
     @Next() next: NextFunction,
   ) {
     const { date } = req;
-    console.log('date', date);
-    await this.realtimeService.deleteVote(date as string);
-    return res.status(HttpStatus.NO_CONTENT).end();
+
+    const result = await this.realtimeService.deleteVote(date as string);
+    return res.status(HttpStatus.OK).json(result);
   }
 
   @Patch(':date/comment')
