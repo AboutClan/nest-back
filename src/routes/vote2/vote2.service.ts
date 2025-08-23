@@ -1,10 +1,10 @@
 import { Inject } from '@nestjs/common';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
 import { RequestContext } from 'src/request-context';
 import { PlaceRepository } from 'src/routes/place/place.repository.interface';
-import { IRealtimeUser } from 'src/routes/realtime/realtime.entity';
 import RealtimeService from 'src/routes/realtime/realtime.service';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
@@ -16,7 +16,6 @@ import { FcmService } from '../fcm/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
-import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 
 export class Vote2Service {
   constructor(
@@ -239,18 +238,12 @@ export class Vote2Service {
 
     await this.Vote2Repository.save(vote2);
 
-    await this.userServiceInstance.updateScore(
-      CONST.SCORE.VOTE_STUDY,
-      '스터디 투표',
-    );
     return;
   }
 
   async setVoteWithArr(dates: string[], createVote: CreateNewVoteDTO) {
     const thisWeek = DateUtils.getWeekDate();
 
-    console.log(thisWeek);
-    console.log(dates);
     for (const date of thisWeek) {
       if (dates.includes(date)) {
         await this.setVote(date, createVote);
@@ -270,17 +263,6 @@ export class Vote2Service {
     if (!isRemoved) {
       return;
     }
-
-    await this.userServiceInstance.updateScore(
-      -CONST.SCORE.VOTE_STUDY,
-      '스터디 투표 취소',
-    );
-
-    await this.userServiceInstance.updateScore(
-      -CONST.SCORE.VOTE_STUDY,
-      '스터디 투표 취소',
-    );
-
     await this.Vote2Repository.save(vote2);
   }
   async deleteVoteWeek(date: string) {
@@ -291,11 +273,6 @@ export class Vote2Service {
     vote2.removeParticipationByUserId(token.id);
 
     await this.Vote2Repository.save(vote2);
-
-    await this.userServiceInstance.updateScore(
-      -CONST.SCORE.VOTE_STUDY,
-      '스터디 투표 취소',
-    );
   }
 
   private refineClusters(
