@@ -283,7 +283,7 @@ export default class RealtimeService {
 
   // 가장 최근의 스터디 가져오기
   async getRecentStudy(date: string) {
-    return this.getTodayData(date);
+    return await this.getTodayData(date);
   }
 
   async getTodayDataWithPlace(date?: string) {
@@ -302,7 +302,7 @@ export default class RealtimeService {
 
       const place = await this.placeServiceInstance.getPlaceByLatLng(lat, lng);
       if (place) {
-        (user as any).place = place;
+        (user as any).place.location = place;
       }
     }
 

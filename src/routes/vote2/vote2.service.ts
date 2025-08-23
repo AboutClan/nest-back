@@ -16,6 +16,7 @@ import { FcmService } from '../fcm/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
+import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 
 export class Vote2Service {
   constructor(
@@ -54,29 +55,6 @@ export class Vote2Service {
         type: member.arrived ? 'arrived' : member?.absence ? 'absenced' : null,
       },
       comment: member.comment,
-    };
-
-    return form;
-  }
-  formatRealtime(member: IRealtimeUser) {
-    console.log(42, member);
-    const form = {
-      user: member.user,
-      time: {
-        start: member.time?.start,
-        end: member.time?.end,
-      },
-      attendance: {
-        time: member.arrived,
-        memo: member?.memo,
-        attendanceImage: member.image,
-        type: member.arrived ? 'arrived' : null,
-      },
-      comment: {
-        text: member.comment?.text,
-      },
-      place: { location: (member as any).location },
-      status: member.status,
     };
 
     return form;
@@ -164,7 +142,7 @@ export class Vote2Service {
         ? {
             ...realtimeData,
             userList: realtimeData.userList.map((user) =>
-              this.formatRealtime(user),
+              Realtime.formatRealtime(user),
             ),
           }
         : null,
@@ -202,9 +180,6 @@ export class Vote2Service {
       realTimes: realtimeData
         ? {
             ...realtimeData,
-            // userList: realtimeData.userList.map((user) =>
-            //   this.formatRealtime(user),
-            // ),
           }
         : null,
       unmatchedUsers,

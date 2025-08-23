@@ -1,3 +1,4 @@
+import { IRealtimeUser } from 'src/routes/realtime/realtime.entity';
 import { IUser } from '../User/User';
 import { Comment } from './Comment';
 import { RealtimeUser, RealtimeUserProps } from './RealtimeUser';
@@ -104,8 +105,32 @@ export class Realtime {
 
   toPrimitives(): RealtimeProps {
     return {
+      _id: this._id,
       date: this.date,
       userList: this.userList.map((u) => u.toPrimitives()),
     };
+  }
+
+  static formatRealtime(member: IRealtimeUser) {
+    const form = {
+      user: member.user,
+      time: {
+        start: member.time?.start,
+        end: member.time?.end,
+      },
+      attendance: {
+        time: member.arrived,
+        memo: member?.memo,
+        attendanceImage: member.image,
+        type: member.arrived ? 'arrived' : null,
+      },
+      comment: {
+        text: member.comment?.text,
+      },
+      place: { location: (member as any).place },
+      status: member.status,
+    };
+
+    return form;
   }
 }
