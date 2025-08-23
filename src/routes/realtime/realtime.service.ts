@@ -355,11 +355,11 @@ export default class RealtimeService {
 
       const place = await this.placeServiceInstance.getPlaceByLatLng(lat, lng);
       if (place) {
-        (user as any).place = place;
+        user.place = place.location;
       } else {
         const tempPlace = (user as any).place;
         if (tempPlace) {
-          (user as any).place.location = {
+          (user as any).place = {
             _id: tempPlace._id,
             name: tempPlace.name,
             address: tempPlace.address,

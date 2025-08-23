@@ -46,7 +46,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
     return await this.Place.findOne({
       'location.latitude': { $gte: lowerLat, $lte: upperLat },
       'location.longitude': { $gte: lowerLng, $lte: upperLng },
-    });
+    }).lean();
   }
 
   async createPlace(placeData: Partial<IPlace>): Promise<IPlace> {
