@@ -137,6 +137,7 @@ export class Realtime {
 
   static formatRealtime(member: IRealtimeUser) {
     if ((member.place as any)?.registrant) {
+      console.log(1);
       const form = {
         user: member.user,
         time: {
@@ -157,6 +158,7 @@ export class Realtime {
       };
       return form;
     } else {
+      console.log(2);
       const form = {
         user: member.user,
         time: {

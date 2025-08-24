@@ -180,6 +180,9 @@ export class Vote2Service {
       realTimes: realtimeData
         ? {
             ...realtimeData,
+            userList: realtimeData.userList.map((user) =>
+              Realtime.formatRealtime(user),
+            ),
           }
         : null,
       unmatchedUsers,
