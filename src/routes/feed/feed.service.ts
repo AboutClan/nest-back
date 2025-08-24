@@ -2,14 +2,11 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { Feed } from 'src/domain/entities/Feed/Feed';
-import { SubCommentProps } from 'src/domain/entities/Feed/SubComment';
-import { DatabaseError } from 'src/errors/DatabaseError';
 import { ValidationError } from 'src/errors/ValidationError';
 
-import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import ImageService from 'src/routes/imagez/image.service';
 import { RequestContext } from 'src/request-context';
+import ImageService from 'src/routes/imagez/image.service';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
@@ -18,11 +15,11 @@ import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { IGatherRepository } from '../gather/GatherRepository.interface';
-import { IFeedRepository } from './FeedRepository.interface';
-import { FcmService } from '../fcm/fcm.service';
-import { IGroupStudyRepository } from '../groupStudy/GroupStudyRepository.interface';
 import CommentService from '../comment/comment.service';
+import { FcmService } from '../fcm/fcm.service';
+import { IGatherRepository } from '../gather/GatherRepository.interface';
+import { IGroupStudyRepository } from '../groupStudy/GroupStudyRepository.interface';
+import { IFeedRepository } from './FeedRepository.interface';
 
 @Injectable()
 export class FeedService {
@@ -334,14 +331,14 @@ export class FeedService {
     const isLikePush = await feed.toggleLike(token.id);
     await this.feedRepository.save(feed);
 
-    if (isLikePush) {
-      await this.userService.updatePoint(CONST.POINT.FEED_LIKE, '피드 좋아요');
-    } else {
-      await this.userService.updatePoint(
-        CONST.POINT.CANCEL_FEED_LIKE,
-        '피드 좋아요 취소',
-      );
-    }
+    // if (isLikePush) {
+    //   await this.userService.updatePoint(CONST.POINT.FEED_LIKE, '피드 좋아요');
+    // } else {
+    //   await this.userService.updatePoint(
+    //     CONST.POINT.CANCEL_FEED_LIKE,
+    //     '피드 좋아요 취소',
+    //   );
+    // }
     return;
   }
 

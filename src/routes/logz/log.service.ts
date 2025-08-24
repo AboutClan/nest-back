@@ -46,7 +46,7 @@ export default class LogService {
     const total = logs.filter((log) => log?.meta?.value > 0);
     // .reduce((acc, log) => acc + (log?.meta?.value || 0), 0);
 
-    return { totalPoint: total };
+    return { total };
   }
 
   async getCuoponLog(type: string, scope?: 'all') {
