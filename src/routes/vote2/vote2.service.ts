@@ -118,6 +118,7 @@ export class Vote2Service {
       resultPlaceIds as string[],
     );
     const realtimeData = await this.RealtimeService.getTodayDataWithPlace(date);
+
     const m = new Map<string, any>();
     resultPlaces.forEach((place) => m.set(place._id.toString(), place));
 

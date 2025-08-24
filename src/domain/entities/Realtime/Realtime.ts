@@ -136,25 +136,46 @@ export class Realtime {
   }
 
   static formatRealtime(member: IRealtimeUser) {
-    const form = {
-      user: member.user,
-      time: {
-        start: member.time?.start,
-        end: member.time?.end,
-      },
-      attendance: {
-        time: member.arrived,
-        memo: member?.memo,
-        attendanceImage: member.image,
-        type: member.arrived ? 'arrived' : null,
-      },
-      comment: {
-        text: member.comment?.text,
-      },
-      place: { location: member.place },
-      status: member.status,
-    };
-
-    return form;
+    if ((member.place as any)?.registrant) {
+      const form = {
+        user: member.user,
+        time: {
+          start: member.time?.start,
+          end: member.time?.end,
+        },
+        attendance: {
+          time: member.arrived,
+          memo: member?.memo,
+          attendanceImage: member.image,
+          type: member.arrived ? 'arrived' : null,
+        },
+        comment: {
+          text: member.comment?.text,
+        },
+        place: { ...member.place },
+        status: member.status,
+      };
+      return form;
+    } else {
+      const form = {
+        user: member.user,
+        time: {
+          start: member.time?.start,
+          end: member.time?.end,
+        },
+        attendance: {
+          time: member.arrived,
+          memo: member?.memo,
+          attendanceImage: member.image,
+          type: member.arrived ? 'arrived' : null,
+        },
+        comment: {
+          text: member.comment?.text,
+        },
+        place: { location: member.place },
+        status: member.status,
+      };
+      return form;
+    }
   }
 }

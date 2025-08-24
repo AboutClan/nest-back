@@ -55,6 +55,11 @@ export class RealtimeUser {
     this.absence = props.absence ?? false;
   }
 
+  updatePlace(place: any) {
+    console.log(place);
+    this.place = place;
+  }
+
   updateAbsence(userId: string, absence: boolean, message?: string) {
     if (this.user.toString() === userId.toString()) {
       this.absence = absence;
