@@ -88,6 +88,7 @@ export class Realtime {
     const user = this.userList.find(
       (u) => (u.user as IUser)._id.toString() === userId,
     );
+   
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }
@@ -115,7 +116,10 @@ export class Realtime {
 
   deleteVote(userId: string): boolean {
     //user list에 있으면 status 반환
-    const user = this.userList.find((u) => u.user === userId);
+
+    const user = this.userList.find(
+      (u) => (u.user as IUser)._id.toString() === userId,
+    );
     if (!user) {
       return false;
     }
@@ -137,7 +141,6 @@ export class Realtime {
 
   static formatRealtime(member: IRealtimeUser) {
     if ((member.place as any)?.registrant) {
-      console.log(1);
       const form = {
         user: member.user,
         time: {
@@ -158,7 +161,6 @@ export class Realtime {
       };
       return form;
     } else {
-      console.log(2);
       const form = {
         user: member.user,
         time: {

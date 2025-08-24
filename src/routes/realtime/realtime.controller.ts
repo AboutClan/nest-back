@@ -34,11 +34,11 @@ export class RealtimeController {
   ) {
     const { date } = req;
 
-    const newStudy = await this.realtimeService.createBasicVote(
+    const data = await this.realtimeService.createBasicVote(
       createBasicVoteDto,
       date as string,
     );
-    return res.status(201).json(newStudy);
+    return res.status(200).json(data);
   }
 
   @Get(':date')
@@ -61,7 +61,7 @@ export class RealtimeController {
     @Body() markAttendanceDto: any,
   ) {
     const { date } = req;
-
+    console.log(1234, markAttendanceDto);
     let parsedPlace;
     let parsedTime;
     try {
@@ -78,7 +78,7 @@ export class RealtimeController {
       place: parsedPlace,
       time: parsedTime,
     };
-
+    console.log(5555);
     const buffers = files ? files.map((file) => file.buffer) : [];
     const updatedStudy = await this.realtimeService.markAttendance(
       parsedData,

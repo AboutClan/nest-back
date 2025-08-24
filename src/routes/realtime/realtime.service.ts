@@ -124,15 +124,6 @@ export default class RealtimeService {
       user: token.id,
     });
 
-    if (validatedUserData?.status === 'open') {
-      await this.userServiceInstance.updatePoint(
-        CONST.POINT.REALTIME_OPEN,
-        'realtime open 출석',
-        'realtime',
-        token.uid,
-      );
-    }
-
     this.voteServiceInstance.deleteVote(date);
 
     const realtime = await this.getTodayData(date);
@@ -150,9 +141,22 @@ export default class RealtimeService {
       }),
     );
 
-    const updated = await this.realtimeRepository.save(realtime);
+    await this.realtimeRepository.save(realtime);
 
-    return updated.toPrimitives();
+    if (validatedUserData?.status === 'open') {
+      await this.userServiceInstance.updatePoint(
+        CONST.POINT.REALTIME_OPEN,
+        '스터디 개설',
+        'host',
+        token.uid,
+      );
+      return {
+        point: CONST.POINT.REALTIME_OPEN,
+        message: '스터디 개설',
+      };
+    }
+
+    return null;
   }
 
   //todo: 수정 급함
@@ -174,7 +178,7 @@ export default class RealtimeService {
         );
         studyData.image = images[0];
       }
-
+      console.log(123, studyData.place);
       const validatedStudy = RealtimeUserZodSchema.parse({
         ...studyData,
         time: studyData.time,
@@ -204,7 +208,7 @@ export default class RealtimeService {
           ? CONST.POINT.REALTIME_ATTEND_SOLO() + CONST.POINT.LATE
           : CONST.POINT.REALTIME_ATTEND_SOLO();
 
-        const message = isLate ? '개인 스터디 인증 (지각)' : '개인 스터디 인증';
+        const message = isLate ? '개인 공부 인증 (지각)' : '개인 공부 인증';
         await this.userServiceInstance.updatePoint(point, message);
 
         return {
@@ -297,20 +301,19 @@ export default class RealtimeService {
     const todayData = await this.getTodayData(date);
 
     const isOpen = todayData.deleteVote(token.id);
-
     await this.realtimeRepository.save(todayData);
 
     if (isOpen) {
       await this.userServiceInstance.updatePoint(
         -CONST.POINT.REALTIME_OPEN,
-        'realtime open 출석 취소',
-        'realtime',
-        token.id,
+        '스터디 개설 취소',
+        'study',
+        token.uid,
       );
 
       return {
         point: -CONST.POINT.REALTIME_OPEN,
-        message: 'realtime open 출석 취소',
+        message: '스터디 개설 취소',
       };
     }
   }

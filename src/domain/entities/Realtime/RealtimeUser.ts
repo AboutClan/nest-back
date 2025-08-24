@@ -56,7 +56,6 @@ export class RealtimeUser {
   }
 
   updatePlace(place: any) {
-    console.log(place);
     this.place = place;
   }
 
