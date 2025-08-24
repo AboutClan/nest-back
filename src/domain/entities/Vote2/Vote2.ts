@@ -1,8 +1,8 @@
 import { DateUtils } from 'src/utils/Date';
+import { IUser } from '../User/User';
 import { Participation, ParticipationProps } from './Vote2Participation';
 import { Result, ResultProps } from './Vote2Result';
 import { VoteComment } from './Vote2VoteComment';
-
 export interface Vote2Props {
   date: string;
   participations: ParticipationProps[];
@@ -113,31 +113,36 @@ export class Vote2 {
   }
 
   setParticipate(placeId: string, participateData: Partial<Participation>) {
-    const newResult = this.results.find((r) => r.placeId === placeId);
+    console.log(124, this.results, placeId);
+    const newResult = this.results.find(
+      (r) => (r.placeId as any)._id.toString() === placeId,
+    );
     if (!newResult) {
       throw new Error(`Place with ID ${placeId} not found in results.`);
     }
-
-    const userExists = this.participations.some(
-      (p) => p.userId === participateData.userId,
+    console.log(placeId, newResult);
+    const userExists = newResult.members.some(
+      (p) => (p.userId as IUser)._id.toString() === participateData.userId,
     );
+    console.log(51, participateData, this.participations, userExists);
 
+    const findResult = this.results.find(
+      (result) => (result.placeId as any)._id.toString() === placeId,
+    );
+    console.log(555, findResult);
     if (!userExists) {
-      this.results.push(
-        new Result({
-          placeId,
-          members: [
-            new Participation({
-              userId: participateData.userId,
-              latitude: participateData.latitude || '',
-              longitude: participateData.longitude || '',
-              start: participateData.start,
-              end: participateData.end,
-              locationDetail: participateData.locationDetail || '',
-              comment: new VoteComment(participateData.comment),
-              isBeforeResult: false,
-            }),
-          ],
+      findResult.members.push(
+        new Participation({
+          userId: participateData.userId,
+          latitude: participateData.latitude || '',
+          longitude: participateData.longitude || '',
+          start: participateData.start,
+          end: participateData.end,
+          locationDetail: participateData.locationDetail || '',
+          comment: participateData?.comment
+            ? new VoteComment(participateData.comment)
+            : null,
+          isBeforeResult: false,
         }),
       );
     }
