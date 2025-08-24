@@ -16,9 +16,15 @@ export class Vote2Repository implements IVote2Repository {
 
   async findByDate(date: string): Promise<Vote2 | null> {
     const db = await this.Vote2Model.findOne({ date })
-      .populate({
-        path: 'results.placeId',
-      })
+      .populate([
+        {
+          path: 'results.placeId',
+        },
+        {
+          path: 'results.members.userId',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ])
       .populate({
         path: 'participations.userId',
         select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',

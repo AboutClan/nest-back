@@ -178,7 +178,7 @@ export default class RealtimeService {
         );
         studyData.image = images[0];
       }
-      console.log(123, studyData.place);
+
       const validatedStudy = RealtimeUserZodSchema.parse({
         ...studyData,
         time: studyData.time,
@@ -194,26 +194,25 @@ export default class RealtimeService {
 
       await this.realtimeRepository.save(todayData);
 
-      this.collectionServiceInstance.setCollectionStamp(token.id);
-
-      await this.userServiceInstance.updateScore(
-        CONST.SCORE.ATTEND_PRIVATE_STUDY,
-        '스터디 출석',
-      );
-
       const isLate = todayData.isLate(token.id);
 
       if (todayData.isSolo(token.id)) {
-        const point = isLate
-          ? CONST.POINT.REALTIME_ATTEND_SOLO() + CONST.POINT.LATE
-          : CONST.POINT.REALTIME_ATTEND_SOLO();
+        const point = CONST.POINT.REALTIME_ATTEND_SOLO();
 
-        const message = isLate ? '개인 공부 인증 (지각)' : '개인 공부 인증';
-        await this.userServiceInstance.updatePoint(point, message);
+        await this.userServiceInstance.updateScore(
+          CONST.SCORE.ATTEND_PRIVATE_STUDY,
+          '개인 공부 인증',
+        );
+
+        await this.userServiceInstance.updatePoint(
+          point,
+          '개인 공부 인증',
+          'study',
+        );
 
         return {
           point,
-          message,
+          message: '개인 공부 인증',
         };
       }
 
@@ -222,8 +221,13 @@ export default class RealtimeService {
           ? CONST.POINT.REALTIME_ATTEND_BEFORE() + CONST.POINT.LATE
           : CONST.POINT.REALTIME_ATTEND_BEFORE();
 
-        const message = isLate ? 'realtime open 지각' : 'realtime open 출석';
-        await this.userServiceInstance.updatePoint(point, message);
+        await this.userServiceInstance.updateScore(
+          CONST.SCORE.ATTEND_STUDY,
+          '스터디 출석',
+        );
+
+        const message = `스터디 출석 ${isLate ? '(지각)' : ''}`;
+        await this.userServiceInstance.updatePoint(point, message, 'study');
 
         return {
           point,

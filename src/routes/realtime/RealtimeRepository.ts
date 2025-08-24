@@ -17,6 +17,7 @@ export class RealtimeRepository implements IRealtimeRepository {
       path: 'userList.user',
       select: ENTITY.USER.C_SIMPLE_USER,
     });
+    
     if (!doc) {
       return null;
     }

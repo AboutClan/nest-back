@@ -1,4 +1,5 @@
 import { Inject } from '@nestjs/common';
+import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
@@ -16,7 +17,6 @@ import { FcmService } from '../fcm/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
-
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -460,26 +460,33 @@ export class Vote2Service {
     const isLate = vote.isLate(token.id);
     let point = 0;
 
+    await this.userServiceInstance.updateScore(
+      CONST.SCORE.ATTEND_STUDY,
+      '스터디 출석',
+    );
+
     if (isArriveBefore) {
       point = isLate
         ? CONST.POINT.STUDY_ATTEND_BEFORE() + CONST.POINT.LATE
         : CONST.POINT.STUDY_ATTEND_BEFORE();
-      await this.userServiceInstance.updatePoint(point, '스터디 before 참여');
+      await this.userServiceInstance.updatePoint(
+        point,
+        `스터디 출석 ${isLate ? '(지각)' : ''}`,
+        'study',
+      );
 
       return {
         point,
-        message: '스터디 before 참여',
+        message: `스터디 출석 ${isLate ? '(지각)' : ''}`,
       };
     } else {
-      point = isLate
-        ? CONST.POINT.STUDY_ATTEND_AFTER() + CONST.POINT.LATE
-        : CONST.POINT.STUDY_ATTEND_AFTER();
-      const message = isLate ? '스터디 지각' : '스터디 참여';
-      await this.userServiceInstance.updatePoint(point, message);
+      point = CONST.POINT.STUDY_ATTEND_AFTER();
+      const message = `스터디 당일 참여`;
+      await this.userServiceInstance.updatePoint(point, message, 'study');
 
       return {
         point,
-        message: '스터디 after 참여',
+        message: `스터디 당일 참여 `,
       };
     }
   }
@@ -530,13 +537,16 @@ export class Vote2Service {
 
     await this.Vote2Repository.save(vote);
 
+    const isLate = dayjs().tz('Asia/Seoul').hour() > 13;
+
+    console.log(5, isLate);
     await this.userServiceInstance.updatePoint(
-      CONST.POINT.ABSENCE,
-      '스터디 당일 불참',
+      isLate ? CONST.POINT.NO_SHOW : CONST.POINT.ABSENCE,
+      `스터디 당일 ${isLate ? '노쇼' : '불참'}`,
     );
 
     return {
-      point: CONST.POINT.ABSENCE,
+      point: isLate ? CONST.POINT.NO_SHOW : CONST.POINT.ABSENCE,
       message: '스터디 당일 불참',
     };
   }

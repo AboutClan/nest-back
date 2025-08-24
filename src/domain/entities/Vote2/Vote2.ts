@@ -49,7 +49,7 @@ export class Vote2 {
   updateResult(userId: string, start: string, end: string) {
     this.results.forEach((result) => {
       result.members.forEach((member) => {
-        if (member.userId === userId) {
+        if ((member.userId as IUser)._id.toString() === userId) {
           member.start = start;
           member.end = end;
         }
@@ -60,7 +60,7 @@ export class Vote2 {
   setComment(userId: string, comment: string) {
     this.results.forEach((result) => {
       result.members.forEach((member) => {
-        if (member.userId === userId) {
+        if ((member.userId as IUser)._id.toString() === userId) {
           member.comment = new VoteComment({ comment });
         }
       });
@@ -86,10 +86,12 @@ export class Vote2 {
 
   setArrive(userId: string, memo: any, end: string) {
     const result = this.results.find((r) =>
-      r.members.some((m) => m.userId === userId),
+      r.members.some((m) => (m.userId as IUser)._id.toString() === userId),
     );
     if (result) {
-      const member = result.members.find((m) => m.userId === userId);
+      const member = result.members.find(
+        (m) => (m.userId as IUser)._id.toString() === userId,
+      );
       if (member) {
         member.arrived = new Date();
         memo && (member.memo = memo);
@@ -101,35 +103,35 @@ export class Vote2 {
 
   setAbsence(userId: string, message: string) {
     const result = this.results.find((r) =>
-      r.members.some((m) => m.userId === userId),
+      r.members.some((m) => (m.userId as IUser)._id.toString() === userId),
     );
     if (result) {
-      const member = result.members.find((m) => m.userId === userId);
+      const member = result.members.find(
+        (m) => (m.userId as IUser)._id.toString() === userId,
+      );
       if (member) {
         member.absence = true;
-        member.comment = new VoteComment({ comment: message });
+        member.memo = message;
       }
     }
   }
 
   setParticipate(placeId: string, participateData: Partial<Participation>) {
-    console.log(124, this.results, placeId);
     const newResult = this.results.find(
       (r) => (r.placeId as any)._id.toString() === placeId,
     );
     if (!newResult) {
       throw new Error(`Place with ID ${placeId} not found in results.`);
     }
-    console.log(placeId, newResult);
+
     const userExists = newResult.members.some(
       (p) => (p.userId as IUser)._id.toString() === participateData.userId,
     );
-    console.log(51, participateData, this.participations, userExists);
 
     const findResult = this.results.find(
       (result) => (result.placeId as any)._id.toString() === placeId,
     );
-    console.log(555, findResult);
+
     if (!userExists) {
       findResult.members.push(
         new Participation({
