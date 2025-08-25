@@ -85,6 +85,20 @@ export class Realtime {
     }
   }
 
+  public patchNotSoloUser(
+    userId: string,
+    endTime: string,
+    arrived: Date,
+    memo: string,
+  ): void {
+    const idx = this.userList.findIndex(
+      (u) => u.user.toString() === userId.toString(),
+    );
+    this.userList[idx].time.end = endTime;
+    this.userList[idx].arrived = arrived;
+    this.userList[idx].memo = memo;
+  }
+
   updateUserTime(userId: string, start: string, end: string): void {
     const user = this.userList.find(
       (u) => (u.user as IUser)._id.toString() === userId,

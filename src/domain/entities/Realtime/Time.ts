@@ -4,8 +4,8 @@ export interface TimeProps {
 }
 
 export class Time {
-  public readonly start: string;
-  public readonly end: string;
+  public start: string;
+  public end: string;
 
   constructor(start: string, end: string) {
     if (!start) throw new Error('Time.start is required');

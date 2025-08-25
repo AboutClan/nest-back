@@ -179,18 +179,26 @@ export default class RealtimeService {
         studyData.image = images[0];
       }
 
-      const validatedStudy = RealtimeUserZodSchema.parse({
-        ...studyData,
-        time: studyData.time,
-        place: studyData.place,
-        arrived: new Date(),
-        user: token.id,
-      });
-
       await this.voteServiceInstance.deleteVote(date);
 
       const todayData = await this.getTodayData(date);
-      todayData.patchUser(validatedStudy as RealtimeUser);
+      if (todayData.isSolo(token.id)) {
+        const validatedStudy = RealtimeUserZodSchema.parse({
+          ...studyData,
+          time: studyData.time,
+          place: studyData.place,
+          arrived: new Date(),
+          user: token.id,
+        });
+        todayData.patchUser(validatedStudy as RealtimeUser);
+      } else {
+        todayData.patchNotSoloUser(
+          token.id,
+          studyData.time.end,
+          new Date(),
+          studyData.memo,
+        );
+      }
 
       await this.realtimeRepository.save(todayData);
 
