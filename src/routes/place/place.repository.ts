@@ -12,12 +12,17 @@ export class MongoPlaceReposotory implements PlaceRepository {
   ) {}
 
   async findByIds(placeIds: string[]): Promise<IPlace[]> {
-    return await this.Place.find({ _id: { $in: placeIds } }).populate([
-      {
-        path: 'reviews.user',
+    return await this.Place.find({ _id: { $in: placeIds } })
+      .populate({
+        path: 'registrant',
         select: ENTITY.USER.C_SIMPLE_USER,
-      },
-    ]);
+      })
+      .populate([
+        {
+          path: 'reviews.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ]);
   }
 
   async findAll(): Promise<IPlace[]> {
@@ -30,10 +35,17 @@ export class MongoPlaceReposotory implements PlaceRepository {
         ? { $or: [{ status: 'main' }, { status: 'sub' }] }
         : { status };
     //임시로 status 제거
-    return await this.Place.find(query).populate({
-      path: 'registrant',
-      select: ENTITY.USER.C_SIMPLE_USER,
-    });
+    return await this.Place.find(query)
+      .populate({
+        path: 'registrant',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      })
+      .populate([
+        {
+          path: 'reviews.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ]);
   }
 
   async findByLatLng(
@@ -45,7 +57,14 @@ export class MongoPlaceReposotory implements PlaceRepository {
     return await this.Place.findOne({
       'location.latitude': { $gte: lowerLat, $lte: upperLat },
       'location.longitude': { $gte: lowerLng, $lte: upperLng },
-    }).lean();
+    })
+      .populate([
+        {
+          path: 'reviews.user',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ])
+      .lean();
   }
 
   async createPlace(placeData: Partial<IPlace>): Promise<IPlace> {
