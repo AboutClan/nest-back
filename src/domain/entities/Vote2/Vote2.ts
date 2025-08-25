@@ -154,12 +154,13 @@ export class Vote2 {
 
   setOrUpdateParticipation(newParticipation: Participation) {
     const idx = this.participations.findIndex(
-      (p) => p.userId.toString() === newParticipation.userId.toString(),
+      (p) =>
+        (p.userId as IUser)?._id?.toString() ===
+        newParticipation.userId.toString(),
     );
     if (idx !== -1) {
       this.participations[idx] = newParticipation;
     } else {
-      // 없으면 추가
       this.participations.push(newParticipation);
     }
   }
