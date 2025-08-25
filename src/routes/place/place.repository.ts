@@ -29,7 +29,6 @@ export class MongoPlaceReposotory implements PlaceRepository {
       status === 'all'
         ? { $or: [{ status: 'main' }, { status: 'sub' }] }
         : { status };
-    console.log(24, query);
     //임시로 status 제거
     return await this.Place.find(query).populate({
       path: 'registrant',
@@ -97,7 +96,6 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async test() {
-    console.log(1);
     await this.Place.updateMany(
       {},
       {

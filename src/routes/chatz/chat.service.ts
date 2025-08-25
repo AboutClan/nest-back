@@ -114,8 +114,6 @@ export class ChatService {
       createdAt: DateUtils.getKoreaToday(),
     };
 
-    console.log(contentFill.createdAt);
-
     if (chat) {
       const content = new Content(contentFill);
       await this.chatRepository.addContent(chat._id, content.toPrimitives());

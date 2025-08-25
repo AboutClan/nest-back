@@ -125,11 +125,13 @@ export class Vote2 {
     }
 
     const userExists = newResult.members.some(
-      (p) => (p.userId as IUser)._id.toString() === participateData.userId,
+      (p) =>
+        (p.userId as IUser)._id.toString() ===
+        participateData.userId.toString(),
     );
 
     const findResult = this.results.find(
-      (result) => (result.placeId as any)._id.toString() === placeId,
+      (result) => (result.placeId as any)._id.toString() === placeId.toString(),
     );
 
     if (!userExists) {

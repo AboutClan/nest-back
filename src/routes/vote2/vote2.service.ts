@@ -539,7 +539,6 @@ export class Vote2Service {
 
     const isLate = dayjs().tz('Asia/Seoul').hour() > 13;
 
-    console.log(5, isLate);
     await this.userServiceInstance.updatePoint(
       isLate ? CONST.POINT.NO_SHOW : CONST.POINT.ABSENCE,
       `스터디 당일 ${isLate ? '노쇼' : '불참'}`,

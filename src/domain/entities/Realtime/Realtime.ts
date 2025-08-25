@@ -62,7 +62,6 @@ export class Realtime {
 
   public isOpen(userId: string) {
     const user = this.userList.find((u) => u.user === userId);
-    console.log(522353, user);
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }
@@ -108,7 +107,6 @@ export class Realtime {
   }
 
   updateComment(userId: string, comment: string): void {
-    console.log(5, userId, comment);
     const user = this.userList.find(
       (u) => (u.user as IUser)._id.toString() === userId,
     );

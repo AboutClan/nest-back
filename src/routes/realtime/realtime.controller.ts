@@ -61,7 +61,6 @@ export class RealtimeController {
     @Body() markAttendanceDto: any,
   ) {
     const { date } = req;
-    console.log(1234, markAttendanceDto);
     let parsedPlace;
     let parsedTime;
     try {
@@ -78,7 +77,6 @@ export class RealtimeController {
       place: parsedPlace,
       time: parsedTime,
     };
-    console.log(5555);
     const buffers = files ? files.map((file) => file.buffer) : [];
     const updatedStudy = await this.realtimeService.markAttendance(
       parsedData,
