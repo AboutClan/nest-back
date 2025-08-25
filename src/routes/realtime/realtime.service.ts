@@ -182,7 +182,14 @@ export default class RealtimeService {
       await this.voteServiceInstance.deleteVote(date);
 
       const todayData = await this.getTodayData(date);
-      if (todayData.isSolo(token.id)) {
+      if (todayData.isOpen(token.id, 'user')) {
+        todayData.patchNotSoloUser(
+          token.id,
+          studyData.time.end,
+          new Date(),
+          studyData.memo,
+        );
+      } else {
         const validatedStudy = RealtimeUserZodSchema.parse({
           ...studyData,
           time: studyData.time,
@@ -191,20 +198,30 @@ export default class RealtimeService {
           user: token.id,
         });
         todayData.patchUser(validatedStudy as RealtimeUser);
-      } else {
-        todayData.patchNotSoloUser(
-          token.id,
-          studyData.time.end,
-          new Date(),
-          studyData.memo,
-        );
       }
 
       await this.realtimeRepository.save(todayData);
 
-      const isLate = todayData.isLate(token.id);
+      if (todayData.isOpen(token.id, 'string')) {
+        const isLate = todayData.isLate(token.id);
 
-      if (todayData.isSolo(token.id)) {
+        const point = isLate
+          ? CONST.POINT.REALTIME_ATTEND_BEFORE() + CONST.POINT.LATE
+          : CONST.POINT.REALTIME_ATTEND_BEFORE();
+
+        await this.userServiceInstance.updateScore(
+          CONST.SCORE.ATTEND_STUDY,
+          '스터디 출석',
+        );
+
+        const message = `스터디 출석 ${isLate ? '(지각)' : ''}`;
+        await this.userServiceInstance.updatePoint(point, message, 'study');
+
+        return {
+          point,
+          message,
+        };
+      } else {
         const point = CONST.POINT.REALTIME_ATTEND_SOLO();
 
         await this.userServiceInstance.updateScore(
@@ -221,25 +238,6 @@ export default class RealtimeService {
         return {
           point,
           message: '개인 공부 인증',
-        };
-      }
-
-      if (todayData.isOpen(token.id)) {
-        const point = isLate
-          ? CONST.POINT.REALTIME_ATTEND_BEFORE() + CONST.POINT.LATE
-          : CONST.POINT.REALTIME_ATTEND_BEFORE();
-
-        await this.userServiceInstance.updateScore(
-          CONST.SCORE.ATTEND_STUDY,
-          '스터디 출석',
-        );
-
-        const message = `스터디 출석 ${isLate ? '(지각)' : ''}`;
-        await this.userServiceInstance.updatePoint(point, message, 'study');
-
-        return {
-          point,
-          message,
         };
       }
     } catch (err) {

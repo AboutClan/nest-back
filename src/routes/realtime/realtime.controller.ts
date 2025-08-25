@@ -77,6 +77,7 @@ export class RealtimeController {
       place: parsedPlace,
       time: parsedTime,
     };
+
     const buffers = files ? files.map((file) => file.buffer) : [];
     const updatedStudy = await this.realtimeService.markAttendance(
       parsedData,

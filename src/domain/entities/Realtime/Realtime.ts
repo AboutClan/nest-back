@@ -41,15 +41,6 @@ export class Realtime {
     return diffMinutes >= 60; // 60분 이상
   }
 
-  public isSolo(userId: string) {
-    const user = this.userList.find((u) => u.user === userId);
-
-    if (!user) {
-      throw new Error(`RealtimeUser not found: ${userId}`);
-    }
-    return user.status === 'solo';
-  }
-
   public updateAbsence(userId: string, absence: boolean, message?: string) {
     const user = this.userList.find(
       (u) => (u.user as IUser)._id.toString() === userId.toString(),
@@ -60,12 +51,13 @@ export class Realtime {
     user.updateAbsence(userId, absence, message);
   }
 
-  public isOpen(userId: string) {
-    const user = this.userList.find((u) => u.user === userId);
-    if (!user) {
-      throw new Error(`RealtimeUser not found: ${userId}`);
-    }
-    return user.status === 'open';
+  public isOpen(userId: string, type: 'user' | 'string') {
+    const user =
+      type === 'user'
+        ? this.userList.find((u) => (u.user as IUser)._id.toString() === userId)
+        : this.userList.find((u) => u.user === userId);
+
+    return user?.status === 'open';
   }
 
   public addUser(user: RealtimeUserProps) {
@@ -92,8 +84,9 @@ export class Realtime {
     memo: string,
   ): void {
     const idx = this.userList.findIndex(
-      (u) => u.user.toString() === userId.toString(),
+      (u) => (u.user as IUser)._id.toString() === userId.toString(),
     );
+    this.userList[idx].time.start = new Date().toISOString();
     this.userList[idx].time.end = endTime;
     this.userList[idx].arrived = arrived;
     this.userList[idx].memo = memo;
