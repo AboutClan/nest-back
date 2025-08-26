@@ -5,6 +5,7 @@ import { Comment } from 'src/domain/entities/Comment';
 import { Model } from 'mongoose';
 import { ICommentData } from './comment.entity';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 @Injectable()
 export class CommentRepository implements ICommentRepository {
@@ -16,7 +17,7 @@ export class CommentRepository implements ICommentRepository {
   async findById(commentId: string): Promise<Comment> {
     const commentDoc = await this.commentModel
       .findById(commentId)
-      .populate('user');
+      .populate('user', ENTITY.USER.C_SIMPLE_USER);
     return this.mapToDomain(commentDoc);
   }
 
@@ -25,19 +26,21 @@ export class CommentRepository implements ICommentRepository {
       .find({
         parentId: { $in: commentIds },
       })
-      .populate('user');
+      .populate('user', ENTITY.USER.C_SIMPLE_USER);
     return subComments.map((comment) => this.mapToDomain(comment));
   }
 
   async findByPostId(postId: string): Promise<Comment[]> {
-    const comments = await this.commentModel.find({ postId }).populate('user');
+    const comments = await this.commentModel
+      .find({ postId })
+      .populate('user', ENTITY.USER.C_SIMPLE_USER);
     return comments.map((comment) => this.mapToDomain(comment));
   }
 
   async findByPostIds(postIds: string[]): Promise<Comment[]> {
     const comments = await this.commentModel
       .find({ postId: { $in: postIds } })
-      .populate('user');
+      .populate('user', ENTITY.USER.C_SIMPLE_USER);
     return comments.map((comment) => this.mapToDomain(comment));
   }
 
