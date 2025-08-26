@@ -14,24 +14,30 @@ export class CommentRepository implements ICommentRepository {
   ) {}
 
   async findById(commentId: string): Promise<Comment> {
-    const commentDoc = await this.commentModel.findById(commentId);
+    const commentDoc = await this.commentModel
+      .findById(commentId)
+      .populate('user');
     return this.mapToDomain(commentDoc);
   }
 
   async findSubComments(commentIds: string[]): Promise<Comment[]> {
-    const subComments = await this.commentModel.find({
-      parentId: { $in: commentIds },
-    });
+    const subComments = await this.commentModel
+      .find({
+        parentId: { $in: commentIds },
+      })
+      .populate('user');
     return subComments.map((comment) => this.mapToDomain(comment));
   }
 
   async findByPostId(postId: string): Promise<Comment[]> {
-    const comments = await this.commentModel.find({ postId });
+    const comments = await this.commentModel.find({ postId }).populate('user');
     return comments.map((comment) => this.mapToDomain(comment));
   }
 
   async findByPostIds(postIds: string[]): Promise<Comment[]> {
-    const comments = await this.commentModel.find({ postId: { $in: postIds } });
+    const comments = await this.commentModel
+      .find({ postId: { $in: postIds } })
+      .populate('user');
     return comments.map((comment) => this.mapToDomain(comment));
   }
 
