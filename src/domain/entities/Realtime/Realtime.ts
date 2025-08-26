@@ -57,7 +57,7 @@ export class Realtime {
         ? this.userList.find((u) => (u.user as IUser)._id.toString() === userId)
         : this.userList.find((u) => u.user === userId);
 
-    return user?.status === 'open';
+    return (user?.status === 'open'||user?.status==="participation");
   }
 
   public addUser(user: RealtimeUserProps) {
