@@ -178,25 +178,36 @@ export class FcmService {
   async sendNotificationAllUser(title: string, body: string) {
     try {
       const targets = await this.fcmRepository.findAll();
+      const BATCH_SIZE = 100; // 한 번에 처리할 알림 수
 
-      targets.forEach((target) => {
-        target.devices.forEach(async (data) => {
+      const allDevices = targets.flatMap((target) => target.devices);
+      const results = [];
+
+      // 배치 단위로 처리
+      for (let i = 0; i < allDevices.length; i += BATCH_SIZE) {
+        const batch = allDevices.slice(i, i + BATCH_SIZE);
+
+        const batchPromises = batch.map(async (data) => {
           const newPayload = {
             ...this.payload,
             token: data.token,
-            notification: {
-              title,
-              body,
-            },
+            notification: { title, body },
           };
 
-          const response = await admin.messaging().send(newPayload);
+          return admin.messaging().send(newPayload);
         });
-      });
 
-      return;
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+
+        if (i + BATCH_SIZE < allDevices.length) {
+          await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms 지연
+        }
+      }
+
+      return results;
     } catch (err) {
-      throw new AppError('send notifacation failed', 1001);
+      throw new AppError('send notification failed', 1001);
     }
   }
 
