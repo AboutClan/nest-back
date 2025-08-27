@@ -178,34 +178,58 @@ export class FcmService {
   async sendNotificationAllUser(title: string, body: string) {
     try {
       const targets = await this.fcmRepository.findAll();
-      const BATCH_SIZE = 100; // 한 번에 처리할 알림 수
-
+      const BATCH_SIZE = 100;
       const allDevices = targets.flatMap((target) => target.devices);
+
       const results = [];
+      const failedTokens = [];
+      const successfulTokens = [];
 
       // 배치 단위로 처리
       for (let i = 0; i < allDevices.length; i += BATCH_SIZE) {
         const batch = allDevices.slice(i, i + BATCH_SIZE);
 
         const batchPromises = batch.map(async (data) => {
-          const newPayload = {
-            ...this.payload,
-            token: data.token,
-            notification: { title, body },
-          };
+          try {
+            const newPayload = {
+              ...this.payload,
+              token: data.token,
+              notification: { title, body },
+            };
 
-          return admin.messaging().send(newPayload);
+            const result = await admin.messaging().send(newPayload);
+            return { success: true, result, token: data.token };
+          } catch (error) {
+            return { success: false, error, token: data.token };
+          }
         });
 
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
+        const batchResults = await Promise.allSettled(batchPromises);
+
+        batchResults.forEach((settledResult) => {
+          if (settledResult.status === 'fulfilled') {
+            const { success, result, token, error } = settledResult.value;
+            if (success) {
+              results.push(result);
+              successfulTokens.push(token);
+            } else {
+              console.log(`Failed to send to token ${token}:`);
+              if (
+                error.code === 'messaging/registration-token-not-registered'
+              ) {
+                failedTokens.push({
+                  token,
+                  reason: 'token-not-registered',
+                });
+              }
+            }
+          }
+        });
 
         if (i + BATCH_SIZE < allDevices.length) {
-          await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms 지연
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
-
-      return results;
     } catch (err) {
       throw new AppError('send notification failed', 1001);
     }

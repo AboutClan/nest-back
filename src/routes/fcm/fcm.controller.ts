@@ -34,9 +34,12 @@ export class FcmController {
   async sendNotificationAll(
     @Body('title') title: string,
     @Body('description') description: string,
-  ): Promise<string> {
-    await this.fcmService.sendNotificationAllUser(title, description);
-    return 'Notification sent';
+  ): Promise<any> {
+    const result = await this.fcmService.sendNotificationAllUser(
+      title,
+      description,
+    );
+    return result;
   }
 
   @Post('send-notification')
