@@ -121,12 +121,8 @@ export class FcmService {
 
   async sendNotificationAllUser(title: string, body: string) {
     try {
-      const temptargets = await this.fcmRepository.findAll();
+      const targets = await this.fcmRepository.findAll();
       const BATCH_SIZE = 20;
-
-      const targets = temptargets.filter(
-        (target) => target.uid.toString() === '4328122872',
-      );
 
       const allDevices = targets.flatMap((target) => target.devices);
 
