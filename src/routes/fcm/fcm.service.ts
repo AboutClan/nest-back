@@ -33,52 +33,14 @@ export class FcmService {
         credential: admin.credential.cert(serviceAccount),
       });
     }
-
-    this.payload = {
-      notification: {
-        title: '알림',
-        body: '알림',
-      },
-      android: {
-        notification: {
-          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
-        },
-      },
-      webpush: {
-        headers: {
-          TTL: '1',
-          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
-        },
-      },
-      apns: {
-        payload: {
-          aps: {
-            alert: {
-              title: '알림',
-              body: '알림',
-            },
-            sound: 'default',
-            badge: 0,
-            'content-available': 1,
-          },
-        },
-        headers: {
-          'apns-priority': '10',
-          'apns-push-type': 'alert',
-        },
-      },
-    };
   }
 
   async sendNotification(token: any, message: any) {
-    const newPayload = {
-      ...this.payload,
+    const newPayload = this.createPayload(
       token,
-      notification: {
-        title: message?.notification.title || '알림',
-        body: message?.notification.body || '알림',
-      },
-    };
+      message?.notification.title,
+      message?.notification.body,
+    );
 
     const response = await admin.messaging().send(newPayload);
 
@@ -129,21 +91,6 @@ export class FcmService {
           console.error('[FCM 실패]', device.token, err);
         }
       }
-
-      //  user.devices.forEach(async (device) => {
-      //     const newPayload = {
-      //       ...this.payload,
-      //       token: device.token,
-      //       notification: {
-      //         title,
-      //         body,
-      //       },
-      //     };
-      //     const newPayload = this.createPayload(device.token, title, body);
-
-      //     await admin.messaging().send(newPayload);
-      //   });
-      // }
     } catch (err: any) {
       throw new AppError('send notifacation failed', 1001);
     }
@@ -182,17 +129,13 @@ export class FcmService {
       const failedTokens = [];
       const successfulTokens = [];
 
-      // 배치 단위로 처리
       for (let i = 0; i < allDevices.length; i += BATCH_SIZE) {
         const batch = allDevices.slice(i, i + BATCH_SIZE);
 
         const batchPromises = batch.map(async (data) => {
           try {
-            const newPayload = {
-              ...this.payload,
-              token: data.token,
-              notification: { title, body },
-            };
+            const newPayload = this.createPayload(data.token, title, body);
+            if (!newPayload) throw new AppError('payload is null', 1001);
 
             const result = await admin.messaging().send(newPayload);
             return { success: true, result, token: data.token };
@@ -257,14 +200,11 @@ export class FcmService {
 
       for (const subscription of subscriptions) {
         for (const device of subscription.devices) {
-          const newPayload = {
-            ...this.payload,
-            token: device.token,
-            notification: {
-              title: WEBPUSH_MSG.GATHER.TITLE,
-              body: description,
-            },
-          };
+          const newPayload = this.createPayload(
+            device.token,
+            WEBPUSH_MSG.GATHER.TITLE,
+            description,
+          );
           await admin.messaging().send(newPayload);
         }
       }
@@ -293,14 +233,11 @@ export class FcmService {
 
       for (const subscription of subscriptions) {
         for (const device of subscription.devices) {
-          const newPayload = {
-            ...this.payload,
-            token: device.token,
-            notification: {
-              title: WEBPUSH_MSG.GROUPSTUDY.TITLE,
-              body: description,
-            },
-          };
+          const newPayload = this.createPayload(
+            device.token,
+            WEBPUSH_MSG.GROUPSTUDY.TITLE,
+            description,
+          );
 
           await admin.messaging().send(newPayload);
         }
@@ -328,14 +265,11 @@ export class FcmService {
 
       for (const subscription of subscriptions) {
         for (const device of subscription.devices) {
-          const newPayload = {
-            ...this.payload,
-            token: device.token,
-            notification: {
-              title,
-              body: description,
-            },
-          };
+          const newPayload = this.createPayload(
+            device.token,
+            title,
+            description,
+          );
 
           await admin.messaging().send(newPayload);
         }
@@ -350,6 +284,8 @@ export class FcmService {
     }
   }
   private createPayload(token: string, title: string, body: string) {
+    if (!title || !body) return null;
+
     return {
       token,
       notification: { title, body },
