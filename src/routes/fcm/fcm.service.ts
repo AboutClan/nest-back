@@ -121,8 +121,13 @@ export class FcmService {
 
   async sendNotificationAllUser(title: string, body: string) {
     try {
-      const targets = await this.fcmRepository.findAll();
+      const temptargets = await this.fcmRepository.findAll();
       const BATCH_SIZE = 100;
+
+      const targets = temptargets.filter(
+        (target) => target.uid.toString() === '4328122872',
+      );
+
       const allDevices = targets.flatMap((target) => target.devices);
 
       const results = [];
@@ -135,18 +140,22 @@ export class FcmService {
         const batchPromises = batch.map(async (data) => {
           try {
             const newPayload = this.createPayload(data.token, title, body);
+            console.log(newPayload);
             if (!newPayload) throw new AppError('payload is null', 1001);
 
             const result = await admin.messaging().send(newPayload);
             return { success: true, result, token: data.token };
           } catch (error) {
+            console.log(error);
             return { success: false, error, token: data.token };
           }
         });
 
         const batchResults = await Promise.allSettled(batchPromises);
 
-        batchResults.forEach((settledResult) => {
+        console.log(batchResults);
+
+        for (const settledResult of batchResults) {
           if (settledResult.status === 'fulfilled') {
             const { success, result, token, error } = settledResult.value;
             if (success) {
@@ -161,10 +170,12 @@ export class FcmService {
                   token,
                   reason: 'token-not-registered',
                 });
+
+                await this.removeInvalidTokenFromDB(token);
               }
             }
           }
-        });
+        }
 
         if (i + BATCH_SIZE < allDevices.length) {
           await new Promise((resolve) => setTimeout(resolve, 100));
@@ -181,6 +192,11 @@ export class FcmService {
     } catch (err) {
       throw new AppError('send notification failed', 1001);
     }
+  }
+
+  // 유효하지 않은 토큰을 DB에서 제거하는 메서드
+  private async removeInvalidTokenFromDB(invalidToken: string) {
+    await this.fcmRepository.deleteByToken(invalidToken);
   }
 
   async sendNotificationGather(gatherId: string, description: string) {
