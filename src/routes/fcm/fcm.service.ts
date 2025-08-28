@@ -106,14 +106,11 @@ export class FcmService {
     });
 
     if (fcmTokenOne) {
-      const tokenExists = fcmTokenOne.devices.some(
-        (device) => device.token === fcmToken,
+      fcmTokenOne.devices = fcmTokenOne.devices.filter(
+        (device) => device.token !== fcmToken,
       );
-
-      if (!tokenExists) {
-        fcmTokenOne.devices.push({ token: fcmToken, platform });
-        await fcmTokenOne.save();
-      }
+      fcmTokenOne.devices.push({ token: fcmToken, platform });
+      await fcmTokenOne.save();
     } else {
       await this.fcmRepository.createToken(validatedFcm);
     }
@@ -230,6 +227,14 @@ export class FcmService {
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
+
+      return {
+        success: results,
+        failed: failedTokens,
+        totalProcessed: allDevices.length,
+        successCount: successfulTokens.length,
+        failureCount: failedTokens.length,
+      };
     } catch (err) {
       throw new AppError('send notification failed', 1001);
     }
@@ -251,7 +256,7 @@ export class FcmService {
         await this.fcmRepository.findByArrayUserId(memberArray);
 
       for (const subscription of subscriptions) {
-        subscription.devices.forEach(async (device) => {
+        for (const device of subscription.devices) {
           const newPayload = {
             ...this.payload,
             token: device.token,
@@ -260,9 +265,8 @@ export class FcmService {
               body: description,
             },
           };
-
           await admin.messaging().send(newPayload);
-        });
+        }
       }
       return;
     } catch (err) {
@@ -288,7 +292,7 @@ export class FcmService {
       const subscriptions = await this.fcmRepository.findByArray(memberArray);
 
       for (const subscription of subscriptions) {
-        subscription.devices.forEach(async (device) => {
+        for (const device of subscription.devices) {
           const newPayload = {
             ...this.payload,
             token: device.token,
@@ -299,7 +303,7 @@ export class FcmService {
           };
 
           await admin.messaging().send(newPayload);
-        });
+        }
       }
 
       return;
@@ -323,7 +327,7 @@ export class FcmService {
         await this.fcmRepository.findByArrayUserId(memberArray);
 
       for (const subscription of subscriptions) {
-        subscription.devices.forEach(async (device) => {
+        for (const device of subscription.devices) {
           const newPayload = {
             ...this.payload,
             token: device.token,
@@ -334,7 +338,7 @@ export class FcmService {
           };
 
           await admin.messaging().send(newPayload);
-        });
+        }
       }
 
       return;

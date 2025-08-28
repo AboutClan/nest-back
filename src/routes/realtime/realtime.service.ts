@@ -28,7 +28,6 @@ export default class RealtimeService {
     private readonly userServiceInstance: UserService,
     private readonly imageServiceInstance: ImageService,
     private readonly voteServiceInstance: VoteService,
-    private readonly collectionServiceInstance: CollectionService,
     private readonly placeServiceInstance: PlaceService,
   ) {}
 
