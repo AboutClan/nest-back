@@ -19,6 +19,7 @@ import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { DateUtils } from 'src/utils/Date';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
+import CommentService from '../comment/comment.service';
 import { FcmService } from '../fcm/fcm.service';
 import { IUser } from '../user/user.entity';
 import {
@@ -27,7 +28,6 @@ import {
   ParticipantsZodSchema,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
-import CommentService from '../comment/comment.service';
 
 //commit
 @Injectable()
@@ -226,8 +226,7 @@ export class GatherService {
       );
     });
 
-    // return notReviewed[0] ?? null;
-    return null;
+    return notReviewed[0] ?? null;
   }
 
   async getGatherGroup(groupId, type) {
