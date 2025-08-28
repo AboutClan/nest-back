@@ -122,7 +122,7 @@ export class FcmService {
   async sendNotificationAllUser(title: string, body: string) {
     try {
       const temptargets = await this.fcmRepository.findAll();
-      const BATCH_SIZE = 100;
+      const BATCH_SIZE = 20;
 
       const targets = temptargets.filter(
         (target) => target.uid.toString() === '4328122872',
@@ -178,7 +178,7 @@ export class FcmService {
         }
 
         if (i + BATCH_SIZE < allDevices.length) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
 
