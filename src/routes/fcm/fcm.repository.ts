@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { FcmRepository } from './fcm.repository.interfae';
+import { FcmRepository } from './fcm.repository.interface';
 import { Model } from 'mongoose';
 import { IFcmToken } from './fcmToken.entity';
 
@@ -44,7 +44,7 @@ export class MongoFcmRepository implements FcmRepository {
   }
 
   async findAll(): Promise<IFcmToken[]> {
-    return await this.FcmToken.find();
+    return await this.FcmToken.find().lean();
   }
 
   async findByArray(targetArr: string[]): Promise<IFcmToken[]> {

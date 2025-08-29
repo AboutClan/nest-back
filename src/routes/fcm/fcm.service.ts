@@ -7,12 +7,13 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
-import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
+import { IFCM_LOG_REPOSITORY, IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { IGatherData } from '../gather/gather.entity';
 import { IGroupStudyData } from '../groupStudy/groupStudy.entity';
 import { IUser } from '../user/user.entity';
-import { FcmRepository } from './fcm.repository.interfae';
+import { FcmRepository } from './fcm.repository.interface';
 import { FcmTokenZodSchema } from './fcmToken.entity';
+import { FcmLogRepository } from './fcmLog.repository.interface';
 
 @Injectable()
 export class FcmService {
@@ -22,6 +23,8 @@ export class FcmService {
   constructor(
     @Inject(IFCM_REPOSITORY)
     private readonly fcmRepository: FcmRepository,
+    @Inject(IFCM_LOG_REPOSITORY)
+    private readonly fcmLogRepository: FcmLogRepository,
     @InjectModel(DB_SCHEMA.GROUPSTUDY)
     private GroupStudy: Model<IGroupStudyData>,
     @InjectModel(DB_SCHEMA.GATHER) private Gather: Model<IGatherData>,
@@ -124,66 +127,84 @@ export class FcmService {
       const targets = await this.fcmRepository.findAll();
       const BATCH_SIZE = 20;
 
-      const allDevices = targets.flatMap((target) => target.devices);
-
       const results = [];
-      const failedTokens = [];
-      const successfulTokens = [];
+      const failed = [];
+      const successfulUids = new Set<string>(); // uid만 저장하는 Set
 
-      for (let i = 0; i < allDevices.length; i += BATCH_SIZE) {
-        const batch = allDevices.slice(i, i + BATCH_SIZE);
+      // uid 정보를 포함한 디바이스 배열 생성
+      const devicesWithUid = targets.flatMap((target) =>
+        target.devices.map((device) => ({
+          ...device,
+          uid: target.uid,
+        })),
+      );
+
+      for (let i = 0; i < devicesWithUid.length; i += BATCH_SIZE) {
+        const batch = devicesWithUid.slice(i, i + BATCH_SIZE);
 
         const batchPromises = batch.map(async (data) => {
           try {
             const newPayload = this.createPayload(data.token, title, body);
-            console.log(newPayload);
+
             if (!newPayload) throw new AppError('payload is null', 1001);
 
             const result = await admin.messaging().send(newPayload);
-            return { success: true, result, token: data.token };
+            return {
+              success: true,
+              result,
+              token: data.token,
+              uid: data.uid,
+            };
           } catch (error) {
-            console.log(error);
-            return { success: false, error, token: data.token };
+            return {
+              success: false,
+              error,
+              token: data.token,
+              uid: data.uid,
+            };
           }
         });
 
         const batchResults = await Promise.allSettled(batchPromises);
 
-        console.log(batchResults);
-
         for (const settledResult of batchResults) {
           if (settledResult.status === 'fulfilled') {
-            const { success, result, token, error } = settledResult.value;
+            const { success, result, token, error, uid } = settledResult.value;
+
             if (success) {
               results.push(result);
-              successfulTokens.push(token);
+              successfulUids.add(uid); // uid만 추가
             } else {
-              console.log(`Failed to send to token ${token}:`);
+              failed.push({ uid, error: error.message });
+
               if (
                 error.code === 'messaging/registration-token-not-registered'
               ) {
-                failedTokens.push({
-                  token,
-                  reason: 'token-not-registered',
-                });
-
                 await this.removeInvalidTokenFromDB(token);
               }
             }
           }
         }
 
-        if (i + BATCH_SIZE < allDevices.length) {
+        if (i + BATCH_SIZE < devicesWithUid.length) {
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
       }
 
+      // Set을 배열로 변환
+      const successUidsArray = Array.from(successfulUids);
+
+      await this.fcmLogRepository.createLog({
+        title,
+        description: body,
+        successUids: successUidsArray,
+        failed,
+      });
+
       return {
-        success: results,
-        failed: failedTokens,
-        totalProcessed: allDevices.length,
-        successCount: successfulTokens.length,
-        failureCount: failedTokens.length,
+        totalProcessed: devicesWithUid.length,
+        successUids: successUidsArray,
+        failed,
       };
     } catch (err) {
       throw new AppError('send notification failed', 1001);
