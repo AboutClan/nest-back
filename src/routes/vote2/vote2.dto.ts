@@ -3,12 +3,16 @@ import { IsArray, IsOptional, IsString } from 'class-validator';
 export class CreateNewVoteDTO {
   @IsString()
   @IsOptional()
+  userId: string;
+
+  @IsString()
+  @IsOptional()
   latitude: string;
 
   @IsOptional()
   @IsString()
   longitude: string;
-  
+
   @IsOptional()
   @IsString()
   locationDetail: string;

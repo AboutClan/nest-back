@@ -223,11 +223,13 @@ export class Vote2Service {
 
     const vote2 = await this.Vote2Repository.findByDate(date);
 
-    const { latitude, longitude, start, end, locationDetail } = createVote;
+    const { latitude, longitude, start, end, locationDetail, userId } =
+      createVote;
 
     const voteData: any = {};
 
-    voteData.userId = token.id;
+    voteData.userId = userId ? userId : token.id;
+
     // null이 아닌 경우만 필드에 추가
     if (vote2.results.length === undefined || vote2.results.length === 0) {
       voteData.isBeforeResult = true;

@@ -77,6 +77,28 @@ export class Vote2Controller {
       start,
       end,
       locationDetail,
+      userId: null,
+    });
+
+    return null;
+  }
+
+  @Post(':date/invite')
+  async setVoteInvite(
+    @Req() req: Request,
+    @Body() createVoteDTO: CreateNewVoteDTO,
+  ): Promise<any> {
+    const { latitude, longitude, start, end, locationDetail, userId } =
+      createVoteDTO;
+    const { date } = req;
+
+    await this.voteService2.setVote(date as string, {
+      latitude,
+      longitude,
+      start,
+      end,
+      locationDetail,
+      userId,
     });
 
     return null;

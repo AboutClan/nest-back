@@ -376,7 +376,11 @@ export class UserController {
   @Patch('locationDetail/all')
   @UsePipes(new ValidationPipe({ transform: true }))
   async patchLocationDetailAll(@Body() body: PatchLocationDetailDto) {
-    await this.userService?.patchLocationDetail(body.text, body.lat, body.lon);
+    await this.userService?.patchLocationDetailAll(
+      body.text,
+      body.lat,
+      body.lon,
+    );
     return;
   }
 
