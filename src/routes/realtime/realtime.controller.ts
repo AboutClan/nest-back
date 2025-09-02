@@ -41,6 +41,24 @@ export class RealtimeController {
     return res.status(200).json(data);
   }
 
+  @Post(':date/invite')
+  async createBasicVoteInvite(
+    @Body() body: any,
+    @Res() res: Response,
+    @Req() req: Request,
+    @Next() next: NextFunction,
+  ) {
+    const { date } = req;
+    const { userId, ...createBasicVoteDto } = body;
+
+    const data = await this.realtimeService.createBasicVote(
+      createBasicVoteDto,
+      date as string,
+      userId,
+    );
+    return res.status(200).json(data);
+  }
+
   @Get(':date')
   async getRealtime(
     @Res() res: Response,
