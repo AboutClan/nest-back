@@ -176,6 +176,13 @@ export class UserRepository implements IUserRepository {
     );
   }
 
+  async updateLocationDetailAll(updateInfo: any) {
+    await this.UserModel.updateMany(
+      {},
+      { $set: { locationDetail: updateInfo } },
+    );
+  }
+
   async processMonthScore() {
     await this.UserModel.aggregate([
       {
