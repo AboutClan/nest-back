@@ -698,17 +698,23 @@ export default class GroupStudyService {
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
     try {
+      const commentList =
+        await this.commentService.findCommentsByPostId(groupStudyId);
+
       await this.commentService.createComment({
         postId: groupStudy._id.toString(),
         postType: 'groupStudy',
         user: token.id,
         comment: comment,
       });
-      await this.userServiceInstance.updatePoint(
-        CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
-        '소모임 최초 리뷰 작성',
-        token.uid,
-      );
+
+      if (commentList.length === 0) {
+        await this.userServiceInstance.updatePoint(
+          CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
+          '소모임 최초 리뷰 작성',
+          token.uid,
+        );
+      }
     } catch (error) {
       console.error('리뷰 작성 중 오류 발생:', error);
       throw error;
