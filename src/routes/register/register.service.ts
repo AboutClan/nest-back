@@ -119,9 +119,9 @@ export default class RegisterService {
     }
 
     logger.logger.info('가입 보증금', {
-      type: 'deposit',
+      type: 'point',
       uid,
-      value: 3000,
+      value: 10000,
     });
     return;
   }
