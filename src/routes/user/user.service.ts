@@ -1026,7 +1026,33 @@ export class UserService {
   }
 
   async test() {
-    await this.backupService.backupDatabase();
-    return { message: '백업이 시작되었습니다.' };
+    // const users = await this.UserRepository.findAll();
+    // for (const user of users) {
+    //   const userDate = user.registerDate;
+    //   const userId = user._id;
+    //   const point = user.point;
+    //   if (userDate.length < 5) continue;
+    //   if (userDate >= '2025-07-01') {
+    //     if (point < 8000) {
+    //       const difference = 8000 - point;
+    //       await this.updatePointById(
+    //         difference,
+    //         '포인트 오류 복구 보상',
+    //         `${difference} point 지급`,
+    //         userId,
+    //       );
+    //     }
+    //   } else {
+    //     if (point < 3000) {
+    //       const difference = 3000 - point;
+    //       await this.updatePointById(
+    //         difference,
+    //         '포인트 오류 복구 보상',
+    //         `${difference} point 지급`,
+    //         userId,
+    //       );
+    //     }
+    //   }
+    // }
   }
 }

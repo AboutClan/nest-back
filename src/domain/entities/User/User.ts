@@ -97,7 +97,7 @@ export class User {
     this.gender = gender || '';
     this.belong = belong || '';
     this.profileImage = profileImage || '';
-    this.registerDate = registerDate || new Date().toISOString();
+    this.registerDate = registerDate || '';
     this.isActive = isActive || true;
     this.birth = birth || '';
     this.isPrivate = isPrivate || false;
