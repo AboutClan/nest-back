@@ -469,6 +469,7 @@ export class UserService {
     const token = RequestContext.getDecodedToken();
     const user = await this.UserRepository.findByUid(uid ?? token.uid);
     user.increaseScore(score);
+    user.increaseMonthScore(score);
     await this.UserRepository.save(user);
 
     logger.logger.info(message, {

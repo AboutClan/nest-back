@@ -6,10 +6,9 @@ interface LocationProps {
   latitude: number;
   longitude: number;
   address: string;
+  name: string;
 }
-
 export interface PlaceProps {
-  title: string;
   status: PlaceStatus;
   location: LocationProps;
   registerDate: string;
@@ -23,7 +22,6 @@ export interface PlaceProps {
  * Place 도메인 엔티티
  */
 export class Place {
-  private title: string;
   private status: PlaceStatus;
   private location: LocationProps;
   private registerDate: string;
@@ -33,7 +31,6 @@ export class Place {
   private registrant?: string;
 
   constructor(props: PlaceProps) {
-    this.title = props.title;
     this.status = props.status ?? 'sub';
     this.location = props.location;
     this.registerDate = props.registerDate;
@@ -107,7 +104,6 @@ export class Place {
 
   toPrimitives(): PlaceProps {
     return {
-      title: this.title,
       status: this.status ?? 'sub',
       location: this.location,
       registerDate: this.registerDate,

@@ -5,11 +5,11 @@ import { Model } from 'mongoose';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { CounterService } from 'src/routes/counter/counter.service';
 import { GroupStudy, GroupStudyProps } from 'src/domain/entities/GroupStudy';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
 import { RequestContext } from 'src/request-context';
+import { CounterService } from 'src/routes/counter/counter.service';
 import { IUser } from 'src/routes/user/user.entity';
 import { UserService } from 'src/routes/user/user.service';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
@@ -17,10 +17,10 @@ import { DateUtils } from 'src/utils/Date';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { promisify } from 'util';
 import * as zlib from 'zlib';
+import CommentService from '../comment/comment.service';
 import { FcmService } from '../fcm/fcm.service';
 import { IGroupStudyData } from './groupStudy.entity';
 import { IGroupStudyRepository } from './GroupStudyRepository.interface';
-import CommentService from '../comment/comment.service';
 
 //test
 export default class GroupStudyService {
@@ -697,26 +697,22 @@ export default class GroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(groupStudyId);
     if (!groupStudy) throw new DatabaseError('wrong groupStudyId');
 
-    await this.commentService.createComment({
-      postId: groupStudy._id.toString(),
-      postType: 'groupStudy',
-      user: token.id,
-      comment: comment,
-    });
-
-    // if (groupStudy.comments.length === 1) {
-    //   await this.userServiceInstance.updatePoint(
-    //     CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
-    //     '소모임 최초 리뷰 작성',
-    //     token.uid,
-    //   );
-    //   groupStudy.comments = [
-    //     {
-    //       user: token.id,
-    //       comment,
-    //     },
-    //   ];
-    // }
+    try {
+      await this.commentService.createComment({
+        postId: groupStudy._id.toString(),
+        postType: 'groupStudy',
+        user: token.id,
+        comment: comment,
+      });
+      await this.userServiceInstance.updatePoint(
+        CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
+        '소모임 최초 리뷰 작성',
+        token.uid,
+      );
+    } catch (error) {
+      console.error('리뷰 작성 중 오류 발생:', error);
+      throw error;
+    }
 
     await this.webPushServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,

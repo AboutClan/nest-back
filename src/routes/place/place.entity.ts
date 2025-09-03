@@ -16,10 +16,10 @@ export const LocationZodSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
   address: z.string(),
+  name: z.string(),
 });
 
 export const PlaceZodSchema = z.object({
-  title: z.string(),
   status: z.enum(ENTITY.PLACE.ENUM_STATUS),
   location: LocationZodSchema,
   image: z.string().optional(),
@@ -47,6 +47,10 @@ export const locationSchema: Schema<LocationType> = new Schema(
       required: true,
     },
     address: {
+      type: String,
+      required: true,
+    },
+    name: {
       type: String,
       required: true,
     },
@@ -88,10 +92,7 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     enum: ENTITY.PLACE.ENUM_STATUS,
     default: ENTITY.PLACE.DEFAULT_STATUS,
   },
-  title: {
-    type: String,
-    required: true,
-  },
+
   image: {
     type: String,
   },

@@ -407,7 +407,7 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      // await this.useDepositToParticipateGather(gather, userId);
+      await this.useDepositToParticipateGather(gather, userId);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -416,12 +416,12 @@ export class GatherService {
 
     const user = await this.userServiceInstance.getUserWithUserId(userId);
 
-    // await this.userServiceInstance.updateScore(
-    //   CONST.SCORE.PARTICIPATE_GATHER,
-    //   '번개 모임 참여',
-    //   undefined,
-    //   user.uid,
-    // );
+    await this.userServiceInstance.updateScore(
+      CONST.SCORE.PARTICIPATE_GATHER,
+      '번개 모임 참여',
+      undefined,
+      user.uid,
+    );
 
     if (userId) {
       await this.webPushServiceInstance.sendNotificationToXWithId(

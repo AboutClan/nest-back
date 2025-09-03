@@ -46,14 +46,13 @@ export default class PlaceService {
   async addPlace(placeData: PlaceProps) {
     try {
       const token = RequestContext.getDecodedToken();
-      const { title, location, status } = placeData;
+      const { location, status } = placeData;
 
       placeData.registerDate = new Date().toString();
       placeData.status = status || 'sub';
       placeData.registrant = token.id as string;
-
-      if (!title || !location)
-        throw new ValidationError(`title ||location not exist`);
+      console.log(25, placeData);
+      if (!location) throw new ValidationError(`location not exist`);
 
       const validatedPlace = PlaceZodSchema.parse(placeData);
 
