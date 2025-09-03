@@ -444,6 +444,7 @@ export class UserService {
 
     const user = await this.UserRepository.findByUserId(userId);
     user.increaseScore(score);
+    user.increaseMonthScore(score);
     await this.UserRepository.save(user);
 
     logger.logger.info(message, {
