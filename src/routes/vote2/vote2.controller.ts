@@ -113,6 +113,7 @@ export class Vote2Controller {
       createVoteDTO;
 
     await this.voteService2.setVoteWithArr(dates, {
+      userId: null,
       latitude,
       longitude,
       start,
@@ -132,6 +133,7 @@ export class Vote2Controller {
     const { date } = req;
 
     await this.voteService2.setVote(date as string, {
+      userId: null,
       latitude,
       longitude,
       start,
