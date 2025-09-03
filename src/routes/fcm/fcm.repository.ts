@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { FcmRepository } from './fcm.repository.interfae';
+import { FcmRepository } from './fcm.repository.interface';
 import { Model } from 'mongoose';
 import { IFcmToken } from './fcmToken.entity';
 
@@ -11,6 +11,13 @@ export class MongoFcmRepository implements FcmRepository {
   async createToken(data: any): Promise<IFcmToken> {
     return await this.FcmToken.create(data);
   }
+  async deleteByToken(token: string): Promise<any> {
+    return await this.FcmToken.updateMany(
+      { 'devices.token': token },
+      { $pull: { devices: { token: token } } },
+    );
+  }
+
   async deleteToken(uid: string, platform: string): Promise<any> {
     return await this.FcmToken.updateOne(
       {
@@ -23,6 +30,11 @@ export class MongoFcmRepository implements FcmRepository {
       },
     );
   }
+
+  async findByToken(token: string): Promise<IFcmToken[]> {
+    return await this.FcmToken.find({ 'devices.token': token });
+  }
+
   async findByUid(uid: string): Promise<IFcmToken> {
     return await this.FcmToken.findOne({ uid });
   }
@@ -32,7 +44,7 @@ export class MongoFcmRepository implements FcmRepository {
   }
 
   async findAll(): Promise<IFcmToken[]> {
-    return await this.FcmToken.find();
+    return await this.FcmToken.find().lean();
   }
 
   async findByArray(targetArr: string[]): Promise<IFcmToken[]> {

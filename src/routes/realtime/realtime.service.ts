@@ -28,7 +28,6 @@ export default class RealtimeService {
     private readonly userServiceInstance: UserService,
     private readonly imageServiceInstance: ImageService,
     private readonly voteServiceInstance: VoteService,
-    private readonly collectionServiceInstance: CollectionService,
     private readonly placeServiceInstance: PlaceService,
   ) {}
 
@@ -116,12 +115,17 @@ export default class RealtimeService {
   }
 
   //todo: date:YYYYMMDD라 가정
-  async createBasicVote(studyData: Partial<IRealtime>, date: string) {
+  async createBasicVote(
+    studyData: Partial<IRealtime>,
+    date: string,
+    userId?: string,
+  ) {
     const token = RequestContext.getDecodedToken();
+
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
-      user: token.id,
+      user: userId ? userId : token.id,
     });
 
     this.voteServiceInstance.deleteVote(date);

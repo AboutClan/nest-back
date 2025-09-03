@@ -7,12 +7,13 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
-import { IFCM_REPOSITORY } from 'src/utils/di.tokens';
+import { IFCM_LOG_REPOSITORY, IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { IGatherData } from '../gather/gather.entity';
 import { IGroupStudyData } from '../groupStudy/groupStudy.entity';
 import { IUser } from '../user/user.entity';
-import { FcmRepository } from './fcm.repository.interfae';
+import { FcmRepository } from './fcm.repository.interface';
 import { FcmTokenZodSchema } from './fcmToken.entity';
+import { FcmLogRepository } from './fcmLog.repository.interface';
 
 @Injectable()
 export class FcmService {
@@ -22,6 +23,8 @@ export class FcmService {
   constructor(
     @Inject(IFCM_REPOSITORY)
     private readonly fcmRepository: FcmRepository,
+    @Inject(IFCM_LOG_REPOSITORY)
+    private readonly fcmLogRepository: FcmLogRepository,
     @InjectModel(DB_SCHEMA.GROUPSTUDY)
     private GroupStudy: Model<IGroupStudyData>,
     @InjectModel(DB_SCHEMA.GATHER) private Gather: Model<IGatherData>,
@@ -33,52 +36,14 @@ export class FcmService {
         credential: admin.credential.cert(serviceAccount),
       });
     }
-
-    this.payload = {
-      notification: {
-        title: '알림',
-        body: '알림',
-      },
-      android: {
-        notification: {
-          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
-        },
-      },
-      webpush: {
-        headers: {
-          TTL: '1',
-          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
-        },
-      },
-      apns: {
-        payload: {
-          aps: {
-            alert: {
-              title: '알림',
-              body: '알림',
-            },
-            sound: 'default',
-            badge: 0,
-            'content-available': 1,
-          },
-        },
-        headers: {
-          'apns-priority': '10',
-          'apns-push-type': 'alert',
-        },
-      },
-    };
   }
 
   async sendNotification(token: any, message: any) {
-    const newPayload = {
-      ...this.payload,
+    const newPayload = this.createPayload(
       token,
-      notification: {
-        title: message?.notification.title || '알림',
-        body: message?.notification.body || '알림',
-      },
-    };
+      message?.notification.title,
+      message?.notification.body,
+    );
 
     const response = await admin.messaging().send(newPayload);
 
@@ -106,14 +71,11 @@ export class FcmService {
     });
 
     if (fcmTokenOne) {
-      const tokenExists = fcmTokenOne.devices.some(
-        (device) => device.token === fcmToken,
+      fcmTokenOne.devices = fcmTokenOne.devices.filter(
+        (device) => device.token !== fcmToken,
       );
-
-      if (!tokenExists) {
-        fcmTokenOne.devices.push({ token: fcmToken, platform });
-        await fcmTokenOne.save();
-      }
+      fcmTokenOne.devices.push({ token: fcmToken, platform });
+      await fcmTokenOne.save();
     } else {
       await this.fcmRepository.createToken(validatedFcm);
     }
@@ -132,21 +94,6 @@ export class FcmService {
           console.error('[FCM 실패]', device.token, err);
         }
       }
-
-      //  user.devices.forEach(async (device) => {
-      //     const newPayload = {
-      //       ...this.payload,
-      //       token: device.token,
-      //       notification: {
-      //         title,
-      //         body,
-      //       },
-      //     };
-      //     const newPayload = this.createPayload(device.token, title, body);
-
-      //     await admin.messaging().send(newPayload);
-      //   });
-      // }
     } catch (err: any) {
       throw new AppError('send notifacation failed', 1001);
     }
@@ -178,61 +125,95 @@ export class FcmService {
   async sendNotificationAllUser(title: string, body: string) {
     try {
       const targets = await this.fcmRepository.findAll();
-      const BATCH_SIZE = 100;
-      const allDevices = targets.flatMap((target) => target.devices);
+      const BATCH_SIZE = 20;
 
       const results = [];
-      const failedTokens = [];
-      const successfulTokens = [];
+      const failed = [];
+      const successfulUids = new Set<string>(); // uid만 저장하는 Set
 
-      // 배치 단위로 처리
-      for (let i = 0; i < allDevices.length; i += BATCH_SIZE) {
-        const batch = allDevices.slice(i, i + BATCH_SIZE);
+      // uid 정보를 포함한 디바이스 배열 생성
+      const devicesWithUid = targets.flatMap((target) =>
+        target.devices.map((device) => ({
+          ...device,
+          uid: target.uid,
+        })),
+      );
+
+      for (let i = 0; i < devicesWithUid.length; i += BATCH_SIZE) {
+        const batch = devicesWithUid.slice(i, i + BATCH_SIZE);
 
         const batchPromises = batch.map(async (data) => {
           try {
-            const newPayload = {
-              ...this.payload,
-              token: data.token,
-              notification: { title, body },
-            };
+            const newPayload = this.createPayload(data.token, title, body);
+
+            if (!newPayload) throw new AppError('payload is null', 1001);
 
             const result = await admin.messaging().send(newPayload);
-            return { success: true, result, token: data.token };
+            return {
+              success: true,
+              result,
+              token: data.token,
+              uid: data.uid,
+            };
           } catch (error) {
-            return { success: false, error, token: data.token };
+            return {
+              success: false,
+              error,
+              token: data.token,
+              uid: data.uid,
+            };
           }
         });
 
         const batchResults = await Promise.allSettled(batchPromises);
 
-        batchResults.forEach((settledResult) => {
+        for (const settledResult of batchResults) {
           if (settledResult.status === 'fulfilled') {
-            const { success, result, token, error } = settledResult.value;
+            const { success, result, token, error, uid } = settledResult.value;
+
             if (success) {
               results.push(result);
-              successfulTokens.push(token);
+              successfulUids.add(uid); // uid만 추가
             } else {
-              console.log(`Failed to send to token ${token}:`);
+              failed.push({ uid, error: error.message });
+
               if (
                 error.code === 'messaging/registration-token-not-registered'
               ) {
-                failedTokens.push({
-                  token,
-                  reason: 'token-not-registered',
-                });
+                await this.removeInvalidTokenFromDB(token);
               }
             }
           }
-        });
+        }
 
-        if (i + BATCH_SIZE < allDevices.length) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
+        if (i + BATCH_SIZE < devicesWithUid.length) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
       }
+
+      // Set을 배열로 변환
+      const successUidsArray = Array.from(successfulUids);
+
+      await this.fcmLogRepository.createLog({
+        title,
+        description: body,
+        successUids: successUidsArray,
+        failed,
+      });
+
+      return {
+        totalProcessed: devicesWithUid.length,
+        successUids: successUidsArray,
+        failed,
+      };
     } catch (err) {
       throw new AppError('send notification failed', 1001);
     }
+  }
+
+  // 유효하지 않은 토큰을 DB에서 제거하는 메서드
+  private async removeInvalidTokenFromDB(invalidToken: string) {
+    await this.fcmRepository.deleteByToken(invalidToken);
   }
 
   async sendNotificationGather(gatherId: string, description: string) {
@@ -251,18 +232,14 @@ export class FcmService {
         await this.fcmRepository.findByArrayUserId(memberArray);
 
       for (const subscription of subscriptions) {
-        subscription.devices.forEach(async (device) => {
-          const newPayload = {
-            ...this.payload,
-            token: device.token,
-            notification: {
-              title: WEBPUSH_MSG.GATHER.TITLE,
-              body: description,
-            },
-          };
-
+        for (const device of subscription.devices) {
+          const newPayload = this.createPayload(
+            device.token,
+            WEBPUSH_MSG.GATHER.TITLE,
+            description,
+          );
           await admin.messaging().send(newPayload);
-        });
+        }
       }
       return;
     } catch (err) {
@@ -288,18 +265,15 @@ export class FcmService {
       const subscriptions = await this.fcmRepository.findByArray(memberArray);
 
       for (const subscription of subscriptions) {
-        subscription.devices.forEach(async (device) => {
-          const newPayload = {
-            ...this.payload,
-            token: device.token,
-            notification: {
-              title: WEBPUSH_MSG.GROUPSTUDY.TITLE,
-              body: description,
-            },
-          };
+        for (const device of subscription.devices) {
+          const newPayload = this.createPayload(
+            device.token,
+            WEBPUSH_MSG.GROUPSTUDY.TITLE,
+            description,
+          );
 
           await admin.messaging().send(newPayload);
-        });
+        }
       }
 
       return;
@@ -323,18 +297,15 @@ export class FcmService {
         await this.fcmRepository.findByArrayUserId(memberArray);
 
       for (const subscription of subscriptions) {
-        subscription.devices.forEach(async (device) => {
-          const newPayload = {
-            ...this.payload,
-            token: device.token,
-            notification: {
-              title,
-              body: description,
-            },
-          };
+        for (const device of subscription.devices) {
+          const newPayload = this.createPayload(
+            device.token,
+            title,
+            description,
+          );
 
           await admin.messaging().send(newPayload);
-        });
+        }
       }
 
       return;
@@ -346,6 +317,8 @@ export class FcmService {
     }
   }
   private createPayload(token: string, title: string, body: string) {
+    if (!title || !body) return null;
+
     return {
       token,
       notification: { title, body },

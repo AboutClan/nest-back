@@ -373,6 +373,17 @@ export class UserController {
     return;
   }
 
+  @Patch('locationDetail/all')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async patchLocationDetailAll(@Body() body: PatchLocationDetailDto) {
+    await this.userService?.patchLocationDetailAll(
+      body.text,
+      body.lat,
+      body.lon,
+    );
+    return;
+  }
+
   @Post('badgeList')
   @UsePipes(new ValidationPipe({ transform: true }))
   async addBadgeList(@Body() body: AddBadgeDto) {

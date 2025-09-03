@@ -718,6 +718,16 @@ export class UserService {
     return;
   }
 
+  async patchLocationDetailAll(text: string, lat: string, lon: string) {
+    await this.UserRepository.updateLocationDetailAll({
+      text,
+      lat,
+      lon,
+    });
+
+    return;
+  }
+
   async updateAddTicket(
     type: 'gather' | 'groupOnline' | 'groupOffline' | 'groupStudy',
     userId: string,
