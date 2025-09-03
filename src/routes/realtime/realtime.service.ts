@@ -6,7 +6,6 @@ import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
 import { TimeProps } from 'src/domain/entities/Realtime/Time';
 import { RequestContext } from 'src/request-context';
-import { CollectionService } from 'src/routes/collection/collection.service';
 import ImageService from 'src/routes/imagez/image.service';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
@@ -299,12 +298,12 @@ export default class RealtimeService {
     if (absence) {
       await this.userServiceInstance.updatePoint(
         CONST.POINT.ABSENCE,
-        'realtime solo 결석',
+        '스터디 당일 불참',
       );
 
       return {
         point: CONST.POINT.ABSENCE,
-        message: 'realtime solo 결석',
+        message: '스터디 당일 불참',
       };
     }
   }
