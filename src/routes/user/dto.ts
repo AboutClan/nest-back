@@ -165,15 +165,19 @@ export class PatchStudyTargetHourDto {
 export class PatchLocationDetailDto {
   @IsOptional()
   @IsString()
-  text: string;
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  address: string;
 
   @IsNotEmpty()
   @IsNumber()
-  lat: string;
+  latitude: number;
 
   @IsNotEmpty()
   @IsNumber()
-  lon: string;
+  longitude: number;
 }
 
 export class AddBadgeDto {

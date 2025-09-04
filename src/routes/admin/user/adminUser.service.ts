@@ -9,7 +9,7 @@ import { UserFilterType } from './adminUser.controller';
 const logger = require('../../../logger');
 
 type UserQueryProps = {
-  isActive: true;
+  isActive?: true;
   location?: string;
   score?: { $gt: number };
   monthScore?: { $gt: number };
@@ -20,7 +20,7 @@ export default class AdminUserService {
   constructor(@InjectModel(DB_SCHEMA.USER) private User: Model<IUser>) {}
 
   async getAllUser(type?: UserFilterType) {
-    const query: UserQueryProps = { isActive: true };
+    const query: UserQueryProps = {};
 
     if (type === 'study') {
       query.monthScore = { $gt: 0 };
@@ -37,7 +37,7 @@ export default class AdminUserService {
         ? 'studyRecord'
         : type === 'monthScore'
           ? 'monthScore rank'
-          : '';
+          : 'locationDetail';
 
     if (type === 'temperature') {
       const res = await this.User.find(

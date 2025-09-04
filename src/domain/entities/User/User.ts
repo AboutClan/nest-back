@@ -158,8 +158,13 @@ export class User {
       this.friend.push(toUid);
     }
   }
-  setLocationDetail(text: string, lat: string, lon: string): void {
-    this.locationDetail.setLocationDetail(text, lat, lon);
+  setLocationDetail(
+    name: string,
+    address: string,
+    latitude: number,
+    longitude: number,
+  ): void {
+    this.locationDetail.setLocationDetail(name, address, latitude, longitude);
   }
 
   increaseGatherTicket(num: number): void {

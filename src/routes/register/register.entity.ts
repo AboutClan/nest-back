@@ -3,9 +3,10 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
 
 export const locationDetailZodSchema = z.object({
-  text: z.string(),
-  lat: z.number(),
-  lon: z.number(),
+  name: z.string(),
+  address: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
 });
 
 export const MajorZodSchema = z.object({
@@ -56,9 +57,10 @@ export const MajorSchema: Schema<IMajor> = new Schema(
 
 export const locationDetailSchema: Schema<ILocationDetail> = new Schema(
   {
-    text: String,
-    lat: Number,
-    lon: Number,
+    name: String,
+    address: String,
+    latitude: Number,
+    longitude: Number,
   },
   { timestamps: false, _id: false },
 );

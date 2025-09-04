@@ -194,9 +194,10 @@ export const avatarSchema: Schema<avatarType> = new Schema(
 
 export const locationDetailSchema: Schema<ILocationDetail> = new Schema(
   {
-    text: String,
-    lat: Number,
-    lon: Number,
+    name: String,
+    address: String,
+    latitude: Number,
+    longitude: Number,
   },
   { timestamps: false, _id: false },
 );

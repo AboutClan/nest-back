@@ -176,10 +176,10 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async updateLocationDetailAll(updateInfo: any) {
-    await this.UserModel.updateMany(
-      {},
-      { $set: { locationDetail: updateInfo } },
+  async updateLocationDetailAll(id: string, location: any) {
+    await this.UserModel.updateOne(
+      { _id: id },
+      { $set: { locationDetail: location } },
     );
   }
 
@@ -365,9 +365,10 @@ export class UserRepository implements IUserRepository {
       doc?.interests?.second,
     );
     const locationDetail = new LocationDetail(
-      doc?.locationDetail?.text,
-      doc?.locationDetail?.lat,
-      doc?.locationDetail?.lon,
+      doc?.locationDetail?.name,
+      doc?.locationDetail?.address,
+      doc?.locationDetail?.latitude,
+      doc?.locationDetail?.longitude,
     );
     const preference = doc.studyPreference
       ? new Preference(

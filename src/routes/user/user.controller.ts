@@ -19,29 +19,29 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import {
+  AddBadgeDto,
+  ParticipationRateQueryDto,
   PatchBelongDto,
+  PatchIsLocationSharingDeniedDto,
+  PatchIsPrivateDto,
+  PatchLocationDetailDto,
+  PatchRestDto,
   PatchRoleDto,
+  PatchStudyTargetHourDto,
+  SelectBadgeDto,
   SetFriendDto,
+  SetMonthStudyTargetDto,
   SetPreferenceDto,
   UpdateAvatarDto,
   UpdateCommentDto,
-  UpdateInstagramDto,
-  PatchIsPrivateDto,
-  SetMonthStudyTargetDto,
-  PatchIsLocationSharingDeniedDto,
-  PatchRestDto,
-  ParticipationRateQueryDto,
-  VoteRateQueryDto,
-  UpdateProfileDto,
   UpdateDepositDto,
-  UpdateScoreDto,
+  UpdateInstagramDto,
   UpdatePointDto,
-  PatchStudyTargetHourDto,
-  PatchLocationDetailDto,
-  AddBadgeDto,
-  SelectBadgeDto,
+  UpdateScoreDto,
   UpdateTicketDto,
+  VoteRateQueryDto,
 } from './dto';
+import { IUser } from './user.entity';
 import { UserService } from './user.service';
 
 @ApiTags('user')
@@ -203,10 +203,8 @@ export class UserController {
 
   @Post('profile')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async updateProfile(@Body() registerForm: UpdateProfileDto) {
-    const updatedUser = await this.userService.updateUser(
-      registerForm.registerForm,
-    );
+  async updateProfile(@Body() registerForm: Partial<IUser>) {
+    const updatedUser = await this.userService.updateUser(registerForm);
     return updatedUser;
   }
 
@@ -369,20 +367,22 @@ export class UserController {
   @Patch('locationDetail')
   @UsePipes(new ValidationPipe({ transform: true }))
   async patchLocationDetail(@Body() body: PatchLocationDetailDto) {
-    await this.userService?.patchLocationDetail(body.text, body.lat, body.lon);
-    return;
-  }
-
-  @Patch('locationDetail/all')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async patchLocationDetailAll(@Body() body: PatchLocationDetailDto) {
-    await this.userService?.patchLocationDetailAll(
-      body.text,
-      body.lat,
-      body.lon,
+    await this.userService?.patchLocationDetail(
+      body.name,
+      body.address,
+      body.latitude,
+      body.longitude,
     );
     return;
   }
+
+  // @Patch('locationDetail/all')
+  // @UsePipes(new ValidationPipe({ transform: true }))
+  // async patchLocationDetailAll(@Body() body: any) {
+
+  //   // await this.userService?.patchLocationDetailAll(body.id, body.location);
+  //   return;
+  // }
 
   @Post('badgeList')
   @UsePipes(new ValidationPipe({ transform: true }))

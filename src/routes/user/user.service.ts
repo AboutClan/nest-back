@@ -705,26 +705,28 @@ export class UserService {
     return logs;
   }
 
-  async patchLocationDetail(text: string, lat: string, lon: string) {
+  async patchLocationDetail(
+    name: string,
+    address: string,
+    latitude: number,
+    longitude: number,
+  ) {
     const token = RequestContext.getDecodedToken();
 
     const user = await this.UserRepository.findByUid(token.uid);
     if (!user) {
       throw new AppError('User not found', 404);
     }
-    user.setLocationDetail(text, lat, lon);
+    user.setLocationDetail(name, address, latitude, longitude);
 
     await this.UserRepository.save(user);
 
     return;
   }
 
-  async patchLocationDetailAll(text: string, lat: string, lon: string) {
-    await this.UserRepository.updateLocationDetailAll({
-      text,
-      lat,
-      lon,
-    });
+  async patchLocationDetailAll(id: string, location: any) {
+    console.log(54, id, location);
+    await this.UserRepository.updateLocationDetailAll(id, location);
 
     return;
   }

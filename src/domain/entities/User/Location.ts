@@ -1,27 +1,36 @@
 export class LocationDetail {
   constructor(
-    public text?: string,
-    public lat?: number,
-    public lon?: number,
+    public name?: string,
+    public address?: string,
+    public latitude?: number,
+    public longitude?: number,
   ) {
-    this.text = text || '';
-    this.lat = lat ? parseFloat(lat.toString()) : 0;
-    this.lon = lon ? parseFloat(lon.toString()) : 0;
+    this.name = name || '';
+    this.address = address || '';
+    this.latitude = latitude ? parseFloat(latitude.toString()) : 0;
+    this.longitude = longitude ? parseFloat(longitude.toString()) : 0;
   }
 
-  setLocationDetail(text, lat, lon) {
-    this.text = text;
-    this.lat = parseFloat(lat);
-    this.lon = parseFloat(lon);
+  setLocationDetail(name, address, latitude, longitude) {
+    this.name = name;
+    this.address = address;
+    this.latitude = parseFloat(latitude.toString());
+    this.longitude = parseFloat(longitude.toString());
   }
 
   toPrimitives() {
-    return { text: this.text, lat: this.lat, lon: this.lon };
+    return {
+      name: this.name,
+      address: this.address,
+      latitude: this.latitude,
+      longitude: this.longitude,
+    };
   }
 }
 
 export interface ILocationDetail {
-  text?: string;
-  lat?: number;
-  lon?: number;
+  name?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
