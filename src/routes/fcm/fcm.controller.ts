@@ -42,6 +42,18 @@ export class FcmController {
     return result;
   }
 
+  @Post('sendNotification/study')
+  async sendNotificationStudy(
+    @Body('title') title: string,
+    @Body('description') description: string,
+  ): Promise<any> {
+    const result = await this.fcmService.sendNotificationStudy(
+      title,
+      description,
+    );
+    return result;
+  }
+
   @Post('send-notification')
   async sendNotification(
     @Body('token') token: string,

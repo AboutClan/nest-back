@@ -6,4 +6,5 @@ export interface IRealtimeRepository {
   create(entity: Realtime): Promise<Realtime>;
   patchRealtime(userId: string, updateFields: any, date: string);
   updateStatusWithIdArr(date: string, userIds: string[]);
+  findAllUserIdsAfterDate(date: string): Promise<string[]>;
 }

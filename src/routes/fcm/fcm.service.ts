@@ -7,13 +7,22 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
-import { IFCM_LOG_REPOSITORY, IFCM_REPOSITORY } from 'src/utils/di.tokens';
+import {
+  IFCM_LOG_REPOSITORY,
+  IFCM_REPOSITORY,
+  IREALTIME_REPOSITORY,
+  IVOTE2_REPOSITORY,
+} from 'src/utils/di.tokens';
 import { IGatherData } from '../gather/gather.entity';
 import { IGroupStudyData } from '../groupStudy/groupStudy.entity';
 import { IUser } from '../user/user.entity';
 import { FcmRepository } from './fcm.repository.interface';
 import { FcmTokenZodSchema } from './fcmToken.entity';
 import { FcmLogRepository } from './fcmLog.repository.interface';
+import { Vote2Service } from '../vote2/vote2.service';
+import { IRealtimeRepository } from '../realtime/RealtimeRepository.interface';
+import { IVote2Repository } from '../vote2/Vote2Repository.interface';
+import { DateUtils } from 'src/utils/Date';
 
 @Injectable()
 export class FcmService {
@@ -28,6 +37,11 @@ export class FcmService {
     @InjectModel(DB_SCHEMA.GROUPSTUDY)
     private GroupStudy: Model<IGroupStudyData>,
     @InjectModel(DB_SCHEMA.GATHER) private Gather: Model<IGatherData>,
+
+    @Inject(IVOTE2_REPOSITORY)
+    private readonly vote2Repository: IVote2Repository,
+    @Inject(IREALTIME_REPOSITORY)
+    private readonly realtimeRepository: IRealtimeRepository,
   ) {
     const fcm = process.env.FCM_INFO;
     if (!admin.apps.length && fcm) {
@@ -120,6 +134,18 @@ export class FcmService {
     }
 
     return;
+  }
+
+  async sendNotificationStudy(title: string, body: string) {
+    const today = '2025-08-01';
+    const vote2UserIDs =
+      await this.vote2Repository.findAllUserIdsAfterDate(today);
+    const realtimeUserIDs =
+      await this.realtimeRepository.findAllUserIdsAfterDate(today);
+
+    const userIds = [...vote2UserIDs, ...realtimeUserIDs];
+
+    await this.sendNotificationUserIds(userIds, title, body);
   }
 
   async sendNotificationAllUser(title: string, body: string) {

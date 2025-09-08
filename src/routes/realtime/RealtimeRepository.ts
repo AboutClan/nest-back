@@ -17,7 +17,7 @@ export class RealtimeRepository implements IRealtimeRepository {
       path: 'userList.user',
       select: ENTITY.USER.C_SIMPLE_USER,
     });
-    
+
     if (!doc) {
       return null;
     }
@@ -64,6 +64,11 @@ export class RealtimeRepository implements IRealtimeRepository {
         ],
       },
     );
+  }
+
+  async findAllUserIdsAfterDate(date: string): Promise<string[]> {
+    const db = await this.realtime.find({ date: { $gte: date } });
+    return db.map((d) => d.userList.map((u) => u.user.toString())).flat();
   }
 
   async save(entity: Realtime): Promise<Realtime> {

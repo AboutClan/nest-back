@@ -7,4 +7,5 @@ export interface IVote2Repository {
   save(vote2: Vote2): Promise<void>;
   findParticipationsByDate(date: string): Promise<any>;
   getVoteByPeriod(startDay: string, endDay: string);
+  findAllUserIdsAfterDate(date: string): Promise<string[]>;
 }

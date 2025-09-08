@@ -85,6 +85,13 @@ export class Vote2Repository implements IVote2Repository {
     });
   }
 
+  async findAllUserIdsAfterDate(date: string): Promise<string[]> {
+    const db = await this.Vote2Model.find({ date: { $gte: date } });
+    return db
+      .map((d) => d.participations.map((p) => p.userId.toString()))
+      .flat();
+  }
+
   mapToDomain(db: IVote2): Vote2 {
     return new Vote2({
       date: db.date,
