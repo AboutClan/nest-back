@@ -176,9 +176,16 @@ export default class GroupStudyService {
     const hobbyData = suffleArray(
       groupStudyData.filter((group) => {
         if (
-          ['소셜 게임', '감상', '운동', '푸드', '힐링'].includes(
-            group.category.main,
-          )
+          [
+            '소셜 게임',
+            '감상',
+            '운동',
+            '푸드',
+            '힐링',
+            '친목',
+            '파티',
+            '기타',
+          ].includes(group.category.main)
         ) {
           return group.status === 'pending' && group.participants.length > 2;
         }
@@ -187,7 +194,7 @@ export default class GroupStudyService {
 
     const developData = suffleArray(
       groupStudyData.filter((group) => {
-        if (['스터디', '자기계발', '대화'].includes(group.category.main)) {
+        if (['스터디', '자기계발', '말하기'].includes(group.category.main)) {
           return group.status === 'pending' && group.participants.length > 2;
         }
       }),

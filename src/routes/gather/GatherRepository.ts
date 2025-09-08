@@ -116,7 +116,7 @@ export class GatherRepository implements IGatherRepository {
   }
 
   async findThree(): Promise<Gather[] | null> {
-    const gatherData1 = await this.Gather.find()
+    const gatherData1 = await this.Gather.find({ status: 'pending' })
       .sort({ createdAt: -1 })
       .limit(6)
       .populate({
@@ -127,14 +127,28 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
+
+    // const gatherData2 = await this.Gather.find({
+    //   status: 'pending',
+    //   $expr: {
+    //     $gte: [{ $add: [{ $size: '$participants' }, 4] }, '$memberCnt.max'],
+    //   },
+    // })
+    //   .sort({ date: 1 })
+    //   .limit(6)
+    //   .populate({
+    //     path: 'user',
+    //     select: ENTITY.USER.C_MINI_USER,
+    //   })
+    //   .populate({
+    //     path: 'participants.user',
+    //     select: ENTITY.USER.C_MINI_USER,
+    //   });
 
     const gatherData2 = await this.Gather.find({
-      status: 'pending',
-      $expr: {
-        $gte: [{ $add: [{ $size: '$participants' }, 4] }, '$memberCnt.max'],
-      },
+      'participants.12': { $exists: true },
     })
-      .sort({ date: 1 })
+      .sort({ date: -1 })
       .limit(6)
       .populate({
         path: 'user',
@@ -145,23 +159,7 @@ export class GatherRepository implements IGatherRepository {
         select: ENTITY.USER.C_MINI_USER,
       });
 
-    const gatherData3 = await this.Gather.find({
-      'participants.12': { $exists: true },
-    })
-      .sort({ createdAt: -1 })
-      .limit(7)
-      .populate({
-        path: 'user',
-        select: ENTITY.USER.C_MINI_USER,
-      })
-      .populate({
-        path: 'participants.user',
-        select: ENTITY.USER.C_MINI_USER,
-      });
-
-    return [...gatherData1, ...gatherData2, ...gatherData3].map((doc) =>
-      this.mapToDomain(doc),
-    );
+    return [...gatherData1, ...gatherData2].map((doc) => this.mapToDomain(doc));
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {
