@@ -143,9 +143,10 @@ export class FcmService {
     const realtimeUserIDs =
       await this.realtimeRepository.findAllUserIdsAfterDate(today);
 
-    const userIds = [...vote2UserIDs, ...realtimeUserIDs];
+    const userIds = new Set([...vote2UserIDs, ...realtimeUserIDs]);
+    const userIdsArray = Array.from(userIds);
 
-    await this.sendNotificationUserIds(userIds, title, body);
+    await this.sendNotificationUserIds(userIdsArray, title, body);
   }
 
   async sendNotificationAllUser(title: string, body: string) {
