@@ -20,7 +20,7 @@ export default class AdminUserService {
   constructor(@InjectModel(DB_SCHEMA.USER) private User: Model<IUser>) {}
 
   async getAllUser(type?: UserFilterType) {
-    const query: UserQueryProps = {};
+    const query: UserQueryProps = { isActive: true };
 
     if (type === 'study') {
       query.monthScore = { $gt: 0 };

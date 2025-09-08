@@ -120,11 +120,11 @@ export default class RealtimeService {
     userId?: string,
   ) {
     const token = RequestContext.getDecodedToken();
-
+    const user = userId ? userId : token.id;
     // 데이터 유효성 검사
     const validatedUserData = RealtimeUserZodSchema.parse({
       ...studyData,
-      user: userId ? userId : token.id,
+      user,
     });
 
     this.voteServiceInstance.deleteVote(date);
@@ -133,7 +133,7 @@ export default class RealtimeService {
 
     realtime.addUser(
       new RealtimeUser({
-        user: token.id,
+        user,
         place: validatedUserData.place as PlaceProps,
         time: validatedUserData.time as TimeProps,
         arrived: validatedUserData.arrived,
