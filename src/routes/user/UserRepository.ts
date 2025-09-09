@@ -224,7 +224,11 @@ export class UserRepository implements IUserRepository {
     const result = {};
 
     for (const rank of ranks) {
-      result[rank] = await this.UserModel.find({ rank: rank })
+      //role is not previliged and manager
+      result[rank] = await this.UserModel.find({
+        rank: rank,
+        role: { $nin: ['previliged', 'manager', 'admin', 'resting'] },
+      })
         .sort({ monthScore: -1 })
         .limit(5)
         .lean();
