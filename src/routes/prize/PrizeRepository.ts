@@ -33,7 +33,7 @@ export class PrizeRepository implements IPrizeRepository {
     if (category) findQuery.category = category;
 
     const a = await this.Prize.find(findQuery)
-      .sort({ id: 1 })
+      .sort({ date: 1 })
       .skip(offset)
       .limit(20)
       .populate('winner', '_id uid name avatar profileImage');
