@@ -10,6 +10,7 @@ export class PrizeController {
     @Query('cursor') cursor: string,
     @Query('category') category: string,
   ) {
+    console.log(cursor,category);
     // This method can be used to fetch available prizes or any other prize-related data
     return this.prizeService.getPrizeList(category, cursor);
   }

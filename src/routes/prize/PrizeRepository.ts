@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { IPrizeRepository } from './PrizeRepository.interface';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IPrize } from './prize.entity';
+import { IPrizeRepository } from './PrizeRepository.interface';
 
 export class PrizeRepository implements IPrizeRepository {
   constructor(
@@ -27,14 +27,17 @@ export class PrizeRepository implements IPrizeRepository {
   }
 
   async findPrizes(category: string, cursor: number): Promise<IPrize[]> {
-    const offset = 20 * (cursor - 1);
+    const offset = 20 * cursor;
 
     const findQuery: any = {};
     if (category) findQuery.category = category;
 
-    return await this.Prize.find(findQuery)
+    const a = await this.Prize.find(findQuery)
+      .sort({ id: 1 })
       .skip(offset)
       .limit(20)
-      .populate('winner', '_id uid name');
+      .populate('winner', '_id uid name avatar profileImage');
+    console.log(cursor, a);
+    return a;
   }
 }
