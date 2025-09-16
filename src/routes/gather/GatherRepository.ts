@@ -149,7 +149,7 @@ export class GatherRepository implements IGatherRepository {
       'participants.12': { $exists: true },
     })
       .sort({ date: -1 })
-      .limit(6)
+      .limit(8)
       .populate({
         path: 'user',
         select: ENTITY.USER.C_MINI_USER,
