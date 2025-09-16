@@ -34,7 +34,7 @@ export class PrizeService {
   }
 
   async getPrizeList(category: string, cursor: string) {
-    const cursorNumber = parseInt(cursor, 10) || 1;
+    const cursorNumber = parseInt(cursor, 10) || 0;
 
     return this.PrizeRepository.findPrizes(category, cursorNumber);
   }
