@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { StoreService } from './store.service';
 import { CreateStoreDto } from './store.dto';
+import { StoreService } from './store.service';
 
 @Controller('store')
 export class StoreController {
@@ -31,6 +31,7 @@ export class StoreController {
 
   @Post('vote')
   async voteStore(@Body('storeId') storeId: string, @Body('cnt') cnt: number) {
+    console.log(124, storeId);
     return this.storeService.voteStore(storeId, cnt);
   }
 }
