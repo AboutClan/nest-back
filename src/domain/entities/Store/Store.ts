@@ -64,7 +64,8 @@ export class Store {
     const applicant = new Applicant({ user: userId, cnt: votedCnt });
     console.log(this.applicants,51);
     const existingApplicant = this.applicants.find(
-      (applicant) => applicant.user.toString() === userId.toString(),
+      (applicant) =>
+        (applicant.user as any)._id.toString() === userId.toString(),
     );
     if (existingApplicant) {
       existingApplicant.cnt += votedCnt;

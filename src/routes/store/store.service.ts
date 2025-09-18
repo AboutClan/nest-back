@@ -58,6 +58,7 @@ export class StoreService {
     }
 
     const votedCnt = store.addApplicant(token.id, cnt);
+    if (votedCnt === 0) throw new Error('Already full');
     const updatePoint = store.point * votedCnt;
 
     const user = await this.userRepository.findById(token.id);
@@ -68,7 +69,7 @@ export class StoreService {
     user.increasePoint(-updatePoint);
     await this.userRepository.save(user);
 
-    logger.logger.info('store vote', {
+    logger.info('store vote', {
       type: 'point',
       sub: null,
       uid: token.uid,
