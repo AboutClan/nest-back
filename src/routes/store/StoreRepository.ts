@@ -36,18 +36,28 @@ export class StoreRepository implements IStoreRepository {
     return this.mapToEntity(createdDoc);
   }
 
+  async save(store: Store): Promise<Store> {
+    const updatedDoc = await this.storeModel.findByIdAndUpdate(
+      store._id,
+      this.mapToDb(store),
+      { new: true },
+    );
+    return this.mapToEntity(updatedDoc);
+  }
+
   mapToEntity(store: any): Store {
     return new Store(store);
   }
 
   mapToDb(store: Store): any {
     return {
-      _id: store._id,
       name: store.name,
       image: store.image,
       point: store.point,
       winnerCnt: store.winnerCnt,
       status: store.status,
+      max: store.max,
+      winner: store.winner,
       applicants: store.applicants,
     };
   }

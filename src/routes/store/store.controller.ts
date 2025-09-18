@@ -28,4 +28,9 @@ export class StoreController {
   async applyStore(@Body() storeInfo: CreateStoreDto) {
     return this.storeService.createStore(storeInfo);
   }
+
+  @Post('vote')
+  async voteStore(@Body('storeId') storeId: string, @Body('cnt') cnt: number) {
+    return this.storeService.voteStore(storeId, cnt);
+  }
 }
