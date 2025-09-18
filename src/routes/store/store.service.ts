@@ -1,9 +1,9 @@
+import { Inject } from '@nestjs/common';
 import { Store } from 'src/domain/entities/Store/Store';
+import { ISTORE_REPOSITORY } from 'src/utils/di.tokens';
+import { STORE_GIFT_ACTIVE, STORE_GIFT_INACTIVE } from './data';
 import { CreateStoreDto } from './store.dto';
 import { IStoreRepository } from './StoreRepository.interface';
-import { STORE_GIFT_ACTIVE, STORE_GIFT_INACTIVE } from './data';
-import { Inject } from '@nestjs/common';
-import { ISTORE_REPOSITORY } from 'src/utils/di.tokens';
 
 export class StoreService {
   constructor(
@@ -14,7 +14,7 @@ export class StoreService {
   async getStores(status: string, cursor: number) {
     if (status === 'pending') {
       return this.storeRepository.getStores(['pending', 'processed'], cursor);
-    } else if (status === 'processed') {
+    } else if (status === 'end') {
       return this.storeRepository.getStores(['end'], cursor);
     }
   }

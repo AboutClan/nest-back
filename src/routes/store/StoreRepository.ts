@@ -1,9 +1,8 @@
-import { Model } from 'mongoose';
-import { IStoreRepository } from './StoreRepository.interface';
-import { IStore, Store } from 'src/domain/entities/Store/Store';
 import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { Types } from 'mongoose';
+import { IStore, Store } from 'src/domain/entities/Store/Store';
+import { IStoreRepository } from './StoreRepository.interface';
 
 export class StoreRepository implements IStoreRepository {
   constructor(
@@ -26,8 +25,11 @@ export class StoreRepository implements IStoreRepository {
   }
 
   async getStoreById(id: string): Promise<Store> {
-    const store = await this.storeModel.findById(id).exec();
+    const store = await (
+      await this.storeModel.findById(id).exec()
+    ).populate('applicants.user');
     if (!store) return null;
+
     return this.mapToEntity(store);
   }
 
