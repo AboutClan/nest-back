@@ -11,6 +11,12 @@ export class StoreRepository implements IStoreRepository {
     private readonly storeModel: Model<IStore>,
   ) {}
 
+  async findAll(): Promise<Store[]> {
+    const stores = await this.storeModel.find().exec();
+    if (!stores) return [];
+    return stores.map((store) => this.mapToEntity(store));
+  }
+
   async getStores(status: string[], cursor: number): Promise<Store[]> {
     const limit = 10;
     const offset = cursor * limit;

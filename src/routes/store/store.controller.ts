@@ -16,7 +16,7 @@ export class StoreController {
 
   @Get('test')
   async test() {
-    return this.storeService.test();
+    return this.storeService.testWithStore();
   }
 
   @Get(':id')

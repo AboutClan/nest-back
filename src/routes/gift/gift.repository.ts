@@ -12,7 +12,8 @@ export class MongoGiftRepository implements GiftRepository {
   async findAllSort(): Promise<IStoreApplicant[]> {
     return await this.Gift.find({})
       .sort('createdAt')
-      .select('-_id -createdAt -updatedAt -__v');
+      .select('-_id -createdAt -updatedAt -__v')
+      .lean();
   }
   async findById(giftId: number): Promise<IStoreApplicant[]> {
     return await this.Gift.find({ giftId }).select(
