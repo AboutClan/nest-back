@@ -55,6 +55,7 @@ import { FcmAModule } from './routes/fcm/fcm.module';
 import { GatherRequestModule } from './routes/gatherRequest/gatherRequest.module';
 import { PrizeModule } from './routes/prize/prize.module';
 import { CommentModule } from './routes/comment/comment.module';
+import { StoreModule } from './routes/store/store.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -152,6 +153,7 @@ const corsOptions = {
     AnnouncementModule,
     FcmAModule,
     CommentModule,
+    StoreModule,
   ],
   controllers: [AppController],
   providers: [

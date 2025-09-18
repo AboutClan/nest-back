@@ -50,3 +50,4 @@ export const IVOTE2_REPOSITORY = 'Vote2Repository';
 export const IPAYMENT_REPOSITORY = 'PaymentRepository';
 export const IANNOUNCEMENT_REPOSITORY = 'AnnouncementRepository';
 export const ICOMMENT_REPOSITORY = 'CommentRepository';
+export const ISTORE_REPOSITORY = 'StoreRepository';

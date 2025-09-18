@@ -23,6 +23,6 @@ export const DB_SCHEMA = {
   VOTE: 'vote2',
   WEBPUSH: 'NotificationSub',
   SCHEDULE_LOG: 'ScheduleLog',
-
+  STORE: 'Store',
   COMMENT: 'Comment',
 };
