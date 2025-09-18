@@ -4,6 +4,7 @@ import { IStore, Store } from 'src/domain/entities/Store/Store';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { Types } from 'mongoose';
+import { ENTITY } from 'src/Constants/ENTITY';
 
 export class StoreRepository implements IStoreRepository {
   constructor(
@@ -23,6 +24,8 @@ export class StoreRepository implements IStoreRepository {
 
     const stores = await this.storeModel
       .find({ status: { $in: status } })
+      .populate('applicants.user', ENTITY.USER.C_SIMPLE_USER)
+      .populate('winner', ENTITY.USER.C_SIMPLE_USER)
       .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)
@@ -32,7 +35,11 @@ export class StoreRepository implements IStoreRepository {
   }
 
   async getStoreById(id: string): Promise<Store> {
-    const store = await this.storeModel.findById(id).exec();
+    const store = await this.storeModel
+      .findById(id)
+      .populate('applicants.user', ENTITY.USER.C_SIMPLE_USER)
+      .populate('winner', ENTITY.USER.C_SIMPLE_USER)
+      .exec();
     if (!store) return null;
     return this.mapToEntity(store);
   }
