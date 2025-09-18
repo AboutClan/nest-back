@@ -16,7 +16,7 @@ export class StoreController {
 
   @Get('test')
   async test() {
-    return this.storeService.test();
+    return this.storeService.testWithStore();
   }
 
   @Get(':id')
@@ -27,5 +27,10 @@ export class StoreController {
   @Post()
   async applyStore(@Body() storeInfo: CreateStoreDto) {
     return this.storeService.createStore(storeInfo);
+  }
+
+  @Post('vote')
+  async voteStore(@Body('storeId') storeId: string, @Body('cnt') cnt: number) {
+    return this.storeService.voteStore(storeId, cnt);
   }
 }

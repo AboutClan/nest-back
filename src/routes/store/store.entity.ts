@@ -30,7 +30,7 @@ export const applicantSchema: Schema<IApplicant> = new Schema(
     },
     cnt: Number,
   },
-  { timestamps: true },
+  { timestamps: false, _id: false },
 );
 
 export const storeSchema: Schema<IStore> = new Schema(
