@@ -69,7 +69,7 @@ export class StoreService {
     user.increasePoint(-updatePoint);
     await this.userRepository.save(user);
 
-    logger.info('store vote', {
+    logger.info('스토어 상품 응모', {
       type: 'point',
       sub: null,
       uid: token.uid,
