@@ -6,6 +6,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { storeSchema } from './store.entity';
 import {
   IGIFT_REPOSITORY,
+  IPRIZE_REPOSITORY,
   ISTORE_REPOSITORY,
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
@@ -15,20 +16,27 @@ import { UserRepository } from '../user/UserRepository';
 import { UserSchema } from '../user/user.entity';
 import { MongoGiftRepository } from '../gift/gift.repository';
 import { giftSchema } from '../gift/gift.entity';
+import { PrizeRepository } from '../prize/PrizeRepository';
+import { PrizeSchema } from '../prize/prize.entity';
 
 const storeRepositoryProvider: ClassProvider = {
   provide: ISTORE_REPOSITORY,
   useClass: StoreRepository,
 };
 
-const userServiceProvider: ClassProvider = {
+const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
   useClass: UserRepository,
 };
 
-const giftServiceProvider: ClassProvider = {
+const giftRepositoryProvider: ClassProvider = {
   provide: IGIFT_REPOSITORY,
   useClass: MongoGiftRepository,
+};
+
+const prizeRepositoryProvider: ClassProvider = {
+  provide: IPRIZE_REPOSITORY,
+  useClass: PrizeRepository,
 };
 
 @Module({
@@ -36,13 +44,15 @@ const giftServiceProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: DB_SCHEMA.STORE, schema: storeSchema }]),
     MongooseModule.forFeature([{ name: DB_SCHEMA.USER, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: DB_SCHEMA.GIFT, schema: giftSchema }]),
+    MongooseModule.forFeature([{ name: DB_SCHEMA.PRIZE, schema: PrizeSchema }]),
   ],
   controllers: [StoreController],
   providers: [
     StoreService,
     storeRepositoryProvider,
-    userServiceProvider,
-    giftServiceProvider,
+    userRepositoryProvider,
+    giftRepositoryProvider,
+    prizeRepositoryProvider,
   ],
   exports: [StoreService, MongooseModule, storeRepositoryProvider],
 })

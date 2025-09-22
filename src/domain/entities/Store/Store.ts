@@ -62,7 +62,7 @@ export class Store {
     const votedCnt = this.calcRemain(cnt);
 
     const applicant = new Applicant({ user: userId, cnt: votedCnt });
-    console.log(this.applicants,51);
+    console.log(this.applicants, 51);
     const existingApplicant = this.applicants.find(
       (applicant) =>
         (applicant.user as any)._id.toString() === userId.toString(),
@@ -92,7 +92,10 @@ export class Store {
     }
 
     // winnerCnt만큼 선택 (중복 당첨 가능)
-    this.winner = userIdPool.slice(0, this.winnerCnt);
+    const winners = userIdPool.slice(0, this.winnerCnt);
+    this.winner = winners;
     this.status = 'processed';
+
+    return winners;
   }
 }
