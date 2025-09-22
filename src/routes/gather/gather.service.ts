@@ -85,23 +85,25 @@ export class GatherService {
           { date: 1 },
         );
 
-        const futureCount = futureResult.length;
+        return futureResult;
 
-        if (futureCount === 15) return futureResult;
+        // const futureCount = futureResult.length;
 
-        const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
-        const pastResult = (
-          await this.gatherRepository.findWithQueryPop(pastQuery, cursor, {
-            date: -1,
-          })
-        ).slice(0, 15 - futureCount);
+        // if (futureCount === 15) return futureResult;
 
-        return [...futureResult, ...pastResult];
+        // const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
+        // const pastResult = (
+        //   await this.gatherRepository.findWithQueryPop(pastQuery, cursor, {
+        //     date: -1,
+        //   })
+        // ).slice(0, 15 - futureCount);
+
+        // return [...futureResult, ...pastResult];
       } else {
         const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
         const pastResult = await this.gatherRepository.findWithQueryPop(
           pastQuery,
-          cursor,
+          cursor - 1,
           { date: -1 },
         );
 
