@@ -122,6 +122,10 @@ export class FeedService {
     return feed?.like as unknown as IUser[];
   }
 
+  async findByGroupId(groupId: string) {
+    return await this.feedRepository.findByGroupId(groupId);
+  }
+
   async findAllFeeds(cursor: number | null, isRecent?: 'true' | 'false') {
     const token = RequestContext.getDecodedToken();
 

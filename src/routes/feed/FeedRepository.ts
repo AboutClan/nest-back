@@ -32,6 +32,17 @@ export class FeedRepository implements IFeedRepository {
     return this.mapToDomain(updatedDoc);
   }
 
+  async findByGroupId(groupId: string): Promise<Feed[]> {
+    const docs = await this.FeedModel.find({
+      type: 'group',
+      typeId: groupId,
+    }).populate([
+      { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+    ]);
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
   async findAllTemp() {
     const docs = await this.FeedModel.find({}, '_id comments').lean();
     return docs;

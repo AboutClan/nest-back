@@ -177,6 +177,10 @@ export class FeedController {
   async findWrittenReview(@Query('type') type: 'gather' | 'group') {
     return await this.feedService.findWrittenReview(type);
   }
+  @Get('groupstudy')
+  async findByGroupId(@Query('groupId') groupId: string) {
+    return await this.feedService.findByGroupId(groupId);
+  }
 
   @Get('test')
   async test() {
