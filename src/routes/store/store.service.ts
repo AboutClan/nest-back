@@ -79,7 +79,7 @@ export class StoreService {
     });
 
     let winners = [];
-    if (votedCnt != cnt) {
+    if (store.calcTotalVote() >= store.max) {
       winners = store.announceWinner();
     }
 

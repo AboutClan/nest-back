@@ -47,6 +47,10 @@ export class Store {
     this.winner = winner || [];
   }
 
+  calcTotalVote() {
+    return this.applicants.reduce((acc, applicant) => acc + applicant.cnt, 0);
+  }
+
   calcRemain(cnt: number) {
     let totalCnt = this.applicants.reduce(
       (acc, applicant) => acc + applicant.cnt,
