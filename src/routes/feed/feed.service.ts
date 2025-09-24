@@ -123,7 +123,11 @@ export class FeedService {
   }
 
   async findByGroupId(groupId: string) {
-    return await this.feedRepository.findByGroupId(groupId);
+    const gathers = await this.gatherRepository.findByGroupId(groupId, 'group');
+    const gatherIds = gathers?.map((gather) => gather.id.toString());
+
+    console.log(gatherIds);
+    return await this.feedRepository.findByGroupIds(gatherIds);
   }
 
   async findAllFeeds(cursor: number | null, isRecent?: 'true' | 'false') {

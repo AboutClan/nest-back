@@ -490,16 +490,21 @@ export class GatherService {
         await this.userServiceInstance.updatePoint(
           -CONST.POINT.PARTICIPATE_GATHER,
           '번개 모임 참여 취소',
+          '',
+          userId ? userId : token.id,
         );
         gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
       } else if (diffDay === 1) {
         await this.userServiceInstance.updatePoint(
           -CONST.POINT.PARTICIPATE_GATHER / 2,
           '번개 모임 참여 취소',
+          '',
+          userId ? userId : token.id,
         );
         gather.deposit += CONST.POINT.PARTICIPATE_GATHER / 2;
       }
     } catch (err) {}
+
     await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScore(

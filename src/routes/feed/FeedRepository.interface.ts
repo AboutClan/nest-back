@@ -3,7 +3,7 @@ import { Feed } from 'src/domain/entities/Feed/Feed';
 export interface IFeedRepository {
   findByType(type: string, opt: any): Promise<Feed[]>;
   findById(id: string): Promise<Feed>;
-  findByGroupId(groupId: string): Promise<Feed[]>;
+  findByGroupIds(groupIds: string[]): Promise<Feed[]>;
   findByIdJoin(id: string): Promise<Feed>;
   findAll(opt: any): Promise<Feed[]>;
   findAllTemp();

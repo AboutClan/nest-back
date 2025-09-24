@@ -63,6 +63,11 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return docs.map((doc) => this.mapToDomain(doc));
   }
 
+  async findByGroupId(groupId: string): Promise<GroupStudy[] | null> {
+    const docs = await this.GroupStudy.find({ groupId: groupId });
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
   async getUserGroupsTitleByUserId(userId: string): Promise<any> {
     const docs = await this.GroupStudy.find(
       {
