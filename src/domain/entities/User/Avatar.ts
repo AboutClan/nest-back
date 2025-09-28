@@ -3,8 +3,8 @@ export class Avatar {
     public type?: number,
     public bg?: number,
   ) {
-    this.type = type ?? 0;
-    this.bg = bg ?? 0;
+    this.type = type;
+    this.bg = bg;
   }
 
   toPrimitives() {
