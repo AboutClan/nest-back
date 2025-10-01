@@ -28,8 +28,8 @@ const temperatureZodSchema = z.object({
 
 // avatarType Zod schema
 const avatarZodSchema = z.object({
-  type: z.number().default(1),
-  bg: z.number().default(1),
+  type: z.number().default(null),
+  bg: z.number().default(null),
 });
 
 // preferenceType Zod schema

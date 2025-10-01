@@ -103,6 +103,10 @@ export default class RegisterService {
         gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
         groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
       },
+      avatar: {
+        type: null,
+        bg: null,
+      },
     };
 
     try {
