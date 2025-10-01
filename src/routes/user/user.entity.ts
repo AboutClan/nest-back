@@ -24,6 +24,7 @@ const temperatureZodSchema = z.object({
   temperature: z.number().default(ENTITY.USER.DEAFULT_TEMPERATURE),
   sum: z.number().default(0),
   cnt: z.number().default(0),
+  blockCnt: z.number().default(0),
 });
 
 // avatarType Zod schema
@@ -231,6 +232,10 @@ export const temperatureSchema: Schema<temperatureType> = new Schema(
       default: 0,
     },
     sum: {
+      type: Schema.Types.Number,
+      default: 0,
+    },
+    blockCnt: {
       type: Schema.Types.Number,
       default: 0,
     },

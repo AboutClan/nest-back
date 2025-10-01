@@ -181,11 +181,16 @@ export class User {
     this.badge?.selectBadge(badgeIdx);
   }
 
-  setTemperature(temperature: number, sum: number, cnt: number): void {
+  setTemperature(
+    temperature: number,
+    sum: number,
+    cnt: number,
+    blockCnt: number,
+  ): void {
     if (!this.temperature) {
-      this.temperature = new Temperature(temperature, sum, cnt);
+      this.temperature = new Temperature(temperature, sum, cnt, blockCnt);
     } else {
-      this.temperature.setTemperature(temperature, sum, cnt);
+      this.temperature.setTemperature(temperature, sum, cnt, blockCnt);
     }
   }
 

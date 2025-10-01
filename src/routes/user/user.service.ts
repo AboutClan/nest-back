@@ -887,7 +887,10 @@ export class UserService {
     );
 
     const handledPair = new Set<string>();
-    const tempMap = new Map<string, { score: number; cnt: number }>();
+    const tempMap = new Map<
+      string,
+      { score: number; cnt: number; blockCnt: number }
+    >();
 
     for (const temp of allTemps) {
       const { from, to, sub: degree } = temp;
@@ -920,22 +923,35 @@ export class UserService {
           break;
       }
 
-      const prev = tempMap.get(to) ?? { score: 0, cnt: 0 };
-      tempMap.set(to, { score: prev.score + score, cnt: prev.cnt + 1 });
+      const prev = tempMap.get(to) ?? { score: 0, cnt: 0, blockCnt: 0 };
+      tempMap.set(to, {
+        score: prev.score + score,
+        cnt: prev.cnt + 1,
+        blockCnt: degree === 'block' ? prev.blockCnt + 1 : prev.blockCnt,
+      });
     }
 
-    for (const [uid, { score, cnt }] of tempMap) {
+    for (const [uid, { score, cnt, blockCnt }] of tempMap) {
       const user = await this.UserRepository.findByUid(uid);
       if (!user) continue;
 
-      const temp = user.temperature ?? { sum: 0, cnt: 0 };
-      const newSum = temp.sum + Math.round(score * 10) / 10;
+      const temp = user.temperature ?? { sum: 0, cnt: 0, blockCnt: 0 };
+      const newBlockCnt = temp.blockCnt + blockCnt;
+      let newSum = temp.sum + Math.round(score * 10) / 10;
+      if (blockCnt > 0) {
+        newSum -= newBlockCnt * 5.2;
+      }
       const newCnt = temp.cnt + cnt;
 
       const addTemp = this.calculateScore(newSum, newCnt);
 
       const userData = await this.UserRepository.findByUid(uid);
-      userData.setTemperature(Math.ceil(addTemp * 10) / 10, newSum, newCnt);
+      userData.setTemperature(
+        Math.ceil(addTemp * 10) / 10,
+        newSum,
+        newCnt,
+        newBlockCnt,
+      );
       await this.UserRepository.save(userData);
     }
   }

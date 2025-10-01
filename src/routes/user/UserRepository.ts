@@ -401,6 +401,7 @@ export class UserRepository implements IUserRepository {
       doc?.temperature?.temperature,
       doc?.temperature?.sum,
       doc?.temperature?.cnt,
+      doc?.temperature?.blockCnt,
     );
 
     return new User(
