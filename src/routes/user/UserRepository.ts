@@ -241,6 +241,15 @@ export class UserRepository implements IUserRepository {
     await this.UserModel.updateMany({}, { monthScore: 0 });
   }
 
+  async test(): Promise<any> {
+    await this.UserModel.updateMany(
+      { 'avatar.type': 0, 'avatar.bg': 0 },
+      {
+        $set: { 'avatar.type': null, 'avatar.bg': null },
+      },
+    );
+  }
+
   async processTicket(whiteList: any) {
     // A유형 (<36.5)
     await this.UserModel.updateMany(

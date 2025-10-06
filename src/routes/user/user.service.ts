@@ -1044,6 +1044,7 @@ export class UserService {
   }
 
   async test() {
+    await this.UserRepository.test();
     // const users = await this.UserRepository.findAll();
     // for (const user of users) {
     //   const userDate = user.registerDate;

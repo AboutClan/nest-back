@@ -126,7 +126,6 @@ export class FeedService {
     const gathers = await this.gatherRepository.findByGroupId(groupId, 'group');
     const gatherIds = gathers?.map((gather) => gather.id.toString());
 
-    console.log(gatherIds);
     return await this.feedRepository.findByGroupIds(gatherIds);
   }
 

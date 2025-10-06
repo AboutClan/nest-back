@@ -32,3 +32,17 @@ export class CommentDto {
   @IsString()
   comment: string;
 }
+
+export class PatchRole {
+  @IsNotEmpty({ message: 'groupId필요' })
+  @IsNumber()
+  groupId: string;
+
+  @IsNotEmpty({ message: 'userId필요' })
+  @IsString()
+  userId: string;
+
+  @IsNotEmpty({ message: 'role필요' })
+  @IsString()
+  role: string;
+}

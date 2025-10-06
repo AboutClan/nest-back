@@ -2,7 +2,7 @@
 
 import { DateUtils } from 'src/utils/Date';
 
-export type UserRole = 'host' | 'member' | 'outsider';
+export type UserRole = 'host' | 'member' | 'outsider' | 'admin';
 // 실제 ENUM_USER_ROLE 배열 요소에 맞춰 수정하세요.
 
 export interface CategoryProps {
@@ -357,6 +357,16 @@ export class GroupStudy {
         this.attendance.lastWeek.push(newWeekRecord);
       }
     }
+  }
+
+  updateRole(userId: string, role: UserRole) {
+    const participant = this.participants.find(
+      (p) => p.user.toString() === userId.toString(),
+    );
+    if (!participant) {
+      throw new Error('Participant not found');
+    }
+    participant.role = role;
   }
 
   updateDeposit(userId: string, deposit: number) {

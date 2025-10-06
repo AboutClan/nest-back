@@ -17,10 +17,12 @@ import {
   CreateGroupStudyDto,
   inviteGroupStudyDto,
   ParticipateGroupStudyDto,
+  PatchRole,
 } from './dto';
 import { GroupStudyStatus } from './groupStudy.entity';
 import { GroupStudyInterceptor } from './groupstudy.interceptor';
 import GroupStudyService from './groupStudy.service';
+import { group } from 'node:console';
 
 @ApiTags('groupStudy')
 @Controller('groupStudy')
@@ -127,6 +129,13 @@ export class GroupStudyController {
       inviteGroupStudyDto.id.toString(),
       inviteGroupStudyDto.userId.toString(),
     );
+    return { status: 'success' };
+  }
+
+  @Patch('role')
+  async updateParticipantsRole(@Body() userRole: PatchRole) {
+    const { groupId, userId, role } = userRole;
+    await this.groupStudyService.updateParticipantsRole(groupId, userId, role);
     return { status: 'success' };
   }
 

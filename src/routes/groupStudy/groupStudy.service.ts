@@ -698,6 +698,15 @@ export default class GroupStudyService {
     }
   }
 
+  async updateParticipantsRole(groupId, userId, role) {
+    const groupStudy = await this.groupStudyRepository.findById(groupId);
+    if (groupStudy) {
+      groupStudy.updateRole(userId, role);
+      await this.groupStudyRepository.save(groupStudy);
+    }
+    if (!groupStudy) throw new Error();
+  }
+
   async createComment(groupStudyId: string, comment: string) {
     const token = RequestContext.getDecodedToken();
 

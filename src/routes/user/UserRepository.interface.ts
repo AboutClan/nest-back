@@ -31,4 +31,5 @@ export interface IUserRepository {
   updateGroupStudyTicket(uid: string, value: number);
   updateTicketWithUserIds(userIds: string[], ticketNum: number);
   updateLocationDetailAll(id: string, updateInfo: any);
+  test(): Promise<any>;
 }

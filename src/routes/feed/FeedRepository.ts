@@ -35,10 +35,12 @@ export class FeedRepository implements IFeedRepository {
   async findByGroupIds(groupIds: string[]): Promise<Feed[]> {
     const docs = await this.FeedModel.find({
       typeId: { $in: groupIds },
-    }).populate([
-      { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
-      { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
-    ]);
+    })
+      .populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      ])
+      .sort({ createdAt: -1 });
     return docs.map((doc) => this.mapToDomain(doc));
   }
 
