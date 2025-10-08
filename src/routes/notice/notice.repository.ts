@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { NoticeRepository } from './notice.repository.interface';
 import { Model } from 'mongoose';
-import { INotice } from './notice.entity';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { INotice } from './notice.entity';
+import { NoticeRepository } from './notice.repository.interface';
 
 export class MongoNoticeRepository implements NoticeRepository {
   constructor(
@@ -58,17 +58,24 @@ export class MongoNoticeRepository implements NoticeRepository {
   }
 
   async findMyTemperature(toUid: string) {
-    return await this.Notice.find(
-      {
-        to: toUid,
-        type: 'temperature',
+    const base = { to: toUid, type: 'temperature' };
+
+    const [totalCnt, greatCnt, goodCnt, reviewArr] = await Promise.all([
+      this.Notice.countDocuments({ ...base }),
+      this.Notice.countDocuments({ ...base, sub: 'great' }),
+      this.Notice.countDocuments({ ...base, sub: 'good' }),
+      this.Notice.find({
+        ...base,
         sub: { $in: ['great', 'good'] },
         message: { $exists: true },
-      },
-      '-_id -__v',
-    )
-      .sort({ createdAt: -1 })
-      .limit(3);
+      })
+        .sort({ createdAt: -1 })
+        .limit(3)
+        .select('-_id -__v') // 혹은 필요한 필드만 명시적으로
+        .lean(),
+    ]);
+
+    return { reviewArr, totalCnt, greatCnt, goodCnt };
   }
 
   async findAllTemperature(page: number = 1, uid: string) {
