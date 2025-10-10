@@ -41,6 +41,7 @@ export interface ParticipantProps {
   deposit?: number;
   monthAttendance?: boolean;
   lastMonthAttendance?: boolean;
+  createdAt?: Date;
 }
 
 export interface GroupStudyProps {
@@ -177,6 +178,7 @@ export class GroupStudy {
       role,
       deposit: 0,
       monthAttendance: false,
+      createdAt: new Date(),
     };
 
     this.participants.push(newParticipant);

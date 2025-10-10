@@ -333,6 +333,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       deposit: pt.deposit,
       monthAttendance: pt.monthAttendance,
       lastMonthAttendance: pt.lastMonthAttendance,
+      createdAt: pt.createdAt,
     }));
 
     const waitingDb = (p.waiting || []).map((w) => ({

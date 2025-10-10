@@ -27,6 +27,7 @@ const participantsZodSchema = z.object({
   monthAttendance: z.boolean().default(true),
   lastMonthAttendance: z.boolean().default(true),
   deposit: z.number().optional(),
+  createdAt: z.date(),
 });
 // IWaiting Zod schema
 const waitingZodSchema = z.object({
@@ -176,6 +177,9 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     lastMonthAttendance: {
       type: Boolean,
       default: false,
+    },
+    createdAt: {
+      type: Date,
     },
   },
   { _id: false },
