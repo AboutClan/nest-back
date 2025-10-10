@@ -2,6 +2,7 @@ import { IPlace } from './place.entity';
 
 export interface PlaceRepository {
   findByStatus(status: string): Promise<IPlace[]>;
+  findClosePlace(placeId: string): Promise<IPlace[]>;
   findAll(): Promise<IPlace[]>;
   createPlace(placeData: Partial<IPlace>): Promise<IPlace>;
   updateStatus(placeId: string, status: string): Promise<null>;

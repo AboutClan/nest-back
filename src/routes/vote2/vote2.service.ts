@@ -466,6 +466,7 @@ export class Vote2Service {
       CONST.SCORE.ATTEND_STUDY,
       '스터디 출석',
     );
+    await this.userServiceInstance.updateStudyRecord('study');
 
     if (isArriveBefore) {
       point = isLate

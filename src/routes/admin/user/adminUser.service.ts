@@ -23,14 +23,17 @@ export default class AdminUserService {
     const query: UserQueryProps = { isActive: true };
 
     if (type === 'study') {
-      query.monthScore = { $gt: 0 };
+      (query as any).$or = [
+        { 'studyRecord.accumulationCnt': { $gt: 0 } },
+        { 'studyRecord.accumulationMinutes': { $gt: 0 } },
+      ];
     } else if (type === 'monthScore') {
       query.monthScore = { $gt: 0 };
     } else if (type === 'temperature') {
       query['temperature.temperature'] = { $gt: 36.5 };
     }
 
-    const filterArr = ['2283035576', '3224546232'];
+    const filterArr = ['3224546232'];
 
     const addField =
       type === 'study'
@@ -52,6 +55,7 @@ export default class AdminUserService {
         query,
         ENTITY.USER.C_SIMPLE_USER + addField,
       );
+      console.log(31, res);
       return res.filter((who) => !filterArr.includes(who.uid));
     }
   }

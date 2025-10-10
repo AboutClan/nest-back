@@ -24,6 +24,12 @@ export class PlaceController {
     return places;
   }
 
+  @Get('one')
+  async getNeatStudyPlace(@Query('placeId') placeId: string) {
+    const places = await this.placeService.getNearPlace(placeId);
+    return places;
+  }
+
   @Get('all')
   async getAllPlace() {
     const places = await this.placeService.getAllPlace();

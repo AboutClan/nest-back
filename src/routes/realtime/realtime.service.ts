@@ -217,6 +217,8 @@ export default class RealtimeService {
           '스터디 출석',
         );
 
+        await this.userServiceInstance.updateStudyRecord('study');
+
         const message = `스터디 출석 ${isLate ? '(지각)' : ''}`;
         await this.userServiceInstance.updatePoint(point, message, 'study');
 
@@ -226,7 +228,7 @@ export default class RealtimeService {
         };
       } else {
         const point = CONST.POINT.REALTIME_ATTEND_SOLO();
-
+        await this.userServiceInstance.updateStudyRecord('solo');
         await this.userServiceInstance.updateScore(
           CONST.SCORE.ATTEND_PRIVATE_STUDY,
           '개인 공부 인증',

@@ -47,6 +47,38 @@ export class MongoPlaceReposotory implements PlaceRepository {
         },
       ]);
   }
+  async findClosePlace(placeId: string): Promise<IPlace[]> {
+    const result = await this.Place.find({});
+    const pickPlace = result.find((place) => place._id.toString() === placeId);
+
+    console.log(pickPlace, placeId);
+
+    const filterByLatLonEps = (
+      places: IPlace[],
+      center: IPlace,
+      eps: number,
+    ) => {
+      if (!places?.length || !center) return;
+      const toNum = (v: number | string) =>
+        typeof v === 'number' ? v : parseFloat(v);
+      const { latitude: cLat, longitude: cLon } = center.location;
+
+      return places.filter((p) => {
+        const lat = toNum(p.location.latitude);
+        const lon = toNum(p.location.longitude);
+        return (
+          Number.isFinite(lat) &&
+          Number.isFinite(lon) &&
+          Math.abs(lat - cLat) <= eps &&
+          Math.abs(lon - cLon) <= eps
+        );
+      });
+    };
+
+    const resultArr = filterByLatLonEps(result, pickPlace, 0.012);
+    console.log(145, resultArr);
+    return resultArr;
+  }
 
   async findByLatLng(
     lowerLat: number,

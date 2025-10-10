@@ -177,10 +177,15 @@ export class UserRepository implements IUserRepository {
   }
 
   async updateLocationDetailAll(id: string, location: any) {
-    await this.UserModel.updateOne(
-      { _id: id },
-      { $set: { locationDetail: location } },
-    );
+    console.log('START');
+    await this.UserModel.updateMany({
+      $set: {
+        studyRecord: {
+          accumulationMinutes: 0,
+          accumulationCnt: 0,
+        },
+      },
+    });
   }
 
   async processMonthScore() {

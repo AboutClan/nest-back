@@ -481,6 +481,14 @@ export class UserService {
     });
     return;
   }
+  async updateStudyRecord(type: 'study' | 'solo') {
+    const token = RequestContext.getDecodedToken();
+    const user = await this.UserRepository.findByUid(token.uid);
+    user.increaseStudyRecord(type);
+    await this.UserRepository.save(user);
+
+    return;
+  }
 
   async updateDeposit(deposit: number, message: string, sub?: string) {
     const token = RequestContext.getDecodedToken();

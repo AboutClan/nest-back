@@ -37,6 +37,14 @@ export default class PlaceService {
       throw new Error(err);
     }
   }
+  async getNearPlace(placeId: string) {
+    try {
+      const places = await this.placeRepository.findClosePlace(placeId);
+      return places;
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 
   async getAllPlace() {
     const places = await this.placeRepository.findAll();

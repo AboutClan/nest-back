@@ -376,13 +376,13 @@ export class UserController {
     return;
   }
 
-  // @Patch('locationDetail/all')
-  // @UsePipes(new ValidationPipe({ transform: true }))
-  // async patchLocationDetailAll(@Body() body: any) {
+  @Patch('locationDetail/all')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async patchLocationDetailAll(@Body() body: any) {
 
-  //   // await this.userService?.patchLocationDetailAll(body.id, body.location);
-  //   return;
-  // }
+    await this.userService?.patchLocationDetailAll(body.id, body.location);
+    return;
+  }
 
   @Post('badgeList')
   @UsePipes(new ValidationPipe({ transform: true }))

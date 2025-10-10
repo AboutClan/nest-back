@@ -167,6 +167,11 @@ export class User {
     this.locationDetail.setLocationDetail(name, address, latitude, longitude);
   }
 
+  increaseStudyRecord(type: 'study' | 'solo'): void {
+    if (type === 'study') this.studyRecord.accumulationCnt += 1;
+    if (type === 'solo') this.studyRecord.accumulationMinutes += 1;
+  }
+
   increaseGatherTicket(num: number): void {
     this.ticket.gatherTicket += num;
   }
