@@ -29,7 +29,7 @@ export class ClusterUtils {
 
     const data = coords.map(({ lat, lon }: any) => [lat, lon]);
 
-    const minPts = 4; // 한 지점 근처에 최소 3개 이상 모여야 클러스터로 인정
+    const minPts = 3; // 한 지점 근처에 최소 3개 이상 모여야 클러스터로 인정
 
     const clusters = DBSCAN.run(data, eps, minPts);
 
