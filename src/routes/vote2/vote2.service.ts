@@ -320,7 +320,7 @@ export class Vote2Service {
       lon: parseFloat(loc.longitude),
     }));
 
-    let eps = 0.05;
+    let eps = 0.04;
     const maxMember = 8;
     const maxRetries = 2;
     let attempt = 0;
