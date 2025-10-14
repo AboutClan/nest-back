@@ -31,13 +31,27 @@ export class ClusterUtils {
 
     const minPts = 3; // 한 지점 근처에 최소 3개 이상 모여야 클러스터로 인정
 
-    const clusters = DBSCAN.run(data, eps, minPts);
+    const clusters = DBSCAN.run(
+      data,
+      eps,
+      minPts,
+      this.distanceFunctionForDBSCAN,
+    );
 
     return {
       clusters,
       noise: DBSCAN.noise,
     };
   }
+
+  static distanceFunctionForDBSCAN = (
+    point1: number[],
+    point2: number[],
+  ): number => {
+    const [lat1, lon1] = point1;
+    const [lat2, lon2] = point2;
+    return this.haversineDistance(lat1, lon1, lat2, lon2);
+  };
 
   //위경도 거리 계산
   static haversineDistance(lat1, lon1, lat2, lon2) {

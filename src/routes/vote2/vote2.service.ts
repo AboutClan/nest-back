@@ -320,7 +320,7 @@ export class Vote2Service {
       lon: parseFloat(loc.longitude),
     }));
 
-    let eps = 0.032;
+    let eps = 0.5; // 500m 의미
     const maxMember = 8;
     const maxRetries = 2;
     let attempt = 0;
