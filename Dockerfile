@@ -22,13 +22,25 @@ FROM node:20.11.0 AS production
 
 USER root
 
+# Add the MongoDB repository and install the tools
 RUN apt-get update && \
+    # 1. Install necessary packages (gnupg, curl)
+    apt-get install -y gnupg curl && \
+    # 2. Download and add the MongoDB GPG key
+    curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+       gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg && \
+    # 3. Add MongoDB's apt repository source
+    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list && \
+    # 4. Update package lists again with the new repository
+    apt-get update && \
+    # 5. Install mongodb-database-tools
     apt-get install -y mongodb-database-tools && \
+    # 6. Clean up unnecessary files and cache to reduce image size
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 보안을 위해 다시 non-root 사용자인 'node'로 전환합니다.
+# Switch back to the non-root 'node' user for security
 USER node
-
 # 8. Set working directory inside the production container
 WORKDIR /app
 
