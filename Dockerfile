@@ -20,6 +20,15 @@ RUN npm run build
 # 7. Production image
 FROM node:20.11.0 AS production
 
+USER root
+
+RUN apt-get update && \
+    apt-get install -y mongodb-database-tools && \
+    rm -rf /var/lib/apt/lists/*
+
+# 보안을 위해 다시 non-root 사용자인 'node'로 전환합니다.
+USER node
+
 # 8. Set working directory inside the production container
 WORKDIR /app
 
