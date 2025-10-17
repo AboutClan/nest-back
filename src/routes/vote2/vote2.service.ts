@@ -316,11 +316,15 @@ export class Vote2Service {
 
   private async doAlgorithm(participations: IParticipation[]) {
     const coords = participations.map((par) => ({
-      userId: par.userId.toString(),
+      userId: (par.userId as unknown as IUser)._id.toString(),
       lat: parseFloat(par.latitude),
       lon: parseFloat(par.longitude),
       eps: par.eps,
+      start: par.start,
+      end: par.end,
+      isBeforeResult: par.isBeforeResult,
     }));
+
     const minPts = 3;
     const places = await this.PlaceRepository.findByStatus('main');
 
@@ -344,7 +348,12 @@ export class Vote2Service {
 
         // 장소까지의 거리가 참여자의 개인 eps 이내인지 확인
         if (distance <= participant.eps) {
-          potentialCluster.push(participant);
+          potentialCluster.push({
+            userId: participant.userId,
+            start: participant.start,
+            end: participant.end,
+            isBeforeResult: participant.isBeforeResult,
+          });
         }
       }
 
@@ -365,7 +374,9 @@ export class Vote2Service {
         });
 
         // 이 클러스터에 포함된 참여자들을 '처리됨'으로 표시
-        potentialCluster.forEach((p) => clusteredParticipantIds.add(p.id));
+        potentialCluster.forEach((p) =>
+          clusteredParticipantIds.add(p.userId.toString()),
+        );
       }
     }
 
@@ -377,6 +388,7 @@ export class Vote2Service {
       (p) => !clusteredParticipantIds.has(p.userId.toString()),
     );
 
+    console.log(voteResults);
     return { voteResults, successParticipations, failedParticipations };
     // // 1) eps 조정+클러스터링 재시도 루프
     // while (attempt++ < maxRetries) {
@@ -445,28 +457,28 @@ export class Vote2Service {
 
     await this.Vote2Repository.save(vote2);
 
-    this.webPushServiceInstance.sendNotificationUserIds(
-      successUserIds,
-      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-    );
+    // this.webPushServiceInstance.sendNotificationUserIds(
+    //   successUserIds,
+    //   WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+    //   WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+    // );
 
-    this.webPushServiceInstance.sendNotificationUserIds(
-      failedUserIds,
-      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-      WEBPUSH_MSG.VOTE.FAILURE_DESC,
-    );
-    await this.fcmServiceInstance.sendNotificationUserIds(
-      successUserIds,
-      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-    );
+    // this.webPushServiceInstance.sendNotificationUserIds(
+    //   failedUserIds,
+    //   WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+    //   WEBPUSH_MSG.VOTE.FAILURE_DESC,
+    // );
+    // await this.fcmServiceInstance.sendNotificationUserIds(
+    //   successUserIds,
+    //   WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+    //   WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+    // );
 
-    await this.fcmServiceInstance.sendNotificationUserIds(
-      failedUserIds,
-      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-      WEBPUSH_MSG.VOTE.FAILURE_DESC,
-    );
+    // await this.fcmServiceInstance.sendNotificationUserIds(
+    //   failedUserIds,
+    //   WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+    //   WEBPUSH_MSG.VOTE.FAILURE_DESC,
+    // );
   }
 
   async updateResult(date: string, start: string, end: string) {
