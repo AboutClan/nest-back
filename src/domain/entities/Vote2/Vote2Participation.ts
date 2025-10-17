@@ -9,6 +9,7 @@ export interface ParticipationProps {
   comment?: VoteCommentProps;
   locationDetail?: string;
   isBeforeResult?: boolean;
+  eps?: number;
 }
 
 export class Participation {
@@ -20,6 +21,7 @@ export class Participation {
   comment?: VoteComment;
   locationDetail: string;
   isBeforeResult?: boolean;
+  eps?: number;
 
   constructor(props: ParticipationProps) {
     this.userId = props.userId;
@@ -30,6 +32,7 @@ export class Participation {
     this.comment = props.comment ? new VoteComment(props.comment) : undefined;
     this.locationDetail = props.locationDetail;
     this.isBeforeResult = props.isBeforeResult;
+    this.eps = props.eps;
   }
   toPrimitives(): ParticipationProps {
     return {
@@ -41,6 +44,7 @@ export class Participation {
       comment: this.comment ? this.comment.toPrimitives() : undefined,
       locationDetail: this.locationDetail,
       isBeforeResult: this.isBeforeResult,
+      eps: this.eps,
     };
   }
 }

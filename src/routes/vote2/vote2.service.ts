@@ -15,7 +15,7 @@ import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
-import { IMember, IParticipation } from './vote2.entity';
+import { IMember, IParticipation, IResult } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
 export class Vote2Service {
   constructor(
@@ -315,48 +315,97 @@ export class Vote2Service {
   }
 
   private async doAlgorithm(participations: IParticipation[]) {
-    const coords = participations.map((loc) => ({
-      lat: parseFloat(loc.latitude),
-      lon: parseFloat(loc.longitude),
+    const coords = participations.map((par) => ({
+      userId: par.userId.toString(),
+      lat: parseFloat(par.latitude),
+      lon: parseFloat(par.longitude),
+      eps: par.eps,
     }));
+    const minPts = 3;
+    const places = await this.PlaceRepository.findByStatus('main');
 
-    let eps = 0.5; // 500m 의미
-    const maxMember = 8;
-    const maxRetries = 2;
-    let attempt = 0;
+    const voteResults: IResult[] = [];
+    const clusteredParticipantIds = new Set<string>(); // 이미 클러스터에 속한 참여자 ID 관리
 
-    let clusters: number[][] = [];
-    let noise: number[] = [];
-    let formedClusters: IParticipation[][] = [];
+    for (const place of places) {
+      const potentialCluster: any[] = [];
 
-    // 1) eps 조정+클러스터링 재시도 루프
-    while (attempt++ < maxRetries) {
-      const result = ClusterUtils.DBSCANClustering(coords, eps);
-      clusters = this.refineClusters(coords, result.clusters, maxMember, eps);
-      noise = result.noise;
+      for (const participant of coords) {
+        if (clusteredParticipantIds.has(participant.userId.toString())) {
+          continue;
+        }
 
-      formedClusters = ClusterUtils.transformArray(clusters, participations);
+        const distance = ClusterUtils.haversineDistance(
+          place.location.latitude,
+          place.location.longitude,
+          participant.lat,
+          participant.lon,
+        );
 
-      if (formedClusters.length > 0) {
-        break; // 성공
+        // 장소까지의 거리가 참여자의 개인 eps 이내인지 확인
+        if (distance <= participant.eps) {
+          potentialCluster.push(participant);
+        }
       }
-      eps *= 2; // 빈 결과면 eps 키워서 재시도
+
+      // 4. 클러스터 유효성 검사 및 저장
+      if (potentialCluster.length >= minPts) {
+        // 유효한 클러스터이므로 결과에 추가
+        voteResults.push({
+          placeId: place._id.toString(),
+          members: potentialCluster,
+          center: {
+            lat:
+              potentialCluster.reduce((acc, p) => acc + p.lat, 0) /
+              potentialCluster.length,
+            lon:
+              potentialCluster.reduce((acc, p) => acc + p.lon, 0) /
+              potentialCluster.length,
+          },
+        });
+
+        // 이 클러스터에 포함된 참여자들을 '처리됨'으로 표시
+        potentialCluster.forEach((p) => clusteredParticipantIds.add(p.id));
+      }
     }
 
-    // 2) 성공／실패 참여자 정리
-    const successParticipations = clusters
-      .flat()
-      .map((idx) => participations[idx]);
-    const failedParticipations = noise.map((idx) => participations[idx]);
-
-    // 3) 최종 장소 매핑
-    const places = await this.PlaceRepository.findByStatus('main');
-    const voteResults = await ClusterUtils.findClosestPlace(
-      formedClusters,
-      places,
+    // 5. 최종 결과 정리
+    const successParticipations = voteResults.flatMap((result) =>
+      result.members.map((member) => member.userId.toString()),
+    );
+    const failedParticipations = participations.filter(
+      (p) => !clusteredParticipantIds.has(p.userId.toString()),
     );
 
     return { voteResults, successParticipations, failedParticipations };
+    // // 1) eps 조정+클러스터링 재시도 루프
+    // while (attempt++ < maxRetries) {
+    //   const result = ClusterUtils.DBSCANClustering(coords, eps);
+    //   clusters = this.refineClusters(coords, result.clusters, maxMember, eps);
+    //   noise = result.noise;
+
+    //   formedClusters = ClusterUtils.transformArray(clusters, participations);
+
+    //   if (formedClusters.length > 0) {
+    //     break; // 성공
+    //   }
+    //   eps *= 2; // 빈 결과면 eps 키워서 재시도
+    // }
+
+    // // 2) 성공／실패 참여자 정리
+    // const successParticipations = clusters
+    //   .flat()
+    //   .map((idx) => participations[idx]);
+    // const failedParticipations = noise.map((idx) => participations[idx]);
+
+    // // 3) 최종 장소 매핑
+    // const places = await this.PlaceRepository.findByStatus('main');
+    // const voteResults = await ClusterUtils.findClosestPlace(
+    //   formedClusters,
+    //   places,
+    // );
+
+    // return { voteResults, successParticipations, failedParticipations };
   }
 
   async setComment(date: string, comment: string) {
@@ -385,9 +434,7 @@ export class Vote2Service {
     const { voteResults, successParticipations, failedParticipations } =
       await this.doAlgorithm(participations);
 
-    const successUserIds = successParticipations.map(
-      (par) => (par.userId as unknown as IUser)._id,
-    );
+    const successUserIds = successParticipations.map((userId) => userId);
 
     const failedUserIds = failedParticipations.map(
       (par) => (par.userId as unknown as IUser)._id,
