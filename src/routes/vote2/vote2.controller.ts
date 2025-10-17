@@ -161,13 +161,14 @@ export class Vote2Controller {
     @Req() req: Request,
     @Body() createParticipateDTO: CreateParticipateDTO,
   ): Promise<any> {
-    const { start, end, placeId } = createParticipateDTO;
+    const { start, end, placeId, eps = 1.0 } = createParticipateDTO;
     const { date } = req;
 
     await this.voteService2.setParticipate(date as string, {
       start,
       end,
       placeId,
+      eps,
     });
 
     return 'success';

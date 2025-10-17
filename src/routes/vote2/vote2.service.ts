@@ -559,13 +559,14 @@ export class Vote2Service {
 
   async setParticipate(date: string, createParticipate: CreateParticipateDTO) {
     const token = RequestContext.getDecodedToken();
-    const { placeId, start, end } = createParticipate;
+    const { placeId, start, end, eps } = createParticipate;
 
     const vote = await this.Vote2Repository.findByDate(date);
 
     vote.setParticipate(placeId, {
       start,
       end,
+      eps,
       userId: token.id,
     });
 

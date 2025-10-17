@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateNewVoteDTO {
   @IsString()
@@ -60,6 +60,10 @@ export class CreateParticipateDTO {
 
   @IsString()
   placeId: string;
+
+  @IsOptional()
+  @IsNumber()
+  eps: number;
 }
 
 export class CreateArriveDTO {

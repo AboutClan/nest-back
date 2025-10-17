@@ -147,6 +147,7 @@ export class Vote2 {
             ? new VoteComment(participateData.comment)
             : null,
           isBeforeResult: false,
+          eps: participateData.eps,
         }),
       );
     }
