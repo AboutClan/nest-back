@@ -24,6 +24,10 @@ export class CreateNewVoteDTO {
   @IsOptional()
   @IsString()
   end: string;
+
+  @IsOptional()
+  @IsNumber()
+  eps: number;
 }
 export class CreateNewVotesDTO {
   @IsString()
@@ -49,6 +53,10 @@ export class CreateNewVotesDTO {
   @IsOptional()
   @IsArray()
   locationDetail: string;
+
+  @IsOptional()
+  @IsNumber()
+  eps: number;
 }
 
 export class CreateParticipateDTO {

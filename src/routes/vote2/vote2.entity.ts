@@ -1,6 +1,7 @@
 import mongoose, { model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IPlace } from 'src/routes/place/place.entity';
+import { IUser } from '../user/user.entity';
 
 export interface IVote2 {
   date: string;
@@ -9,7 +10,7 @@ export interface IVote2 {
 }
 
 export interface IParticipation {
-  userId: string | String;
+  userId: string | IUser;
   latitude: string;
   longitude: string;
   start?: string;
@@ -21,7 +22,7 @@ export interface IParticipation {
 }
 
 export interface IMember {
-  userId: string | String;
+  userId: string | IUser;
   arrived?: Date;
   memo?: string;
   img?: string;
@@ -98,7 +99,7 @@ export const ParticipationSchema: Schema<IParticipation> = new Schema(
     },
     eps: {
       type: Number,
-      default: 0.5,
+      default: 3,
     },
   },
   { _id: false },

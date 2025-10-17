@@ -1,7 +1,6 @@
 import { Inject } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
 import { RequestContext } from 'src/request-context';
@@ -111,6 +110,7 @@ export class Vote2Service {
       await this.Vote2Repository.findParticipationsByDate(date);
 
     const { voteResults } = await this.doAlgorithm(participations);
+    console.log('result', voteResults?.[0]?.members);
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
     //todo: {placeId, members}로 오도록
@@ -223,7 +223,7 @@ export class Vote2Service {
 
     const vote2 = await this.Vote2Repository.findByDate(date);
 
-    const { latitude, longitude, start, end, locationDetail, userId } =
+    const { latitude, longitude, start, end, locationDetail, userId, eps } =
       createVote;
 
     const voteData: any = {};
@@ -239,6 +239,7 @@ export class Vote2Service {
     if (start !== null) voteData.start = start;
     if (end !== null) voteData.end = end;
     if (locationDetail !== null) voteData.locationDetail = locationDetail;
+    if (eps !== null) voteData.eps = eps;
 
     vote2.setOrUpdateParticipation(voteData);
 
@@ -315,29 +316,60 @@ export class Vote2Service {
   }
 
   private async doAlgorithm(participations: IParticipation[]) {
+    const MIN_OVERLAP_MINUTES = 60;
+    const MAX_GROUP_SIZE = 8; //
+
+    // 겹치는 시간 확인
+    function overlapMinutes(
+      a: { start: string; end: string },
+      b: { start: string; end: string },
+    ) {
+      const as = Date.parse(a.start);
+      const ae = Date.parse(a.end);
+      const bs = Date.parse(b.start);
+      const be = Date.parse(b.end);
+      const overlapMs = Math.min(ae, be) - Math.max(as, bs);
+      return Math.max(0, Math.floor(overlapMs / 60000)); // 분 단위 환산
+    }
+    // 참여 시간 2시간 이상 겹치는지도 고려
+    function canJoinByTime(
+      group: Array<{ start: string; end: string }>,
+      c: { start: string; end: string },
+    ) {
+      return group.some((m) => overlapMinutes(m, c) >= MIN_OVERLAP_MINUTES);
+    }
+
     const coords = participations.map((par) => ({
+      user: par.userId,
       userId: (par.userId as unknown as IUser)._id.toString(),
       lat: parseFloat(par.latitude),
       lon: parseFloat(par.longitude),
-      eps: par.eps,
+      eps: par?.eps || 3,
       start: par.start,
       end: par.end,
       isBeforeResult: par.isBeforeResult,
     }));
 
-    const minPts = 3;
     const places = await this.PlaceRepository.findByStatus('main');
 
     const voteResults: IResult[] = [];
     const clusteredParticipantIds = new Set<string>(); // 이미 클러스터에 속한 참여자 ID 관리
 
+    // ---------- 1) 기본 패스: 4인 우선 → 3인 이상 ----------
     for (const place of places) {
-      const potentialCluster: any[] = [];
+      const candidates = [] as Array<{
+        user: IUser;
+        userId: string;
+        dist: number;
+        start: string;
+        end: string;
+        isBeforeResult: boolean;
+        lat: number;
+        lon: number;
+      }>;
 
       for (const participant of coords) {
-        if (clusteredParticipantIds.has(participant.userId.toString())) {
-          continue;
-        }
+        if (clusteredParticipantIds.has(participant.userId)) continue;
 
         const distance = ClusterUtils.haversineDistance(
           place.location.latitude,
@@ -346,78 +378,275 @@ export class Vote2Service {
           participant.lon,
         );
 
-        // 장소까지의 거리가 참여자의 개인 eps 이내인지 확인
         if (distance <= participant.eps) {
-          potentialCluster.push({
+          candidates.push({
+            user: participant.user as IUser,
             userId: participant.userId,
+            dist: distance,
             start: participant.start,
             end: participant.end,
             isBeforeResult: participant.isBeforeResult,
+            lat: participant.lat,
+            lon: participant.lon,
           });
         }
       }
 
-      // 4. 클러스터 유효성 검사 및 저장
-      if (potentialCluster.length >= minPts) {
-        // 유효한 클러스터이므로 결과에 추가
-        voteResults.push({
-          placeId: place._id.toString(),
-          members: potentialCluster,
-          center: {
-            lat:
-              potentialCluster.reduce((acc, p) => acc + p.lat, 0) /
-              potentialCluster.length,
-            lon:
-              potentialCluster.reduce((acc, p) => acc + p.lon, 0) /
-              potentialCluster.length,
-          },
-        });
+      // 결정성 보장: 거리↑ → userId↑
+      candidates.sort(
+        (a, b) => a.dist - b.dist || a.userId.localeCompare(b.userId),
+      );
 
-        // 이 클러스터에 포함된 참여자들을 '처리됨'으로 표시
-        potentialCluster.forEach((p) =>
-          clusteredParticipantIds.add(p.userId.toString()),
+      const makeGroupsAtPlace = (targetMinSize: number) => {
+        // 남아있는 후보(배정 안 된 사람)만
+        let pool = candidates.filter(
+          (c) => !clusteredParticipantIds.has(c.userId),
         );
-      }
+
+        // while: 이 장소에서 targetMinSize 이상 뽑을 수 있을 때 계속 만든다
+        while (pool.length >= targetMinSize) {
+          const groupMembers: typeof pool = [];
+
+          // 1) 첫 멤버는 제약 없이 추가
+          const first = pool[0];
+          groupMembers.push(first);
+
+          // 2) 이후 멤버는 "그룹 내 누군가와 120분 이상 겹침"을 만족해야 추가
+          for (let i = 1; i < pool.length && groupMembers.length < 4; i++) {
+            const cand = pool[i];
+            // 4인 우선 채우기
+            groupMembers.push(cand);
+            // if (canJoinByTime(groupMembers, cand)) {
+            //   groupMembers.push(cand);
+            // }
+          }
+
+          console.log('WOW', groupMembers.length);
+          // targetMinSize(4 또는 3)를 못 채웠다면 종료
+          if (groupMembers.length < targetMinSize) break;
+
+          // 3) "3인 이상" 규칙: 4명이 채워졌다면(또는 3명이 채워졌다면),
+          //    남은 pool에서 시간 겹침을 만족하는 멤버를 MAX_GROUP_SIZE까지 추가 허용
+          for (
+            let i = 1;
+            i < pool.length && groupMembers.length < MAX_GROUP_SIZE;
+            i++
+          ) {
+            const cand = pool[i];
+            if (groupMembers.find((m) => m.userId === cand.userId)) continue;
+            if (clusteredParticipantIds.has(cand.userId)) continue;
+            if (canJoinByTime(groupMembers, cand)) {
+              groupMembers.push(cand);
+            }
+          }
+
+          // 그룹 확정
+          voteResults.push({
+            placeId: place._id.toString(),
+            members: groupMembers.map((g) => ({
+              userId: g.user,
+              start: g.start,
+              end: g.end,
+              isBeforeResult: g.isBeforeResult,
+            })),
+            // 장소 기반 center로 고정(결정성/안전)
+            center: {
+              lat: place.location.latitude,
+              lon: place.location.longitude,
+            },
+          });
+
+          // 배정 처리
+          groupMembers.forEach((g) => clusteredParticipantIds.add(g.userId));
+          // 풀에서 제거
+          const assignedSet = new Set(groupMembers.map((g) => g.userId));
+          pool = pool.filter((x) => !assignedSet.has(x.userId));
+        }
+      };
+
+      // 4인 우선
+      makeGroupsAtPlace(4);
+      // 4인으로 못 채운 게 남아있으면 3인 이상(최소 3)으로 보조
+      makeGroupsAtPlace(3);
     }
 
-    // 5. 최종 결과 정리
+    // ---------- 2) 확장 패스: eps × 1.5 ----------
+    // (A) 기존 그룹에 합류 시도
+    const attachWithExpandedEps = () => {
+      // 결정성: userId 오름차순
+      const remaining = coords
+        .filter((p) => !clusteredParticipantIds.has(p.userId))
+        .sort((a, b) => a.userId.localeCompare(b.userId));
+
+      // placeId → 해당 place의 voteResults 인덱스들(생성 순서 오름차순)
+      const groupsByPlace = new Map<string, number[]>();
+      voteResults.forEach((gr, idx) => {
+        const arr = groupsByPlace.get(gr.placeId as string) || [];
+        arr.push(idx);
+        groupsByPlace.set(gr.placeId as string, arr);
+      });
+
+      for (const p of remaining) {
+        const expanded = p.eps * 1.5;
+
+        // 이 참여자 기준으로 "가까운 장소" 탐색(결정성: 거리↑ → placeId↑)
+        const placeRank = places
+          .map((pl) => ({
+            placeId: pl._id.toString(),
+            dist: ClusterUtils.haversineDistance(
+              pl.location.latitude,
+              pl.location.longitude,
+              p.lat,
+              p.lon,
+            ),
+            lat: pl.location.latitude,
+            lon: pl.location.longitude,
+          }))
+          .filter((x) => x.dist <= expanded)
+          .sort(
+            (a, b) => a.dist - b.dist || a.placeId.localeCompare(b.placeId),
+          );
+
+        let attached = false;
+        for (const pr of placeRank) {
+          const idxList = groupsByPlace.get(pr.placeId);
+          if (!idxList || idxList.length === 0) continue;
+
+          // 동일 place의 그룹들을 "생성된 순서"대로 시도
+          for (const gi of idxList) {
+            const g = voteResults[gi];
+            // 시간 겹침 검사를 통과해야 합류
+            if (
+              canJoinByTime(g.members as any, { start: p.start, end: p.end })
+            ) {
+              g.members.push({
+                userId: p.user as IUser,
+                start: p.start,
+                end: p.end,
+                // isBeforeResult: p.isBeforeResult, // (일관성) 누락 없이 포함
+              });
+              clusteredParticipantIds.add(p.userId);
+              attached = true;
+              break;
+            }
+          }
+          if (attached) break;
+        }
+      }
+    };
+
+    // (B) eps×1.5로 "새로운 3인 이상" 그룹 형성 (장소별로 다시 수행)
+    const formNewGroupsWithExpandedEpsAtPlace = (place: any) => {
+      // 후보 만들기(확장 eps 적용)
+      const expCandidates = [] as Array<{
+        user: IUser;
+        userId: string;
+        dist: number;
+        start: string;
+        end: string;
+        isBeforeResult: boolean;
+        lat: number;
+        lon: number;
+      }>;
+      for (const p of coords) {
+        if (clusteredParticipantIds.has(p.userId)) continue;
+        const d = ClusterUtils.haversineDistance(
+          place.location.latitude,
+          place.location.longitude,
+          p.lat,
+          p.lon,
+        );
+        if (d <= p.eps * 1.5) {
+          expCandidates.push({
+            user: p.user as IUser,
+            userId: p.userId,
+            dist: d,
+            start: p.start,
+            end: p.end,
+            isBeforeResult: p.isBeforeResult,
+            lat: p.lat,
+            lon: p.lon,
+          });
+        }
+      }
+      expCandidates.sort(
+        (a, b) => a.dist - b.dist || a.userId.localeCompare(b.userId),
+      );
+
+      // 4 → 3(최소) 규칙을 재사용 + 3인 이상 확장 허용(MAX_GROUP_SIZE)
+      const make = (targetMinSize: number) => {
+        let pool = expCandidates.filter(
+          (c) => !clusteredParticipantIds.has(c.userId),
+        );
+        while (pool.length >= targetMinSize) {
+          const group: typeof pool = [];
+          const first = pool[0];
+          group.push(first);
+          // 4인 우선 채우기
+          for (let i = 1; i < pool.length && group.length < 4; i++) {
+            const cand = pool[i];
+            if (canJoinByTime(group, cand)) group.push(cand);
+          }
+          if (group.length < targetMinSize) break;
+
+          // 3인 이상 확장 허용
+          for (
+            let i = 1;
+            i < pool.length && group.length < MAX_GROUP_SIZE;
+            i++
+          ) {
+            const cand = pool[i];
+            if (group.find((m) => m.userId === cand.userId)) continue;
+            if (clusteredParticipantIds.has(cand.userId)) continue;
+            if (canJoinByTime(group, cand)) group.push(cand);
+          }
+
+          voteResults.push({
+            placeId: place._id.toString(),
+            members: group.map((g) => ({
+              userId: g.user,
+              start: g.start,
+              end: g.end,
+              isBeforeResult: g.isBeforeResult,
+            })),
+            center: {
+              lat: place.location.latitude,
+              lon: place.location.longitude,
+            },
+          });
+
+          group.forEach((g) => clusteredParticipantIds.add(g.userId));
+          const set = new Set(group.map((g) => g.userId));
+          pool = pool.filter((x) => !set.has(x.userId));
+        }
+      };
+
+      make(4);
+      make(3);
+    };
+
+    // 확장 패스 실행(1) 기존 그룹 합류
+    attachWithExpandedEps();
+
+    // 확장 패스 실행(2) 남은 인원으로 새 그룹 형성
+    for (const place of places) {
+      formNewGroupsWithExpandedEpsAtPlace(place);
+    }
+
+    // ---------- 3) 최종 결과 정리/반환 ----------
     const successParticipations = voteResults.flatMap((result) =>
       result.members.map((member) => member.userId.toString()),
     );
     const failedParticipations = participations.filter(
-      (p) => !clusteredParticipantIds.has(p.userId.toString()),
+      (p) =>
+        !clusteredParticipantIds.has(
+          (p.userId as unknown as IUser)._id.toString(),
+        ),
     );
-
-    console.log(voteResults);
+    if (voteResults.length) {
+      console.log(52, voteResults);
+    }
     return { voteResults, successParticipations, failedParticipations };
-    // // 1) eps 조정+클러스터링 재시도 루프
-    // while (attempt++ < maxRetries) {
-    //   const result = ClusterUtils.DBSCANClustering(coords, eps);
-    //   clusters = this.refineClusters(coords, result.clusters, maxMember, eps);
-    //   noise = result.noise;
-
-    //   formedClusters = ClusterUtils.transformArray(clusters, participations);
-
-    //   if (formedClusters.length > 0) {
-    //     break; // 성공
-    //   }
-    //   eps *= 2; // 빈 결과면 eps 키워서 재시도
-    // }
-
-    // // 2) 성공／실패 참여자 정리
-    // const successParticipations = clusters
-    //   .flat()
-    //   .map((idx) => participations[idx]);
-    // const failedParticipations = noise.map((idx) => participations[idx]);
-
-    // // 3) 최종 장소 매핑
-    // const places = await this.PlaceRepository.findByStatus('main');
-    // const voteResults = await ClusterUtils.findClosestPlace(
-    //   formedClusters,
-    //   places,
-    // );
-
-    // return { voteResults, successParticipations, failedParticipations };
   }
 
   async setComment(date: string, comment: string) {
@@ -442,7 +671,7 @@ export class Vote2Service {
 
     //투표 결과 계산 시작
     const participations: IParticipation[] = vote2.participations;
-
+    console.log(3333, participations);
     const { voteResults, successParticipations, failedParticipations } =
       await this.doAlgorithm(participations);
 

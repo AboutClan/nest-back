@@ -68,7 +68,14 @@ export class Vote2Controller {
     @Req() req: Request,
     @Body() createVoteDTO: CreateNewVoteDTO,
   ): Promise<any> {
-    const { latitude, longitude, start, end, locationDetail } = createVoteDTO;
+    const {
+      latitude,
+      longitude,
+      start,
+      end,
+      locationDetail,
+      eps = 3,
+    } = createVoteDTO;
     const { date } = req;
 
     await this.voteService2.setVote(date as string, {
@@ -78,6 +85,7 @@ export class Vote2Controller {
       end,
       locationDetail,
       userId: null,
+      eps,
     });
 
     return null;
@@ -88,8 +96,15 @@ export class Vote2Controller {
     @Req() req: Request,
     @Body() createVoteDTO: CreateNewVoteDTO,
   ): Promise<any> {
-    const { latitude, longitude, start, end, locationDetail, userId } =
-      createVoteDTO;
+    const {
+      latitude,
+      longitude,
+      start,
+      end,
+      locationDetail,
+      userId,
+      eps = 3,
+    } = createVoteDTO;
     const { date } = req;
 
     await this.voteService2.setVote(date as string, {
@@ -99,18 +114,27 @@ export class Vote2Controller {
       end,
       locationDetail,
       userId,
+      eps,
     });
 
     return null;
   }
 
+  //스터디 매칭 투표
   @Post(':date/dateArr')
   async setVoteArr(
     @Req() req: Request,
     @Body() createVoteDTO: CreateNewVotesDTO,
   ): Promise<any> {
-    const { latitude, longitude, start, end, dates, locationDetail } =
-      createVoteDTO;
+    const {
+      latitude,
+      longitude,
+      start,
+      end,
+      dates,
+      locationDetail,
+      eps = 3,
+    } = createVoteDTO;
 
     await this.voteService2.setVoteWithArr(dates, {
       userId: null,
@@ -119,6 +143,7 @@ export class Vote2Controller {
       start,
       end,
       locationDetail,
+      eps,
     });
 
     return null;
@@ -129,7 +154,14 @@ export class Vote2Controller {
     @Req() req: Request,
     @Body() createVoteDTO: CreateNewVoteDTO,
   ): Promise<any> {
-    const { latitude, longitude, start, end, locationDetail } = createVoteDTO;
+    const {
+      latitude,
+      longitude,
+      start,
+      end,
+      locationDetail,
+      eps = 3,
+    } = createVoteDTO;
     const { date } = req;
 
     await this.voteService2.setVote(date as string, {
@@ -139,6 +171,7 @@ export class Vote2Controller {
       start,
       end,
       locationDetail,
+      eps,
     });
 
     return 'success';
@@ -156,6 +189,7 @@ export class Vote2Controller {
     return 'success';
   }
 
+  //결과 발표난 스터디 id를 기준으로 즉시 참여
   @Post(':date/participate')
   async setAttend(
     @Req() req: Request,
