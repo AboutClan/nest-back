@@ -18,7 +18,7 @@ export class PlaceController {
 
   @Get()
   async getActivePlace(
-    @Query('status') status: 'main' | 'sub' | 'inactive' = 'sub',
+    @Query('status') status: 'main' | 'best' | 'good' | 'all' = 'all',
   ) {
     const places = await this.placeService.getActivePlace(status);
     return places;
@@ -98,7 +98,7 @@ export class PlaceController {
     return places;
   }
 
-  @Get('test')
+  @Post('test')
   async test() {
     const places = await this.placeService.test();
     return places;
