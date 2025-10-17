@@ -29,7 +29,7 @@ export default class PlaceService {
 
     return place;
   }
-  async getActivePlace(status: 'main' | 'all' | 'sub' | 'inactive') {
+  async getActivePlace(status: 'main' | 'best' | 'good' | 'all') {
     try {
       const places = await this.placeRepository.findByStatus(status);
       return places;

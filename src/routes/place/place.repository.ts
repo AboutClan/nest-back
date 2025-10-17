@@ -29,11 +29,20 @@ export class MongoPlaceReposotory implements PlaceRepository {
     return await this.Place.find({});
   }
 
-  async findByStatus(status: string): Promise<IPlace[]> {
-    const query =
-      status === 'all'
-        ? { $or: [{ status: 'main' }, { status: 'sub' }] }
-        : { status };
+  async findByStatus(
+    status: 'main' | 'best' | 'good' | 'all',
+  ): Promise<IPlace[]> {
+    let query: any = {};
+    if (status === 'all') {
+      query = { $or: [{ status: 'main' }, { status: 'sub' }] };
+    } else if (status === 'best') {
+      query = { rating: { $gte: 4.5 } };
+    } else if (status === 'good') {
+      query = { rating: { $gte: 4.0 } };
+    } else if (status === 'main') {
+      query = { status: 'main' };
+    }
+
     //임시로 status 제거
     return await this.Place.find(query)
       .populate({
@@ -147,11 +156,16 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async test() {
-    await this.Place.updateMany(
-      {},
-      {
-        $set: { rating: null },
-      },
-    );
+    console.log(32);
+    // await this.Place.updateMany(
+    //   { $or: [{ status: 'inactive' }, { status: { $exists: false } }] },
+    //   { $set: { status: 'sub' } },
+    // );
+    // await this.Place.updateMany(
+    //   {},
+    //   {
+    //     $set: { rating: null },
+    //   },
+    // );
   }
 }
