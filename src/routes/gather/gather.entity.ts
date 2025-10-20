@@ -22,6 +22,8 @@ export const TitleZodSchema = z.object({
 export const LocationZodSchema = z.object({
   main: z.string(),
   sub: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
 });
 export const MemberCntZodSchema = z.object({
   min: z.number(),
@@ -128,6 +130,8 @@ export const locationSchema: Schema<LocationType> = new Schema(
       type: String,
       default: '',
     },
+    latitude: { type: Number },
+    longitude: { type: Number },
   },
   { _id: false, timestamps: false },
 );

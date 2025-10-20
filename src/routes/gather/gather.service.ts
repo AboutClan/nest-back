@@ -265,7 +265,6 @@ export class GatherService {
 
     const gatherData = new Gather(gatherInfo as GatherProps);
 
-    // const gatherData = gatherInfo;
     const created = await this.gatherRepository.createGather(gatherData);
 
     if (!created) throw new DatabaseError('create gather failed');

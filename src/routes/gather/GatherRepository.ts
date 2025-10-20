@@ -311,6 +311,8 @@ export class GatherRepository implements IGatherRepository {
       location: {
         main: doc.location.main,
         sub: doc.location.sub,
+        latitude: doc.location.latitude,
+        longitude: doc.location.longitude,
       },
       memberCnt: {
         min: doc.memberCnt.min,
@@ -371,6 +373,8 @@ export class GatherRepository implements IGatherRepository {
         ? {
             main: props.location.main,
             sub: props.location.sub,
+            latitude: props.location.latitude,
+            longitude: props.location.longitude,
           }
         : null,
       memberCnt: {
