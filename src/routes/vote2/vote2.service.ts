@@ -744,7 +744,7 @@ export class Vote2Service {
     //todo: score, point 추가
     await this.Vote2Repository.save(vote);
 
-    await this.userServiceInstance.setVoteArriveInfo(token.id, arriveData.end);
+    // await this.userServiceInstance.setVoteArriveInfo(token.id, arriveData.end);
 
     const isArriveBefore = vote.isVoteBefore(token.id);
     const isLate = vote.isLate(token.id);

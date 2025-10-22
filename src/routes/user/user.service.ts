@@ -858,16 +858,6 @@ export class UserService {
     const userData = await this.UserRepository.findByUserId(userId);
 
     if (userData) {
-      const diffMinutes = DateUtils.getMinutesDiffFromNow(end);
-      const record = userData.studyRecord;
-
-      userData.setRecord(
-        record.accumulationMinutes + diffMinutes,
-        record.accumulationCnt + 1,
-        record.monthMinutes + diffMinutes,
-        record.monthCnt + 1,
-      );
-
       await this.UserRepository.save(userData);
     }
 
