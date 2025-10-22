@@ -62,29 +62,47 @@ export class MongoPlaceReposotory implements PlaceRepository {
 
     console.log(pickPlace, placeId);
 
-    const filterByLatLonEps = (
+    const filterByLatLonKm = (
       places: IPlace[],
       center: IPlace,
-      eps: number,
+      maxDistanceKm: number,
     ) => {
-      if (!places?.length || !center) return;
+      if (!places?.length || !center) return [];
+
       const toNum = (v: number | string) =>
         typeof v === 'number' ? v : parseFloat(v);
       const { latitude: cLat, longitude: cLon } = center.location;
 
+      const R = 6371; // 지구 반지름 (단위: km)
+      const toRad = Math.PI / 180; // 각도를 라디안으로 변환하는 상수
+
       return places.filter((p) => {
         const lat = toNum(p.location.latitude);
         const lon = toNum(p.location.longitude);
-        return (
-          Number.isFinite(lat) &&
-          Number.isFinite(lon) &&
-          Math.abs(lat - cLat) <= eps &&
-          Math.abs(lon - cLon) <= eps
-        );
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return false;
+
+        // 위도/경도 차이를 라디안으로 계산
+        const dLat = (lat - cLat) * toRad;
+        const dLon = (lon - cLon) * toRad;
+
+        const radLat1 = cLat * toRad;
+        const radLat2 = lat * toRad;
+
+        // 해버사인 공식으로 거리(km) 계산
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(radLat1) * Math.cos(radLat2) * Math.sin(dLon / 2) ** 2;
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+
+        // maxDistanceKm 이내만 필터링
+        return distance <= maxDistanceKm;
       });
     };
 
-    const resultArr = filterByLatLonEps(result, pickPlace, 0.012);
+    const resultArr = filterByLatLonKm(result, pickPlace, 1);
     console.log(145, resultArr);
     return resultArr;
   }
