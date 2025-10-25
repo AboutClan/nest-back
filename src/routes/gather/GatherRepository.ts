@@ -118,7 +118,17 @@ export class GatherRepository implements IGatherRepository {
   async findThree(): Promise<Gather[] | null> {
     const gatherData1 = await this.Gather.find({ status: 'pending' })
       .sort({ createdAt: -1 })
-      .limit(6)
+      .limit(5)
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_MINI_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_MINI_USER,
+      });
+
+    const testGather = await this.Gather.findOne({ id: 4441 })
       .populate({
         path: 'user',
         select: ENTITY.USER.C_MINI_USER,
@@ -159,7 +169,9 @@ export class GatherRepository implements IGatherRepository {
         select: ENTITY.USER.C_MINI_USER,
       });
 
-    return [...gatherData1, ...gatherData2].map((doc) => this.mapToDomain(doc));
+    return [testGather, ...gatherData1, ...gatherData2].map((doc) =>
+      this.mapToDomain(doc),
+    );
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {
