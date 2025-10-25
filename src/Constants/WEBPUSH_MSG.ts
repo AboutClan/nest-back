@@ -46,9 +46,10 @@ export const WEBPUSH_MSG = {
 
   VOTE: {
     SUCCESS_TITLE: '스터디 매칭 성공 🎉',
-    SUCCESS_DESC: '스터디 매칭 결과를 확인하세요!',
-    FAILURE_TITLE: '스터디 매칭 실패 😢',
-    FAILURE_DESC: '오늘은 아쉽지만, 개인 공부 인증에 참여해봐요!',
+    SUCCESS_DESC: '100 Point가 적립됐어요! 스터디 매칭 결과를 확인하세요✨',
+    FAILURE_TITLE: '스터디 매칭 알림',
+    FAILURE_DESC:
+      '오늘은 매칭되지 않았지만, 100 Point가 적립됐어요! 개인 공부 인증에 참여해봐요✨',
   },
 
   SQUARE: {
