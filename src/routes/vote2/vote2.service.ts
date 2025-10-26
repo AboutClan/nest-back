@@ -841,4 +841,16 @@ export class Vote2Service {
       message: '스터디 당일 불참',
     };
   }
+
+  async updateMemo(date: string, memo: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const vote = await this.Vote2Repository.findByDate(date);
+    vote.updateMemo(token.id, memo);
+    await this.Vote2Repository.save(vote);
+
+    return {
+      message: '메모 업데이트 성공',
+    };
+  }
 }

@@ -153,6 +153,18 @@ export class Vote2 {
     }
   }
 
+  updateMemo(userId: string, memo: string) {
+    const participant = this.participations.find(
+      (p) => p.userId.toString() === userId.toString(),
+    );
+    if (!participant) {
+      throw new Error(
+        `Participant with ID ${userId} not found in participations.`,
+      );
+    }
+    participant.comment = new VoteComment({ comment: memo });
+  }
+
   setOrUpdateParticipation(newParticipation: Participation) {
     const idx = this.participations.findIndex(
       (p) =>
