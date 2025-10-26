@@ -16,6 +16,7 @@ import { FcmService } from '../fcm/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation, IResult } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -671,7 +672,6 @@ export class Vote2Service {
 
     //투표 결과 계산 시작
     const participations: IParticipation[] = vote2.participations;
-    console.log(3333, participations);
     const { voteResults, successParticipations, failedParticipations } =
       await this.doAlgorithm(participations);
 
@@ -686,28 +686,37 @@ export class Vote2Service {
 
     await this.Vote2Repository.save(vote2);
 
-    // this.webPushServiceInstance.sendNotificationUserIds(
-    //   successUserIds,
-    //   WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-    //   WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-    // );
+    for (let participation of participations) {
+      await this.userServiceInstance.updatePointById(
+        CONST.POINT.STUDY_ALL_RESULT,
+        `스터디 결과발표`,
+        'study',
+        participation.userId.toString(),
+      );
+    }
 
-    // this.webPushServiceInstance.sendNotificationUserIds(
-    //   failedUserIds,
-    //   WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-    //   WEBPUSH_MSG.VOTE.FAILURE_DESC,
-    // );
-    // await this.fcmServiceInstance.sendNotificationUserIds(
-    //   successUserIds,
-    //   WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-    //   WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-    // );
+    this.webPushServiceInstance.sendNotificationUserIds(
+      successUserIds,
+      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+    );
 
-    // await this.fcmServiceInstance.sendNotificationUserIds(
-    //   failedUserIds,
-    //   WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-    //   WEBPUSH_MSG.VOTE.FAILURE_DESC,
-    // );
+    this.webPushServiceInstance.sendNotificationUserIds(
+      failedUserIds,
+      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+      WEBPUSH_MSG.VOTE.FAILURE_DESC,
+    );
+    await this.fcmServiceInstance.sendNotificationUserIds(
+      successUserIds,
+      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+    );
+
+    await this.fcmServiceInstance.sendNotificationUserIds(
+      failedUserIds,
+      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+      WEBPUSH_MSG.VOTE.FAILURE_DESC,
+    );
   }
 
   async updateResult(date: string, start: string, end: string) {

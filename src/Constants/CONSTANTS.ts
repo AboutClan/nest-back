@@ -29,6 +29,7 @@ export const CONST = {
     //피드 좋아요 취소
     CANCEL_FEED_LIKE: -2,
     PARTICIPATE_GATHER: -2000,
+    STUDY_ALL_RESULT: 100,
     STUDY_ATTEND_BEFORE: () => Math.floor(Math.random() * 301) + 200,
     STUDY_ATTEND_AFTER: () => Math.floor(Math.random() * 181) + 20,
     REALTIME_ATTEND_SOLO: () => Math.floor(Math.random() * 181) + 20,
