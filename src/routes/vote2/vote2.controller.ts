@@ -263,4 +263,15 @@ export class Vote2Controller {
     );
     return result;
   }
+
+  @Patch(':date/memo')
+  async updateMemo(
+    @Req() req: Request,
+    @Body() body: { memo: string },
+  ): Promise<any> {
+    const { date } = req;
+    const { memo } = body;
+    const result = await this.voteService2.updateMemo(date as string, memo);
+    return result;
+  }
 }
