@@ -67,11 +67,21 @@ export class GatherService {
     category: '취미' | '스터디',
     sortBy: 'createdAt' | 'date' | 'basic',
   ) {
+    const allowedCategories = [
+      '소셜 게임',
+      '감상',
+      '운동',
+      '푸드',
+      '힐링',
+      '친목',
+      '파티',
+      '기타',
+    ];
     const query =
       category === '스터디'
-        ? { 'type.title': '스터디' }
+        ? { 'type.title': { $nin: allowedCategories } }
         : category === '취미'
-          ? { 'type.title': { $ne: '스터디' } }
+          ? { 'type.title': { $in: allowedCategories } }
           : {};
 
     if (sortBy === 'basic') {
