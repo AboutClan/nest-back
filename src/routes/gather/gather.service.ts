@@ -93,8 +93,9 @@ export class GatherService {
           futureQuery,
           cursor,
           { date: 1 },
+          true,
         );
-
+        console.log(futureResult);
         return futureResult;
 
         // const futureCount = futureResult.length;

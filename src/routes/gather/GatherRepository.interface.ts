@@ -14,6 +14,7 @@ export interface IGatherRepository {
     query: any,
     cursor?: number,
     sortBy?: any,
+    isFull?: boolean,
   ): Promise<Gather[] | null>;
   updateGather(
     gatherId: number,
