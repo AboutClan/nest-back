@@ -15,6 +15,7 @@ export const FeedZodSchema = z.object({
   like: z.union([z.array(z.string()), z.array(z.custom<IUser>())]).optional(),
   createdAt: z.string().optional(),
   subCategory: z.string().optional(),
+  date: z.string().optional(),
 });
 
 export type IFeed = z.infer<typeof FeedZodSchema> & {
@@ -47,6 +48,9 @@ export const FeedSchema: Schema<IFeed> = new Schema(
       default: false,
     },
     subCategory: {
+      type: String,
+    },
+    date: {
       type: String,
     },
     like: [

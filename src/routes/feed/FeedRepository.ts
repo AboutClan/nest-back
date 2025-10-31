@@ -131,6 +131,7 @@ export class FeedRepository implements IFeedRepository {
       like: doc.like as string[],
       subCategory: doc.subCategory,
       createdAt: doc.createdAt,
+      date: doc.date,
     });
   }
 
@@ -150,6 +151,7 @@ export class FeedRepository implements IFeedRepository {
       subCategory: feedProps.subCategory,
       createdAt: feedProps.createdAt,
       addLike: null,
+      date: feedProps.date,
     };
   }
 }

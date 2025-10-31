@@ -14,6 +14,7 @@ export interface FeedProps {
   comments?: CommentProps[];
   subCategory?: string;
   createdAt?: string; // 도메인에서 필요하다면
+  date: string;
 }
 
 export class Feed {
@@ -29,6 +30,7 @@ export class Feed {
   public comments: Comment[];
   public subCategory: string;
   public createdAt: string;
+  public date: string;
 
   constructor(props: FeedProps) {
     this._id = props.id || '';
@@ -42,6 +44,7 @@ export class Feed {
     this.like = props.like ?? [];
     this.comments = (props.comments ?? []).map((c) => new Comment(c));
     this.subCategory = props.subCategory ?? '';
+    this.date = props.date ?? '';
     this.createdAt = props.createdAt ?? new Date().toISOString();
   }
 
@@ -133,6 +136,7 @@ export class Feed {
       type: this.type,
       typeId: this.typeId,
       isAnonymous: this.isAnonymous,
+      date: this.date,
       like: [...this.like],
       comments: this.comments.map((c) => c.toPrimitives()),
       subCategory: this.subCategory,

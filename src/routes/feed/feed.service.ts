@@ -178,6 +178,7 @@ export class FeedService {
     typeId,
     isAnonymous,
     subCategory,
+    date,
   }: any) {
     const token = RequestContext.getDecodedToken();
 
@@ -195,6 +196,7 @@ export class FeedService {
       images,
       isAnonymous,
       subCategory,
+      date,
     });
 
     await this.feedRepository.create(newFeed);
