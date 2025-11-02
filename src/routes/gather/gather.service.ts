@@ -375,7 +375,7 @@ export class GatherService {
     }
 
     if (!isFree) {
-      await this.userServiceInstance.updateReduceTicket('gather', token.id);
+      await this.userServiceInstance.updateReduceTicket('gather', token.id, -1);
     }
     await this.userServiceInstance.updateScore(
       CONST.SCORE.PARTICIPATE_GATHER,
@@ -681,7 +681,7 @@ export class GatherService {
         targetUser.uid,
       );
 
-      await this.userServiceInstance.updateReduceTicket('gather', userId);
+      await this.userServiceInstance.updateReduceTicket('gather', userId,-1);
     }
 
     await this.gatherRepository.save(gather);

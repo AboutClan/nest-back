@@ -775,29 +775,15 @@ export class UserService {
   }
 
   async updateReduceTicket(
-    type: 'gather' | 'groupOnline' | 'groupOffline',
+    type: 'gather' | 'group',
     userId: string,
-    num?: number,
+    ticketNum: number,
   ) {
-    let ticketNum;
-    const user = await this.UserRepository.findByUserId(userId);
-    switch (type) {
-      case 'gather':
-        ticketNum = -1;
-        break;
-      case 'groupOffline':
-        ticketNum = -2;
-        break;
-      case 'groupOnline':
-        ticketNum = -1;
-        break;
-      default:
-        break;
+    if (type === 'gather') {
+      await this.UserRepository.updateGatherTicket(userId, ticketNum);
+    } else {
+      await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
     }
-
-    if (num) ticketNum = num;
-
-    await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
 
     const { uid } = await this.getUserWithUserId(userId);
 

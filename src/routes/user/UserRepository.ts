@@ -35,6 +35,18 @@ export class UserRepository implements IUserRepository {
     return null;
   }
 
+  async updateGatherTicket(userId: string, value: number) {
+    await this.UserModel.findOneAndUpdate(
+      {
+        _id: userId,
+      },
+      {
+        $inc: { 'ticket.gatherTicket': value },
+      },
+      { new: true, upsert: false },
+    );
+    return null;
+  }
   async updateGroupStudyTicket(userId: string, value: number) {
     await this.UserModel.findOneAndUpdate(
       {
