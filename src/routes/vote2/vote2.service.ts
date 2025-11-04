@@ -689,7 +689,7 @@ export class Vote2Service {
     for (let participation of participations) {
       await this.userServiceInstance.updatePointById(
         CONST.POINT.STUDY_ALL_RESULT,
-        `스터디 결과발표`,
+        `스터디 매칭 신청 리워드`,
         'study',
         participation.userId.toString(),
       );
