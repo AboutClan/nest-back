@@ -464,7 +464,7 @@ export default class GroupStudyService {
 
     //ticket 차감 로직
     await this.userServiceInstance.updateReduceTicket(
-      'groupOffline',
+      'group',
       token.id,
       -groupStudy.requiredTicket,
     );
@@ -495,7 +495,11 @@ export default class GroupStudyService {
 
     groupStudy.participateGroupStudy(user._id, 'member');
 
-    await this.userServiceInstance.updateReduceTicket('groupOffline', user._id);
+    await this.userServiceInstance.updateReduceTicket(
+      'group',
+      user._id,
+      -groupStudy.requiredTicket,
+    );
     await this.groupStudyRepository.save(groupStudy);
 
     return;
@@ -581,15 +585,23 @@ export default class GroupStudyService {
 
         //ticket 소모 로직
         const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
-        if (groupStudy.meetingType !== 'online') {
-          if (ticketInfo.groupStudyTicket <= 1)
-            throw new HttpException('no ticket', 500);
-          this.userServiceInstance.updateReduceTicket('groupOffline', userId);
-        } else {
-          if (ticketInfo.groupStudyTicket <= 0)
-            throw new HttpException('no ticket', 500);
-          this.userServiceInstance.updateReduceTicket('groupOnline', userId);
+        if (ticketInfo.groupStudyTicket < groupStudy.requiredTicket) {
+          throw new HttpException('no ticket', 500);
         }
+        this.userServiceInstance.updateReduceTicket(
+          'group',
+          userId,
+          -groupStudy.requiredTicket,
+        );
+        // if (groupStudy.meetingType !== 'online') {
+        //   if (ticketInfo.groupStudyTicket <= 1)
+        //     throw new HttpException('no ticket', 500);
+        //   this.userServiceInstance.updateReduceTicket('groupOffline', userId);
+        // } else {
+        //   if (ticketInfo.groupStudyTicket <= 0)
+        //     throw new HttpException('no ticket', 500);
+        //   this.userServiceInstance.updateReduceTicket('groupOnline', userId);
+        // }
 
         await this.webPushServiceInstance.sendNotificationToXWithId(
           userId,
