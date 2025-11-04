@@ -17,7 +17,6 @@ import {
 } from 'src/utils/di.tokens';
 import { IScheduleLog } from './schedule_log.entity';
 import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
-import { error } from 'console';
 import { BackupService } from 'src/Database/backup.service';
 
 @Injectable()
@@ -188,19 +187,20 @@ export class NotificationScheduler {
     }
   }
 
-  //ticket 정산
-  // @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
-  //   timeZone: 'Asia/Seoul',
-  // })
-  // async processTicket() {
-  //   try {
-  //     await this.userService.processTicket();
-  //     this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'success');
-  //   } catch (err: any) {
-  //     this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'failure', err);
-  //     throw new Error(err);
-  //   }
-  // }
+  // ticket 정산
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
+    timeZone: 'Asia/Seoul',
+  })
+  async processTicket() {
+    try {
+      await this.userService.processTicket();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'failure', err);
+      throw new Error(err);
+    }
+  }
+
   @Cron('0 10 0 1 * *', {
     timeZone: 'Asia/Seoul',
   })

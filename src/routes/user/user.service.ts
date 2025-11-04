@@ -867,7 +867,7 @@ export class UserService {
   }
 
   async processTemperature() {
-    const baseDate = new Date('2025-08-01T00:00:00.000Z');
+    const baseDate = new Date();
 
     const end = new Date(baseDate);
     const start = new Date(baseDate);
