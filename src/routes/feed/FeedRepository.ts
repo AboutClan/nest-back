@@ -100,24 +100,38 @@ export class FeedRepository implements IFeedRepository {
     return docs.map((doc) => this.mapToDomain(doc));
   }
 
-  async findMyFeed(feedType: string, userId: string): Promise<Feed[]> {
-    const docs = await this.FeedModel.find({
-      type: feedType,
+  async findMyFeed(userId: string, isPopulate: boolean): Promise<Feed[]> {
+    let query = this.FeedModel.find({
       writer: userId,
     }).sort({
       createdAt: -1,
     });
 
+    if (isPopulate) {
+      query = query.populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      ]);
+    }
+    const docs = await query;
     return docs.map((doc) => this.mapToDomain(doc));
   }
 
-  async findRecievedFeed(feedType: string, idArr: string[]) {
-    const docs = await this.FeedModel.find({
-      $and: [{ type: feedType }, { typeId: { $in: idArr } }],
+  async findRecievedFeed(idArr: string[], isPopulate: boolean) {
+    let query = this.FeedModel.find({
+      $and: [{ typeId: { $in: idArr } }],
     });
+
+    if (isPopulate) {
+      query = query.populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      ]);
+    }
+
+    const docs = await query;
     return docs.map((doc) => this.mapToDomain(doc));
   }
-
   private mapToDomain(doc: IFeed): Feed {
     return new Feed({
       id: doc._id as string,

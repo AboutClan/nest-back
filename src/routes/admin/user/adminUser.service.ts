@@ -55,7 +55,7 @@ export default class AdminUserService {
         query,
         ENTITY.USER.C_SIMPLE_USER + addField,
       );
-      console.log(31, res);
+   
       return res.filter((who) => !filterArr.includes(who.uid));
     }
   }

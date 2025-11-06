@@ -31,7 +31,7 @@ export class StoreController {
 
   @Post('vote')
   async voteStore(@Body('storeId') storeId: string, @Body('cnt') cnt: number) {
-    console.log(124, storeId);
+    
     return this.storeService.voteStore(storeId, cnt);
   }
 }

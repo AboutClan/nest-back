@@ -354,34 +354,37 @@ export class FeedService {
     return;
   }
 
-  async findMyFeed(feedType: 'gather' | 'group') {
+  async findMyFeed(isPopulate: boolean) {
     const token = RequestContext.getDecodedToken();
-    return await this.feedRepository.findMyFeed(feedType, token.id);
+    return await this.feedRepository.findMyFeed(token.id, isPopulate);
   }
 
-  async findReceivedFeed(feedType: 'gather' | 'group') {
+  async findReceivedFeed(isPopulate: boolean) {
     const token = RequestContext.getDecodedToken();
+    let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
 
-    if (feedType == 'group') {
-      let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
-        token.id,
-      );
-      groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
-      return await this.feedRepository.findRecievedFeed(
-        feedType,
-        groupStudyIds,
-      );
-    } else if (feedType == 'gather') {
-      let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
+    gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
+    return await this.feedRepository.findRecievedFeed(gatherIds,isPopulate);
+    // if (feedType == 'group') {
+    //   let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
+    //     token.id,
+    //   );
+    //   groupStudyIds = groupStudyIds.map((gatherId) => gatherId.id.toString());
+    //   return await this.feedRepository.findRecievedFeed(
+    //     feedType,
+    //     groupStudyIds,
+    //   );
+    // } else if (feedType == 'gather') {
+    //   let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
 
-      gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
-      return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
-    }
+    //   gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
+    //   return await this.feedRepository.findRecievedFeed(feedType, gatherIds);
+    // }
   }
 
-  async findWrittenReview(feedType: 'gather' | 'group') {
-    const myFeed = await this.findMyFeed(feedType);
-    const receivedFeed = await this.findReceivedFeed(feedType);
+  async findWrittenReview() {
+    const myFeed = await this.findMyFeed(false);
+    const receivedFeed = await this.findReceivedFeed(false);
     return {
       writtenReviewCnt: (myFeed || []).length,
       reviewReceived: (receivedFeed || []).length,

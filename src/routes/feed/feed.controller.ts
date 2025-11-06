@@ -167,16 +167,17 @@ export class FeedController {
   }
 
   @Get('mine')
-  async findMyFeed(@Query('type') type: 'gather' | 'group') {
-    return await this.feedService.findMyFeed(type);
+  async findMyFeed() {
+    return await this.feedService.findMyFeed(true);
   }
-  @Get('recieve')
-  async findRecievedFeed(@Query('type') type: 'gather' | 'group') {
-    return await this.feedService.findReceivedFeed(type);
+  @Get('receive')
+  async findRecievedFeed() {
+    console.log(123);
+    return await this.feedService.findReceivedFeed(true);
   }
   @Get('written')
-  async findWrittenReview(@Query('type') type: 'gather' | 'group') {
-    return await this.feedService.findWrittenReview(type);
+  async findWrittenReview() {
+    return await this.feedService.findWrittenReview();
   }
   @Get('groupstudy')
   async findByGroupId(@Query('groupId') groupId: string) {

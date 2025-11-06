@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Res, Injectable } from '@nestjs/common';
+import { Controller, Get, Injectable, Post, Res } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { DailyCheckService } from './dailyCheck.service';
-import { ApiTags } from '@nestjs/swagger';
 
 @Injectable()
 @ApiTags('dailyCheck')
@@ -18,8 +18,8 @@ export class DailyCheckController {
   @Post()
   async setDailyCheck(@Res() res: Response) {
     const result = await this.dailyCheckServiceInstance.setDailyCheck();
-    if (result) return res.status(400).json({ message: result });
-    return res.status(200).end();
+    if (result) return res.status(200).json(result);
+    return res.status(400).end();
   }
 
   @Get('/all')

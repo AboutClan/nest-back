@@ -111,7 +111,7 @@ export class Vote2Service {
       await this.Vote2Repository.findParticipationsByDate(date);
 
     const { voteResults } = await this.doAlgorithm(participations);
-    console.log('result', voteResults?.[0]?.members);
+   
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
     //todo: {placeId, members}로 오도록
@@ -422,7 +422,7 @@ export class Vote2Service {
             // }
           }
 
-          console.log('WOW', groupMembers.length);
+         
           // targetMinSize(4 또는 3)를 못 채웠다면 종료
           if (groupMembers.length < targetMinSize) break;
 
@@ -644,9 +644,7 @@ export class Vote2Service {
           (p.userId as unknown as IUser)._id.toString(),
         ),
     );
-    if (voteResults.length) {
-      console.log(52, voteResults);
-    }
+ 
     return { voteResults, successParticipations, failedParticipations };
   }
 

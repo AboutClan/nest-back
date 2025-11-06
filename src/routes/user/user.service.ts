@@ -733,7 +733,7 @@ export class UserService {
   }
 
   async patchLocationDetailAll(id: string, location: any) {
-    console.log(54, id, location);
+   
     await this.UserRepository.updateLocationDetailAll(id, location);
 
     return;
