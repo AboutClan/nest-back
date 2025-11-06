@@ -72,6 +72,7 @@ export const GatherZodSchema = z.object({
   notionUrl: z.string(),
   category: z.enum(ENTITY.GATHER.ENUM_CATEGORY_TYPE),
   groupId: z.string().optional(),
+  hasReview: z.boolean().default(false),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;

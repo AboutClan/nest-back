@@ -38,6 +38,7 @@ export interface GatherProps {
   deposit: number;
   category?: string;
   groupId?: string | null;
+  hasReview?: boolean;
 }
 
 export class Gather {
@@ -69,6 +70,7 @@ export class Gather {
   public deposit: number;
   public category?: string;
   public groupId?: string | null;
+  public hasReview?: boolean;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -100,6 +102,7 @@ export class Gather {
     this.category = props.category || 'gather';
     this.groupId = props.groupId ?? null;
     this.postImage = props.postImage ?? null;
+    this.hasReview = props.hasReview ?? false;
   }
 
   participate(participant: ParticipantsProps) {
