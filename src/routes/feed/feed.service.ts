@@ -203,6 +203,9 @@ export class FeedService {
 
     if (type === 'gather') {
       const gather = await this.gatherRepository.findById(typeId);
+      gather.hasReview = true;
+      await this.gatherRepository.save(gather);
+
       if (!gather)
         throw new NotFoundException(`cant find gather with id ${typeId}`);
 

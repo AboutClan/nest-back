@@ -355,6 +355,7 @@ export class GatherRepository implements IGatherRepository {
       deposit: doc.deposit,
       category: doc.category ?? 'gather',
       groupId: doc.groupId ?? null,
+      hasReview: doc.hasReview ?? false,
     });
   }
 
@@ -416,6 +417,7 @@ export class GatherRepository implements IGatherRepository {
       deposit: props.deposit,
       category: props.category as any,
       groupId: props.groupId ?? null,
+      hasReview: props.hasReview,
     };
   }
 }
