@@ -133,17 +133,19 @@ export class GatherService {
     }
   }
 
-  async getStatusGather(status: string, cursor: number) {
-    switch (status) {
-      case 'isParticipating':
-        return this.getMyOpenGather(cursor);
-      case 'isEnded':
-        return this.getMyFinishGather(cursor);
-      case 'isOwner':
-        return this.getMyGather(cursor);
-      default:
-        break;
-    }
+  async getStatusGather(cursor: number) {
+    const token = RequestContext.getDecodedToken();
+
+    const query = {
+      participants: { $elemMatch: { user: token.id } },
+    };
+    const gatherData = await this.gatherRepository.findWithQueryPop(
+      query,
+      cursor,
+      { date: -1 },
+    );
+
+    return gatherData;
   }
 
   async getMyOpenGather(cursor: number | null) {
@@ -189,6 +191,7 @@ export class GatherService {
     const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       cursor,
+      { date: -1 },
     );
 
     if (cursor === -1) {
@@ -681,7 +684,7 @@ export class GatherService {
         targetUser.uid,
       );
 
-      await this.userServiceInstance.updateReduceTicket('gather', userId,-1);
+      await this.userServiceInstance.updateReduceTicket('gather', userId, -1);
     }
 
     await this.gatherRepository.save(gather);

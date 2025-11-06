@@ -55,13 +55,10 @@ export class GatherController {
   }
 
   @Get('status')
-  async getStatusGather(
-    @Query('cursor') cursor?: string,
-    @Query('status') status?: string,
-  ) {
+  async getStatusGather(@Query('cursor') cursor?: string) {
     const cursorNum = cursor ? parseInt(cursor) : null;
 
-    return await this.gatherService.getStatusGather(status, cursorNum);
+    return await this.gatherService.getStatusGather(cursorNum);
   }
 
   @Get('review')
