@@ -133,11 +133,20 @@ export class GatherService {
     }
   }
 
-  async getStatusGather(cursor: number) {
+  async getGatherCount(userId: string) {
+    const gatherData = await this.gatherRepository.findMyGather(userId, false);
+
+    return gatherData?.length;
+  }
+  async getStatusGather(cursor: number, userId: string) {
     const token = RequestContext.getDecodedToken();
 
     const query = {
-      participants: { $elemMatch: { user: token.id } },
+      $or: [
+        { participants: { $elemMatch: { user: userId || token.id } } },
+        { user: userId || token.id },
+      ],
+      ...(userId && { status: 'open' }),
     };
     const gatherData = await this.gatherRepository.findWithQueryPop(
       query,

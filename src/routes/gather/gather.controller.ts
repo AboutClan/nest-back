@@ -54,11 +54,19 @@ export class GatherController {
     return await this.gatherService.getGatherGroup(groupId, type);
   }
 
+  @Get('count')
+  async getGatherCount(@Query('userId') userId?: string) {
+    return await this.gatherService.getGatherCount(userId);
+  }
+
   @Get('status')
-  async getStatusGather(@Query('cursor') cursor?: string) {
+  async getStatusGather(
+    @Query('cursor') cursor?: string,
+    @Query('userId') userId?: string,
+  ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
 
-    return await this.gatherService.getStatusGather(cursorNum);
+    return await this.gatherService.getStatusGather(cursorNum, userId);
   }
 
   @Get('review')
