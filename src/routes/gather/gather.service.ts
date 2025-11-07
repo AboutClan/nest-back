@@ -95,7 +95,7 @@ export class GatherService {
           { date: 1 },
           true,
         );
-       
+
         return futureResult;
 
         // const futureCount = futureResult.length;
@@ -310,7 +310,7 @@ export class GatherService {
     try {
       await this.userServiceInstance.updatePointById(
         CONST.POINT.PARTICIPATE_GATHER,
-        '번개 모임 참여',
+        '번개 모임 보증금',
         '',
         userId,
       );
@@ -502,7 +502,7 @@ export class GatherService {
       if (diffDay > 2) {
         await this.userServiceInstance.updatePoint(
           -CONST.POINT.PARTICIPATE_GATHER,
-          '번개 모임 참여 취소',
+          '번개 모임 보증금 반환',
           '',
           userId ? userId : token.id,
         );
@@ -510,7 +510,7 @@ export class GatherService {
       } else if (diffDay === 1) {
         await this.userServiceInstance.updatePoint(
           -CONST.POINT.PARTICIPATE_GATHER / 2,
-          '번개 모임 참여 취소',
+          '번개 모임 보증금 반환',
           '',
           userId ? userId : token.id,
         );
