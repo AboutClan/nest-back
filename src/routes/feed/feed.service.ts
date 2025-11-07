@@ -199,25 +199,25 @@ export class FeedService {
       date,
     });
 
-    await this.feedRepository.create(newFeed);
+    // await this.feedRepository.create(newFeed);
 
-    if (type === 'gather') {
-      const gather = await this.gatherRepository.findById(typeId);
-      gather.hasReview = true;
-      await this.gatherRepository.save(gather);
+    const gather = await this.gatherRepository.findById(typeId);
+    gather.hasReview = true;
+    await this.gatherRepository.save(gather);
 
-      if (!gather)
-        throw new NotFoundException(`cant find gather with id ${typeId}`);
+    console.log(gather);
+    return;
+    if (!gather)
+      throw new NotFoundException(`cant find gather with id ${typeId}`);
 
-      await this.webPushServiceInstance.sendNotificationGather(
-        gather.id.toString(),
-        WEBPUSH_MSG.FEED.CREATE,
-      );
-      await this.fcmServiceInstance.sendNotificationGather(
-        gather.id.toString(),
-        WEBPUSH_MSG.FEED.CREATE,
-      );
-    }
+    await this.webPushServiceInstance.sendNotificationGather(
+      gather.id.toString(),
+      WEBPUSH_MSG.FEED.CREATE,
+    );
+    await this.fcmServiceInstance.sendNotificationGather(
+      gather.id.toString(),
+      WEBPUSH_MSG.FEED.CREATE,
+    );
 
     return;
   }
@@ -364,7 +364,7 @@ export class FeedService {
     let gatherIds = await this.gatherRepository.findMyGatherId(token.id);
 
     gatherIds = gatherIds.map((gatherId) => gatherId.id.toString());
-    return await this.feedRepository.findRecievedFeed(gatherIds,isPopulate);
+    return await this.feedRepository.findRecievedFeed(gatherIds, isPopulate);
     // if (feedType == 'group') {
     //   let groupStudyIds = await this.groupStudyRepository.findMyGroupStudyId(
     //     token.id,

@@ -199,6 +199,7 @@ export class Gather {
       deposit: this.deposit,
       category: this.category,
       groupId: this.groupId,
+      hasReview: this.hasReview,
     };
   }
 }

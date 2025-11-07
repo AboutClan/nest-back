@@ -248,7 +248,7 @@ export class GatherRepository implements IGatherRepository {
       docToSave,
       { new: true },
     );
-
+    
     if (!updatedDoc) {
       throw new HttpException(`Gather not found for id=${docToSave._id}`, 500);
     }
