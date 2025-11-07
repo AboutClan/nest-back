@@ -135,14 +135,14 @@ export class WebPushService {
 
   async sendNotificationGather(gatherId: string, description: string) {
     try {
-      const payload = JSON.stringify({
-        ...this.basePayload,
-        title: WEBPUSH_MSG.GATHER.TITLE,
-        body: description,
-      });
-
       const gather = await this.Gather.findOne({
         id: gatherId,
+      });
+
+      const payload = JSON.stringify({
+        ...this.basePayload,
+        title: `새로운 모임 후기 도착!`,
+        body: `${DateUtils.formatGatherDate(gather.date)} 모임의 후기가 올라왔어요!`,
       });
 
       const memberUids = gather.participants?.map((participant, idx) => {
