@@ -359,7 +359,7 @@ export class Vote2Service {
       userId: (par.userId as unknown as IUser)._id.toString(),
       lat: parseFloat(par.latitude),
       lon: parseFloat(par.longitude),
-      eps: par?.eps || 3,
+      eps: par?.eps + 0.2 || 3.2,
       start: par.start,
       end: par.end,
       isBeforeResult: par.isBeforeResult,
