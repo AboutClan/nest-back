@@ -2,9 +2,9 @@ import { ENTITY } from './ENTITY';
 
 export const PRIZE = {
   [ENTITY.USER.RANK_GOLD]: [
-    'BBQ 치킨 기프티콘',
     '배달의민족 10000원권',
     '올리브영 10000원권',
+    '다이소 10,000원권',
     '스타벅스 기프티콘',
     '스타벅스 기프티콘',
   ],
