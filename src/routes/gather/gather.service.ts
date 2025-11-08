@@ -536,7 +536,12 @@ export class GatherService {
 
     const myData = gather.participants.filter((data) => data.user == token.id);
     if (!myData[0]?.invited)
-      await this.userServiceInstance.updateAddTicket('gather', token.id);
+      await this.userServiceInstance.updateAddTicket(
+        'gather',
+        token.id,
+        1,
+        'return',
+      );
     return;
   }
 
@@ -702,12 +707,18 @@ export class GatherService {
       await this.webPushServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
+        WEBPUSH_MSG.GATHER.ACCEPT(
+          DateUtils.formatGatherDate(gather.date),
+          !!gather?.kakaoUrl,
+        ),
       );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.ACCEPT(DateUtils.formatGatherDate(gather.date)),
+        WEBPUSH_MSG.GATHER.ACCEPT(
+          DateUtils.formatGatherDate(gather.date),
+          !!gather?.kakaoUrl,
+        ),
       );
     }
   }
@@ -874,6 +885,8 @@ export class GatherService {
         await this.userServiceInstance.updateAddTicket(
           'gather',
           participant.user,
+          1,
+          'return',
         );
       }
     }

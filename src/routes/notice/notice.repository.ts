@@ -10,13 +10,33 @@ export class MongoNoticeRepository implements NoticeRepository {
     private readonly Notice: Model<INotice>,
   ) {}
   async findActiveLog(uid: string): Promise<INotice[]> {
-    return await this.Notice.find(
+    const types = ['like', 'friend', 'alphabet'];
+
+    const docs = await this.Notice.aggregate([
+      { $match: { to: uid, type: { $in: types } } },
       {
-        to: uid,
-        $or: [{ type: 'like' }, { type: 'friend' }, { type: 'alphabet' }],
+        $lookup: {
+          from: 'users', // 콜렉션 이름(소문자 복수형일 가능성 높음)
+          localField: 'from', // Notice.from (예: 'abc123')
+          foreignField: 'uid', // User.uid
+          as: 'fromUser',
+          pipeline: [
+            { $project: { _id: 1, profileImage: 1, avatar: 1 } }, // 필요한 필드만 남기기
+          ],
+        },
       },
-      '-_id -__v',
-    );
+      { $unwind: { path: '$fromUser', preserveNullAndEmptyArrays: true } },
+      { $project: { __v: 0 } }, // 필요시 '_id'도 제외 가능
+    ]);
+
+    return docs;
+    // return await this.Notice.find(
+    //   {
+    //     to: uid,
+    //     $or: [{ type: 'like' }, { type: 'friend' }, { type: 'alphabet' }],
+    //   },
+    //   '-_id -__v',
+    // );
   }
   async createNotice(noticeData: Partial<INotice>): Promise<INotice> {
     return await this.Notice.create(noticeData);

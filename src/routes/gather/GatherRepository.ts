@@ -73,7 +73,7 @@ export class GatherRepository implements IGatherRepository {
       query = query
         .populate({
           path: 'participants.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
+          select: ENTITY.USER.C_SIMPLE_USER + 'telephone',
         })
         .populate({
           path: 'waiting.user',
