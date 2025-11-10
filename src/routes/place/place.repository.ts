@@ -60,7 +60,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
     const result = await this.Place.find({});
     const pickPlace = result.find((place) => place._id.toString() === placeId);
 
-    console.log(pickPlace, placeId);
+   
 
     const filterByLatLonKm = (
       places: IPlace[],
@@ -103,7 +103,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
     };
 
     const resultArr = filterByLatLonKm(result, pickPlace, 1);
-    console.log(145, resultArr);
+   
     return resultArr;
   }
 

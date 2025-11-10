@@ -9,6 +9,6 @@ export interface IFeedRepository {
   findAllTemp();
   create(doc: Feed): Promise<Feed>;
   save(doc: Feed): Promise<Feed>;
-  findMyFeed(feedType: string, userId: string): Promise<Feed[]>;
-  findRecievedFeed(feedType: string, idArr: string[]): Promise<Feed[]>;
+  findMyFeed(userId: string, isPopulate: boolean): Promise<Feed[]>;
+  findRecievedFeed(idArr: string[], isPopulate: boolean): Promise<Feed[]>;
 }

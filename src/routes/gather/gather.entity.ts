@@ -284,6 +284,10 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
       default: null,
       required: false,
     },
+    hasReview: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, strict: false },
 );

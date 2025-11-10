@@ -1,6 +1,7 @@
 import { Inject } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
 import { RequestContext } from 'src/request-context';
@@ -16,7 +17,6 @@ import { FcmService } from '../fcm/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation, IResult } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
-import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -111,7 +111,7 @@ export class Vote2Service {
       await this.Vote2Repository.findParticipationsByDate(date);
 
     const { voteResults } = await this.doAlgorithm(participations);
-    console.log('result', voteResults?.[0]?.members);
+
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
     //todo: {placeId, members}로 오도록
@@ -320,32 +320,46 @@ export class Vote2Service {
     const MIN_OVERLAP_MINUTES = 60;
     const MAX_GROUP_SIZE = 8; //
 
-    // 겹치는 시간 확인
+    const toMinutesOfDay = (s: string) => {
+      // 1) 'HH:mm'만 들어오는 경우
+      if (/^\d{2}:\d{2}$/.test(s)) {
+        const [h, m] = s.split(':').map(Number);
+        return h * 60 + m; // 0~1439
+      }
+      // 2) ISO 포함 등 기타 문자열은 Date로 파싱 후 KST 시:분만 사용
+      const d = new Date(s);
+      const minsUTC = d.getUTCHours() * 60 + d.getUTCMinutes();
+      return (minsUTC + 9 * 60) % (24 * 60);
+    };
+
+    // 겹치는 분 계산 (날짜 무시, 같은 날의 시계만 비교)
     function overlapMinutes(
       a: { start: string; end: string },
       b: { start: string; end: string },
     ) {
-      const as = Date.parse(a.start);
-      const ae = Date.parse(a.end);
-      const bs = Date.parse(b.start);
-      const be = Date.parse(b.end);
-      const overlapMs = Math.min(ae, be) - Math.max(as, bs);
-      return Math.max(0, Math.floor(overlapMs / 60000)); // 분 단위 환산
+      const as = toMinutesOfDay(a.start);
+      const ae = toMinutesOfDay(a.end);
+      const bs = toMinutesOfDay(b.start);
+      const be = toMinutesOfDay(b.end);
+
+      // 자정 안 넘는다고 가정 (end >= start)
+      const overlap = Math.min(ae, be) - Math.max(as, bs);
+      return Math.max(0, overlap);
     }
-    // 참여 시간 2시간 이상 겹치는지도 고려
+
+    // “그룹 중 단 한 쌍이라도 2시간 이상 겹치면 OK”
     function canJoinByTime(
       group: Array<{ start: string; end: string }>,
       c: { start: string; end: string },
     ) {
       return group.some((m) => overlapMinutes(m, c) >= MIN_OVERLAP_MINUTES);
     }
-
     const coords = participations.map((par) => ({
       user: par.userId,
       userId: (par.userId as unknown as IUser)._id.toString(),
       lat: parseFloat(par.latitude),
       lon: parseFloat(par.longitude),
-      eps: par?.eps || 3,
+      eps: par?.eps + 0.2 || 3.2,
       start: par.start,
       end: par.end,
       isBeforeResult: par.isBeforeResult,
@@ -422,7 +436,6 @@ export class Vote2Service {
             // }
           }
 
-          console.log('WOW', groupMembers.length);
           // targetMinSize(4 또는 3)를 못 채웠다면 종료
           if (groupMembers.length < targetMinSize) break;
 
@@ -644,9 +657,7 @@ export class Vote2Service {
           (p.userId as unknown as IUser)._id.toString(),
         ),
     );
-    if (voteResults.length) {
-      console.log(52, voteResults);
-    }
+
     return { voteResults, successParticipations, failedParticipations };
   }
 

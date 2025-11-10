@@ -66,7 +66,7 @@ export class Store {
     const votedCnt = this.calcRemain(cnt);
 
     const applicant = new Applicant({ user: userId, cnt: votedCnt });
-    console.log(this.applicants, 51);
+    
     const existingApplicant = this.applicants.find(
       (applicant) =>
         (applicant.user as any)._id.toString() === userId.toString(),

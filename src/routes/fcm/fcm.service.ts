@@ -7,6 +7,7 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
+import { DateUtils } from 'src/utils/Date';
 import {
   IFCM_LOG_REPOSITORY,
   IFCM_REPOSITORY,
@@ -15,14 +16,12 @@ import {
 } from 'src/utils/di.tokens';
 import { IGatherData } from '../gather/gather.entity';
 import { IGroupStudyData } from '../groupStudy/groupStudy.entity';
-import { IUser } from '../user/user.entity';
-import { FcmRepository } from './fcm.repository.interface';
-import { FcmTokenZodSchema } from './fcmToken.entity';
-import { FcmLogRepository } from './fcmLog.repository.interface';
-import { Vote2Service } from '../vote2/vote2.service';
 import { IRealtimeRepository } from '../realtime/RealtimeRepository.interface';
+import { IUser } from '../user/user.entity';
 import { IVote2Repository } from '../vote2/Vote2Repository.interface';
-import { DateUtils } from 'src/utils/Date';
+import { FcmRepository } from './fcm.repository.interface';
+import { FcmLogRepository } from './fcmLog.repository.interface';
+import { FcmTokenZodSchema } from './fcmToken.entity';
 
 @Injectable()
 export class FcmService {
@@ -262,8 +261,8 @@ export class FcmService {
         for (const device of subscription.devices) {
           const newPayload = this.createPayload(
             device.token,
-            WEBPUSH_MSG.GATHER.TITLE,
-            description,
+            `새로운 모임 후기 도착!`,
+            `${DateUtils.formatGatherDate(gather.date)} 모임의 후기가 올라왔어요!`,
           );
           await admin.messaging().send(newPayload);
         }

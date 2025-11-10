@@ -379,7 +379,6 @@ export class UserController {
   @Patch('locationDetail/all')
   @UsePipes(new ValidationPipe({ transform: true }))
   async patchLocationDetailAll(@Body() body: any) {
-
     await this.userService?.patchLocationDetailAll(body.id, body.location);
     return;
   }
@@ -410,6 +409,7 @@ export class UserController {
       body.type,
       req.decodedToken.id,
       body.ticketNum,
+      'create',
     );
   }
 

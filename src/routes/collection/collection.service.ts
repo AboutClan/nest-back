@@ -13,9 +13,9 @@ import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/routes/request/request.entity';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
+import { UserRepository } from '../user/UserRepository';
 import { WebPushService } from '../webpush/webpush.service';
 import { ICollectionRepository } from './CollectionRepository.interface';
-import { UserRepository } from '../user/UserRepository';
 
 @Injectable()
 export class CollectionService {
@@ -31,42 +31,29 @@ export class CollectionService {
   ) {}
 
   async setCollectionStamp(id: string) {
-    const currentCollection = await this.collectionRepository.findByUser(id);
-    const currentStamps = currentCollection?.stamps ?? 0;
+    let currentCollection = await this.collectionRepository.findByUser(id);
 
-    if (currentStamps < 5) {
-      if (!currentCollection) {
-        // 문서가 없으면 새로 생성
-        const newCollection = new Collection({ user: id });
-        await this.collectionRepository.create(newCollection);
-      } else {
-        // 문서가 있으면 stamps 증가
-
-        currentCollection.increaseStamp();
-        await this.collectionRepository.save(currentCollection);
-      }
+    if (!currentCollection) {
+      const newCollection = new Collection({ user: id });
+      currentCollection = newCollection;
+      currentCollection.increaseStamp();
+    } else if (currentCollection.stamps < 5) {
+      currentCollection.increaseStamp();
     }
 
-    const updatedStamps = currentStamps < 4 ? currentStamps + 1 : 0;
-    const updatedAlphabet =
-      currentStamps === 4
-        ? ENTITY.COLLECTION.ENUM_ALPHABET[Math.floor(Math.random() * 5)]
-        : null;
-
-    // stamps가 5인 경우에만 alphabet을 추가합니다
-    // stamps가 4인 경우 1 증가 후 5가 되므로 alphabet을 추가
-
-    if (updatedAlphabet) {
+    let updatedAlphabet: string | null = null;
+    if (currentCollection.stamps >= 5) {
+      const pool = ENTITY.COLLECTION.ENUM_ALPHABET;
+      updatedAlphabet = pool[Math.floor(Math.random() * pool.length)]; // 길이 하드코딩 제거
       currentCollection.addAlphabet(updatedAlphabet);
       currentCollection.stamps = 0;
     }
-    // currentCollection.increaseStamp();
 
     await this.collectionRepository.save(currentCollection);
 
     return {
-      alphabet: updatedAlphabet, // alphabet을 얻었으면 반환하고, 그렇지 않으면 null
-      stamps: updatedStamps, // 현재 stamps에서 1 증가한 값 반환
+      alphabet: updatedAlphabet, // 임계 도달 시 문자열, 아니면 null
+      stamps: currentCollection.stamps, // 최종 스탬프 값(초기화 후 0 또는 증가값)
     };
   }
 

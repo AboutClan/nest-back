@@ -23,7 +23,8 @@ export const WEBPUSH_MSG = {
     PARTICIPATE: (user, date) => `${user}님이 ${date} 모임에 합류했습니다.`,
     INVITE: (date) => `${date} 모임에 초대되었어요!`,
     REQUEST: (user, date) => `${user}님이 ${date} 모임 참여를 요청했어요!`,
-    ACCEPT: (date) => `${date} 모임 참여가 승인되었습니다.`,
+    ACCEPT: (date, hasLink) =>
+      `${date} 모임 참여가 승인되었습니다. ${hasLink ? '단톡방 링크를 확인하고 바로 입장해 주세요!' : ''}`,
     COMMENT_CREATE: (name, date) =>
       `${name}님이 ${date} 모임에 댓글을 남겼어요!`,
   },
@@ -32,7 +33,8 @@ export const WEBPUSH_MSG = {
     TITLE: '소모임',
     PARTICIPATE: (user, name) => `${user}님이 [${name}] 소모임에 합류했습니다.`,
     REQUEST: (user, name) => `${user}님이 [${name}] 소모임 가입을 요청했어요!`,
-    AGREE: (name) => `[${name}] 소모임 가입이 승인되었습니다.`,
+    AGREE: (name) =>
+      `[${name}] 소모임 가입이 승인되었습니다. 단톡방 링크를 확인하고 바로 입장해 주세요!`,
     COMMENT_CREATE: (name) => `[${name}]에 새로운 리뷰가 달렸어요!`,
   },
 
@@ -58,7 +60,7 @@ export const WEBPUSH_MSG = {
   },
 
   COLLECTION: {
-    CHANGE_TITLE: '알파벳 교환 요청을 받았어요!',
+    CHANGE_TITLE: '알파벳 교환 요청',
     CHANGE_DESC: '교환 요청을 확인하세요!',
   },
 };

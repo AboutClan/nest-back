@@ -13,20 +13,26 @@ export class GatherRepository implements IGatherRepository {
     private readonly Gather: Model<IGatherData>,
   ) {}
 
-  async findMyGather(userId: string): Promise<Gather[] | null> {
-    const result = await this.Gather.find({
+  async findMyGather(
+    userId: string,
+    isPopulate: boolean = true,
+  ): Promise<Gather[] | null> {
+    let query = this.Gather.find({
       $or: [
         { user: new Types.ObjectId(userId) },
         { participants: { $elemMatch: { user: userId } } },
       ],
-    })
-      .populate([
+    }).sort({ createdAt: -1 });
+
+    if (isPopulate) {
+      query = query.populate([
         { path: 'user', select: ENTITY.USER.C_SIMPLE_USER },
         { path: 'participants.user', select: ENTITY.USER.C_SIMPLE_USER },
-      ])
-      .sort({ createdAt: -1 });
+      ]);
+    }
+    const docs = await query;
 
-    return result.map((doc) => this.mapToDomain(doc));
+    return docs.map((doc) => this.mapToDomain(doc));
   }
 
   async findAllTemp() {
@@ -67,7 +73,7 @@ export class GatherRepository implements IGatherRepository {
       query = query
         .populate({
           path: 'participants.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
+          select: ENTITY.USER.C_SIMPLE_USER + 'telephone',
         })
         .populate({
           path: 'waiting.user',
@@ -101,7 +107,7 @@ export class GatherRepository implements IGatherRepository {
   ): Promise<Gather[] | null> {
     const gap = isFull ? 24 : 15;
     const start = gap * (cursor || 0);
-
+    console.log(1, start, gap);
     const results = await this.Gather.find(query)
       .sort(sort ? sort : { date: 1 })
       .skip(start)

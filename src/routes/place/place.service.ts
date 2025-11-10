@@ -59,7 +59,7 @@ export default class PlaceService {
       placeData.registerDate = new Date().toString();
       placeData.status = status || 'sub';
       placeData.registrant = token.id as string;
-      console.log(25, placeData);
+     
       if (!location) throw new ValidationError(`location not exist`);
 
       const validatedPlace = PlaceZodSchema.parse(placeData);

@@ -733,7 +733,6 @@ export class UserService {
   }
 
   async patchLocationDetailAll(id: string, location: any) {
-    console.log(54, id, location);
     await this.UserRepository.updateLocationDetailAll(id, location);
 
     return;
@@ -743,6 +742,7 @@ export class UserService {
     type: 'gather' | 'groupOnline' | 'groupOffline' | 'groupStudy',
     userId: string,
     ticketNum?: number,
+    category?: 'create' | 'return',
   ) {
     const user = await this.UserRepository.findByUserId(userId);
     switch (type) {
@@ -766,7 +766,11 @@ export class UserService {
         break;
     }
     const { uid } = await this.getUserWithUserId(userId);
-    logger.logger.info('티켓 추가', {
+
+    const first = type === 'gather' ? '번개' : '소모임';
+    const second = category === 'create' ? '구매' : '반환';
+
+    logger.logger.info(`${first} 참여권 ${second}`, {
       type,
       uid,
       value: ticketNum,

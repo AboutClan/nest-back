@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ICommentRepository } from './CommentRepository.interface';
-import { ICOMMENT_REPOSITORY } from 'src/utils/di.tokens';
 import { Comment, CommentProps } from 'src/domain/entities/Comment';
 import { DateUtils } from 'src/utils/Date';
+import { ICOMMENT_REPOSITORY } from 'src/utils/di.tokens';
+import { ICommentRepository } from './CommentRepository.interface';
 
 @Injectable()
 export default class CommentService {
@@ -21,21 +21,27 @@ export default class CommentService {
   }
 
   async findCommentsByPostId(postId: string): Promise<Comment[]> {
-    const comments = await this.commentRepository.findByPostId(postId);
+    // 1) post의 모든 댓글(원댓글+대댓글) 조회
+    const all = await this.commentRepository.findByPostId(postId);
 
-    const commentIds = comments.map((comment) => comment._id);
+    // 2) 원댓글만 남기기 (parentId가 없거나 null)
+    const topLevel = all.filter((c) => !c.parentId);
 
-    const subComments =
-      await this.commentRepository.findSubComments(commentIds);
+    // 3) parentId 기준으로 대댓글 버킷 만들기
+    const bucket = new Map<string, Comment[]>();
+    for (const c of all) {
+      if (c.parentId) {
+        const key = c.parentId.toString();
+        if (!bucket.has(key)) bucket.set(key, []);
+        bucket.get(key)!.push(c);
+      }
+    }
 
-    comments.forEach((comment: any) => {
-      comment.subComments = subComments.filter(
-        (subComment) =>
-          subComment.parentId.toString() === comment._id.toString(),
-      );
-    });
-
-    return comments;
+    // 4) 원댓글마다 subComments 매핑해서 반환 (원본 불변)
+    return topLevel.map((c: any) => ({
+      ...c,
+      subComments: bucket.get(c._id.toString()) ?? [],
+    }));
   }
 
   async findCommetsByPostIds(postIds: string[]): Promise<Comment[]> {

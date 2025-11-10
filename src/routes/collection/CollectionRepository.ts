@@ -35,13 +35,21 @@ export class CollectionRepository implements ICollectionRepository {
   }
 
   async findAll(): Promise<Collection[]> {
-    const doc = await this.Collection.find({}).populate({
+    const now = new Date();
+    const threeMonthsAgo = new Date(now);
+    threeMonthsAgo.setUTCMonth(threeMonthsAgo.getUTCMonth() - 1); // UTC 기준 3개월 전
+
+    const docs = await this.Collection.find({
+      $or: [
+        { $expr: { $gte: [{ $size: '$collects' }, 2] } }, // collect 길이 ≥ 2
+        { updatedAt: { $gte: threeMonthsAgo } }, // 최근 3개월 이내
+      ],
+    }).populate({
       path: 'user',
       select: ENTITY.USER.C_SIMPLE_USER,
     });
-    if (!doc) return null;
 
-    return doc.map((item) => this.mapToDomain(item));
+    return docs.map((item) => this.mapToDomain(item));
   }
 
   async create(collection: Collection): Promise<Collection> {
@@ -52,6 +60,7 @@ export class CollectionRepository implements ICollectionRepository {
 
   async save(collection: Collection): Promise<Collection> {
     const docToSave = this.mapToDB(collection);
+
     const updatedDoc = await this.Collection.findByIdAndUpdate(
       docToSave.id,
       docToSave,
