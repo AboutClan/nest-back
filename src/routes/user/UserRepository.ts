@@ -377,6 +377,17 @@ export class UserRepository implements IUserRepository {
     }
   }
 
+  async findAllForPrize() {
+    return await this.UserModel.find({
+      rank: { $nin: ['previliged', 'manager', 'admin', 'resting'] },
+      'temperature.temperature': { $gte: 36.5 },
+      weekStudyTragetHour: { $gt: 0 },
+      weekStudyAccumulationMinutes: { $gt: 0 },
+    })
+      .select('_id uid rank monthScore temperature  studyRecord')
+      .lean();
+  }
+
   private mapToDomain(doc: IUser): User {
     const rest = new Rest(
       doc?.rest?.type,
