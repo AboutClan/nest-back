@@ -267,6 +267,12 @@ export class UserRepository implements IUserRepository {
     );
   }
 
+  async findAllForTicket() {
+    return await this.UserModel.find({})
+      .select('_id uid ticket temperature')
+      .lean();
+  }
+
   async processTicket(whiteList: any) {
     // A유형 (<36.5)
     await this.UserModel.updateMany(

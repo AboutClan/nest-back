@@ -269,6 +269,7 @@ export class FcmService {
       }
       return;
     } catch (err) {
+      console.error(err);
       throw new HttpException(
         'Error deleting comment',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -304,6 +305,7 @@ export class FcmService {
 
       return;
     } catch (err) {
+      console.error(err);
       throw new HttpException(
         'Error deleting comment',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -330,14 +332,27 @@ export class FcmService {
             description,
           );
 
-          await admin.messaging().send(newPayload);
+          if (!newPayload) continue;
+
+          try {
+            await admin.messaging().send(newPayload);
+            console.log('[FCM 성공]', device.token);
+          } catch (error: any) {
+            console.error('[FCM 실패]', device.token, error);
+
+            // 유효하지 않은 토큰인 경우 DB에서 제거
+            if (error.code === 'messaging/registration-token-not-registered') {
+              await this.removeInvalidTokenFromDB(device.token);
+            }
+          }
         }
       }
 
       return;
     } catch (err) {
+      console.error(err);
       throw new HttpException(
-        'Error deleting comment',
+        'Error sending notification',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

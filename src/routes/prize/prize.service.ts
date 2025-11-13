@@ -1,6 +1,6 @@
 import { PRIZE } from 'src/Constants/PRIZE';
 import { IPrizeRepository } from './PrizeRepository.interface';
-import { Inject } from '@nestjs/common';
+import { Inject, forwardRef } from '@nestjs/common';
 import { IPRIZE_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { IUserRepository } from '../user/UserRepository.interface';
@@ -13,6 +13,7 @@ export class PrizeService {
     private readonly PrizeRepository: IPrizeRepository,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: IUserRepository,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {
     this.prizeList = PRIZE;
