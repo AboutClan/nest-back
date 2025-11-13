@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Patch,
   Post,
@@ -22,7 +20,6 @@ import {
 import { GroupStudyStatus } from './groupStudy.entity';
 import { GroupStudyInterceptor } from './groupstudy.interceptor';
 import GroupStudyService from './groupStudy.service';
-import { group } from 'node:console';
 
 @ApiTags('groupStudy')
 @Controller('groupStudy')

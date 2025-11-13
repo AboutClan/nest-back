@@ -208,7 +208,6 @@ export default class GroupStudyService {
 
     const returnVal = {
       hobby: hobbyData.slice(0, 6),
-      hobby2: hobbyData.slice(6, 12),
       develop: developData.slice(0, 6),
       waiting: waitingData.slice(0, 6),
     };
@@ -233,8 +232,18 @@ export default class GroupStudyService {
     const gap = 12;
     const start = gap * (cursor || 0);
 
+    const categoryMapping = {
+      '공부 · 자기계발': ['스터디', '자기계발', '말하기'],
+      '영화 · 전시 · 공연': ['감상'],
+      '소셜 게임': ['소셜 게임'],
+      스포츠: ['운동'],
+      '취미 · 창작': ['힐링'],
+      푸드: ['푸드'],
+      친목: ['친목', '파티'],
+    };
+
     const filterQuery: any = {
-      'category.main': category,
+      'category.main': { $in: categoryMapping[category] },
       $expr: { $gt: [{ $size: '$participants' }, 1] },
     };
 
@@ -294,7 +303,7 @@ export default class GroupStudyService {
         },
       }), // 배열 길이 조건 추가
     };
-
+    console.log(filterQuery, start, gap);
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,
