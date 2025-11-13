@@ -34,4 +34,5 @@ export const PRIZE = {
     '3000 point',
     '1000 point',
     '1000 point',
+  ],
 };
