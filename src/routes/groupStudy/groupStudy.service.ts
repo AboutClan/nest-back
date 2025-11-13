@@ -2,7 +2,6 @@ import { HttpException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
-import { CONST } from 'src/Constants/CONSTANTS';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { GroupStudy, GroupStudyProps } from 'src/domain/entities/GroupStudy';
@@ -744,14 +743,6 @@ export default class GroupStudyService {
         user: token.id,
         comment: comment,
       });
-
-      if (commentList.length === 0) {
-        await this.userServiceInstance.updatePoint(
-          CONST.POINT.GROUPSTUDY_FIRST_COMMENT,
-          '소모임 최초 리뷰 작성',
-          token.uid,
-        );
-      }
     } catch (error) {
       console.error('리뷰 작성 중 오류 발생:', error);
       throw error;

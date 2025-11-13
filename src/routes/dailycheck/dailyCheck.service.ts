@@ -1,4 +1,5 @@
 import { Inject } from '@nestjs/common';
+import { CONST } from 'src/Constants/CONSTANTS';
 import { DailyCheck } from 'src/domain/entities/DailyCheck';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/routes/collection/collection.service';
@@ -35,6 +36,10 @@ export class DailyCheckService {
     });
 
     await this.dailyCheckRepository.create(newDailyCheck);
+    await this.userService.updateScore(
+      CONST.SCORE.DAILY_ATTEND,
+      '데일리 출석체크',
+    );
 
     const data = await this.collectionServiceInstance.setCollectionStamp(
       token.id,

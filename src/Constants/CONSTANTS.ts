@@ -1,5 +1,7 @@
 export const CONST = {
   SCORE: {
+    //일일 출석 체크
+    DAILY_ATTEND: 2,
     //번개 모임 개설
     CREATE_GATHER: 10,
     //번개 모임 참여
@@ -8,37 +10,29 @@ export const CONST = {
     CANCEL_GATHER: -5,
     //번개 모임 삭제
     REMOVE_GATHER: -10,
-    //스터디 투표
-    VOTE_STUDY: 3,
     //스터디 출석
     ATTEND_STUDY: 5,
-    //스터디 출석
+    //개인 스터디 출석
     ATTEND_PRIVATE_STUDY: 2,
-
-    GROUP_WEEKLY_PARTICIPATE: 2,
   },
 
   POINT: {
-    STUDY_VOTE: 50,
-    STUDY_PLACE: 100,
-    GROUPSTUDY_FIRST_COMMENT: 200,
-    // PROMOTION_EVENT: 100,
-    //홍보 이벤트 참여 두배
-    // PROMOTION_EVENT_DOUBLE: 100,
-    // FEED_LIKE: 2,
-    //피드 좋아요 취소
-    CANCEL_FEED_LIKE: -2,
     PARTICIPATE_GATHER: -2000,
     STUDY_ALL_RESULT: 100,
-    STUDY_ATTEND_BEFORE: () => Math.floor(Math.random() * 301) + 200,
-    STUDY_ATTEND_AFTER: () => Math.floor(Math.random() * 181) + 20,
-    REALTIME_ATTEND_SOLO: () => Math.floor(Math.random() * 181) + 20,
-    REALTIME_ATTEND_BEFORE: () => Math.floor(Math.random() * 251) + 50,
-    REALTIME_ATTEND_AFTER: () => Math.floor(Math.random() * 181) + 20,
-
+    STUDY_ATTEND_BEFORE: () => getLowBiasedRandom(200, 1000),
+    STUDY_ATTEND_AFTER: () => getLowBiasedRandom(100, 500),
+    REALTIME_ATTEND_SOLO: () => getLowBiasedRandom(50, 500),
+    REALTIME_ATTEND_BEFORE: () => getLowBiasedRandom(50, 500),
     LATE: -50,
     ABSENCE: -500,
     NO_SHOW: -1000,
     REALTIME_OPEN: 100,
   },
+};
+
+export const getLowBiasedRandom = (min: number, max: number) => {
+  const biasStrength = 12;
+  const u = Math.random();
+  const v = Math.pow(u, biasStrength);
+  return Math.floor(min + (max - min) * v);
 };
