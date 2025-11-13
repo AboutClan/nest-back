@@ -392,43 +392,19 @@ export class FeedService {
   }
 
   async test() {
-    try {
-      const feeds = await this.feedRepository.findAllTemp();
+    const gathers = await this.gatherRepository.findAllTemp();
+    const feeds = await this.feedRepository.findAllTemp();
 
-      for (const feed of feeds) {
-        const comments = feed.comments;
+    for (const feed of feeds) {
+      if (feed.type === 'gather') {
+        const gatherId = feed.typeId;
+        const gather = gathers.find((gather) => gather.id == Number(gatherId));
 
-        for (const comment of comments) {
-          if (!comment?.comment) continue;
-
-          const saveComment = await this.commentService.createComment({
-            postId: feed._id.toString(),
-            postType: 'feed',
-            user: comment.user,
-            comment: comment.comment,
-            likeList: comment?.likeList || [],
-          });
-
-          const subComments = comment.subComments || [];
-
-          for (const subComment of subComments) {
-            if (!subComment.comment) continue;
-
-            const saveSubComment = await this.commentService.createSubComment({
-              postId: feed._id.toString(),
-              postType: 'feed',
-              user: subComment.user,
-              comment: subComment.comment,
-              parentId: saveComment._id.toString(),
-              likeList: subComment?.likeList || [],
-            });
-          }
-        }
+        if (!gather) continue;
+        gather.hasReview = true;
+        await this.gatherRepository.save(gather);
       }
-
-      return feeds;
-    } catch (err) {
-      console.log(err);
     }
+    return gathers;
   }
 }

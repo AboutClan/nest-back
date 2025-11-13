@@ -33,4 +33,6 @@ export interface IUserRepository {
   updateTicketWithUserIds(userIds: string[], ticketNum: number);
   updateLocationDetailAll(id: string, updateInfo: any);
   test(): Promise<any>;
+
+  findAllForPrize();
 }

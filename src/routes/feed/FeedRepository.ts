@@ -45,7 +45,7 @@ export class FeedRepository implements IFeedRepository {
   }
 
   async findAllTemp() {
-    const docs = await this.FeedModel.find({}, '_id comments').lean();
+    const docs = await this.FeedModel.find({}, '_id type typeId').lean();
     return docs;
   }
 

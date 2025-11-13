@@ -145,6 +145,8 @@ export const ENTITY = {
     RANK_BRONZE: 'bronze' as const,
     RANK_SILVER: 'silver' as const,
     RANK_GOLD: 'gold' as const,
+    RANK_TEMPERATURE: 'temperature' as const,
+    RANK_STUDY: 'study' as const,
     ENUM_RANK: ['bronze', 'silver', 'gold'] as const,
 
     DEFAULT_RANK: 'bronze' as const,

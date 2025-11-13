@@ -36,8 +36,8 @@ export class GatherRepository implements IGatherRepository {
   }
 
   async findAllTemp() {
-    const docs = await this.Gather.find({}, '_id comments').lean();
-    return docs;
+    const docs = await this.Gather.find({}).lean();
+    return docs.map((doc) => this.mapToDomain(doc));
   }
 
   async findMyGatherId(userId: string) {

@@ -952,45 +952,6 @@ export class UserService {
     return +final;
   }
 
-  async processMonthPrize() {
-    const ranks = ENTITY.USER.ENUM_RANK;
-
-    const top5 = await this.UserRepository.findMonthPrize(
-      ranks as unknown as any[],
-    );
-
-    for (const rank of ranks) {
-      const top5UserIds = top5[rank].map((user) => user._id.toString());
-      this.prizeService.recordMonthPrize(rank, top5UserIds);
-
-      if (rank === ENTITY.USER.RANK_SILVER) {
-        const pointList = [5000, 3000, 2000, 1000, 100];
-        for (let i = 0; i < top5UserIds.length; i++) {
-          const userId = top5UserIds[i];
-          const point = pointList[i] || 1000; // 기본값 1000
-          await this.updatePointById(
-            point,
-            `월간 ${rank} 등수 보상`,
-            '월간 점수 보상',
-            userId,
-          );
-        }
-      } else if (rank === ENTITY.USER.RANK_BRONZE) {
-        const pointList = [3000, 2000, 1000, 1000, 1000];
-        for (let i = 0; i < top5UserIds.length; i++) {
-          const userId = top5UserIds[i];
-          const point = pointList[i] || 1000; // 기본값 1000
-          await this.updatePointById(
-            point,
-            `월간 ${rank} 등수 보상`,
-            '월간 점수 보상',
-            userId,
-          );
-        }
-      }
-    }
-  }
-
   async processMonthScore() {
     try {
       const firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth();
@@ -1000,7 +961,7 @@ export class UserService {
 
       await this.UserRepository.processMonthScore();
 
-      await this.processMonthPrize();
+      // await this.processMonthPrize();
 
       await this.UserRepository.resetMonthScore();
 

@@ -170,7 +170,7 @@ export class Gather {
     this.reviewers.push(reviewer);
   }
 
-  toPrimitives(): GatherProps {
+  public toPrimitives(): GatherProps {
     return {
       _id: this._id,
       title: this.title,
