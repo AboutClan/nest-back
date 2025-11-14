@@ -213,4 +213,16 @@ export class NotificationScheduler {
       throw new Error(err);
     }
   }
+
+  //매일 저녁 9시 10분으로 수정
+  @Cron('10 21 * * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async processDailyCheck() {
+    try {
+      await this.vote2Service.alertMatching();
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 }

@@ -873,4 +873,29 @@ export class Vote2Service {
       message: '메모 업데이트 성공',
     };
   }
+
+  async alertMatching() {
+    const today = DateUtils.getTodayYYYYMMDD();
+    const vote = await this.Vote2Repository.findByDate(today);
+    if (!vote) return;
+    const results = vote.results;
+
+    const alertedUsers = [];
+
+    for (const result of results) {
+      const members = result.members;
+      for (const member of members) {
+        if (alertedUsers.includes(member.userId)) {
+          continue;
+        }
+        alertedUsers.push(member.userId);
+      }
+    }
+
+    await this.fcmServiceInstance.sendNotificationUserIds(
+      alertedUsers,
+      '스터디 예정 알림',
+      '내일 스터디 매칭이 예정되어 있어요!',
+    );
+  }
 }
