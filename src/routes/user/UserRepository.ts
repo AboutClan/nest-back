@@ -281,9 +281,7 @@ export class UserRepository implements IUserRepository {
         { $set: { 'ticket.gatherTicket': 1 } },
         {
           $set: {
-            'ticket.groupStudyTicket': {
-              $min: [{ $add: ['$ticket.groupStudyTicket', 1] }, 4],
-            },
+            'ticket.groupStudyTicket': 3,
           },
         },
       ],
@@ -296,9 +294,7 @@ export class UserRepository implements IUserRepository {
         { $set: { 'ticket.gatherTicket': 2 } },
         {
           $set: {
-            'ticket.groupStudyTicket': {
-              $min: [{ $add: ['$ticket.groupStudyTicket', 2] }, 4],
-            },
+            'ticket.groupStudyTicket': 4,
           },
         },
       ],
@@ -311,24 +307,7 @@ export class UserRepository implements IUserRepository {
         { $set: { 'ticket.gatherTicket': 3 } },
         {
           $set: {
-            'ticket.groupStudyTicket': {
-              $min: [{ $add: ['$ticket.groupStudyTicket', 2] }, 4],
-            },
-          },
-        },
-      ],
-    );
-
-    // D유형 (≥40)
-    await this.UserModel.updateMany(
-      { 'temperature.temperature': { $gte: 40 } },
-      [
-        { $set: { 'ticket.gatherTicket': 4 } },
-        {
-          $set: {
-            'ticket.groupStudyTicket': {
-              $min: [{ $add: ['$ticket.groupStudyTicket', 3] }, 4],
-            },
+            'ticket.groupStudyTicket': 4,
           },
         },
       ],
@@ -347,7 +326,19 @@ export class UserRepository implements IUserRepository {
     );
 
     await this.UserModel.updateMany(
-      { 'temperature.temperature': { $gte: 42 } },
+      { 'temperature.temperature': { $gte: 42, $lt: 44 } },
+      [
+        { $set: { 'ticket.gatherTicket': 4 } },
+        {
+          $set: {
+            'ticket.groupStudyTicket': 5,
+          },
+        },
+      ],
+    );
+
+    await this.UserModel.updateMany(
+      { 'temperature.temperature': { $gte: 44 } },
       [
         { $set: { 'ticket.gatherTicket': 4 } },
         {
@@ -364,7 +355,7 @@ export class UserRepository implements IUserRepository {
       {
         $inc: {
           'ticket.gatherTicket': 1,
-          'ticket.groupStudyTicket': 2,
+          'ticket.groupStudyTicket': 1,
         },
       },
     );
