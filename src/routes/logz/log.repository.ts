@@ -29,10 +29,14 @@ export class MongoLogRepository implements LogRepository {
       .sort({ timestamp: -1 })
       .limit(30);
   }
-  async findByUidType(uid: string, type: string): Promise<ILog[]> {
+  async findByUidType(
+    uid: string,
+    userId: string,
+    type: string,
+  ): Promise<ILog[]> {
     return await this.Log.find(
       {
-        'meta.uid': uid,
+        $or: [{ 'meta.uid': uid }, { 'meta.uid': userId }],
         'meta.type': type,
       },
       '-_id timestamp message meta',
@@ -40,6 +44,7 @@ export class MongoLogRepository implements LogRepository {
       .sort({ timestamp: -1 })
       .limit(30);
   }
+
   async findByUidAndSubType(
     uid: string,
     type: string,

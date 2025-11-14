@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Param,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import LogService from './log.service';
 
@@ -22,6 +15,7 @@ export class LogController {
 
   @Get('monthScore')
   async getMonthScoreLog() {
+    console.log(4);
     const logs = await this.logService.getMonthScoreLog();
     return logs;
   }

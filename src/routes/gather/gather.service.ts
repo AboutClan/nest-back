@@ -870,7 +870,7 @@ export class GatherService {
 
     await this.userServiceInstance.updateScore(
       CONST.SCORE.REMOVE_GATHER,
-      '번개 모임 삭제',
+      '번개 모임 개설 취소',
     );
     return;
   }

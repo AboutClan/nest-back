@@ -35,13 +35,21 @@ export default class LogService {
 
   async getLog(type: string) {
     const token = RequestContext.getDecodedToken();
-    const logs = await this.logRepository.findByUidType(token.uid, type);
+    const logs = await this.logRepository.findByUidType(
+      token.uid,
+      token.id,
+      type,
+    );
     return logs;
   }
 
   async getTotalPointLog() {
     const token = RequestContext.getDecodedToken();
-    const logs = await this.logRepository.findByUidType(token.uid, 'point');
+    const logs = await this.logRepository.findByUidType(
+      token.uid,
+      token.id,
+      'point',
+    );
 
     const total = logs.filter((log) => log?.meta?.value > 0);
     // .reduce((acc, log) => acc + (log?.meta?.value || 0), 0);
