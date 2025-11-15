@@ -508,6 +508,7 @@ export class GatherService {
 
     try {
       const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
+
       if (diffDay > 2) {
         await this.userServiceInstance.updatePoint(
           -CONST.POINT.PARTICIPATE_GATHER,
@@ -521,7 +522,7 @@ export class GatherService {
           -CONST.POINT.PARTICIPATE_GATHER / 2,
           '번개 모임 보증금 반환',
           '',
-          userId ? userId : token.id,
+          userId ? userId : token.uid,
         );
         gather.deposit += CONST.POINT.PARTICIPATE_GATHER / 2;
       }
