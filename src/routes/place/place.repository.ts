@@ -174,7 +174,6 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async test() {
-    console.log(32);
     // await this.Place.updateMany(
     //   { $or: [{ status: 'inactive' }, { status: { $exists: false } }] },
     //   { $set: { status: 'sub' } },

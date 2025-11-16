@@ -15,7 +15,6 @@ export class LogController {
 
   @Get('monthScore')
   async getMonthScoreLog() {
-    console.log(4);
     const logs = await this.logService.getMonthScoreLog();
     return logs;
   }

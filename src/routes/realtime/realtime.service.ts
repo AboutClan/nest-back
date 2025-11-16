@@ -183,7 +183,6 @@ export default class RealtimeService {
       }
 
       await this.voteServiceInstance.deleteVote(date);
-
       const todayData = await this.getTodayData(date);
       if (todayData.isOpen(token.id, 'user')) {
         todayData.patchNotSoloUser(

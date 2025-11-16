@@ -302,7 +302,6 @@ export default class GroupStudyService {
         },
       }), // 배열 길이 조건 추가
     };
-    console.log(filterQuery, start, gap);
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
       filterQuery,
       start,

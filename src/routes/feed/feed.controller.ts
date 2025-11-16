@@ -52,7 +52,6 @@ export class FeedController {
   ) {
     const { title, text, type, typeId, isAnonymous, subCategory, date } = body;
     const buffers = files?.map((file) => file.buffer);
-    console.log(1);
     await this.feedService.createFeed({
       title,
       text,
@@ -172,7 +171,6 @@ export class FeedController {
   }
   @Get('receive')
   async findRecievedFeed() {
-    console.log(123);
     return await this.feedService.findReceivedFeed(true);
   }
   @Get('written')

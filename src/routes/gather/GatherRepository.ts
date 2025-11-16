@@ -107,7 +107,6 @@ export class GatherRepository implements IGatherRepository {
   ): Promise<Gather[] | null> {
     const gap = isFull ? 24 : 15;
     const start = gap * (cursor || 0);
-    console.log(1, start, gap);
     const results = await this.Gather.find(query)
       .sort(sort ? sort : { date: 1 })
       .skip(start)

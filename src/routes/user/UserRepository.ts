@@ -189,7 +189,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async updateLocationDetailAll(id: string, location: any) {
-    console.log('START');
     await this.UserModel.updateMany({
       $set: {
         studyRecord: {
