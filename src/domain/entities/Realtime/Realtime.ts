@@ -57,7 +57,7 @@ export class Realtime {
         ? this.userList.find((u) => (u.user as IUser)._id.toString() === userId)
         : this.userList.find((u) => u.user === userId);
 
-    return (user?.status === 'open'||user?.status==="participation");
+    return user?.status === 'open' || user?.status === 'participation';
   }
 
   public addUser(user: RealtimeUserProps) {
@@ -82,6 +82,7 @@ export class Realtime {
     endTime: string,
     arrived: Date,
     memo: string,
+    image: string,
   ): void {
     const idx = this.userList.findIndex(
       (u) => (u.user as IUser)._id.toString() === userId.toString(),
@@ -90,6 +91,7 @@ export class Realtime {
     this.userList[idx].time.end = endTime;
     this.userList[idx].arrived = arrived;
     this.userList[idx].memo = memo;
+    this.userList[idx].image = image;
   }
 
   updateUserTime(userId: string, start: string, end: string): void {

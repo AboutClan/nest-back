@@ -191,6 +191,7 @@ export default class RealtimeService {
           studyData.time.end,
           new Date(),
           studyData.memo,
+          studyData.image as string,
         );
       } else {
         const validatedStudy = RealtimeUserZodSchema.parse({

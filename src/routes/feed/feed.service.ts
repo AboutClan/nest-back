@@ -199,14 +199,12 @@ export class FeedService {
       date,
     });
 
-    // await this.feedRepository.create(newFeed);
+    await this.feedRepository.create(newFeed);
 
     const gather = await this.gatherRepository.findById(typeId);
     gather.hasReview = true;
     await this.gatherRepository.save(gather);
 
-    console.log(gather);
-    return;
     if (!gather)
       throw new NotFoundException(`cant find gather with id ${typeId}`);
 

@@ -97,6 +97,7 @@ export class RealtimeController {
     };
 
     const buffers = files ? files.map((file) => file.buffer) : [];
+
     const updatedStudy = await this.realtimeService.markAttendance(
       parsedData,
       buffers,
