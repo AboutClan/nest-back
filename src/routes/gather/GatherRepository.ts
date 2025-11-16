@@ -137,17 +137,32 @@ export class GatherRepository implements IGatherRepository {
 
     const excludeIds = gatherData1.map((item) => item._id);
 
+    // const gatherData2 = await this.Gather.find({
+    //   status: 'pending',
+    //   _id: { $nin: excludeIds },
+    //   $expr: {
+    //     $gte: [
+    //       { $divide: [{ $size: '$participants' }, '$memberCnt.max'] },
+    //       0.6,
+    //     ],
+    //   },
+    // })
+    //   .sort({ date: 1 })
+    //   .limit(6)
+    //   .populate({
+    //     path: 'user',
+    //     select: ENTITY.USER.C_MINI_USER,
+    //   })
+    //   .populate({
+    //     path: 'participants.user',
+    //     select: ENTITY.USER.C_MINI_USER,
+    //   });
+
     const gatherData2 = await this.Gather.find({
-      status: 'pending',
+      'participants.11': { $exists: true },
       _id: { $nin: excludeIds },
-      $expr: {
-        $gte: [
-          { $divide: [{ $size: '$participants' }, '$memberCnt.max'] },
-          0.6,
-        ],
-      },
     })
-      .sort({ date: 1 })
+      .sort({ date: -1 })
       .limit(6)
       .populate({
         path: 'user',
@@ -157,20 +172,6 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
-
-    // const gatherData2 = await this.Gather.find({
-    //   'participants.15': { $exists: true },
-    // })
-    //   .sort({ date: -1 })
-    //   .limit(8)
-    //   .populate({
-    //     path: 'user',
-    //     select: ENTITY.USER.C_MINI_USER,
-    //   })
-    //   .populate({
-    //     path: 'participants.user',
-    //     select: ENTITY.USER.C_MINI_USER,
-    //   });
 
     return [...gatherData1, ...gatherData2].map((doc) => this.mapToDomain(doc));
   }
