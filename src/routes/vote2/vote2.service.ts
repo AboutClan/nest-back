@@ -766,6 +766,14 @@ export class Vote2Service {
 
     // await this.userServiceInstance.setVoteArriveInfo(token.id, arriveData.end);
 
+    function getDiffMinutes(end: string | Date): number {
+      const startDate = new Date();
+      const endDate = new Date(end);
+
+      const diffMs = Math.abs(startDate.getTime() - endDate.getTime());
+      return Math.floor(diffMs / 1000 / 60);
+    }
+
     const isArriveBefore = vote.isVoteBefore(token.id);
     const isLate = vote.isLate(token.id);
     let point = 0;
@@ -774,7 +782,10 @@ export class Vote2Service {
       CONST.SCORE.ATTEND_STUDY,
       '스터디 출석',
     );
-    await this.userServiceInstance.updateStudyRecord('study');
+    await this.userServiceInstance.updateStudyRecord(
+      'study',
+      getDiffMinutes(end),
+    );
 
     if (isArriveBefore) {
       point = isLate

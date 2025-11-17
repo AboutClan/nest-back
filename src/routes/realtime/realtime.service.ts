@@ -182,6 +182,14 @@ export default class RealtimeService {
         studyData.image = images[0];
       }
 
+      function getDiffMinutes(end: string | Date): number {
+        const startDate = new Date();
+        const endDate = new Date(end);
+
+        const diffMs = Math.abs(startDate.getTime() - endDate.getTime());
+        return Math.floor(diffMs / 1000 / 60);
+      }
+
       await this.voteServiceInstance.deleteVote(date);
       const todayData = await this.getTodayData(date);
       if (todayData.isOpen(token.id, 'user')) {
@@ -217,7 +225,10 @@ export default class RealtimeService {
           '스터디 출석',
         );
 
-        await this.userServiceInstance.updateStudyRecord('study');
+        await this.userServiceInstance.updateStudyRecord(
+          'study',
+          getDiffMinutes(studyData.time.end),
+        );
 
         const message = `스터디 출석 ${isLate ? '(지각)' : ''}`;
         await this.userServiceInstance.updatePoint(point, message, 'study');
@@ -228,7 +239,10 @@ export default class RealtimeService {
         };
       } else {
         const point = CONST.POINT.REALTIME_ATTEND_SOLO();
-        await this.userServiceInstance.updateStudyRecord('solo');
+        await this.userServiceInstance.updateStudyRecord(
+          'solo',
+          getDiffMinutes(studyData.time.end),
+        );
         await this.userServiceInstance.updateScore(
           CONST.SCORE.ATTEND_PRIVATE_STUDY,
           '개인 공부 인증',

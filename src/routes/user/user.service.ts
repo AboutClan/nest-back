@@ -481,10 +481,11 @@ export class UserService {
     });
     return;
   }
-  async updateStudyRecord(type: 'study' | 'solo') {
+  async updateStudyRecord(type: 'study' | 'solo', diffMinutes: number) {
+   
     const token = RequestContext.getDecodedToken();
     const user = await this.UserRepository.findByUid(token.uid);
-    user.increaseStudyRecord(type);
+    user.increaseStudyRecord(type,diffMinutes);
     await this.UserRepository.save(user);
 
     return;
