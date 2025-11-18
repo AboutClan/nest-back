@@ -141,6 +141,7 @@ export default class RealtimeService {
         memo: validatedUserData.memo,
         comment: validatedUserData.comment as CommentProps,
         status: validatedUserData.status,
+        heartCnt: validatedUserData.heartCnt,
       }),
     );
 
@@ -289,6 +290,16 @@ export default class RealtimeService {
     return updatedRealtime;
   }
 
+  async increaseHeart(userId: string, date: string) {
+    const todayData = await this.getTodayData(date);
+
+    try {
+      todayData.increaseHeartCount(userId);
+      await this.realtimeRepository.save(todayData);
+    } catch (err) {
+      throw new Error();
+    }
+  }
   async patchVote(start: any, end: any, date: string) {
     const token = RequestContext.getDecodedToken();
 

@@ -97,6 +97,7 @@ export class RealtimeRepository implements IRealtimeRepository {
         },
         arrived: u.arrived,
         image: u.image as string,
+        heartCnt: u.heartCnt,
         memo: u.memo,
         comment: u.comment ? { text: u.comment.text } : undefined,
         status: u.status,
@@ -125,6 +126,7 @@ export class RealtimeRepository implements IRealtimeRepository {
         status: u.status,
         time: u.time,
         absence: u.absence,
+        heartCnt: u.heartCnt,
       })),
     };
   }

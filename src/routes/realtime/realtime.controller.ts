@@ -125,6 +125,19 @@ export class RealtimeController {
     }
   }
 
+  @Post(':date/heart')
+  async increaseHeart(
+    @Body('userId') userId: string,
+    @Res() res: Response,
+    @Req() req: Request,
+    @Next() next: NextFunction,
+  ) {
+    const { date } = req;
+
+    await this.realtimeService.increaseHeart(userId, date as string);
+    return res.status(HttpStatus.OK).end();
+  }
+
   @Patch(':date/time')
   async patchVote(
     @Body('start') start: string,

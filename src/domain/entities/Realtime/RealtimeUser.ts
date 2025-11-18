@@ -20,6 +20,7 @@ export interface RealtimeUserProps {
   status?: RealtimeUserStatus;
   time: TimeProps;
   absence?: boolean;
+  heartCnt: number;
 }
 
 export class RealtimeUser {
@@ -32,6 +33,7 @@ export class RealtimeUser {
   public status: RealtimeUserStatus;
   public time: Time;
   public absence: boolean;
+  public heartCnt: number;
 
   constructor(props: RealtimeUserProps) {
     if (!props.user) throw new Error('RealtimeUser.userId is required');
@@ -53,6 +55,7 @@ export class RealtimeUser {
     this.comment = props.comment ? new Comment(props.comment.text) : undefined;
     this.status = props.status ?? 'solo';
     this.absence = props.absence ?? false;
+    this.heartCnt = props.heartCnt ?? 0;
   }
 
   updatePlace(place: any) {
@@ -76,6 +79,7 @@ export class RealtimeUser {
       comment: this.comment?.toPrimitives(),
       status: this.status,
       time: this.time.toPrimitives(),
+      heartCnt: this.heartCnt,
     };
   }
 }

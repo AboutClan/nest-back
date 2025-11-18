@@ -29,6 +29,7 @@ export const RealtimeUserZodSchema = z.object({
     .default(ENTITY.REALTIME.DEFAULT_STATUS),
   time: TimeSchema,
   absence: z.boolean().optional(),
+  heartCnt: z.number().default(0),
   _id: z.string().optional(),
 });
 
@@ -85,6 +86,7 @@ const realtimeUserSchema: Schema<IRealtimeUser> = new Schema({
     enum: ENTITY.REALTIME.ENUM_STATUS,
     required: true,
   },
+  heartCnt: { type: Number, default: 0 },
   time: { type: timeSchema, required: true },
   absence: { type: Boolean, default: false },
 });

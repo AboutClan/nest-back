@@ -94,6 +94,17 @@ export class Realtime {
     this.userList[idx].image = image;
   }
 
+  increaseHeartCount(userId: string): void {
+    const user = this.userList.find(
+      (u) => (u.user as IUser)._id.toString() === userId,
+    );
+
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+    // Time 객체 교체
+    user.heartCnt += 1;
+  }
   updateUserTime(userId: string, start: string, end: string): void {
     const user = this.userList.find(
       (u) => (u.user as IUser)._id.toString() === userId,
@@ -170,6 +181,7 @@ export class Realtime {
         },
         place: { ...member.place },
         status: member.status,
+        heartCnt: member.heartCnt,
       };
       return form;
     } else {
@@ -190,6 +202,7 @@ export class Realtime {
         },
         place: { location: member.place },
         status: member.status,
+        heartCnt: member.heartCnt,
       };
       return form;
     }
