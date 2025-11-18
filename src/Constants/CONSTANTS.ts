@@ -31,7 +31,7 @@ export const CONST = {
 };
 
 export const getLowBiasedRandom = (min: number, max: number) => {
-  const biasStrength = 12;
+  const biasStrength = 10;
   const u = Math.random();
   const v = Math.pow(u, biasStrength);
   return Math.floor(min + (max - min) * v);
