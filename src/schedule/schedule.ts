@@ -221,7 +221,9 @@ export class NotificationScheduler {
   async processDailyCheck() {
     try {
       await this.vote2Service.alertMatching();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'success');
     } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'failure', err);
       throw new Error(err);
     }
   }

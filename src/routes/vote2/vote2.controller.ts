@@ -7,6 +7,8 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request } from 'express';
 import {
@@ -16,6 +18,8 @@ import {
   CreateParticipateDTO,
 } from './vote2.dto';
 import { Vote2Service } from './vote2.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @Controller('vote2')
 export class Vote2Controller {
@@ -229,13 +233,20 @@ export class Vote2Controller {
   }
 
   @Post(':date/arrive')
+  @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
   async setArrive(
     @Req() req: Request,
     @Body() body: CreateArriveDTO,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<any> {
     const { date } = req;
     const { memo, end } = body;
-    const result = await this.voteService2.setArrive(date as string, memo, end);
+    const result = await this.voteService2.setArrive(
+      date as string,
+      memo,
+      end,
+      file?.buffer,
+    );
 
     return result;
   }

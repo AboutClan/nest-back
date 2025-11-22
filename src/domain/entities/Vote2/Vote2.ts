@@ -84,7 +84,7 @@ export class Vote2 {
     }
   }
 
-  setArrive(userId: string, memo: any, end: string) {
+  setArrive(userId: string, memo: any, end: string, imageUrl?: string) {
     const result = this.results.find((r) =>
       r.members.some((m) => (m.userId as IUser)._id.toString() === userId),
     );
@@ -97,6 +97,7 @@ export class Vote2 {
         memo && (member.memo = memo);
         end && (member.end = end);
         member.start = DateUtils.getNowDate().toISOString();
+        imageUrl && (member.imageUrl = imageUrl);
       }
     }
   }

@@ -32,6 +32,7 @@ export interface IMember {
   comment?: {
     text: string;
   };
+  imageUrl?: string;
 }
 
 export interface IResult {
@@ -69,6 +70,7 @@ export const MemberSchema: Schema<IMember> = new Schema(
     memo: String,
     img: String,
     comment: voteCommentSchema,
+    imageUrl: String,
   },
   { _id: false },
 );

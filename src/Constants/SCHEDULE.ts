@@ -12,4 +12,5 @@ export const SCHEDULE_CONST = {
   PROCESS_TICKET: 'Ticket Processing Scheduler',
   PROCESS_GROUP_ATTENDANCE: 'Group Attendance Processing Scheduler',
   BACKUP_DATABASE: 'BACKUP_DATABASE',
+  PROCESS_VOTE_RESULT: 'Vote Result Processing Scheduler',
 };

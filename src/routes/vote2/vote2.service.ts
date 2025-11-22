@@ -17,6 +17,7 @@ import { FcmService } from '../fcm/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation, IResult } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
+import ImageService from '../imagez/image.service';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -27,6 +28,7 @@ export class Vote2Service {
     private readonly userServiceInstance: UserService,
     private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
+    private readonly imageServiceInstance: ImageService,
   ) {}
 
   formatMember(member: IMember) {
@@ -750,7 +752,15 @@ export class Vote2Service {
     });
   }
 
-  async setArrive(date: string, memo: string, end: string) {
+  async setArrive(date: string, memo: string, end: string, buffer: Buffer) {
+    let imageUrl = '';
+    if (buffer) {
+      imageUrl = await this.imageServiceInstance.uploadSingleImage(
+        'gather',
+        buffer,
+      );
+    }
+
     const token = RequestContext.getDecodedToken();
 
     const arriveData = {
@@ -760,7 +770,7 @@ export class Vote2Service {
     };
 
     const vote = await this.Vote2Repository.findByDate(date);
-    vote.setArrive(token.id, memo, end);
+    vote.setArrive(token.id, memo, end, imageUrl);
     //todo: score, point 추가
     await this.Vote2Repository.save(vote);
 

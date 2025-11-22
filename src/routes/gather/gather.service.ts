@@ -607,7 +607,7 @@ export class GatherService {
 
       if (gather.deposit !== 0) {
         await this.userServiceInstance.updatePointById(
-          (gather.deposit * 8) / 10,
+          (gather.deposit * 5) / 10,
           '번개 모임 보증금 반환',
           '',
           gather.user,
