@@ -46,6 +46,11 @@ export class UrlTransformInterceptor implements NestInterceptor {
         return obj;
       }
 
+      // Date 객체 처리 (그대로 반환)
+      if (obj instanceof Date) {
+        return obj;
+      }
+
       // Mongoose ObjectId 처리
       if (this.isObjectId(obj)) {
         return obj.toString();
@@ -58,9 +63,16 @@ export class UrlTransformInterceptor implements NestInterceptor {
         return transform(plainObj);
       }
 
-      // 배열 처리
+      // 배열 처리 (배열은 객체이므로 먼저 체크)
       if (Array.isArray(obj)) {
-        return obj.map((item) => transform(item));
+        // 빈 배열도 그대로 반환
+        if (obj.length === 0) {
+          return obj;
+        }
+        return obj.map((item) => {
+          // 각 아이템을 재귀적으로 변환
+          return transform(item);
+        });
       }
 
       // 객체 처리 (순환 참조 방지)
@@ -69,6 +81,12 @@ export class UrlTransformInterceptor implements NestInterceptor {
       }
 
       visited.add(obj);
+
+      // 빈 객체 처리
+      const keys = Object.keys(obj);
+      if (keys.length === 0) {
+        return {};
+      }
 
       const result: any = {};
       for (const key in obj) {
@@ -79,10 +97,24 @@ export class UrlTransformInterceptor implements NestInterceptor {
           key !== '__v'
         ) {
           let value = obj[key];
+
+          // null, undefined는 그대로 유지
+          if (value === null || value === undefined) {
+            result[key] = value;
+            continue;
+          }
+
+          // Date 객체는 그대로 유지
+          if (value instanceof Date) {
+            result[key] = value;
+            continue;
+          }
+
           // ObjectId 필드 처리 (_id 등)
           if (this.isObjectId(value)) {
             value = value.toString();
           }
+
           result[key] = transform(value);
         }
       }
