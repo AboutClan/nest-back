@@ -13,4 +13,5 @@ export const SCHEDULE_CONST = {
   PROCESS_GROUP_ATTENDANCE: 'Group Attendance Processing Scheduler',
   BACKUP_DATABASE: 'BACKUP_DATABASE',
   PROCESS_VOTE_RESULT: 'Vote Result Processing Scheduler',
+  PROCESS_STUDY_ABSENCE: 'Study Absence Processing Scheduler',
 };
