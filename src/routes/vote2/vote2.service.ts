@@ -14,10 +14,10 @@ import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../fcm/fcm.service';
+import ImageService from '../imagez/image.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation, IResult } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
-import ImageService from '../imagez/image.service';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -52,7 +52,7 @@ export class Vote2Service {
       attendance: {
         time: member?.arrived,
         memo: member?.memo,
-        attendanceImage: member?.img,
+        attendanceImage: member?.imageUrl,
         type: member.arrived ? 'arrived' : member?.absence ? 'absenced' : null,
       },
       comment: member.comment,
@@ -770,6 +770,7 @@ export class Vote2Service {
     };
 
     const vote = await this.Vote2Repository.findByDate(date);
+    console.log(token.id, memo, end, imageUrl);
     vote.setArrive(token.id, memo, end, imageUrl);
     //todo: score, point 추가
     await this.Vote2Repository.save(vote);
