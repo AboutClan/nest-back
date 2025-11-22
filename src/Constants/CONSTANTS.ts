@@ -25,6 +25,7 @@ export const CONST = {
     REALTIME_ATTEND_BEFORE: () => getLowBiasedRandom(50, 500),
     LATE: -50,
     ABSENCE: -500,
+    ABSENCE_FEE: -1000,
     NO_SHOW: -1000,
     REALTIME_OPEN: 100,
   },

@@ -697,6 +697,26 @@ export class Vote2Service {
     );
   }
 
+  async processAbsenceFee() {
+    const today = DateUtils.getTodayYYYYMMDD();
+    const vote = await this.Vote2Repository.findByDate(today);
+    if (!vote) return;
+    const results = vote.results;
+
+    const members = results.flatMap((result) => result.members);
+
+    for (const member of members) {
+      if (!member.arrived && !member.absence) {
+        await this.userServiceInstance.updatePointById(
+          CONST.POINT.ABSENCE_FEE,
+          '스터디 무단 불참 벌금',
+          '',
+          member.userId.toString(),
+        );
+      }
+    }
+  }
+
   async setResult(date: string) {
     const today = DateUtils.getTodayYYYYMMDD();
 

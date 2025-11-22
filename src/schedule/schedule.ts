@@ -242,4 +242,18 @@ export class NotificationScheduler {
       throw new Error(err);
     }
   }
+
+  // 스터디 미참여 요금 정산
+  @Cron('0 10 1 * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async processAbsenceFee() {
+    try {
+      await this.vote2Service.processAbsenceFee();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'failure', err);
+      throw new Error(err);
+    }
+  }
 }
