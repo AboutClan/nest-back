@@ -122,7 +122,9 @@ export class GatherRepository implements IGatherRepository {
   }
 
   async findThree(): Promise<Gather[] | null> {
-    const gatherData1 = await this.Gather.find({ status: 'pending' })
+    const gatherData1 = await this.Gather.find({
+      status: { $nin: ['close', 'end'] },
+    })
       .sort({ createdAt: -1 })
       .limit(6)
       .populate({
