@@ -87,7 +87,7 @@ export class MongoNoticeRepository implements NoticeRepository {
       this.Notice.find({
         ...base,
         sub: { $in: ['great', 'good'] },
-        message: { $exists: true },
+        message: { $exists: true, $ne: '' },
       })
         .sort({ createdAt: -1 })
         .limit(3)
