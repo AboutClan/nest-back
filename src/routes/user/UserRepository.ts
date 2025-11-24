@@ -26,6 +26,17 @@ export class UserRepository implements IUserRepository {
     return this.mapToDomain(user);
   }
 
+  async findAllForStudyEngage() {
+    return await this.UserModel.find({
+      $or: [
+        { 'studyRecord.accumulationMinutes': { $gte: 2 } },
+        { 'studyRecord.accumulationCnt': { $gte: 2 } },
+      ],
+    })
+      .select('_id uid studyRecord')
+      .lean();
+  }
+
   async updateUser(uid: string, updateInfo: any): Promise<null> {
     await this.UserModel.findOneAndUpdate(
       { uid },

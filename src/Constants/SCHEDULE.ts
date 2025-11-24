@@ -15,4 +15,5 @@ export const SCHEDULE_CONST = {
   PROCESS_VOTE_RESULT: 'Vote Result Processing Scheduler',
   PROCESS_STUDY_ABSENCE: 'Study Absence Processing Scheduler',
   PROCESS_ABSENCE_FEE: 'Absence Fee Processing Scheduler',
+  PROCESS_STUDY_ENGAGE: 'Study Engage Processing Scheduler',
 };

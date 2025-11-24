@@ -14,6 +14,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { UserRepository } from './UserRepository';
 import { PrizeModule } from '../prize/prize.module';
 import { BackupModule } from 'src/Database/backup.module';
+import { FcmAModule } from '../fcm/fcm.module';
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
@@ -31,6 +32,7 @@ const userRepositoryProvider: ClassProvider = {
     CollectionModule,
     PrizeModule,
     BackupModule,
+    FcmAModule,
   ],
   controllers: [UserController],
   providers: [UserService, userRepositoryProvider],

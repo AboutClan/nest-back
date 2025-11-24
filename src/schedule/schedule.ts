@@ -256,4 +256,19 @@ export class NotificationScheduler {
       throw new Error(err);
     }
   }
+
+  // 스터디 참여 격려
+  // 매주 목요일 오후 8시
+  @Cron('0 0 20 * * 4', {
+    timeZone: 'Asia/Seoul',
+  })
+  async studyEngage() {
+    try {
+      await this.userService.processStudyEngage();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'failure', err);
+      throw new Error(err);
+    }
+  }
 }

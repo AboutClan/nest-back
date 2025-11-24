@@ -21,6 +21,7 @@ import * as logger from '../../logger';
 import { PrizeService } from '../prize/prize.service';
 import { IUser, restType } from './user.entity';
 import { IUserRepository } from './UserRepository.interface';
+import { FcmService } from '../fcm/fcm.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -32,6 +33,7 @@ export class UserService {
     private readonly noticeService: NoticeService,
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
+    private readonly fcmServiceInstance: FcmService,
     private readonly collectionServiceInstance: CollectionService,
     private readonly prizeService: PrizeService,
     private readonly backupService: BackupService,
@@ -482,10 +484,9 @@ export class UserService {
     return;
   }
   async updateStudyRecord(type: 'study' | 'solo', diffMinutes: number) {
-   
     const token = RequestContext.getDecodedToken();
     const user = await this.UserRepository.findByUid(token.uid);
-    user.increaseStudyRecord(type,diffMinutes);
+    user.increaseStudyRecord(type, diffMinutes);
     await this.UserRepository.save(user);
 
     return;
@@ -991,6 +992,37 @@ export class UserService {
 
   async updateTicketWithUserIds(userIds: string[], ticketNum: number) {
     await this.UserRepository.updateTicketWithUserIds(userIds, ticketNum);
+  }
+
+  async processStudyEngage() {
+    const users = await this.UserRepository.findAllForStudyEngage();
+
+    const userIds = users.map((user) => user._id.toString());
+
+    //   {
+    //     title: "이번주 카공 같이 할 사람? ✨",
+    //     description: "근처에 있는 멤버들이 스터디 기다리고 있어요! 지금 신청하고 같이 카공해요!",
+    //   },  {
+    //     title: "공부도 하고, 포인트도 GET! 💰",
+    //     description: "스터디 신청만 해도 포인트가 와르르 🎁 다음 주 함께 공부할 멤버를 찾고 있어요 🚀",
+    //   },
+
+    // 중 랜덤 발송(추가 예정)
+    const random = Math.floor(Math.random() * 2);
+    const title =
+      random === 0
+        ? '이번주 카공 같이 할 사람? ✨'
+        : '공부도 하고, 포인트도 GET! 💰';
+    const description =
+      random === 0
+        ? '근처에 있는 멤버들이 스터디 기다리고 있어요! 지금 신청하고 같이 카공해요!'
+        : '스터디 신청만 해도 포인트가 와르르 🎁 다음 주 함께 공부할 멤버를 찾고 있어요 🚀';
+
+    await this.fcmServiceInstance.sendNotificationUserIds(
+      userIds,
+      title,
+      description,
+    );
   }
 
   async test() {

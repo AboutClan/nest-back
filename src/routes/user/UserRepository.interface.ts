@@ -7,6 +7,7 @@ export interface IUserRepository {
   findByUids(uids: string[]): Promise<User[]>;
   findAll(queryString?: string): Promise<User[]>;
   findAllForTicket();
+  findAllForStudyEngage();
   updateUser(uid: string, updateInfo: any): Promise<null>;
   findByIsActiveUid(
     uid: string,
