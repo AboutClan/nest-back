@@ -672,6 +672,51 @@ export class Vote2Service {
     await this.Vote2Repository.save(vote);
   }
 
+  async alertStudyAbsence() {
+    const today = DateUtils.getTodayYYYYMMDD();
+    const vote = await this.Vote2Repository.findByDate(today);
+    if (!vote) return;
+    const results = vote.results;
+    const userIds = [];
+    for (const result of results) {
+      const members = result.members;
+      for (const member of members) {
+        const startTime = new Date(member.start);
+        if (!member.arrived && startTime < new Date()) {
+          userIds.push(member.userId.toString());
+        }
+      }
+    }
+
+    if (userIds.length === 0) return;
+
+    await this.fcmServiceInstance.sendNotificationUserIds(
+      userIds,
+      '스터디 미참여 푸시알림',
+      '스터디 미참여 푸시알림',
+    );
+  }
+
+  async processAbsenceFee() {
+    const today = DateUtils.getTodayYYYYMMDD();
+    const vote = await this.Vote2Repository.findByDate(today);
+    if (!vote) return;
+    const results = vote.results;
+
+    const members = results.flatMap((result) => result.members);
+
+    for (const member of members) {
+      if (!member.arrived && !member.absence) {
+        await this.userServiceInstance.updatePointById(
+          CONST.POINT.ABSENCE_FEE,
+          '스터디 무단 불참 벌금',
+          '',
+          member.userId.toString(),
+        );
+      }
+    }
+  }
+
   async setResult(date: string) {
     const today = DateUtils.getTodayYYYYMMDD();
 
@@ -770,7 +815,6 @@ export class Vote2Service {
     };
 
     const vote = await this.Vote2Repository.findByDate(date);
-    console.log(token.id, memo, end, imageUrl);
     vote.setArrive(token.id, memo, end, imageUrl);
     //todo: score, point 추가
     await this.Vote2Repository.save(vote);

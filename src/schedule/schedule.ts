@@ -215,7 +215,7 @@ export class NotificationScheduler {
   }
 
   //매일 저녁 9시 10분으로 수정
-  @Cron('10 21 * * * *', {
+  @Cron('0 10 21 * * *', {
     timeZone: 'Asia/Seoul',
   })
   async processDailyCheck() {
@@ -224,6 +224,35 @@ export class NotificationScheduler {
       this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'success');
     } catch (err: any) {
       this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'failure', err);
+      throw new Error(err);
+    }
+  }
+
+  // 스터디 미참여 푸시알림
+  // 매일 오후 4시와 오후 8시
+  @Cron('0 0 16,20 * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async processStudyAbsence() {
+    try {
+      await this.vote2Service.alertStudyAbsence();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'failure', err);
+      throw new Error(err);
+    }
+  }
+
+  // 스터디 미참여 요금 정산
+  @Cron('0 10 1 * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async processAbsenceFee() {
+    try {
+      await this.vote2Service.processAbsenceFee();
+      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'failure', err);
       throw new Error(err);
     }
   }

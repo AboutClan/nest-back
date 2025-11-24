@@ -42,6 +42,7 @@ import { DailyCheckModule } from './routes/dailycheck/dailyCheck.module';
 import { Vote2Module } from './routes/vote2/vote2.module';
 import { PaymentModule } from './routes/payment/payment.module';
 import { AsyncContextInterceptor } from './async-context.interceptor';
+import { UrlTransformInterceptor } from './url-transform.interceptor';
 import { BullModule } from '@nestjs/bull';
 import { HttpExceptionFilter } from './errors/http-exception.filter';
 import { WinstonModule } from 'nest-winston';
@@ -162,6 +163,7 @@ const corsOptions = {
     { provide: APP_FILTER, useClass: ZodExceptionFilter },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: AsyncContextInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: UrlTransformInterceptor },
   ],
 })
 export class AppModule implements NestModule {
