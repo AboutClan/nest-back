@@ -158,7 +158,6 @@ export const ENTITY = {
     ENUM_MEMBERSHIP: [
       'newbie',
       'studySupporters',
-      'groupSupporters',
       'gatherSupporters',
       'manager',
       'normal',
