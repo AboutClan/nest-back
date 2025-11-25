@@ -154,5 +154,13 @@ export const ENTITY = {
     DEFAULT_COMMENT: '안녕하세요! 잘 부탁드립니다~!' as const,
     DEFAULT_DEPOSIT: 3000 as const,
     DEAFULT_TEMPERATURE: 36.5 as const,
+
+    ENUM_MEMBERSHIP: [
+      'newbie',
+      'studySupporters',
+      'groupSupporters',
+      'manager',
+      'normal',
+    ] as const,
   },
 };

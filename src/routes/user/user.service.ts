@@ -1025,6 +1025,10 @@ export class UserService {
     );
   }
 
+  async initMembership() {
+    await this.UserRepository.initMembership();
+  }
+
   async test() {
     await this.UserRepository.test();
     // const users = await this.UserRepository.findAll();

@@ -283,6 +283,17 @@ export class UserRepository implements IUserRepository {
       .lean();
   }
 
+  async initMembership(): Promise<null> {
+    //registerDate가 오늘 기준 한달 이전인 경우 membership을 normal로 변경
+    const today = new Date();
+    const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
+    await this.UserModel.updateMany(
+      { registerDate: { $lt: oneMonthAgo } },
+      { $set: { membership: 'normal' } },
+    );
+    return null;
+  }
+
   async processTicket(whiteList: any) {
     // A유형 (<36.5)
     await this.UserModel.updateMany(
@@ -486,6 +497,7 @@ export class UserRepository implements IUserRepository {
       doc?.introduceText,
       doc?.rank,
       doc?.rankPosition,
+      doc?.membership,
     );
   }
 
@@ -537,6 +549,7 @@ export class UserRepository implements IUserRepository {
 
     if (result.studyPreference?.place?.length === 0)
       result.studyPreference.place = null;
+    if (p.membership !== null) result.membership = p.membership;
 
     return result;
   }

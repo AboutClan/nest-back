@@ -271,4 +271,18 @@ export class NotificationScheduler {
       throw new Error(err);
     }
   }
+
+  //매일 한번 맴버심 초기화
+  @Cron('30 0 0 * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async initMembership() {
+    try {
+      await this.userService.initMembership();
+      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'failure', err);
+      throw new Error(err);
+    }
+  }
 }

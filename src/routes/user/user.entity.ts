@@ -130,6 +130,7 @@ export const userZodSchema = z.object({
   isLocationSharingDenided: z.boolean().default(false).optional(),
   temperature: z.number().default(ENTITY.USER.DEAFULT_TEMPERATURE),
   introduceText: z.string(),
+  membership: z.enum(ENTITY.USER.ENUM_MEMBERSHIP).optional(),
 });
 
 export interface IUser extends Document, IRegistered {
@@ -159,6 +160,7 @@ export interface IUser extends Document, IRegistered {
   introduceText: string;
   rank: string;
   rankPosition: number;
+  membership: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -433,6 +435,11 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   introduceText: {
     type: String,
+  },
+  membership: {
+    type: String,
+    enum: ENTITY.USER.ENUM_MEMBERSHIP,
+    default: 'newbie',
   },
 });
 

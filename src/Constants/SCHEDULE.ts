@@ -16,4 +16,5 @@ export const SCHEDULE_CONST = {
   PROCESS_STUDY_ABSENCE: 'Study Absence Processing Scheduler',
   PROCESS_ABSENCE_FEE: 'Absence Fee Processing Scheduler',
   PROCESS_STUDY_ENGAGE: 'Study Engage Processing Scheduler',
+  INIT_MEMBERSHIP: 'Membership Initialization Scheduler',
 };

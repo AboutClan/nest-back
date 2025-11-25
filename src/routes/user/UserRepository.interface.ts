@@ -37,4 +37,5 @@ export interface IUserRepository {
   test(): Promise<any>;
 
   findAllForPrize();
+  initMembership(): Promise<null>;
 }

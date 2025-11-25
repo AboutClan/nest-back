@@ -1,3 +1,4 @@
+import { ENTITY } from 'src/Constants/ENTITY';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { Interest } from './Interest';
@@ -47,6 +48,7 @@ export interface IUser {
   introduceText?: string;
   rank?: String;
   rankPosition?: Number;
+  membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
 }
 
 export class User {
@@ -88,6 +90,7 @@ export class User {
     public introduceText?: string,
     public rank?: string,
     public rankPosition?: number,
+    public membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number],
   ) {
     this._id = _id || '';
     this.uid = uid || '';
@@ -126,6 +129,7 @@ export class User {
     this.introduceText = introduceText || '';
     this.rank = rank || 'bronze';
     this.rankPosition = rankPosition || 0;
+    this.membership = membership || 'newbie';
   }
 
   setRest(
@@ -266,6 +270,7 @@ export class User {
       rank: this.rank,
       rankPosition: this.rankPosition,
       introduceText: this.introduceText,
+      membership: this.membership,
     };
   }
 }
