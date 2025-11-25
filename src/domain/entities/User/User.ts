@@ -129,7 +129,7 @@ export class User {
     this.introduceText = introduceText || '';
     this.rank = rank || 'bronze';
     this.rankPosition = rankPosition || 0;
-    this.membership = membership || 'newbie';
+    this.membership = membership || 'normal';
   }
 
   setRest(

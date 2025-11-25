@@ -439,7 +439,7 @@ export const UserSchema: Schema<IUser> = new Schema({
   membership: {
     type: String,
     enum: ENTITY.USER.ENUM_MEMBERSHIP,
-    default: 'newbie',
+    default: 'normal',
   },
 });
 

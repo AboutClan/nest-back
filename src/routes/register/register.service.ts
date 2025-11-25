@@ -107,6 +107,7 @@ export default class RegisterService {
         type: null,
         bg: null,
       },
+      membership: 'newbie',
     };
 
     try {
