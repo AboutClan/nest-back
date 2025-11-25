@@ -159,6 +159,7 @@ export const ENTITY = {
       'newbie',
       'studySupporters',
       'groupSupporters',
+      'gatherSupporters',
       'manager',
       'normal',
     ] as const,

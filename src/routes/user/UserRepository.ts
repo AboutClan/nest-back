@@ -393,6 +393,35 @@ export class UserRepository implements IUserRepository {
         },
       );
     }
+
+    //membership이 뉴비면 번개 +1, 소모임 +2 / 운영진/소모임장이면 번개 +2 소모임 +4 / 번개 서포터즈면 번개 +2
+    await this.UserModel.updateMany(
+      { membership: 'newbie' },
+      {
+        $inc: {
+          'ticket.gatherTicket': 1,
+          'ticket.groupStudyTicket': 2,
+        },
+      },
+    );
+    await this.UserModel.updateMany(
+      { membership: 'manager' },
+      {
+        $inc: {
+          'ticket.gatherTicket': 2,
+          'ticket.groupStudyTicket': 4,
+        },
+      },
+    );
+    await this.UserModel.updateMany(
+      { membership: 'gatherSupporters' },
+      {
+        $inc: {
+          'ticket.gatherTicket': 2,
+        },
+      },
+    );
+    return null;
   }
 
   async findAllForPrize() {
