@@ -40,9 +40,7 @@ export class MongoLogRepository implements LogRepository {
         'meta.type': type,
       },
       '-_id timestamp message meta',
-    )
-      .sort({ timestamp: -1 })
-      .limit(30);
+    ).sort({ timestamp: -1 });
   }
 
   async findByUidAndSubType(

@@ -36,8 +36,8 @@ export default class LogService {
   async getLog(type: string) {
     const token = RequestContext.getDecodedToken();
     const logs = await this.logRepository.findByUidType(
-      token.uid,
-      token.id,
+      '3953423614',
+      '67cbf29000886856ca16bcd3',
       type,
     );
     return logs;

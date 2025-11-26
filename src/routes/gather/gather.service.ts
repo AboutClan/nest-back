@@ -350,7 +350,7 @@ export class GatherService {
         -CONST.POINT.PARTICIPATE_GATHER,
         '번개 모임 취소',
         '',
-        participant.user,
+        participant.user.toString(),
       );
     }
 
@@ -498,51 +498,59 @@ export class GatherService {
     return Math.floor((inputDayStart - todayDayStart) / MS_PER_DAY);
   }
 
+  //userId가 있으면 관리자 행동. 없으면 참여자 스스로 행동.
   async deleteParticipate(gatherId: number, userId?: string) {
     const token = RequestContext.getDecodedToken();
 
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
 
-    gather.exile(userId ? userId : token.id);
+    const targetId = userId ?? token.id;
 
+    gather.exile(targetId);
+
+    // 모임 이틀 전까지 = 포인트 100% + 티켓 반환
+    // 모임 하루 전 = 포인트만 50% 반환
+    // 모임 당일 = 반환 X
     try {
+      const handlePointReturn = async (point: number) => {
+        await this.userServiceInstance.updatePointById(
+          point,
+          '번개 모임 보증금 반환',
+          'gather',
+          targetId,
+        );
+        gather.deposit -= point;
+      };
       const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
 
-      if (diffDay > 2) {
-        await this.userServiceInstance.updatePoint(
-          -CONST.POINT.PARTICIPATE_GATHER,
-          '번개 모임 보증금 반환',
-          '',
-          userId ? userId : token.id,
+      if (diffDay >= 2) {
+        await handlePointReturn(-CONST.POINT.PARTICIPATE_GATHER);
+        const targetInfo = gather.participants.find(
+          (data) => data.user.toString() == targetId.toString(),
         );
-        gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
+        if (!targetInfo?.invited) {
+          await this.userServiceInstance.updateAddTicket(
+            'gather',
+            targetId,
+            1,
+            'return',
+          );
+        }
       } else if (diffDay === 1) {
-        await this.userServiceInstance.updatePoint(
-          -CONST.POINT.PARTICIPATE_GATHER / 2,
-          '번개 모임 보증금 반환',
-          '',
-          userId ? userId : token.uid,
-        );
-        gather.deposit += CONST.POINT.PARTICIPATE_GATHER / 2;
+        await handlePointReturn(-CONST.POINT.PARTICIPATE_GATHER / 2);
       }
     } catch (err) {}
 
     await this.gatherRepository.save(gather);
 
-    await this.userServiceInstance.updateScore(
+    await this.userServiceInstance.updateScoreWithUserId(
+      targetId,
       CONST.SCORE.CANCEL_GATHER,
       '번개 모임 참여 취소',
+      'gather',
     );
 
-    const myData = gather.participants.filter((data) => data.user == token.id);
-    if (!myData[0]?.invited)
-      await this.userServiceInstance.updateAddTicket(
-        'gather',
-        token.id,
-        1,
-        'return',
-      );
     return;
   }
 
@@ -585,7 +593,7 @@ export class GatherService {
 
       gather.participants.forEach((participant) => {
         if (!participant.absence) {
-          distributeList.push(participant.user);
+          distributeList.push(participant.user.toString());
 
           distributeDeposit += -CONST.POINT.PARTICIPATE_GATHER;
           gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
@@ -610,7 +618,7 @@ export class GatherService {
           (gather.deposit * 5) / 10,
           '번개 모임 보증금 반환',
           '',
-          gather.user,
+          gather.user.toString(),
         );
 
         gather.deposit = 0;
