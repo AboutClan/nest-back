@@ -842,6 +842,8 @@ export class Vote2Service {
       getDiffMinutes(end),
     );
 
+
+
     if (isArriveBefore) {
       point = isLate
         ? CONST.POINT.STUDY_ATTEND_BEFORE() + CONST.POINT.LATE

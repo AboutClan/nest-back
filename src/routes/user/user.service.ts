@@ -18,10 +18,10 @@ import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../../logger';
+import { FcmService } from '../fcm/fcm.service';
 import { PrizeService } from '../prize/prize.service';
 import { IUser, restType } from './user.entity';
 import { IUserRepository } from './UserRepository.interface';
-import { FcmService } from '../fcm/fcm.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -401,16 +401,32 @@ export class UserService {
     uid?: string,
   ) {
     const token = RequestContext.getDecodedToken();
+    let newPoint = point;
+    let newMessage = message;
 
     const user = await this.UserRepository.findByUid(uid ?? token.uid);
-    user.increasePoint(point);
+
+    const membership = user?.membership || 'normal';
+
+    const studySupArr = [
+      'manager',
+      'newbie',
+      'studySupporters',
+    ] as (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number][];
+
+    if (sub === 'study' && studySupArr.includes(membership)) {
+      newPoint = Math.floor(newPoint * 1.2);
+      newMessage = message + ` (멤버십 +20%)`;
+    }
+
+    user.increasePoint(newPoint);
     await this.UserRepository.save(user);
 
-    logger.logger.info(message, {
+    logger.logger.info(newMessage, {
       type: 'point',
       sub,
       uid: uid ?? token.uid,
-      value: point,
+      value: newPoint,
     });
     return;
   }
