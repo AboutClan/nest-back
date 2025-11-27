@@ -73,13 +73,6 @@ export class UserController {
     return { message: 'Avatar updated successfully' };
   }
 
-  //todo: 사용처 궁금
-  @Get('comment')
-  async getAllComments() {
-    const comments = await this.userService.getAllUserInfo(['comment', 'name']);
-    return comments;
-  }
-
   @Patch('comment')
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateComment(@Body() updateCommentDto: UpdateCommentDto) {
@@ -139,48 +132,6 @@ export class UserController {
   async patchRest(@Body() body: PatchRestDto) {
     await this.userService.setRest(body.info);
     return { message: 'Rest information updated successfully' };
-  }
-
-  @Get('participationrate/all')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async getParticipationRateAll(
-    @Query()
-    query: ParticipationRateQueryDto,
-  ) {
-    const participationResult = await this.userService.getParticipationRate(
-      query.startDay,
-      query.endDay,
-      true,
-      query.location,
-      query.summary,
-    );
-    return participationResult;
-  }
-
-  @Get('participationrate')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async getParticipationRate(
-    @Query()
-    query: ParticipationRateQueryDto,
-  ) {
-    const participationResult = await this.userService.getParticipationRate(
-      query.startDay,
-      query.endDay,
-      false,
-      query.location,
-      query.summary,
-    );
-    return participationResult;
-  }
-
-  @Get('voterate')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async getVoteRate(@Query() query: VoteRateQueryDto) {
-    const voteResult = await this.userService.getVoteRate(
-      query.startDay,
-      query.endDay,
-    );
-    return voteResult;
   }
 
   @Get('profile/:userId')
@@ -328,40 +279,6 @@ export class UserController {
   async getMonthScore() {
     const userScore = await this.userService.getUserInfo(['monthScore']);
     return userScore;
-  }
-
-  @Delete('monthScore')
-  async initMonthScore() {
-    await this.userService.initMonthScore();
-    return { message: 'Month score reset successfully' };
-  }
-
-  @Get('score/all')
-  async getAllUserScores() {
-    const userScores = await this.userService.getAllUserInfo([
-      'name',
-      'score',
-      'location',
-      'uid',
-    ]);
-    return userScores;
-  }
-
-  @Get('deposit/all')
-  async getAllUserDeposits() {
-    const userDeposits = await this.userService.getAllUserInfo([
-      'name',
-      'deposit',
-      'uid',
-    ]);
-    return userDeposits;
-  }
-
-  @Patch('weekStudyTargetHour')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async patchStudyTargetHour(@Body() body: PatchStudyTargetHourDto) {
-    await this.userService?.patchStudyTargetHour(body.hour);
-    return;
   }
 
   @Patch('locationDetail')

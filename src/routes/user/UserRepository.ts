@@ -183,11 +183,6 @@ export class UserRepository implements IUserRepository {
     return null;
   }
 
-  async initMonthScore(): Promise<null> {
-    await this.UserModel.updateMany({}, { $set: { monthScore: 0 } });
-    return null;
-  }
-
   async resetPointByMonthScore(maxDate: string) {
     await this.UserModel.updateMany(
       {

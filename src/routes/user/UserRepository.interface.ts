@@ -17,7 +17,6 @@ export interface IUserRepository {
   findByIsActive(isActive: boolean, queryString?: string): Promise<User[]>;
   create(user: User): Promise<User>;
   save(user: User): Promise<User>;
-  initMonthScore(): Promise<null>;
   resetGatherTicket(): Promise<null>;
   processTicket(whiteList: any);
   resetMonthScore();

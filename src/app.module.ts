@@ -12,9 +12,7 @@ import { TokenValidatorMiddleware } from './middlewares/tokenValidator';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './Database/database.module';
 import { WebPushModule } from './routes/webpush/webpush.module';
-import { VoteModule } from './vote/vote.module';
 import { UserModule } from './routes/user/user.module';
-import { StaticModule } from './routes/statics/static.module';
 import { SquareModule } from './routes/square/square.module';
 import { RequestModule } from './routes/request/request.module';
 import { RegisterModule } from './routes/register/register.module';
@@ -30,14 +28,10 @@ import { ChatModule } from './routes/chatz/chat.module';
 import { FeedModule } from './routes/feed/feed.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
-// import { RequestContextInterceptor } from './request-context.intercepter';
 import { CollectionModule } from './routes/collection/collection.module';
 import { RealtimeModule } from './routes/realtime/realtime.module';
 import { AdminCounterModule } from './routes/admin/counter/adminCounter.module';
-import { AdminLogModule } from './routes/admin/log/adminLog.module';
 import { AdminUserModule } from './routes/admin/user/adminUser.module';
-import { AdminVoteModule } from './routes/admin/vote/adminVote.module';
-import { AdminManageModule } from './routes/admin/manage/adminManage.module';
 import { DailyCheckModule } from './routes/dailycheck/dailyCheck.module';
 import { Vote2Module } from './routes/vote2/vote2.module';
 import { PaymentModule } from './routes/payment/payment.module';
@@ -51,7 +45,6 @@ import { ZodExceptionFilter } from './errors/zod-exception.filter';
 import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
-import { AnnouncementModule } from './routes/announcement/announcement.module';
 import { FcmAModule } from './routes/fcm/fcm.module';
 import { GatherRequestModule } from './routes/gatherRequest/gatherRequest.module';
 import { PrizeModule } from './routes/prize/prize.module';
@@ -123,9 +116,7 @@ const corsOptions = {
 
     DatabaseModule,
     WebPushModule,
-    VoteModule,
     UserModule,
-    StaticModule,
     SquareModule,
     RequestModule,
     RegisterModule,
@@ -145,13 +136,9 @@ const corsOptions = {
     RealtimeModule,
     DailyCheckModule,
     AdminCounterModule,
-    AdminLogModule,
     AdminUserModule,
-    AdminVoteModule,
-    AdminManageModule,
     Vote2Module,
     PaymentModule,
-    AnnouncementModule,
     FcmAModule,
     CommentModule,
     StoreModule,

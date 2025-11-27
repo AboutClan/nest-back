@@ -16,7 +16,6 @@ import PlaceService from 'src/routes/place/place.service';
 import { DateUtils } from 'src/utils/Date';
 import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
-import { IVote } from 'src/vote/vote.entity';
 import * as logger from '../../logger';
 import { FcmService } from '../fcm/fcm.service';
 import { PrizeService } from '../prize/prize.service';
@@ -28,15 +27,11 @@ export class UserService {
   constructor(
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: IUserRepository,
-    @InjectModel('Vote') private Vote: Model<IVote>,
     @InjectModel(DB_SCHEMA.LOG) private Log: Model<ILog>,
     private readonly noticeService: NoticeService,
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
-    private readonly collectionServiceInstance: CollectionService,
-    private readonly prizeService: PrizeService,
-    private readonly backupService: BackupService,
   ) {}
 
   async decodeByAES256(encodedTel: string) {
@@ -165,196 +160,6 @@ export class UserService {
     return updated;
   }
 
-  //test: test필요
-  async getParticipationRate(
-    startDay: string,
-    endDay: string,
-    all: boolean = false,
-    location?: string | null,
-    summary?: boolean,
-  ) {
-    const token = RequestContext.getDecodedToken();
-    try {
-      const allUser = all
-        ? await this.UserRepository.findByIsActive(
-            true,
-            ENTITY.USER.C_SIMPLE_USER +
-              'monthScore weekStudyAccumulationMinutes',
-          )
-        : await this.UserRepository.findByIsActiveUid(
-            token.uid,
-            true,
-            ENTITY.USER.C_SIMPLE_USER +
-              'monthScore weekStudyAccumulationMinutes',
-          );
-
-      let attendForm = allUser.map((user) => ({
-        uid: user.uid,
-        cnt: 0,
-        userSummary: { ...user },
-      }));
-
-      let forParticipation: any[];
-      forParticipation = await this.Vote.collection
-        .aggregate([
-          {
-            $match: {
-              date: {
-                $gte: DateUtils.getDayJsDate(startDay),
-                $lt: DateUtils.getDayJsDate(endDay),
-              },
-            },
-          },
-          {
-            $unwind: '$participations',
-          },
-          {
-            $project: {
-              status: '$participations.status',
-              attendences: '$participations.attendences',
-            },
-          },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'attendences.user',
-              foreignField: '_id',
-              as: 'attendences.user',
-            },
-          },
-          //open과 free 정보 모두
-          {
-            $match: {
-              $or: [{ status: 'open' }, { status: 'free' }],
-            },
-          },
-          {
-            $unwind: '$attendences.user',
-          },
-          {
-            $replaceRoot: {
-              newRoot: '$attendences.user',
-            },
-          },
-          {
-            $group: {
-              _id: '$uid',
-              cnt: { $sum: 1 },
-            },
-          },
-          {
-            $project: {
-              _id: false,
-              uid: '$_id',
-              cnt: '$cnt',
-              location: '$location',
-            },
-          },
-        ])
-        .toArray();
-
-      let filtered = forParticipation.filter((who: any) => who.cnt > 0);
-
-      filtered.forEach((obj) => {
-        const idx = attendForm.findIndex((user) => user.uid === obj.uid);
-        if (attendForm[idx]) attendForm[idx].cnt = obj.cnt;
-      });
-
-      if (location) {
-        attendForm = attendForm.filter(
-          (data) => data.userSummary.location.toString() == location.toString(),
-        );
-      }
-      if (!summary) {
-        attendForm.forEach((data) => {
-          delete data.userSummary;
-        });
-      }
-
-      return attendForm.filter((who) => who.cnt > 0);
-    } catch (err: any) {
-      throw new Error(err);
-    }
-  }
-
-  async getVoteRate(startDay: string, endDay: string) {
-    try {
-      const allUser = await this.UserRepository.findByIsActive(true);
-
-      const attendForm = allUser.reduce((accumulator, user) => {
-        return { ...accumulator, [user.uid.toString()]: 0 };
-      }, {});
-
-      const forVote = await this.Vote.collection
-        .aggregate([
-          {
-            $match: {
-              date: {
-                $gte: DateUtils.getDayJsDate(startDay),
-                $lt: DateUtils.getDayJsDate(endDay),
-              },
-            },
-          },
-          { $unwind: '$participations' },
-          { $unwind: '$participations.attendences' },
-          {
-            $project: {
-              attendences: '$participations.attendences',
-            },
-          },
-          {
-            $project: {
-              firstChoice: '$attendences.firstChoice',
-              attendences: '$attendences',
-            },
-          },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'attendences.user',
-              foreignField: '_id',
-              as: 'attendences.user',
-            },
-          },
-        ])
-        .toArray();
-
-      const voteCnt = forVote
-        .flatMap((participation) => participation.attendences)
-        .filter((attendence) => attendence.firstChoice === true)
-        .flatMap((attendance) => attendance.user)
-        .map((user) => user.uid.toString())
-        .reduce((acc, val) => {
-          if (val in acc) {
-            acc[val]++;
-          } else {
-            acc[val] = 1;
-          }
-          return acc;
-        }, {});
-
-      const voteRateForm = { ...attendForm, ...voteCnt };
-      const result = [];
-
-      for (let value in voteRateForm) {
-        result.push({ uid: value, cnt: voteRateForm[value] });
-      }
-
-      return result;
-    } catch (err: any) {
-      throw new Error(err);
-    }
-  }
-
-  async patchStudyTargetHour(hour: number) {
-    const token = RequestContext.getDecodedToken();
-    await this.UserRepository.updateUser(token.uid, {
-      weekStudyTargetHour: hour,
-    });
-
-    return;
-  }
-
   async patchProfile() {
     const token = RequestContext.getDecodedToken();
     const profile = await getProfile(
@@ -471,11 +276,6 @@ export class UserService {
       uid: token.uid,
       value: score,
     });
-    return;
-  }
-
-  async initMonthScore() {
-    await this.UserRepository.initMonthScore();
     return;
   }
 
@@ -1015,15 +815,6 @@ export class UserService {
 
     const userIds = users.map((user) => user._id.toString());
 
-    //   {
-    //     title: "이번주 카공 같이 할 사람? ✨",
-    //     description: "근처에 있는 멤버들이 스터디 기다리고 있어요! 지금 신청하고 같이 카공해요!",
-    //   },  {
-    //     title: "공부도 하고, 포인트도 GET! 💰",
-    //     description: "스터디 신청만 해도 포인트가 와르르 🎁 다음 주 함께 공부할 멤버를 찾고 있어요 🚀",
-    //   },
-
-    // 중 랜덤 발송(추가 예정)
     const random = Math.floor(Math.random() * 2);
     const title =
       random === 0
@@ -1046,34 +837,47 @@ export class UserService {
   }
 
   async test() {
-    await this.UserRepository.test();
-    // const users = await this.UserRepository.findAll();
-    // for (const user of users) {
-    //   const userDate = user.registerDate;
-    //   const userId = user._id;
-    //   const point = user.point;
-    //   if (userDate.length < 5) continue;
-    //   if (userDate >= '2025-07-01') {
-    //     if (point < 8000) {
-    //       const difference = 8000 - point;
-    //       await this.updatePointById(
-    //         difference,
-    //         '포인트 오류 복구 보상',
-    //         `${difference} point 지급`,
-    //         userId,
-    //       );
-    //     }
-    //   } else {
-    //     if (point < 3000) {
-    //       const difference = 3000 - point;
-    //       await this.updatePointById(
-    //         difference,
-    //         '포인트 오류 복구 보상',
-    //         `${difference} point 지급`,
-    //         userId,
-    //       );
-    //     }
-    //   }
-    // }
+    try {
+      const allLogs = await this.Log.find({
+        'meta.type': 'point',
+      }).cursor();
+
+      const userMap = new Map<string, number>();
+      for await (const log of allLogs) {
+        const { meta } = log;
+        const { uid, value } = meta;
+
+        let userId = uid?.toString();
+
+        if (!userId) continue;
+        if (uid.toString().length !== 10) {
+          const user = await this.UserRepository.findByUserId(uid.toString());
+          const uid2 = user?.uid.toString();
+          userId = uid2;
+        }
+
+        if (userMap.has(userId)) {
+          userMap.set(userId, userMap.get(userId)! + value);
+        } else {
+          userMap.set(userId, value as number);
+        }
+
+        if (log.message == '가입 보증금' && value == 10000) {
+          userMap.set(userId, userMap.get(userId)! + 7000);
+        }
+      }
+
+      //모든 user들에게 3000 point 지급
+      for (const [userId, point] of userMap) {
+        const newPoint = point + 3000;
+        userMap.set(userId, point);
+      }
+
+      //userMap 내의 데이터 개수 출력
+      console.log(`userMap 내의 데이터 개수: ${userMap.size}`);
+    } catch (error) {
+      console.error('Error processing point:', error);
+      throw new AppError('Failed to process point', 500);
+    }
   }
 }
