@@ -13,7 +13,6 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './Database/database.module';
 import { WebPushModule } from './routes/webpush/webpush.module';
 import { UserModule } from './routes/user/user.module';
-import { StaticModule } from './routes/statics/static.module';
 import { SquareModule } from './routes/square/square.module';
 import { RequestModule } from './routes/request/request.module';
 import { RegisterModule } from './routes/register/register.module';
@@ -46,7 +45,6 @@ import { ZodExceptionFilter } from './errors/zod-exception.filter';
 import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
-import { AnnouncementModule } from './routes/announcement/announcement.module';
 import { FcmAModule } from './routes/fcm/fcm.module';
 import { GatherRequestModule } from './routes/gatherRequest/gatherRequest.module';
 import { PrizeModule } from './routes/prize/prize.module';
@@ -119,7 +117,6 @@ const corsOptions = {
     DatabaseModule,
     WebPushModule,
     UserModule,
-    StaticModule,
     SquareModule,
     RequestModule,
     RegisterModule,
@@ -142,7 +139,6 @@ const corsOptions = {
     AdminUserModule,
     Vote2Module,
     PaymentModule,
-    AnnouncementModule,
     FcmAModule,
     CommentModule,
     StoreModule,
