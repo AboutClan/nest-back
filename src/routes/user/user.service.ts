@@ -32,9 +32,6 @@ export class UserService {
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
-    private readonly collectionServiceInstance: CollectionService,
-    private readonly prizeService: PrizeService,
-    private readonly backupService: BackupService,
   ) {}
 
   async decodeByAES256(encodedTel: string) {
@@ -163,15 +160,6 @@ export class UserService {
     return updated;
   }
 
-  async patchStudyTargetHour(hour: number) {
-    const token = RequestContext.getDecodedToken();
-    await this.UserRepository.updateUser(token.uid, {
-      weekStudyTargetHour: hour,
-    });
-
-    return;
-  }
-
   async patchProfile() {
     const token = RequestContext.getDecodedToken();
     const profile = await getProfile(
@@ -288,11 +276,6 @@ export class UserService {
       uid: token.uid,
       value: score,
     });
-    return;
-  }
-
-  async initMonthScore() {
-    await this.UserRepository.initMonthScore();
     return;
   }
 
@@ -879,15 +862,19 @@ export class UserService {
           userMap.set(userId, value as number);
         }
 
-        // if (log.message == '가입 보증금' && value == 10000) {
-        //   userMap.set(userId, userMap.get(userId)! + 3000);
-        // }
+        if (log.message == '가입 보증금' && value == 10000) {
+          userMap.set(userId, userMap.get(userId)! + 7000);
+        }
       }
-      // userMap 순회 출력
-      for (let [userId, point] of userMap) {
-        point += 3000;
-        console.log(`${userId}: ${point}`);
+
+      //모든 user들에게 3000 point 지급
+      for (const [userId, point] of userMap) {
+        const newPoint = point + 3000;
+        userMap.set(userId, point);
       }
+
+      //userMap 내의 데이터 개수 출력
+      console.log(`userMap 내의 데이터 개수: ${userMap.size}`);
     } catch (error) {
       console.error('Error processing point:', error);
       throw new AppError('Failed to process point', 500);
