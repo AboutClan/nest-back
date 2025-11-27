@@ -9,7 +9,6 @@ import { RealtimeSchema } from './realtime.entity';
 import { RealtimeController } from './realtime.controller';
 import RealtimeService from './realtime.service';
 import { ImageModule } from 'src/routes/imagez/image.module';
-import { VoteModule } from 'src/vote/vote.module';
 import { CollectionModule } from 'src/routes/collection/collection.module';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { UserModule } from 'src/routes/user/user.module';
@@ -26,7 +25,6 @@ const realtimeRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     ImageModule,
-    forwardRef(() => VoteModule),
     CollectionModule,
     MongooseModule.forFeature([
       { name: DB_SCHEMA.REALTIME, schema: RealtimeSchema },

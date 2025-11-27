@@ -10,7 +10,6 @@ import ImageService from 'src/routes/imagez/image.service';
 import { UserService } from 'src/routes/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
-import { VoteService } from 'src/vote/vote.service';
 import { DatabaseError } from '../../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
 import PlaceService from '../place/place.service';
 import {
@@ -26,7 +25,6 @@ export default class RealtimeService {
     private readonly realtimeRepository: IRealtimeRepository,
     private readonly userServiceInstance: UserService,
     private readonly imageServiceInstance: ImageService,
-    private readonly voteServiceInstance: VoteService,
     private readonly placeServiceInstance: PlaceService,
   ) {}
 
@@ -127,8 +125,6 @@ export default class RealtimeService {
       user,
     });
 
-    this.voteServiceInstance.deleteVote(date);
-
     const realtime = await this.getTodayData(date);
 
     realtime.addUser(
@@ -191,7 +187,6 @@ export default class RealtimeService {
         return Math.floor(diffMs / 1000 / 60);
       }
 
-      await this.voteServiceInstance.deleteVote(date);
       const todayData = await this.getTodayData(date);
       if (todayData.isOpen(token.id, 'user')) {
         todayData.patchNotSoloUser(

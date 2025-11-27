@@ -3,7 +3,6 @@ import { WebPushController } from './webpush.controller';
 import { WebPushService } from './webpush.service';
 import { UserModule } from 'src/routes/user/user.module';
 import { GroupStudyModule } from 'src/routes/groupStudy/groupStudy.module';
-import { VoteModule } from 'src/vote/vote.module';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoWebpushRepository } from './webpush.repository';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -37,7 +36,6 @@ const webPushRepositoryProvider: ClassProvider = {
     }),
     UserModule,
     GroupStudyModule,
-    VoteModule,
   ], // Mongoose 모델 등록],
   controllers: [WebPushController],
   providers: [WebPushService, webPushRepositoryProvider, WebPushConsumer],

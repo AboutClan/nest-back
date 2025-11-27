@@ -141,48 +141,6 @@ export class UserController {
     return { message: 'Rest information updated successfully' };
   }
 
-  @Get('participationrate/all')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async getParticipationRateAll(
-    @Query()
-    query: ParticipationRateQueryDto,
-  ) {
-    const participationResult = await this.userService.getParticipationRate(
-      query.startDay,
-      query.endDay,
-      true,
-      query.location,
-      query.summary,
-    );
-    return participationResult;
-  }
-
-  @Get('participationrate')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async getParticipationRate(
-    @Query()
-    query: ParticipationRateQueryDto,
-  ) {
-    const participationResult = await this.userService.getParticipationRate(
-      query.startDay,
-      query.endDay,
-      false,
-      query.location,
-      query.summary,
-    );
-    return participationResult;
-  }
-
-  @Get('voterate')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async getVoteRate(@Query() query: VoteRateQueryDto) {
-    const voteResult = await this.userService.getVoteRate(
-      query.startDay,
-      query.endDay,
-    );
-    return voteResult;
-  }
-
   @Get('profile/:userId')
   async getUserByUid(@Param('userId') userId: string) {
     const isActive = await this.userService.getUserWithUserId(userId);
