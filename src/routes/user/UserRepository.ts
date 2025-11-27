@@ -270,12 +270,12 @@ export class UserRepository implements IUserRepository {
 
   async test(): Promise<any> {
     //registerDate가 11월 1일 이후인 경우 membership을 newbie로 변경
-    await this.UserModel.updateMany(
-      {},
-      {
-        $set: { membership: 'normal' },
-      },
-    );
+    // await this.UserModel.updateMany(
+    //   {},
+    //   {
+    //     $set: { membership: 'normal' },
+    //   },
+    // );
 
     await this.UserModel.updateMany(
       { registerDate: { $gte: '2025-11-01' } },
@@ -296,7 +296,7 @@ export class UserRepository implements IUserRepository {
     const today = new Date();
     const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
     await this.UserModel.updateMany(
-      { registerDate: { $lt: oneMonthAgo } },
+      { registerDate: { $lt: oneMonthAgo }, membership: 'newbie' },
       { $set: { membership: 'normal' } },
     );
     return null;

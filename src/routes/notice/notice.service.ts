@@ -6,10 +6,15 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
 import { IUser } from 'src/routes/user/user.entity';
-import { IGATHER_REPOSITORY, INOTICE_REPOSITORY } from 'src/utils/di.tokens';
+import {
+  IGATHER_REPOSITORY,
+  INOTICE_REPOSITORY,
+  IVOTE2_REPOSITORY,
+} from 'src/utils/di.tokens';
 import * as logger from '../../logger';
 import { FcmService } from '../fcm/fcm.service';
 import { IGatherRepository } from '../gather/GatherRepository.interface';
+import { IVote2Repository } from '../vote2/Vote2Repository.interface';
 import { WebPushService } from '../webpush/webpush.service';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
@@ -20,6 +25,8 @@ export default class NoticeService {
     private readonly noticeRepository: NoticeRepository,
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: IGatherRepository,
+    @Inject(IVOTE2_REPOSITORY)
+    private readonly vote2Repository: IVote2Repository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     private readonly webPushService: WebPushService,
     private readonly fcmServiceInstance: FcmService,
@@ -196,6 +203,32 @@ export default class NoticeService {
       const gather = await this.gatherRepository.findById(parseInt(gatherId));
       gather.addReviewers(token.id);
       await this.gatherRepository.save(gather);
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+  async createTemperatureByStudy(
+    infos: { toUid: string; message: string; rating: string }[],
+    date: string,
+    studyId: string,
+  ) {
+    const token = RequestContext.getDecodedToken();
+    try {
+      for (let info of infos) {
+        const validatedNotice = NoticeZodSchema.parse({
+          from: token.uid,
+          type: 'temperature',
+          to: info.toUid,
+          message: info.message,
+          sub: info.rating,
+        });
+        await this.noticeRepository.createNotice(validatedNotice);
+      }
+
+      const study = await this.vote2Repository.findByDateWithoutPopulate(date);
+      study.addReviewers(studyId, token.id);
+      console.log(54, study.results);
+      await this.vote2Repository.save(study);
     } catch (err: any) {
       throw new Error(err);
     }

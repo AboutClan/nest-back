@@ -30,6 +30,11 @@ export class Vote2Controller {
     const filteredVote = await this.voteService2.getWeekData();
     return filteredVote;
   }
+  @Get('mine')
+  async getMine(@Req() req: Request): Promise<any> {
+    const filteredVote = await this.voteService2.getMine();
+    return filteredVote;
+  }
 
   @Get(':date/info')
   async getVoteInfo(@Req() req: Request): Promise<any> {

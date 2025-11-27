@@ -85,8 +85,8 @@ export class ClusterUtils {
       let centerLon = 0;
 
       cluster.forEach((data) => {
-        centerLat += parseFloat(data.latitude);
-        centerLon += parseFloat(data.longitude);
+        centerLat += data.latitude;
+        centerLon += data.longitude;
       });
 
       centerLat /= cluster.length;

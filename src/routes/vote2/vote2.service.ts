@@ -84,6 +84,12 @@ export class Vote2Service {
       }),
     }));
   }
+  async getMine() {
+    const token = RequestContext.getDecodedToken();
+
+    const voteData = await this.Vote2Repository.findMineById(token.id);
+    return voteData;
+  }
 
   async getVoteInfo(date: string) {
     // const now = new Date(date);
@@ -359,8 +365,8 @@ export class Vote2Service {
     const coords = participations.map((par) => ({
       user: par.userId,
       userId: (par.userId as unknown as IUser)._id.toString(),
-      lat: parseFloat(par.latitude),
-      lon: parseFloat(par.longitude),
+      lat: par.latitude,
+      lon: par.longitude,
       eps: par?.eps + 0.2 || 3.2,
       start: par.start,
       end: par.end,
@@ -841,8 +847,6 @@ export class Vote2Service {
       'study',
       getDiffMinutes(end),
     );
-
-
 
     if (isArriveBefore) {
       point = isLate
