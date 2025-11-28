@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Patch,
   Post,
   Query,
@@ -118,12 +116,22 @@ export class NoticeController {
     return result;
   }
 
-  @Post('temperature')
-  async createTemperature(
+  @Post('temperature/gatherReview')
+  async createTemperatureByGather(
     @Body('infos') infos: { toUid: string; message: string; rating: string }[],
     @Body('gatherId') gatherId: string,
   ) {
     await this.noticeService.createTemperature(infos, gatherId);
+    return { status: 'success' };
+  }
+  @Post('temperature/studyReview')
+  async createTemperatureByStudy(
+    @Body('infos') infos: { toUid: string; message: string; rating: string }[],
+    @Body('date') date: string,
+    @Body('studyId') studyId: string,
+  ) {
+    console.log(44, studyId);
+    await this.noticeService.createTemperatureByStudy(infos, date, studyId);
     return { status: 'success' };
   }
 }

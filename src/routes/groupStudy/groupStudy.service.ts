@@ -478,15 +478,15 @@ export default class GroupStudyService {
 
     await this.groupStudyRepository.save(groupStudy);
 
-    // await this.webPushServiceInstance.sendNotificationGroupStudy(
-    //   id,
-    //   WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
-    // );
+    await this.webPushServiceInstance.sendNotificationGroupStudy(
+      id,
+      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
+    );
 
-    // await this.fcmServiceInstance.sendNotificationGroupStudy(
-    //   id,
-    //   WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
-    // );
+    await this.fcmServiceInstance.sendNotificationGroupStudy(
+      id,
+      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
+    );
 
     return;
   }
@@ -840,10 +840,21 @@ export default class GroupStudyService {
 
       for (const group of groupStudies) {
         if (group.status === 'end') continue;
-        await this.userServiceInstance.updateTicketWithUserIds(
-          group.participants.map((part) => part.user),
-          group.requiredTicket,
+
+        const promises = group.participants.map((par) =>
+          this.userServiceInstance.updateReduceTicket(
+            'group',
+            par.user,
+            group.requiredTicket,
+          ),
         );
+
+        await Promise.all(promises);
+
+        // await this.userServiceInstance.updateTicketWithUserIds(
+        //   group.participants.map((part) => part.user),
+        //   group.requiredTicket,
+        // );
       }
     } catch (err) {
       throw new Error('Error processing group study attendance');

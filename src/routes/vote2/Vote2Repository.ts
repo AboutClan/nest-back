@@ -31,6 +31,27 @@ export class Vote2Repository implements IVote2Repository {
       });
     return db ? this.mapToDomain(db) : null;
   }
+  async findMineById(userId: string): Promise<Vote2[]> {
+    const docs = await this.Vote2Model.find({
+      'results.members.userId': userId,
+      date: { $gte: '2025-07-01' },
+    })
+      .populate([
+        {
+          path: 'results.placeId',
+        },
+        {
+          path: 'results.members.userId',
+          select: ENTITY.USER.C_SIMPLE_USER,
+        },
+      ])
+      .sort({ date: -1 })
+      .exec();
+
+    // docs: (Document & IVote2)[]
+
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
 
   async findByDateWithoutPopulate(date: string): Promise<Vote2 | null> {
     const db = await this.Vote2Model.findOne({ date });
@@ -128,6 +149,7 @@ export class Vote2Repository implements IVote2Repository {
                 }),
             ),
             center: r.center,
+            reviewers: r.reviewers,
           }),
       ),
     });
@@ -161,6 +183,7 @@ export class Vote2Repository implements IVote2Repository {
           imageUrl: m.imageUrl,
         })),
         center: r.center,
+        reviewers: r.reviewers,
       })),
     } as IVote2;
   }

@@ -20,14 +20,12 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import {
   AddBadgeDto,
-  ParticipationRateQueryDto,
   PatchBelongDto,
   PatchIsLocationSharingDeniedDto,
   PatchIsPrivateDto,
   PatchLocationDetailDto,
   PatchRestDto,
   PatchRoleDto,
-  PatchStudyTargetHourDto,
   SelectBadgeDto,
   SetFriendDto,
   SetMonthStudyTargetDto,
@@ -39,7 +37,6 @@ import {
   UpdatePointDto,
   UpdateScoreDto,
   UpdateTicketDto,
-  VoteRateQueryDto,
 } from './dto';
 import { IUser } from './user.entity';
 import { UserService } from './user.service';
@@ -296,7 +293,7 @@ export class UserController {
   @Patch('locationDetail/all')
   @UsePipes(new ValidationPipe({ transform: true }))
   async patchLocationDetailAll(@Body() body: any) {
-    await this.userService?.patchLocationDetailAll(body.id, body.location);
+    await this.userService?.patchLocationDetailAll();
     return;
   }
 

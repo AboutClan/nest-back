@@ -116,7 +116,13 @@ export class Vote2 {
       }
     }
   }
+  public addReviewers(studyId: string, reviewer: string) {
+    const result = this.results.find(
+      (result) => result.placeId.toString() === studyId,
+    );
 
+    result.reviewers.push(reviewer);
+  }
   setParticipate(placeId: string, participateData: Partial<Participation>) {
     const newResult = this.results.find(
       (r) => (r.placeId as any)._id.toString() === placeId,
@@ -139,8 +145,8 @@ export class Vote2 {
       findResult.members.push(
         new Participation({
           userId: participateData.userId,
-          latitude: participateData.latitude || '',
-          longitude: participateData.longitude || '',
+          latitude: participateData.latitude,
+          longitude: participateData.longitude,
           start: participateData.start,
           end: participateData.end,
           locationDetail: participateData.locationDetail || '',

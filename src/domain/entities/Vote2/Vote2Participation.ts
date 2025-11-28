@@ -2,8 +2,8 @@ import { VoteComment, VoteCommentProps } from './Vote2VoteComment';
 
 export interface ParticipationProps {
   userId: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
   start?: string;
   end?: string;
   comment?: VoteCommentProps;
@@ -14,8 +14,8 @@ export interface ParticipationProps {
 
 export class Participation {
   userId: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
   start?: string;
   end?: string;
   comment?: VoteComment;

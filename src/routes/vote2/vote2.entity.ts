@@ -11,8 +11,8 @@ export interface IVote2 {
 
 export interface IParticipation {
   userId: string | IUser;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
   start?: string;
   end?: string;
   comment?: IVoteComment;
@@ -39,6 +39,7 @@ export interface IResult {
   placeId: string | String | IPlace;
   members: IMember[];
   center: any;
+  reviewers?: string[];
 }
 
 export interface IVoteComment {
@@ -81,8 +82,8 @@ export const ParticipationSchema: Schema<IParticipation> = new Schema(
       type: Schema.Types.ObjectId,
       ref: DB_SCHEMA.USER,
     },
-    latitude: String,
-    longitude: String,
+    latitude: Number,
+    longitude: Number,
     start: {
       type: String,
       required: false,
@@ -114,6 +115,7 @@ export const ResultSchema: Schema<IResult> = new Schema(
       ref: DB_SCHEMA.PLACE,
     },
     members: [MemberSchema],
+    reviewers: [String],
   },
   { _id: false },
 );
