@@ -606,7 +606,10 @@ export class UserService {
 
     const { uid } = await this.getUserWithUserId(userId);
 
-    logger.logger.info(`티켓 소모`, {
+    const message =
+      type === 'gather' ? '번개 모임 참여' : '소모임 가입(또는 유지)';
+
+    logger.logger.info(message, {
       type,
       uid,
       value: ticketNum,
