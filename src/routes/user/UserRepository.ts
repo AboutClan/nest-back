@@ -265,17 +265,13 @@ export class UserRepository implements IUserRepository {
 
   async test(): Promise<any> {
     //registerDate가 11월 1일 이후인 경우 membership을 newbie로 변경
+    return await this.UserModel.find({
+      point: { $lte: 3000 },
+    });
     await this.UserModel.updateMany(
-      {},
+      { point: { $lte: 3000 } },
       {
-        $set: { membership: 'normal' },
-      },
-    );
-
-    await this.UserModel.updateMany(
-      { registerDate: { $gte: '2025-11-01' } },
-      {
-        $set: { membership: 'newbie' },
+        $set: { point: 3000 },
       },
     );
   }

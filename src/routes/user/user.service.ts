@@ -837,47 +837,59 @@ export class UserService {
   }
 
   async test() {
-    try {
-      const allLogs = await this.Log.find({
-        'meta.type': 'point',
-      }).cursor();
+    const users = await this.UserRepository.test();
 
-      const userMap = new Map<string, number>();
-      for await (const log of allLogs) {
-        const { meta } = log;
-        const { uid, value } = meta;
-
-        let userId = uid?.toString();
-
-        if (!userId) continue;
-        if (uid.toString().length !== 10) {
-          const user = await this.UserRepository.findByUserId(uid.toString());
-          const uid2 = user?.uid.toString();
-          userId = uid2;
-        }
-
-        if (userMap.has(userId)) {
-          userMap.set(userId, userMap.get(userId)! + value);
-        } else {
-          userMap.set(userId, value as number);
-        }
-
-        if (log.message == '가입 보증금' && value == 10000) {
-          userMap.set(userId, userMap.get(userId)! + 7000);
-        }
-      }
-
-      //모든 user들에게 3000 point 지급
-      for (const [userId, point] of userMap) {
-        const newPoint = point + 3000;
-        userMap.set(userId, point);
-      }
-
-      //userMap 내의 데이터 개수 출력
-      console.log(`userMap 내의 데이터 개수: ${userMap.size}`);
-    } catch (error) {
-      console.error('Error processing point:', error);
-      throw new AppError('Failed to process point', 500);
+    for (const user of users) {
+      await this.updatePoint(
+        3000 - user.point,
+        '활동 제한 방지를 위한 1회 한정 지원금',
+        '활동 제한 방지를 위한 1회 한정 지원금',
+        user.uid,
+      );
     }
+
+    // try {
+    //   const allLogs = await this.Log.find({
+    //     'meta.type': 'point',
+    //   }).cursor();
+
+    //   const userMap = new Map<string, number>();
+    //   for await (const log of allLogs) {
+    //     const { meta } = log;
+    //     const { uid, value } = meta;
+
+    //     let userId = uid?.toString();
+
+    //     if (!userId) continue;
+    //     if (uid.toString().length !== 10) {
+    //       const user = await this.UserRepository.findByUserId(uid.toString());
+    //       const uid2 = user?.uid.toString();
+    //       userId = uid2;
+    //     }
+
+    //     if (userMap.has(userId)) {
+    //       userMap.set(userId, userMap.get(userId)! + value);
+    //     } else {
+    //       userMap.set(userId, value as number);
+    //     }
+
+    //     if (log.message == '가입 보증금' && value == 10000) {
+    //       userMap.set(userId, userMap.get(userId)! - 3000);
+    //     }
+    //   }
+
+    //   //모든 user들에게 3000 point 지급
+    //   for (const [userId, point] of userMap) {
+    //     const newPoint = point + 3000;
+    //     userMap.set(userId, newPoint);
+    //   }
+
+    //   for (const [userId, point] of userMap) {
+    //     await this.UserRepository.updateUser(userId, { point });
+    //   }
+    // } catch (error) {
+    //   console.error('Error processing point:', error);
+    //   throw new AppError('Failed to process point', 500);
+    // }
   }
 }
