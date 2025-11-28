@@ -194,15 +194,18 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async updateLocationDetailAll(id: string, location: any) {
-    await this.UserModel.updateMany({
-      $set: {
-        studyRecord: {
-          accumulationMinutes: 0,
-          accumulationCnt: 0,
+  async updateLocationDetailAll() {
+    console.log(55);
+    await this.UserModel.updateMany(
+      {
+        registerDate: { $gte: '2025-11-01' }, // 포함 이후
+      },
+      {
+        $set: {
+          membership: 'newbie',
         },
       },
-    });
+    );
   }
 
   async processMonthScore() {

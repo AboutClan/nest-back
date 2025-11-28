@@ -32,7 +32,7 @@ export interface IUserRepository {
   updateGatherTicket(uid: string, value: number);
   updateGroupStudyTicket(uid: string, value: number);
   updateTicketWithUserIds(userIds: string[], ticketNum: number);
-  updateLocationDetailAll(id: string, updateInfo: any);
+  updateLocationDetailAll();
   test(): Promise<any>;
 
   findAllForPrize();

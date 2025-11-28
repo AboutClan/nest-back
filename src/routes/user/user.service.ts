@@ -5,10 +5,8 @@ import { Model } from 'mongoose';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { BackupService } from 'src/Database/backup.service';
 import { AppError } from 'src/errors/AppError';
 import { RequestContext } from 'src/request-context';
-import { CollectionService } from 'src/routes/collection/collection.service';
 import ImageService from 'src/routes/imagez/image.service';
 import { ILog } from 'src/routes/logz/log.entity';
 import NoticeService from 'src/routes/notice/notice.service';
@@ -18,7 +16,6 @@ import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import * as logger from '../../logger';
 import { FcmService } from '../fcm/fcm.service';
-import { PrizeService } from '../prize/prize.service';
 import { IUser, restType } from './user.entity';
 import { IUserRepository } from './UserRepository.interface';
 
@@ -550,8 +547,8 @@ export class UserService {
     return;
   }
 
-  async patchLocationDetailAll(id: string, location: any) {
-    await this.UserRepository.updateLocationDetailAll(id, location);
+  async patchLocationDetailAll() {
+    await this.UserRepository.updateLocationDetailAll();
 
     return;
   }
