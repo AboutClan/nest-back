@@ -186,7 +186,7 @@ export class UserRepository implements IUserRepository {
   async resetPointByMonthScore(maxDate: string) {
     await this.UserModel.updateMany(
       {
-        monthScore: { $lte: 10 },
+        monthScore: { $lt: 10 },
         role: { $ne: 'resting' },
         registerDate: { $lt: maxDate },
       },

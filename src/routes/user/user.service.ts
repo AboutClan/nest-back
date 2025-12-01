@@ -787,7 +787,7 @@ export class UserService {
         const point = -1000;
         const uid = tempUid;
 
-        const message = `월간 점수 정산`;
+        const message = `월간 최소 활동 미달`;
         logger.logger.info(message, {
           type: 'point',
           sub: '월간 점수 초기화',
