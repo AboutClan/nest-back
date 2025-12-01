@@ -278,7 +278,7 @@ export class UserRepository implements IUserRepository {
     await this.UserModel.updateMany(
       { registerDate: { $gte: '2025-11-01' } },
       {
-        $set: { membership: 'newbie' },
+        $set: { point: 3000 },
       },
     );
   }
