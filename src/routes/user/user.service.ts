@@ -796,8 +796,10 @@ export class UserService {
         });
       });
     } catch (error) {
-      console.error('Error processing month score:', error);
-      throw new AppError('Failed to process month score', 500);
+      throw new AppError(
+        error?.message ?? 'Failed to process month score',
+        500,
+      );
     }
   }
 
