@@ -20,6 +20,7 @@ import CommentService from '../comment/comment.service';
 import { FcmService } from '../fcm/fcm.service';
 import { IGroupStudyData } from './groupStudy.entity';
 import { IGroupStudyRepository } from './GroupStudyRepository.interface';
+import { AppError } from 'src/errors/AppError';
 
 //test
 export default class GroupStudyService {
@@ -857,7 +858,10 @@ export default class GroupStudyService {
         // );
       }
     } catch (err) {
-      throw new Error('Error processing group study attendance');
+      throw new AppError(
+        err?.message ?? 'Failed to process group study attendance',
+        500,
+      );
     }
   }
 

@@ -184,6 +184,15 @@ export class UserRepository implements IUserRepository {
   }
 
   async resetPointByMonthScore(maxDate: string) {
+    const uids = await this.UserModel.find(
+      {
+        monthScore: { $lt: 10 },
+        role: { $ne: 'resting' },
+        registerDate: { $lt: maxDate },
+      },
+      'uid',
+    );
+
     await this.UserModel.updateMany(
       {
         monthScore: { $lt: 10 },
@@ -192,6 +201,8 @@ export class UserRepository implements IUserRepository {
       },
       { $inc: { point: -1000 } },
     );
+
+    return uids.map((user) => user.uid);
   }
 
   async updateLocationDetailAll() {
@@ -276,9 +287,9 @@ export class UserRepository implements IUserRepository {
     // );
 
     await this.UserModel.updateMany(
-      { registerDate: { $gte: '2025-11-01' } },
+      {},
       {
-        $set: { point: 3000 },
+        $inc: { point: 1000 },
       },
     );
   }
