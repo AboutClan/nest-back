@@ -18,6 +18,7 @@ import ImageService from '../imagez/image.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation, IResult } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
+import { AppError } from 'src/errors/AppError';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -657,7 +658,7 @@ export class Vote2Service {
 
     // ---------- 3) 최종 결과 정리/반환 ----------
     const successParticipations = voteResults.flatMap((result) =>
-      result.members.map((member) => member.userId.toString()),
+      result.members.map((member) => (member.userId as IUser)._id.toString()),
     );
     const failedParticipations = participations.filter(
       (p) =>
@@ -724,63 +725,71 @@ export class Vote2Service {
   }
 
   async setResult(date: string) {
-    const today = DateUtils.getTodayYYYYMMDD();
+    try {
+      const today = DateUtils.getTodayYYYYMMDD();
 
-    //vote2에서 realtime 성공한 유저 삭제
-    const realtimeSuccessUsers = await this.RealtimeService.setResult();
-    const vote2 = await this.Vote2Repository.findByDate(today);
+      //vote2에서 realtime 성공한 유저 삭제
+      const realtimeSuccessUsers = await this.RealtimeService.setResult();
+      const vote2 = await this.Vote2Repository.findByDate(today);
 
-    for (const user of realtimeSuccessUsers) {
-      vote2.removeParticipationByUserId(user);
-    }
+      for (const user of realtimeSuccessUsers) {
+        vote2.removeParticipationByUserId(user);
+      }
 
-    //투표 결과 계산 시작
-    const participations: IParticipation[] = vote2.participations;
-    const { voteResults, successParticipations, failedParticipations } =
-      await this.doAlgorithm(participations);
+      //투표 결과 계산 시작
+      const participations: IParticipation[] = vote2.participations;
+      const { voteResults, successParticipations, failedParticipations } =
+        await this.doAlgorithm(participations);
 
-    const successUserIds = successParticipations.map((userId) => userId);
+      const successUserIds = successParticipations.map((userId) => userId);
 
-    const failedUserIds = failedParticipations.map(
-      (par) => (par.userId as unknown as IUser)._id,
-    );
+      const failedUserIds = failedParticipations.map((par) => {
+        if (typeof par.userId === 'string') {
+          return par.userId;
+        }
+        return (par.userId as unknown as IUser)._id.toString();
+      });
 
-    const resultInstances = voteResults.map((r) => new Result(r as any));
-    vote2.setResult(resultInstances);
+      const resultInstances = voteResults.map((r) => new Result(r as any));
+      vote2.setResult(resultInstances);
 
-    await this.Vote2Repository.save(vote2);
+      await this.Vote2Repository.save(vote2);
 
-    for (let participation of participations) {
-      await this.userServiceInstance.updatePointById(
-        CONST.POINT.STUDY_ALL_RESULT,
-        `스터디 매칭 신청 리워드`,
-        'study',
-        participation.userId.toString(),
+      for (let participation of participations) {
+        await this.userServiceInstance.updatePointById(
+          CONST.POINT.STUDY_ALL_RESULT,
+          `스터디 매칭 신청 리워드`,
+          'study',
+          (participation.userId as unknown as IUser)._id?.toString(),
+        );
+      }
+
+      this.webPushServiceInstance.sendNotificationUserIds(
+        successUserIds,
+        WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+        WEBPUSH_MSG.VOTE.SUCCESS_DESC,
       );
+
+      this.webPushServiceInstance.sendNotificationUserIds(
+        failedUserIds,
+        WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+        WEBPUSH_MSG.VOTE.FAILURE_DESC,
+      );
+      await this.fcmServiceInstance.sendNotificationUserIds(
+        successUserIds,
+        WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+        WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+      );
+
+      await this.fcmServiceInstance.sendNotificationUserIds(
+        failedUserIds,
+        WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+        WEBPUSH_MSG.VOTE.FAILURE_DESC,
+      );
+    } catch (err) {
+      console.log(err);
+      throw new AppError(err?.message ?? 'Failed to set result', 500);
     }
-
-    this.webPushServiceInstance.sendNotificationUserIds(
-      successUserIds,
-      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-    );
-
-    this.webPushServiceInstance.sendNotificationUserIds(
-      failedUserIds,
-      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-      WEBPUSH_MSG.VOTE.FAILURE_DESC,
-    );
-    await this.fcmServiceInstance.sendNotificationUserIds(
-      successUserIds,
-      WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-      WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-    );
-
-    await this.fcmServiceInstance.sendNotificationUserIds(
-      failedUserIds,
-      WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-      WEBPUSH_MSG.VOTE.FAILURE_DESC,
-    );
   }
 
   async updateResult(date: string, start: string, end: string) {

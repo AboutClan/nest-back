@@ -845,17 +845,17 @@ export default class GroupStudyService {
         const promises = group.participants.map((par) =>
           this.userServiceInstance.updateReduceTicket(
             'group',
-            par.user,
-            group.requiredTicket,
+            par?.user,
+            group?.requiredTicket,
           ),
         );
 
         await Promise.all(promises);
 
-        // await this.userServiceInstance.updateTicketWithUserIds(
-        //   group.participants.map((part) => part.user),
-        //   group.requiredTicket,
-        // );
+        await this.userServiceInstance.updateTicketWithUserIds(
+          group?.participants?.map((part) => part.user),
+          group?.requiredTicket,
+        );
       }
     } catch (err) {
       throw new AppError(
@@ -983,43 +983,6 @@ export default class GroupStudyService {
   }
 
   async test() {
-    try {
-      const feeds = await this.groupStudyRepository.findAllTemp();
-
-      for (const feed of feeds) {
-        const comments = feed.comments;
-
-        for (const comment of comments) {
-          if (!comment?.comment) continue;
-
-          const saveComment = await this.commentService.createComment({
-            postId: feed._id.toString(),
-            postType: 'groupStudy',
-            user: comment.user,
-            comment: comment.comment,
-            likeList: comment?.likeList || [],
-          });
-
-          const subComments = comment.subComments || [];
-
-          for (const subComment of subComments) {
-            if (!subComment.comment) continue;
-
-            const saveSubComment = await this.commentService.createSubComment({
-              postId: feed._id.toString(),
-              postType: 'groupStudy',
-              user: subComment.user,
-              comment: subComment.comment,
-              parentId: saveComment._id.toString(),
-              likeList: subComment?.likeList || [],
-            });
-          }
-        }
-      }
-
-      return feeds;
-    } catch (err) {
-      console.log(err);
-    }
+    await this.processGroupStudyAttend();
   }
 }

@@ -290,4 +290,11 @@ export class Vote2Controller {
     const result = await this.voteService2.updateMemo(date as string, memo);
     return result;
   }
+
+  //test
+  @Get('test')
+  async test(): Promise<any> {
+    await this.voteService2.setResult('2025-11-28');
+    return 'success';
+  }
 }
