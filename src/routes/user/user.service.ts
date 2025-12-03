@@ -796,8 +796,10 @@ export class UserService {
         });
       });
     } catch (error) {
-      console.error('Error processing month score:', error);
-      throw new AppError('Failed to process month score', 500);
+      throw new AppError(
+        error?.message ?? 'Failed to process month score',
+        500,
+      );
     }
   }
 
@@ -837,16 +839,7 @@ export class UserService {
   }
 
   async test() {
-    const users = await this.UserRepository.test();
-
-    for (const user of users) {
-      await this.updatePoint(
-        3000 - user.point,
-        '활동 제한 방지를 위한 1회 한정 지원금',
-        '활동 제한 방지를 위한 1회 한정 지원금',
-        user.uid,
-      );
-    }
+    await this.UserRepository.test();
 
     // try {
     //   const allLogs = await this.Log.find({
