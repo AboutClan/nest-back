@@ -387,18 +387,19 @@ export class UserRepository implements IUserRepository {
       },
     );
 
-    for (const item of whiteList) {
-      await this.UserModel.updateMany(
-        { uid: item.uid },
-        { $set: { 'ticket.gatherTicket': 4 } },
-        {
-          $inc: {
-            'ticket.gatherTicket': item.gatherTicket,
-            'ticket.groupStudyTicket': item.groupStudyTicket,
-          },
-        },
-      );
-    }
+    /** set과 inc 같이 적용 안된다고 해서 확인해 주세요! */
+    // for (const item of whiteList) {
+    //   await this.UserModel.updateMany(
+    //     { uid: item.uid },
+    //     { $set: { 'ticket.gatherTicket': 4 } },
+    //     {
+    //       $inc: {
+    //         'ticket.gatherTicket': item.gatherTicket,
+    //         'ticket.groupStudyTicket': item.groupStudyTicket,
+    //       },
+    //     },
+    //   );
+    // }
 
     //membership이 뉴비면 번개 +1, 소모임 +2 / 운영진/소모임장이면 번개 +2 소모임 +4 / 번개 서포터즈면 번개 +2
     await this.UserModel.updateMany(
