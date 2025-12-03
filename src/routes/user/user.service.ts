@@ -677,11 +677,10 @@ export class UserService {
   async processTemperature() {
     const baseDate = new Date();
 
-    const end = new Date(baseDate);
-    const start = new Date(baseDate);
-    start.setDate(end.getDate() - 45);
-    end.setDate(end.getDate() - 15);
-
+    // 지난달 15일
+    const end = new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 15);
+    // 지지난달 16일
+    const start = new Date(baseDate.getFullYear(), baseDate.getMonth() - 2, 16);
     const allTemps = await this.noticeService.getTemperatureByPeriod(
       start,
       end,
@@ -749,7 +748,15 @@ export class UserService {
       }
       const newCnt = temp.cnt + cnt;
 
-      const addTemp = this.calculateScore(newSum, newCnt);
+      let addTemp = 0;
+      if (
+        user.membership === 'manager' ||
+        user.membership === 'gatherSupporters'
+      ) {
+        addTemp = this.calculateScore(newSum * 2, newCnt * 2);
+      } else {
+        addTemp = this.calculateScore(newSum, newCnt);
+      }
 
       const userData = await this.UserRepository.findByUid(uid);
       userData.setTemperature(
