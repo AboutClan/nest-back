@@ -78,22 +78,46 @@ export class MongoNoticeRepository implements NoticeRepository {
   }
 
   async findMyTemperature(toUid: string) {
-    const base = { to: toUid, type: 'temperature' };
+    const baseMatch = { to: toUid, type: 'temperature' as const };
 
-    const [totalCnt, greatCnt, goodCnt, reviewArr] = await Promise.all([
-      this.Notice.countDocuments({ ...base }),
-      this.Notice.countDocuments({ ...base, sub: 'great' }),
-      this.Notice.countDocuments({ ...base, sub: 'good' }),
-      this.Notice.find({
-        ...base,
-        sub: { $in: ['great', 'good'] },
-        message: { $exists: true, $ne: '' },
-      })
-        .sort({ createdAt: -1 })
-        .limit(3)
-        .select('-_id -__v') // 혹은 필요한 필드만 명시적으로
-        .lean(),
+    // 1) 같은 from 에서 온 평가 중 가장 최신 것만 남기기
+    const latestByFrom = await this.Notice.aggregate([
+      { $match: baseMatch },
+      { $sort: { createdAt: -1 } }, // 최신순 정렬
+      {
+        $group: {
+          _id: '$from', // from 단위로 묶어서
+          doc: { $first: '$$ROOT' }, // 각 from 에 대해 가장 최신 문서 한 개
+        },
+      },
+      { $replaceRoot: { newRoot: '$doc' } }, // doc를 루트로
     ]);
+
+    const totalCnt = latestByFrom.length;
+
+    let greatCnt = 0;
+    let goodCnt = 0;
+
+    // 2) great / good 카운트 & 리뷰용 데이터 필터링
+    const reviewCandidates = latestByFrom.filter((notice) => {
+      if (notice.sub === 'great') greatCnt += 1;
+      if (notice.sub === 'good') goodCnt += 1;
+
+      return (
+        (notice.sub === 'great' || notice.sub === 'good') &&
+        notice.message &&
+        notice.message.trim() !== ''
+      );
+    });
+
+    // 3) 리뷰는 createdAt 기준으로 최신 3개만, _id / __v 제거
+    const reviewArr = reviewCandidates
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, 3)
+      .map(({ _id, __v, ...rest }) => rest); // 필요하면 여기서 명시적으로 필드 선택
 
     return { reviewArr, totalCnt, greatCnt, goodCnt };
   }
