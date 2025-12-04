@@ -706,7 +706,6 @@ export class GatherService {
         undefined,
         targetUser.uid,
       );
-
       await this.userServiceInstance.updateReduceTicket('gather', userId, -1);
     }
 
@@ -728,6 +727,17 @@ export class GatherService {
           DateUtils.formatGatherDate(gather.date),
           !!gather?.kakaoUrl,
         ),
+      );
+    } else {
+      await this.webPushServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.REFUSE(DateUtils.formatGatherDate(gather.date)),
+      );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.REFUSE(DateUtils.formatGatherDate(gather.date)),
       );
     }
   }

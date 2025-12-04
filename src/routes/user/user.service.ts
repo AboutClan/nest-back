@@ -610,7 +610,7 @@ export class UserService {
       type === 'gather' ? '번개 모임 참여' : '소모임 가입(또는 유지)';
 
     logger.logger.info(message, {
-      type,
+      type: `${type}Ticket`,
       uid,
       value: ticketNum,
     });

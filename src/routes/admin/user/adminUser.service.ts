@@ -20,7 +20,10 @@ export default class AdminUserService {
   constructor(@InjectModel(DB_SCHEMA.USER) private User: Model<IUser>) {}
 
   async getAllUser(type?: UserFilterType) {
-    const query: UserQueryProps = { isActive: true };
+    const query: any = {
+      isActive: true,
+      gender: { $exists: true, $ne: '' },
+    };
 
     if (type === 'study') {
       (query as any).$or = [
@@ -55,7 +58,7 @@ export default class AdminUserService {
         query,
         ENTITY.USER.C_SIMPLE_USER + addField,
       );
-   
+
       return res.filter((who) => !filterArr.includes(who.uid));
     }
   }

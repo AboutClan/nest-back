@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
+import { BackupService } from 'src/Database/backup.service';
 import { GatherService } from 'src/routes/gather/gather.service';
 import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
 import GroupStudyService from 'src/routes/groupStudy/groupStudy.service';
@@ -16,8 +18,6 @@ import {
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { IScheduleLog } from './schedule_log.entity';
-import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
-import { BackupService } from 'src/Database/backup.service';
 
 @Injectable()
 export class NotificationScheduler {
@@ -85,21 +85,6 @@ export class NotificationScheduler {
     } catch (error) {
       this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'failure', error);
       throw new Error(error);
-    }
-  }
-
-  //매주 targetHour 삭제
-  @Cron('0 0 0 * * 1', {
-    timeZone: 'Asia/Seoul',
-  })
-  async initTargetHour() {
-    try {
-      await this.User.updateMany({}, { weekStudyTragetHour: 0 });
-      await this.User.updateMany({}, { weekStudyAccumulationMinutes: 0 });
-      this.logSchedule(SCHEDULE_CONST.INIT_TARGET_HOUR, 'success');
-    } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.INIT_TARGET_HOUR, 'failure', err);
-      throw new Error(err);
     }
   }
 
