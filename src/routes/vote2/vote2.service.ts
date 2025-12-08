@@ -699,8 +699,8 @@ export class Vote2Service {
 
     await this.fcmServiceInstance.sendNotificationUserIds(
       userIds,
-      '스터디 미참여 푸시알림',
-      '스터디 미참여 푸시알림',
+      '스터디 출석 알림',
+      '오늘 스터디, 출석 깜빡한 거 아니죠? 😶 설정한 스터디 시작 시간이 지났어요. 도착하셨다면 출석체크를 진행해 주세요!',
     );
   }
 

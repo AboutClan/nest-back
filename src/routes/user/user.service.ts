@@ -845,6 +845,28 @@ export class UserService {
     await this.UserRepository.initMembership();
   }
 
+  async recommendNoticeAllUser() {
+    const users = await this.UserRepository.findAll();
+
+    const userIds = users.map((user) => user._id.toString());
+
+    const random = Math.floor(Math.random() * 2);
+    const title =
+      random === 0
+        ? '🤩 이번주 내 취향을 저격할 모임은?'
+        : '🤩 이번주 내 취향을 저격할 모임은?';
+    const description =
+      random === 0
+        ? '취향이 통하는 멤버들과 함께 다양한 추억을 만들어요!'
+        : '취향이 통하는 멤버들과 함께 다양한 추억을 만들어요!';
+
+    await this.fcmServiceInstance.sendNotificationUserIds(
+      userIds,
+      title,
+      description,
+    );
+  }
+
   async test() {
     await this.UserRepository.test();
 

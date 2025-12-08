@@ -270,4 +270,18 @@ export class NotificationScheduler {
       throw new Error(err);
     }
   }
+
+  //월요일 오후 8시
+  @Cron('0 0 20 * * 1', {
+    timeZone: 'Asia/Seoul',
+  })
+  async noticeAllUser() {
+    try {
+      await this.userService.recommendNoticeAllUser();
+      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'failure', err);
+      throw new Error(err);
+    }
+  }
 }
