@@ -54,15 +54,6 @@ export class Vote2Controller {
     return filteredVote;
   }
 
-  @Get('arrived')
-  async getArrived(
-    @Query('startDay') startDay: string,
-    @Query('endDay') endDay: string,
-  ) {
-    const results = await this.voteService2.getArrivedPeriod(startDay, endDay);
-    return results;
-  }
-
   @Delete(':date')
   async deleteVote(@Req() req: Request): Promise<any> {
     const { date } = req;

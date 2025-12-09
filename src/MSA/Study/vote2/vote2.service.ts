@@ -197,35 +197,6 @@ export class Vote2Service {
     };
   }
 
-  async getArrivedPeriod(startDay: string, endDay: string) {
-    const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
-
-    const result = [];
-    votes.forEach((vote) => {
-      const a = {
-        date: vote.date,
-        arrivedInfoList: vote.results.map((result) => {
-          const arrivedMembers = result.members.filter(
-            (member) => member.arrived,
-          );
-
-          return {
-            placeId: result.placeId,
-            arrivedInfo: arrivedMembers.map((member) => {
-              return {
-                uid: member.userId.uid,
-                name: member.userId.name,
-              };
-            }),
-          };
-        }),
-      };
-      result.push(a);
-    });
-
-    return result;
-  }
-
   async setVote(date: string, createVote: CreateNewVoteDTO) {
     const token = RequestContext.getDecodedToken();
 
