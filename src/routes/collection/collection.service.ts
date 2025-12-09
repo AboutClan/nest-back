@@ -14,7 +14,6 @@ import { IRequestData } from 'src/MSA/User/request/request.entity';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../MSA/Notification/fcm/fcm.service';
 import { UserRepository } from '../../MSA/User/user/UserRepository';
-import { WebPushService } from '../webpush/webpush.service';
 import { ICollectionRepository } from './CollectionRepository.interface';
 
 @Injectable()
@@ -26,7 +25,6 @@ export class CollectionService {
     @Inject(ICOLLECTION_REPOSITORY)
     private readonly collectionRepository: ICollectionRepository,
 
-    private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
   ) {}
 
@@ -87,11 +85,6 @@ export class CollectionService {
     await this.collectionRepository.save(myAlphabets);
     await this.collectionRepository.save(opponentAlphabets);
 
-    await this.webPushServiceInstance.sendNotificationToX(
-      toUid,
-      WEBPUSH_MSG.COLLECTION.CHANGE_TITLE,
-      WEBPUSH_MSG.COLLECTION.CHANGE_DESC,
-    );
     await this.fcmServiceInstance.sendNotificationToX(
       toUid,
       WEBPUSH_MSG.COLLECTION.CHANGE_TITLE,

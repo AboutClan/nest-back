@@ -15,7 +15,6 @@ import * as logger from '../../../logger';
 import { FcmService } from '../../Notification/fcm/fcm.service';
 import { IGatherRepository } from '../../Gather/gather/GatherRepository.interface';
 import { IVote2Repository } from '../../Study/vote2/Vote2Repository.interface';
-import { WebPushService } from '../../../routes/webpush/webpush.service';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
 
@@ -28,7 +27,6 @@ export default class NoticeService {
     @Inject(IVOTE2_REPOSITORY)
     private readonly vote2Repository: IVote2Repository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
-    private readonly webPushService: WebPushService,
     private readonly fcmServiceInstance: FcmService,
   ) {}
 
@@ -76,11 +74,6 @@ export default class NoticeService {
       throw new Error(err);
     }
 
-    await this.webPushService.sendNotificationToX(
-      to,
-      WEBPUSH_MSG.NOTICE.LIKE_TITLE,
-      WEBPUSH_MSG.NOTICE.LIKE_RECIEVE('', ''),
-    );
     await this.fcmServiceInstance.sendNotificationToX(
       to,
       WEBPUSH_MSG.NOTICE.LIKE_TITLE,
@@ -123,11 +116,6 @@ export default class NoticeService {
       });
 
       if (type === 'friend') {
-        await this.webPushService.sendNotificationToX(
-          toUid,
-          WEBPUSH_MSG.NOTICE.FRIEND_TITLE,
-          WEBPUSH_MSG.NOTICE.FRIEND_RECIEVE(token.name),
-        );
         await this.fcmServiceInstance.sendNotificationToX(
           toUid,
           WEBPUSH_MSG.NOTICE.FRIEND_TITLE,

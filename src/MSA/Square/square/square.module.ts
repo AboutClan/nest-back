@@ -7,7 +7,6 @@ import { secretSquareSchema } from './square.entity';
 import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { SquareRepository } from './square.repository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { WebPushModule } from '../../../routes/webpush/webpush.module';
 import { FcmAModule } from '../../Notification/fcm/fcm.module';
 import { CommentModule } from '../../../routes/comment/comment.module';
 
@@ -21,7 +20,6 @@ const squareRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: DB_SCHEMA.SQUARE, schema: secretSquareSchema },
     ]),
-    WebPushModule,
     FcmAModule,
     CommentModule,
   ],

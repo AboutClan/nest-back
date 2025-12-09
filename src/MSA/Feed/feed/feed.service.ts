@@ -15,7 +15,6 @@ import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
 import { IUser } from 'src/MSA/User/user/user.entity';
 import { UserService } from 'src/MSA/User/user/user.service';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
 import {
   IFEED_REPOSITORY,
   IGATHER_REPOSITORY,
@@ -40,8 +39,6 @@ export class FeedService {
     @Inject(IFEED_REPOSITORY)
     private readonly feedRepository: IFeedRepository,
 
-    private readonly userService: UserService,
-    private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: CommentService,
   ) {
@@ -263,11 +260,6 @@ export class FeedService {
     });
 
     //noti
-    this.webPushServiceInstance.sendNotificationToXWithId(
-      feed.writer,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
 
     await this.fcmServiceInstance.sendNotificationToXWithId(
       feed.writer,
@@ -322,16 +314,6 @@ export class FeedService {
     });
 
     //noti
-    this.webPushServiceInstance.sendNotificationToXWithId(
-      commentWriter,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
-    this.webPushServiceInstance.sendNotificationToXWithId(
-      feed.writer,
-      WEBPUSH_MSG.FEED.COMMENT_TITLE,
-      content,
-    );
     await this.fcmServiceInstance.sendNotificationToXWithId(
       commentWriter,
       WEBPUSH_MSG.FEED.COMMENT_TITLE,

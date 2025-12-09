@@ -8,7 +8,6 @@ import { FeedController } from './feed.controller';
 import { FeedSchema } from './feed.entity';
 import { FeedService } from './feed.service';
 import { FeedRepository } from './FeedRepository';
-import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../../Notification/fcm/fcm.module';
 import { CommentModule } from '../../../routes/comment/comment.module';
@@ -24,7 +23,6 @@ const feedRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([{ name: DB_SCHEMA.FEED, schema: FeedSchema }]),
     GatherModule,
     GroupStudyModule,
-    WebPushModule,
     FcmAModule,
     CommentModule,
   ],

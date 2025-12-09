@@ -8,7 +8,6 @@ import { UserModule } from 'src/MSA/User/user/user.module';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { CollectionRepository } from './CollectionRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { WebPushModule } from '../webpush/webpush.module';
 import { FcmAModule } from '../../MSA/Notification/fcm/fcm.module';
 import { UserRepository } from '../../MSA/User/user/UserRepository';
 
@@ -29,7 +28,6 @@ const userRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: DB_SCHEMA.COLLECTION, schema: CollectionSchema },
     ]),
-    forwardRef(() => WebPushModule),
     forwardRef(() => FcmAModule),
   ],
   controllers: [CollectionController],

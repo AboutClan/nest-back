@@ -11,7 +11,6 @@ import compression from 'compression';
 import { TokenValidatorMiddleware } from './middlewares/tokenValidator';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './Database/database.module';
-import { WebPushModule } from './routes/webpush/webpush.module';
 import { UserModule } from './MSA/User/user/user.module';
 import { SquareModule } from './MSA/Square/square/square.module';
 import { RequestModule } from './MSA/User/request/request.module';
@@ -115,7 +114,6 @@ const corsOptions = {
     SchedulerModule,
 
     DatabaseModule,
-    WebPushModule,
     UserModule,
     SquareModule,
     RequestModule,

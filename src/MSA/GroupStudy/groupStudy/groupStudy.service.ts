@@ -11,7 +11,6 @@ import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
 import { IUser } from 'src/MSA/User/user/user.entity';
 import { UserService } from 'src/MSA/User/user/user.service';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { DateUtils } from 'src/utils/Date';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { promisify } from 'util';
@@ -31,7 +30,6 @@ export default class GroupStudyService {
     private readonly groupStudyRepository: IGroupStudyRepository,
     private readonly userServiceInstance: UserService,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
-    private webPushServiceInstance: WebPushService,
     private readonly counterServiceInstance: CounterService,
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: CommentService,
@@ -479,11 +477,6 @@ export default class GroupStudyService {
 
     await this.groupStudyRepository.save(groupStudy);
 
-    await this.webPushServiceInstance.sendNotificationGroupStudy(
-      id,
-      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
-    );
-
     await this.fcmServiceInstance.sendNotificationGroupStudy(
       id,
       WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
@@ -567,11 +560,6 @@ export default class GroupStudyService {
 
       await this.groupStudyRepository.save(groupStudy);
 
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        groupStudy.organizer,
-        WEBPUSH_MSG.GROUPSTUDY.TITLE,
-        WEBPUSH_MSG.GROUPSTUDY.REQUEST(token.name, groupStudy.title),
-      );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         groupStudy.organizer,
         WEBPUSH_MSG.GROUPSTUDY.TITLE,
@@ -611,11 +599,6 @@ export default class GroupStudyService {
         //   this.userServiceInstance.updateReduceTicket('groupOnline', userId);
         // }
 
-        await this.webPushServiceInstance.sendNotificationToXWithId(
-          userId,
-          WEBPUSH_MSG.GROUPSTUDY.TITLE,
-          WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
-        );
         await this.fcmServiceInstance.sendNotificationToXWithId(
           userId,
           WEBPUSH_MSG.GROUPSTUDY.TITLE,
@@ -748,11 +731,6 @@ export default class GroupStudyService {
       throw error;
     }
 
-    await this.webPushServiceInstance.sendNotificationToXWithId(
-      groupStudy.organizer,
-      WEBPUSH_MSG.GROUPSTUDY.TITLE,
-      WEBPUSH_MSG.GROUPSTUDY.COMMENT_CREATE(groupStudy.title),
-    );
     await this.fcmServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer,
       WEBPUSH_MSG.GROUPSTUDY.TITLE,

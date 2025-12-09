@@ -4,7 +4,6 @@ import ImageService from 'src/routes/imagez/image.service';
 import { RequestContext } from 'src/request-context';
 import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../Notification/fcm/fcm.service';
-import { WebPushService } from '../../../routes/webpush/webpush.service';
 import { Square } from 'src/domain/entities/Square/Square';
 import { SquareComment } from 'src/domain/entities/Square/SquareComment';
 import { SquareSubComment } from 'src/domain/entities/Square/SquareSubComment';
@@ -17,7 +16,6 @@ export default class SquareService {
     @Inject(ISQUARE_REPOSITORY)
     private readonly squareRepository: ISquareRepository,
     private readonly imageServiceInstance: ImageService,
-    private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: CommentService,
   ) {}
@@ -160,11 +158,6 @@ export default class SquareService {
 
     // 웹푸시 알림 발송
     if (square && square.author !== token.id) {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        square.author,
-        WEBPUSH_MSG.SQUARE.TITLE,
-        WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
-      );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         square.author,
         WEBPUSH_MSG.SQUARE.TITLE,
@@ -197,11 +190,6 @@ export default class SquareService {
 
     // 웹푸시 알림 발송
     if (square && square.author !== token.id) {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        square.author,
-        WEBPUSH_MSG.SQUARE.TITLE,
-        WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
-      );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         square.author,
         WEBPUSH_MSG.SQUARE.TITLE,

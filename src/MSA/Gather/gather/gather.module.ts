@@ -5,7 +5,6 @@ import { GatherSchema } from './gather.entity';
 import { UserModule } from 'src/MSA/User/user/user.module';
 import { CounterModule } from 'src/routes/counter/couter.module';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
-import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { GatherService } from './gather.service';
 import { GatherRepository } from './GatherRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
@@ -25,7 +24,6 @@ const gatherRepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: DB_SCHEMA.GATHER, schema: GatherSchema },
     ]),
-    WebPushModule,
     FcmAModule,
     ImageModule,
     CommentModule,

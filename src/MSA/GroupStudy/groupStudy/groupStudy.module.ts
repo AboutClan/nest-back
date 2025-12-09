@@ -5,7 +5,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GroupStudySchema } from './groupStudy.entity';
 import { UserModule } from 'src/MSA/User/user/user.module';
 import { CounterModule } from 'src/routes/counter/couter.module';
-import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { RedisModule } from 'src/redis/redis.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
@@ -23,7 +22,6 @@ const groupStudyRepositoryProvider: ClassProvider = {
     RedisModule,
     UserModule,
     CounterModule,
-    forwardRef(() => WebPushModule),
     MongooseModule.forFeature([
       { name: DB_SCHEMA.GROUPSTUDY, schema: GroupStudySchema },
     ]),

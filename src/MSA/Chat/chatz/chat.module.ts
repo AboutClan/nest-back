@@ -3,7 +3,6 @@ import { ChatContoller } from './chat.controller';
 import { ChatService } from './chat.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from 'src/MSA/User/user/user.module';
-import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ChatSchema } from './chat.entity';
 import { ChatRepository } from './ChatRepository';
@@ -24,7 +23,6 @@ const userRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     UserModule,
-    WebPushModule,
     FcmAModule,
     MongooseModule.forFeature([{ name: DB_SCHEMA.CHAT, schema: ChatSchema }]),
   ],

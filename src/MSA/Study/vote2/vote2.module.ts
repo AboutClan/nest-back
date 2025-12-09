@@ -9,7 +9,6 @@ import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { Vote2Controller } from './vote2.controller';
 import { Vote2Schema } from './vote2.entity';
 import { Vote2Service } from './vote2.service';
-import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../../Notification/fcm/fcm.module';
 import { Vote2Repository } from './Vote2Repository';
@@ -27,7 +26,6 @@ const vote2RepositoryProvider: ClassProvider = {
     RealtimeModule,
     CollectionModule,
     UserModule,
-    WebPushModule,
     FcmAModule,
     ImageModule,
   ],

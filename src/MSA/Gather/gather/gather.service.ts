@@ -17,7 +17,6 @@ import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
 import ImageService from 'src/routes/imagez/image.service';
 import { UserService } from 'src/MSA/User/user/user.service';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { DateUtils } from 'src/utils/Date';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import CommentService from '../../../routes/comment/comment.service';
@@ -38,7 +37,6 @@ export class GatherService {
     private readonly gatherRepository: IGatherRepository,
     private readonly userServiceInstance: UserService,
     private readonly counterServiceInstance: CounterService,
-    private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
     private readonly commentService: CommentService,
@@ -396,14 +394,6 @@ export class GatherService {
     );
 
     if (gather.user) {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        gather?.user as string,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.PARTICIPATE(
-          token.name,
-          DateUtils.formatGatherDate(gather.date),
-        ),
-      );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
         WEBPUSH_MSG.GATHER.TITLE,
@@ -449,12 +439,6 @@ export class GatherService {
     );
 
     if (userId) {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
-      );
-
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
@@ -647,14 +631,6 @@ export class GatherService {
       await this.gatherRepository.save(gather);
 
       if (gather.user) {
-        await this.webPushServiceInstance.sendNotificationToXWithId(
-          gather?.user as string,
-          WEBPUSH_MSG.GATHER.TITLE,
-          WEBPUSH_MSG.GATHER.REQUEST(
-            token.name,
-            DateUtils.formatGatherDate(gather.date),
-          ),
-        );
         await this.fcmServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           WEBPUSH_MSG.GATHER.TITLE,
@@ -713,14 +689,6 @@ export class GatherService {
     await this.gatherRepository.save(gather);
 
     if (status === 'agree') {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.ACCEPT(
-          DateUtils.formatGatherDate(gather.date),
-          !!gather?.kakaoUrl,
-        ),
-      );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
@@ -730,11 +698,6 @@ export class GatherService {
         ),
       );
     } else {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.REFUSE(DateUtils.formatGatherDate(gather.date)),
-      );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
@@ -757,14 +720,6 @@ export class GatherService {
     });
 
     if (commentWriter) {
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        commentWriter as string,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.COMMENT_CREATE(
-          token.name,
-          DateUtils.formatGatherDate(gather.date),
-        ),
-      );
       await this.fcmServiceInstance.sendNotificationToXWithId(
         commentWriter as string,
         WEBPUSH_MSG.GATHER.TITLE,
@@ -774,13 +729,7 @@ export class GatherService {
         ),
       );
       // 모임장 알림
-      await this.webPushServiceInstance.sendNotificationToXWithId(
-        (gather.user as unknown as IUser)._id.toString(),
-        WEBPUSH_MSG.GATHER.COMMENT_CREATE(
-          token.name,
-          DateUtils.formatGatherDate(gather.date),
-        ),
-      );
+
       await this.fcmServiceInstance.sendNotificationToXWithId(
         (gather.user as unknown as IUser)._id.toString(),
         WEBPUSH_MSG.GATHER.COMMENT_CREATE(
@@ -829,14 +778,6 @@ export class GatherService {
       comment: comment,
     });
 
-    await this.webPushServiceInstance.sendNotificationToXWithId(
-      (gather.user as unknown as IUser)._id.toString(),
-      WEBPUSH_MSG.GATHER.TITLE,
-      WEBPUSH_MSG.GATHER.COMMENT_CREATE(
-        token.name,
-        DateUtils.formatGatherDate(gather.date),
-      ),
-    );
     await this.fcmServiceInstance.sendNotificationToXWithId(
       (gather.user as unknown as IUser)._id.toString(),
       WEBPUSH_MSG.GATHER.TITLE,

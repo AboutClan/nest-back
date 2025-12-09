@@ -2,7 +2,6 @@ import { ClassProvider, forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { UserModule } from 'src/MSA/User/user/user.module';
-import { WebPushModule } from 'src/routes/webpush/webpush.module';
 import {
   IGATHER_REPOSITORY,
   INOTICE_REPOSITORY,
@@ -34,7 +33,6 @@ const vote2RepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     forwardRef(() => UserModule),
-    forwardRef(() => WebPushModule),
     MongooseModule.forFeature([
       { name: DB_SCHEMA.NOTICE, schema: noticeSchema },
     ]),

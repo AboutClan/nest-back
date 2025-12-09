@@ -9,7 +9,6 @@ import { PlaceRepository } from 'src/MSA/Place/place/place.repository.interface'
 import RealtimeService from 'src/MSA/Study/realtime/realtime.service';
 import { IUser } from 'src/MSA/User/user/user.entity';
 import { UserService } from 'src/MSA/User/user/user.service';
-import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
@@ -27,7 +26,6 @@ export class Vote2Service {
     private readonly PlaceRepository: PlaceRepository,
     private readonly RealtimeService: RealtimeService,
     private readonly userServiceInstance: UserService,
-    private readonly webPushServiceInstance: WebPushService,
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
   ) {}
@@ -763,18 +761,6 @@ export class Vote2Service {
           (participation.userId as unknown as IUser)._id?.toString(),
         );
       }
-
-      this.webPushServiceInstance.sendNotificationUserIds(
-        successUserIds,
-        WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-        WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-      );
-
-      this.webPushServiceInstance.sendNotificationUserIds(
-        failedUserIds,
-        WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-        WEBPUSH_MSG.VOTE.FAILURE_DESC,
-      );
       await this.fcmServiceInstance.sendNotificationUserIds(
         successUserIds,
         WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
