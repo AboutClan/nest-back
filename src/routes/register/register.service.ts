@@ -6,7 +6,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
 import { RequestContext } from 'src/request-context';
-import { IAccount } from 'src/routes/account/account.entity';
+import { IAccount } from 'src/MSA/User/account/account.entity';
 import { IUser } from 'src/MSA/User/user/user.entity';
 import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';

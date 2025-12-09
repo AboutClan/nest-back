@@ -6,7 +6,7 @@ import { RegisteredSchema } from './register.entity';
 import { UserModule } from 'src/MSA/User/user/user.module';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoRegisterRepository } from './register.repository.interface';
-import { AccountModule } from 'src/routes/account/account.module';
+import { AccountModule } from 'src/MSA/User/account/account.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const registerRepositoryProvider: ClassProvider = {

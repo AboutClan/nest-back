@@ -1,6 +1,6 @@
 import { ClassProvider, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CollectionModule } from 'src/routes/collection/collection.module';
+import { CollectionModule } from 'src/MSA/Event/collection/collection.module';
 import { PlaceModule } from 'src/MSA/Place/place/place.module';
 import { RealtimeModule } from 'src/MSA/Study/realtime/realtime.module';
 import { UserModule } from 'src/MSA/User/user/user.module';

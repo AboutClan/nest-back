@@ -8,8 +8,8 @@ import { UserModule } from 'src/MSA/User/user/user.module';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { CollectionRepository } from './CollectionRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { FcmAModule } from '../../MSA/Notification/fcm/fcm.module';
-import { UserRepository } from '../../MSA/User/user/UserRepository';
+import { FcmAModule } from '../../Notification/fcm/fcm.module';
+import { UserRepository } from '../../User/user/UserRepository';
 
 const collectionRepositoryProvider: ClassProvider = {
   provide: ICOLLECTION_REPOSITORY,

@@ -9,7 +9,7 @@ import { RealtimeSchema } from './realtime.entity';
 import { RealtimeController } from './realtime.controller';
 import RealtimeService from './realtime.service';
 import { ImageModule } from 'src/routes/imagez/image.module';
-import { CollectionModule } from 'src/routes/collection/collection.module';
+import { CollectionModule } from 'src/MSA/Event/collection/collection.module';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { UserModule } from 'src/MSA/User/user/user.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';

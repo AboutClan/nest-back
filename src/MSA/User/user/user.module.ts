@@ -8,7 +8,7 @@ import { IUSER_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './user.entity';
 import { ImageModule } from 'src/routes/imagez/image.module';
-import { CollectionModule } from 'src/routes/collection/collection.module';
+import { CollectionModule } from 'src/MSA/Event/collection/collection.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { UserRepository } from './UserRepository';
 import { PrizeModule } from '../../Store/prize/prize.module';

@@ -12,8 +12,8 @@ import { Collection } from 'src/domain/entities/Collection';
 import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/MSA/User/request/request.entity';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
-import { FcmService } from '../../MSA/Notification/fcm/fcm.service';
-import { UserRepository } from '../../MSA/User/user/UserRepository';
+import { FcmService } from '../../Notification/fcm/fcm.service';
+import { UserRepository } from '../../User/user/UserRepository';
 import { ICollectionRepository } from './CollectionRepository.interface';
 
 @Injectable()

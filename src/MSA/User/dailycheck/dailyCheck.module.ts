@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { UserModule } from 'src/MSA/User/user/user.module';
 import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
-import { CollectionModule } from '../../../routes/collection/collection.module';
+import { CollectionModule } from '../../Event/collection/collection.module';
 import { DailyCheckController } from './dailyCheck.controller';
 import { dailyCheckSchema } from './dailycheck.entity';
 import { DailyCheckService } from './dailyCheck.service';

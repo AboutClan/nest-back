@@ -27,7 +27,7 @@ import { ChatModule } from './MSA/Chat/chatz/chat.module';
 import { FeedModule } from './MSA/Feed/feed/feed.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
-import { CollectionModule } from './routes/collection/collection.module';
+import { CollectionModule } from './MSA/Event/collection/collection.module';
 import { RealtimeModule } from './MSA/Study/realtime/realtime.module';
 import { AdminCounterModule } from './routes/admin/counter/adminCounter.module';
 import { AdminUserModule } from './routes/admin/user/adminUser.module';
