@@ -31,7 +31,7 @@ import { CollectionModule } from './MSA/Event/collection/collection.module';
 import { RealtimeModule } from './MSA/Study/realtime/realtime.module';
 import { AdminCounterModule } from './routes/admin/counter/adminCounter.module';
 import { AdminUserModule } from './routes/admin/user/adminUser.module';
-import { DailyCheckModule } from './MSA/User/dailycheck/dailyCheck.module';
+import { DailyCheckModule } from './MSA/Event/dailycheck/dailyCheck.module';
 import { Vote2Module } from './MSA/Study/vote2/vote2.module';
 import { PaymentModule } from './routes/payment/payment.module';
 import { AsyncContextInterceptor } from './async-context.interceptor';
