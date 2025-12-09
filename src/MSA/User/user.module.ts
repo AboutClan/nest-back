@@ -9,7 +9,7 @@ import { UserSchema } from './entity/user.entity';
 import { ImageModule } from 'src/routes/imagez/image.module';
 import { CollectionModule } from 'src/MSA/Event/collection/collection.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { PrizeModule } from '../Store/prize/prize.module';
+import { PrizeModule } from '../Store/prize.module';
 import { BackupModule } from 'src/Database/backup.module';
 import { FcmAModule } from '../Notification/fcm/fcm.module';
 import { UserRepository } from './infra/UserRepository';

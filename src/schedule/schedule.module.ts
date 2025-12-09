@@ -3,7 +3,7 @@ import { NotificationScheduler } from './schedule';
 import { GatherModule } from 'src/MSA/Gather/gather/gather.module';
 import { GroupStudyModule } from 'src/MSA/GroupStudy/groupStudy/groupStudy.module';
 import { UserModule } from 'src/MSA/User/user.module';
-import { Vote2Module } from 'src/MSA/Study/vote2/vote2.module';
+import { Vote2Module } from 'src/MSA/Study/vote2.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ScheduleLogSchema } from './schedule_log.entity';

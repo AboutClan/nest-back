@@ -12,7 +12,7 @@ import { TokenValidatorMiddleware } from './middlewares/tokenValidator';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './Database/database.module';
 import { UserModule } from './MSA/User/user.module';
-import { SquareModule } from './MSA/Square/square/square.module';
+import { SquareModule } from './MSA/Square/square.module';
 import { RequestModule } from './MSA/Notice/request/request.module';
 import { RegisterModule } from './routes/register/register.module';
 import { PromotionModule } from './MSA/Event/promotion/promotion.module';
@@ -28,11 +28,11 @@ import { FeedModule } from './MSA/Feed/feed/feed.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { CollectionModule } from './MSA/Event/collection/collection.module';
-import { RealtimeModule } from './MSA/Study/realtime/realtime.module';
+import { RealtimeModule } from './MSA/Study/realtime.module';
 import { AdminCounterModule } from './routes/admin/counter/adminCounter.module';
 import { AdminUserModule } from './routes/admin/user/adminUser.module';
 import { DailyCheckModule } from './MSA/Event/dailycheck/dailyCheck.module';
-import { Vote2Module } from './MSA/Study/vote2/vote2.module';
+import { Vote2Module } from './MSA/Study/vote2.module';
 import { PaymentModule } from './routes/payment/payment.module';
 import { AsyncContextInterceptor } from './async-context.interceptor';
 import { UrlTransformInterceptor } from './url-transform.interceptor';
@@ -46,9 +46,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
 import { FcmAModule } from './MSA/Notification/fcm/fcm.module';
 import { GatherRequestModule } from './MSA/Gather/gatherRequest/gatherRequest.module';
-import { PrizeModule } from './MSA/Store/prize/prize.module';
+import { PrizeModule } from './MSA/Store/prize.module';
 import { CommentModule } from './routes/comment/comment.module';
-import { StoreModule } from './MSA/Store/store/store.module';
+import { StoreModule } from './MSA/Store/store.module';
 
 const allowedOrigins = [
   'http://localhost:3000',

@@ -10,8 +10,8 @@ import { GatherSchema } from '../../Gather/gather/gather.entity';
 import { GroupStudySchema } from '../../GroupStudy/groupStudy/groupStudy.entity';
 import { MongoFcmLogRepository } from './fcmLog.repository';
 import { FcmLogSchema } from './fcmLog.entity';
-import { Vote2Schema } from '../../Study/vote2/vote2.entity';
-import { RealtimeSchema } from '../../Study/realtime/realtime.entity';
+import { Vote2Schema } from '../../Study/entity/vote2.entity';
+import { RealtimeSchema } from '../../Study/entity/realtime.entity';
 
 const fcmRepositoryProvider: ClassProvider = {
   provide: IFCM_REPOSITORY,

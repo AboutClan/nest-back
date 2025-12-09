@@ -14,7 +14,7 @@ import {
 import * as logger from '../../../logger';
 import { FcmService } from '../../Notification/fcm/fcm.service';
 import { IGatherRepository } from '../../Gather/gather/GatherRepository.interface';
-import { IVote2Repository } from '../../Study/vote2/Vote2Repository.interface';
+import { IVote2Repository } from '../../Study/core/interfaces/Vote2Repository.interface';
 import { INotice, NoticeZodSchema } from './notice.entity';
 import { NoticeRepository } from './notice.repository.interface';
 

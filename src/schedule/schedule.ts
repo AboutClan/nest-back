@@ -10,7 +10,7 @@ import { IGatherRepository } from 'src/MSA/Gather/gather/GatherRepository.interf
 import GroupStudyService from 'src/MSA/GroupStudy/groupStudy/groupStudy.service';
 import { IGroupStudyRepository } from 'src/MSA/GroupStudy/groupStudy/GroupStudyRepository.interface';
 import { IUser } from 'src/MSA/User/entity/user.entity';
-import { Vote2Service } from 'src/MSA/Study/vote2/vote2.service';
+import { Vote2Service } from 'src/MSA/Study/core/services/vote2.service';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
