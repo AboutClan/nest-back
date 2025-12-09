@@ -3,7 +3,7 @@ import { IUser } from 'src/MSA/User/entity/user.entity';
 import mongoose, { model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
-export const commentZodSchema = z.object({
+export const groupCommentZodSchema = z.object({
   _id: z.string().optional(),
   postId: z.string(),
   parentId: z.union([z.string(), z.custom<any>()]),
@@ -15,13 +15,13 @@ export const commentZodSchema = z.object({
   createdAt: z.date().optional(),
 });
 
-export type GroupCommentType = z.infer<typeof commentZodSchema>;
+export type GroupCommentType = z.infer<typeof groupCommentZodSchema>;
 
-export const commentSchema: Schema<GroupCommentType> = new Schema({
+export const groupCommentSchema: Schema<GroupCommentType> = new Schema({
   postId: { type: String, required: true },
   parentId: {
     type: Schema.Types.ObjectId,
-    ref: DB_SCHEMA.COMMENT,
+    ref: DB_SCHEMA.GROUP_COMMENT,
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -43,4 +43,4 @@ export const commentSchema: Schema<GroupCommentType> = new Schema({
 
 export const GroupComment =
   (mongoose.models.GroupComment as Model<GroupCommentType, {}, {}, {}>) ||
-  model<GroupCommentType>(DB_SCHEMA.GROUP_COMMENT, commentSchema);
+  model<GroupCommentType>(DB_SCHEMA.GROUP_COMMENT, groupCommentSchema);

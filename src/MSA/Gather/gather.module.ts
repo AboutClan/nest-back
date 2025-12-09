@@ -15,6 +15,7 @@ import { ImageModule } from 'src/routes/imagez/image.module';
 import { GatherController } from './core/controllers/gather.controller';
 import { MongoGatherCommentRepository } from './infra/MongoGatherCommentRepository';
 import GatherCommentService from './core/services/comment.service';
+import { gatherCommentSchema } from './entity/comment.entity';
 
 const gatherRepositoryProvider: ClassProvider = {
   provide: IGATHER_REPOSITORY,
@@ -31,6 +32,7 @@ const gatherCommentRepositoryProvider: ClassProvider = {
     CounterModule,
     MongooseModule.forFeature([
       { name: DB_SCHEMA.GATHER, schema: GatherSchema },
+      { name: DB_SCHEMA.GATHER_COMMENT, schema: gatherCommentSchema },
     ]),
     FcmAModule,
     ImageModule,

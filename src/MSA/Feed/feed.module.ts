@@ -12,6 +12,7 @@ import { GroupStudyModule } from 'src/MSA/GroupStudy/groupStudy.module';
 import { FeedController } from './core/controllers/feed.controller';
 import { MongoFeedCommentRepository } from './infra/MongoFeedCommentRepository';
 import FeedCommentService from './core/services/feedComment.service';
+import { FeedCommentSchema } from './entity/feedComment.entity';
 
 const feedRepositoryProvider: ClassProvider = {
   provide: IFEED_REPOSITORY,
@@ -25,7 +26,10 @@ const feedCommentRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     UserModule,
-    MongooseModule.forFeature([{ name: DB_SCHEMA.FEED, schema: FeedSchema }]),
+    MongooseModule.forFeature([
+      { name: DB_SCHEMA.FEED, schema: FeedSchema },
+      { name: DB_SCHEMA.FEED_COMMENT, schema: FeedCommentSchema },
+    ]),
     GatherModule,
     GroupStudyModule,
     FcmAModule,

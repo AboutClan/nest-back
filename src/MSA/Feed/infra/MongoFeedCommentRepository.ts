@@ -10,7 +10,7 @@ import { FeedComment } from '../core/domain/Comment';
 @Injectable()
 export class MongoFeedCommentRepository implements IFeedCommentRepository {
   constructor(
-    @InjectModel(DB_SCHEMA.COMMENT)
+    @InjectModel(DB_SCHEMA.FEED_COMMENT)
     private readonly feedCommentModel: Model<IFeedCommentData>,
   ) {}
 

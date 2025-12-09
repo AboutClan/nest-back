@@ -21,7 +21,7 @@ export const gatherCommentSchema: Schema<GatherCommentType> = new Schema({
   postId: { type: String, required: true },
   parentId: {
     type: Schema.Types.ObjectId,
-    ref: DB_SCHEMA.COMMENT,
+    ref: DB_SCHEMA.GATHER_COMMENT,
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -41,6 +41,6 @@ export const gatherCommentSchema: Schema<GatherCommentType> = new Schema({
   createdAt: { type: Date, required: false },
 });
 
-export const Comment =
+export const GatherComment =
   (mongoose.models.Comment as Model<GatherCommentType, {}, {}, {}>) ||
   model<GatherCommentType>(DB_SCHEMA.GATHER_COMMENT, gatherCommentSchema);

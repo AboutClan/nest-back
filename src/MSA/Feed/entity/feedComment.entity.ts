@@ -19,11 +19,11 @@ export const feedCommentZodSchema = z.object({
 
 export type IFeedCommentData = z.infer<typeof feedCommentZodSchema>;
 
-export const feedCommentSchema: Schema<IFeedCommentData> = new Schema({
+export const FeedCommentSchema: Schema<IFeedCommentData> = new Schema({
   postId: { type: String, required: true },
   parentId: {
     type: Schema.Types.ObjectId,
-    ref: DB_SCHEMA.COMMENT,
+    ref: DB_SCHEMA.FEED_COMMENT,
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -45,4 +45,4 @@ export const feedCommentSchema: Schema<IFeedCommentData> = new Schema({
 
 export const FeedComment =
   (mongoose.models.FeedComment as Model<IFeedCommentData, {}, {}, {}>) ||
-  model<IFeedCommentData>(DB_SCHEMA.FEED_COMMENT, feedCommentSchema);
+  model<IFeedCommentData>(DB_SCHEMA.FEED_COMMENT, FeedCommentSchema);

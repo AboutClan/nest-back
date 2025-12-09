@@ -10,6 +10,7 @@ import { RedisModule } from 'src/redis/redis.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { GroupStudyRepository } from './infra/GroupStudyRepository';
 import { GroupStudySchema } from './entity/groupStudy.entity';
+import { groupCommentSchema } from './entity/groupComment.entity';
 import { FcmAModule } from '../Notification/fcm.module';
 import { GroupStudyController } from './core/controllers/groupStudy.controller';
 import GroupStudyService from './core/services/groupStudy.service';
@@ -33,6 +34,7 @@ const groupCommentRepositoryProvider: ClassProvider = {
     CounterModule,
     MongooseModule.forFeature([
       { name: DB_SCHEMA.GROUPSTUDY, schema: GroupStudySchema },
+      { name: DB_SCHEMA.GROUP_COMMENT, schema: groupCommentSchema },
     ]),
     FcmAModule,
   ],

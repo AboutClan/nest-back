@@ -14,17 +14,12 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
 import { IUser } from 'src/MSA/User/entity/user.entity';
-import {
-  IFEED_REPOSITORY,
-  IGATHER_REPOSITORY,
-  IGROUPSTUDY_REPOSITORY,
-} from 'src/utils/di.tokens';
-import CommentService from '../../../../routes/comment/comment.service';
+import { IFEED_REPOSITORY, IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
-import { IGroupStudyRepository } from '../../../GroupStudy/core/interfaces/GroupStudyRepository.interface';
 import { IFeedRepository } from '../interfaces/FeedRepository.interface';
 import { DateUtils } from 'src/utils/Date';
 import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
+import FeedCommentService from './feedComment.service';
 
 @Injectable()
 export class FeedService {
@@ -37,7 +32,7 @@ export class FeedService {
     private readonly feedRepository: IFeedRepository,
 
     private readonly fcmServiceInstance: FcmService,
-    private readonly commentService: CommentService,
+    private readonly commentService: FeedCommentService,
   ) {
     this.imageServiceInstance = new ImageService();
   }
@@ -251,7 +246,6 @@ export class FeedService {
 
     await this.commentService.createComment({
       postId: feed._id,
-      postType: 'feed',
       user: token.id,
       comment: content,
     });
@@ -304,7 +298,6 @@ export class FeedService {
 
     const commentWriter = await this.commentService.createSubComment({
       postId: feed._id.toString(),
-      postType: 'feed',
       user: token.id,
       comment: content,
       parentId: commentId,
