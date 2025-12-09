@@ -8,7 +8,7 @@ import {
   IPLACE_SERVICE,
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { UserService } from './user.service';
+import { UserService } from '../user.service';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 // 🧪 테스트용 Mock 데이터 정의

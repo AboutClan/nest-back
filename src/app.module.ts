@@ -15,7 +15,7 @@ import { UserModule } from './MSA/User/user/user.module';
 import { SquareModule } from './MSA/Square/square/square.module';
 import { RequestModule } from './MSA/User/request/request.module';
 import { RegisterModule } from './routes/register/register.module';
-import { PromotionModule } from './routes/promotion/promotion.module';
+import { PromotionModule } from './MSA/Event/promotion/promotion.module';
 import { PlaceModule } from './MSA/Place/place/place.module';
 import { NoticeModule } from './MSA/Notice/notice/notice.module';
 import { LogModule } from './routes/logz/log.module';

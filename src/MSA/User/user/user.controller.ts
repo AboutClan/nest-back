@@ -58,12 +58,6 @@ export class UserController {
     return simpleUserInfo;
   }
 
-  @Get('simpleAll')
-  async getAllSimple() {
-    const allSimpleUserInfo = await this.userService.getAllSimpleUserInfo();
-    return allSimpleUserInfo;
-  }
-
   @Patch('avatar')
   async updateAvatar(@Body() updateAvatarDto: UpdateAvatarDto) {
     await this.userService.updateUser({ avatar: updateAvatarDto });
@@ -240,36 +234,6 @@ export class UserController {
   async getUserPoint() {
     const userScore = await this.userService.getUserInfo(['point']);
     return userScore;
-  }
-
-  @Get('histories/score')
-  async getScoreLogs() {
-    const logs = await this.userService.getLog('score');
-    return logs;
-  }
-
-  @Get('histories/monthScore')
-  async getMonthScoreLogs() {
-    const logs = await this.userService.getMonthScoreLog();
-    return logs;
-  }
-
-  @Get('histories/score/all')
-  async getAllScoreLogs() {
-    const logs = await this.userService.getAllLog('score');
-    return logs;
-  }
-
-  @Get('histories/point')
-  async getPointLogs() {
-    const logs = await this.userService.getLog('point');
-    return logs;
-  }
-
-  @Get('histories/point/all')
-  async getAllPointLogs() {
-    const logs = await this.userService.getAllLog('point');
-    return logs;
   }
 
   @Get('monthScore')

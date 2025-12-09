@@ -120,20 +120,6 @@ export class UserService {
     return picked;
   }
 
-  async getAllUserInfo(strArr: string[]) {
-    let queryString = this.createQueryString(strArr);
-    if (strArr.length) queryString = '-_id' + queryString;
-
-    const users = await this.UserRepository.findAll(queryString);
-
-    users.forEach(async (user) => {
-      if (user.telephone)
-        user.telephone = await this.decodeByAES256(user.telephone);
-    });
-
-    return users;
-  }
-
   async getSimpleUserInfo() {
     const token = RequestContext.getDecodedToken();
     const result = await this.UserRepository.findByUidProjection(
@@ -142,12 +128,6 @@ export class UserService {
     );
 
     return result;
-  }
-
-  async getAllSimpleUserInfo() {
-    const users = await this.UserRepository.findAll(ENTITY.USER.C_SIMPLE_USER);
-
-    return users;
   }
 
   async updateUser(updateInfo: Partial<IUser>) {
@@ -173,27 +153,6 @@ export class UserService {
     );
 
     return updatedUser;
-  }
-
-  async updateRandomPoint(
-    point: number,
-    message: string,
-    sub?: string,
-    uid?: string,
-  ) {
-    const token = RequestContext.getDecodedToken();
-
-    const user = await this.UserRepository.findByUid(uid ?? token.uid);
-    user.increasePoint(point);
-    await this.UserRepository.save(user);
-
-    logger.logger.info(message, {
-      type: 'point',
-      sub,
-      uid: uid ?? token.uid,
-      value: point,
-    });
-    return;
   }
 
   async updatePoint(
@@ -469,63 +428,6 @@ export class UserService {
     const updated = await this.UserRepository.updateUser(uid, { belong });
 
     return updated;
-  }
-
-  async getMonthScoreLog() {
-    const token = RequestContext.getDecodedToken();
-
-    // 현재 날짜를 구합니다.
-    const currentDate = new Date();
-
-    // 이번 달의 시작일과 마지막 날을 계산합니다.
-    const startOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1,
-    );
-    const endOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0,
-    );
-
-    const logs = await this.Log.find(
-      {
-        'meta.type': 'score',
-        'meta.uid': token.uid,
-        timestamp: {
-          $gte: startOfMonth,
-          $lte: endOfMonth,
-        },
-      },
-      '-_id timestamp message meta',
-    )
-      .sort({ timestamp: -1 })
-      .limit(30);
-    return logs;
-  }
-
-  async getLog(type: string) {
-    const token = RequestContext.getDecodedToken();
-    const logs = await this.Log.find(
-      {
-        'meta.uid': token.uid,
-        'meta.type': type,
-      },
-      '-_id timestamp message meta',
-    )
-      .sort({ timestamp: -1 })
-      .limit(30);
-    return logs;
-  }
-
-  async getAllLog(type: string) {
-    const logs = await this.Log.find(
-      { 'meta.type': type },
-      '-_id timestamp message meta',
-    );
-
-    return logs;
   }
 
   async patchLocationDetail(

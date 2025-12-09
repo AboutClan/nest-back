@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
+import { UserService } from '../user.service';
 
 // 🧪 Jest 테스트 예시 - 간단한 버전
 describe('Jest 테스트 학습용 예시', () => {
