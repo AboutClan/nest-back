@@ -10,7 +10,7 @@ import ImageService from 'src/routes/imagez/image.service';
 import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { DatabaseError } from '../../../../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
-import PlaceService from '../../../Place/place/place.service';
+import PlaceService from '../../../Place/core/services/place.service';
 import {
   IRealtime,
   IRealtimeUser,

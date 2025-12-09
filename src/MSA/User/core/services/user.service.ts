@@ -9,13 +9,13 @@ import { AppError } from 'src/errors/AppError';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
 import { ILog } from 'src/routes/logz/log.entity';
-import NoticeService from 'src/MSA/Notice/notice/notice.service';
-import PlaceService from 'src/MSA/Place/place/place.service';
+import NoticeService from 'src/MSA/Notice/core/services/notice.service';
+import PlaceService from 'src/MSA/Place/core/services/place.service';
 import { DateUtils } from 'src/utils/Date';
 import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IUserRepository } from '../interfaces/UserRepository.interface';
-import { FcmService } from 'src/MSA/Notification/fcm/fcm.service';
+import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
 import { IUser, restType } from '../../entity/user.entity';
 import { logger } from 'src/logger';
 

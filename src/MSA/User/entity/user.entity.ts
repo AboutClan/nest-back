@@ -1,7 +1,7 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { IPlace } from 'src/MSA/Place/place/place.entity';
+import { IPlace } from 'src/MSA/Place/entity/place.entity';
 import {
   ILocationDetail,
   InterestSchema,

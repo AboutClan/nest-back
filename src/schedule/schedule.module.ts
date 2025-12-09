@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { NotificationScheduler } from './schedule';
-import { GatherModule } from 'src/MSA/Gather/gather/gather.module';
-import { GroupStudyModule } from 'src/MSA/GroupStudy/groupStudy/groupStudy.module';
+import { GatherModule } from 'src/MSA/Gather/gather.module';
 import { UserModule } from 'src/MSA/User/user.module';
 import { Vote2Module } from 'src/MSA/Study/vote2.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ScheduleLogSchema } from './schedule_log.entity';
 import { BackupModule } from 'src/Database/backup.module';
+import { GroupStudyModule } from 'src/MSA/GroupStudy/groupStudy.module';
 
 const isDev = process.env.NODE_ENV === 'development';
 

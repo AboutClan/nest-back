@@ -6,7 +6,7 @@ import { secretSquareSchema } from './entity/square.entity';
 import { ISQUARE_REPOSITORY, ISQUARE_SERVICE } from 'src/utils/di.tokens';
 import { SquareRepository } from './infra/square.repository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { FcmAModule } from '../Notification/fcm/fcm.module';
+import { FcmAModule } from '../Notification/fcm.module';
 import { CommentModule } from '../../routes/comment/comment.module';
 import SquareService from './core/services/square.service';
 

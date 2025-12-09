@@ -6,7 +6,7 @@ import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import { Square } from 'src/domain/entities/Square/Square';
 import { SquarePoll } from 'src/domain/entities/Square/SquarePoll';
 import { ISquareRepository } from '../interfaces/square.repository.interface';
-import { FcmService } from 'src/MSA/Notification/fcm/fcm.service';
+import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
 import CommentService from 'src/routes/comment/comment.service';
 
 export default class SquareService {

@@ -1,14 +1,14 @@
 import { ClassProvider, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CollectionModule } from 'src/MSA/Event/collection/collection.module';
-import { PlaceModule } from 'src/MSA/Place/place/place.module';
+import { CollectionModule } from 'src/MSA/Event/collection.module';
+import { PlaceModule } from 'src/MSA/Place/place.module';
 import { RealtimeModule } from 'src/MSA/Study/realtime.module';
 import { UserModule } from 'src/MSA/User/user.module';
 import { IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { Vote2Schema } from './entity/vote2.entity';
 import { Vote2Service } from './core/services/vote2.service';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { FcmAModule } from '../Notification/fcm/fcm.module';
+import { FcmAModule } from '../Notification/fcm.module';
 import { Vote2Repository } from './infra/Vote2Repository';
 import { ImageModule } from '../../routes/imagez/image.module';
 import { Vote2Controller } from './core/controllers/vote2.controller';
