@@ -1,4 +1,4 @@
-import { GroupStudy } from 'src/domain/entities/GroupStudy';
+import { GroupStudy } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 
 export interface IGroupStudyRepository {
   findWithQueryPopPage(

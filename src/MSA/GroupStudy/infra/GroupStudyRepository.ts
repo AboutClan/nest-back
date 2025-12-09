@@ -11,7 +11,7 @@ import {
   ParticipantProps,
   WaitingProps,
   WeekRecordProps,
-} from 'src/domain/entities/GroupStudy';
+} from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 import { IGroupStudyData } from '../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../core/interfaces/GroupStudyRepository.interface';
 

@@ -4,7 +4,10 @@ import Redis from 'ioredis';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { GroupStudy, GroupStudyProps } from 'src/domain/entities/GroupStudy';
+import {
+  GroupStudy,
+  GroupStudyProps,
+} from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
 import { RequestContext } from 'src/request-context';
@@ -14,12 +17,12 @@ import { DateUtils } from 'src/utils/Date';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { promisify } from 'util';
 import * as zlib from 'zlib';
-import CommentService from '../../../../routes/comment/comment.service';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IGroupStudyData } from '../../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interface';
 import { AppError } from 'src/errors/AppError';
 import { UserService } from 'src/MSA/User/core/services/user.service';
+import GroupCommentService from './groupComment.service';
 
 //test
 export default class GroupStudyService {
@@ -32,7 +35,7 @@ export default class GroupStudyService {
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     private readonly counterServiceInstance: CounterService,
     private readonly fcmServiceInstance: FcmService,
-    private readonly commentService: CommentService,
+    private readonly commentService: GroupCommentService,
   ) {}
 
   async getStatusGroupStudy(cursor: number, status: string) {
@@ -372,7 +375,6 @@ export default class GroupStudyService {
 
     await this.commentService.createSubComment({
       postId: groupStudy._id.toString(),
-      postType: 'groupStudy',
       user: token.id,
       comment: content,
       parentId: commentId,
@@ -722,7 +724,6 @@ export default class GroupStudyService {
 
       await this.commentService.createComment({
         postId: groupStudy._id.toString(),
-        postType: 'groupStudy',
         user: token.id,
         comment: comment,
       });

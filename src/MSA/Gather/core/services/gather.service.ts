@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   HttpException,
-  HttpStatus,
   Inject,
   Injectable,
 } from '@nestjs/common';
@@ -18,7 +17,6 @@ import { CounterService } from 'src/routes/counter/counter.service';
 import ImageService from 'src/routes/imagez/image.service';
 import { DateUtils } from 'src/utils/Date';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
-import CommentService from '../../../../routes/comment/comment.service';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IUser } from '../../../User/entity/user.entity';
 import {
@@ -28,6 +26,7 @@ import {
 } from '../../entity/gather.entity';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { IGatherRepository } from '../interfaces/GatherRepository.interface';
+import GatherCommentService from './comment.service';
 
 //commit
 @Injectable()
@@ -39,7 +38,7 @@ export class GatherService {
     private readonly counterServiceInstance: CounterService,
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
-    private readonly commentService: CommentService,
+    private readonly commentService: GatherCommentService,
   ) {}
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
@@ -713,7 +712,6 @@ export class GatherService {
 
     const commentWriter = await this.commentService.createSubComment({
       postId: gather._id.toString(),
-      postType: 'gather',
       user: token.id,
       comment: content,
       parentId: commentId,
@@ -773,7 +771,6 @@ export class GatherService {
     const gather = await this.gatherRepository.findById(+gatherId, true);
     await this.commentService.createComment({
       postId: gather._id.toString(),
-      postType: 'gather',
       user: token.id,
       comment: comment,
     });
@@ -865,7 +862,6 @@ export class GatherService {
 
           const saveComment = await this.commentService.createComment({
             postId: feed._id.toString(),
-            postType: 'gather',
             user: comment.user,
             comment: comment.comment,
           });
@@ -875,9 +871,8 @@ export class GatherService {
           for (const subComment of subComments) {
             if (!subComment.comment) continue;
 
-            const saveSubComment = await this.commentService.createSubComment({
+            await this.commentService.createSubComment({
               postId: feed._id.toString(),
-              postType: 'gather',
               user: subComment.user,
               comment: subComment.comment,
               parentId: saveComment._id.toString(),
