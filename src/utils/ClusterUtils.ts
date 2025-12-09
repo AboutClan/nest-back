@@ -1,6 +1,6 @@
 import clustering from 'density-clustering';
-import { IPlace } from 'src/routes/place/place.entity';
-import { IParticipation, IResult } from 'src/routes/vote2/vote2.entity';
+import { IPlace } from 'src/MSA/Place/place/place.entity';
+import { IParticipation, IResult } from 'src/MSA/Study/vote2/vote2.entity';
 
 export interface coordType {
   lat: number;

@@ -1,6 +1,6 @@
 import mongoose, { model, Schema, Document, Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { IUser } from 'src/routes/user/user.entity';
+import { IUser } from 'src/MSA/User/user/user.entity';
 
 export interface IAccount extends Document {
   provider: string;

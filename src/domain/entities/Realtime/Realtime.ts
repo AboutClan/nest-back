@@ -1,4 +1,4 @@
-import { IRealtimeUser } from 'src/routes/realtime/realtime.entity';
+import { IRealtimeUser } from 'src/MSA/Study/realtime/realtime.entity';
 import { IUser } from '../User/User';
 import { Comment } from './Comment';
 import { RealtimeUser, RealtimeUserProps } from './RealtimeUser';

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IUser } from 'src/routes/user/user.entity';
+import { IUser } from 'src/MSA/User/user/user.entity';
 import { INotificationSub } from './notificationsub.entity';
 import { WebpushRepository } from './webpush.repository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';

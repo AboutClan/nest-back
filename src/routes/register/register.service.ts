@@ -7,7 +7,7 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
 import { RequestContext } from 'src/request-context';
 import { IAccount } from 'src/routes/account/account.entity';
-import { IUser } from 'src/routes/user/user.entity';
+import { IUser } from 'src/MSA/User/user/user.entity';
 import { WebPushService } from 'src/routes/webpush/webpush.service';
 import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';

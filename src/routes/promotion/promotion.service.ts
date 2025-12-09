@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { RequestContext } from 'src/request-context';
-import { UserService } from 'src/routes/user/user.service';
+import { UserService } from 'src/MSA/User/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IPROMOTION_REPOSITORY } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from './promotion.entity';

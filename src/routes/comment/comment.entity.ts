@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { IUser } from '../user/user.entity';
+import { IUser } from '../../MSA/User/user/user.entity';
 import mongoose, { model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';

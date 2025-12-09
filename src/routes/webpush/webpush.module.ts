@@ -1,15 +1,15 @@
 import { ClassProvider, Module } from '@nestjs/common';
 import { WebPushController } from './webpush.controller';
 import { WebPushService } from './webpush.service';
-import { UserModule } from 'src/routes/user/user.module';
-import { GroupStudyModule } from 'src/routes/groupStudy/groupStudy.module';
+import { UserModule } from 'src/MSA/User/user/user.module';
+import { GroupStudyModule } from 'src/MSA/GroupStudy/groupStudy/groupStudy.module';
 import { IWEBPUSH_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoWebpushRepository } from './webpush.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationSubSchema } from './notificationsub.entity';
 import { BullModule } from '@nestjs/bull';
 import { WebPushConsumer } from './webpush.consumer';
-import { GatherSchema } from 'src/routes/gather/gather.entity';
+import { GatherSchema } from 'src/MSA/Gather/gather/gather.entity';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 
 const webPushRepositoryProvider: ClassProvider = {

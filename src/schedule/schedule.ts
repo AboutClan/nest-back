@@ -5,13 +5,13 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
 import { BackupService } from 'src/Database/backup.service';
-import { GatherService } from 'src/routes/gather/gather.service';
-import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
-import GroupStudyService from 'src/routes/groupStudy/groupStudy.service';
-import { IGroupStudyRepository } from 'src/routes/groupStudy/GroupStudyRepository.interface';
-import { IUser } from 'src/routes/user/user.entity';
-import { UserService } from 'src/routes/user/user.service';
-import { Vote2Service } from 'src/routes/vote2/vote2.service';
+import { GatherService } from 'src/MSA/Gather/gather/gather.service';
+import { IGatherRepository } from 'src/MSA/Gather/gather/GatherRepository.interface';
+import GroupStudyService from 'src/MSA/GroupStudy/groupStudy/groupStudy.service';
+import { IGroupStudyRepository } from 'src/MSA/GroupStudy/groupStudy/GroupStudyRepository.interface';
+import { IUser } from 'src/MSA/User/user/user.entity';
+import { UserService } from 'src/MSA/User/user/user.service';
+import { Vote2Service } from 'src/MSA/Study/vote2/vote2.service';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
