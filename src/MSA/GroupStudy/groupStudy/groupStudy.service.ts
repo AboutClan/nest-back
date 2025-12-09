@@ -9,8 +9,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
 import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
-import { IUser } from 'src/MSA/User/user/user.entity';
-import { UserService } from 'src/MSA/User/user/user.service';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { DateUtils } from 'src/utils/Date';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { promisify } from 'util';
@@ -20,6 +19,7 @@ import { FcmService } from '../../Notification/fcm/fcm.service';
 import { IGroupStudyData } from './groupStudy.entity';
 import { IGroupStudyRepository } from './GroupStudyRepository.interface';
 import { AppError } from 'src/errors/AppError';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 
 //test
 export default class GroupStudyService {

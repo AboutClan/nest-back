@@ -13,8 +13,7 @@ import { ValidationError } from 'src/errors/ValidationError';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
-import { IUser } from 'src/MSA/User/user/user.entity';
-import { UserService } from 'src/MSA/User/user/user.service';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import {
   IFEED_REPOSITORY,
   IGATHER_REPOSITORY,

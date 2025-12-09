@@ -10,10 +10,10 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Collection } from 'src/domain/entities/Collection';
 import { RequestContext } from 'src/request-context';
-import { IRequestData } from 'src/MSA/User/request/request.entity';
+import { IRequestData } from 'src/MSA/Notice/request/request.entity';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../Notification/fcm/fcm.service';
-import { UserRepository } from '../../User/user/UserRepository';
+import { UserRepository } from 'src/MSA/User/infra/UserRepository';
 import { ICollectionRepository } from './CollectionRepository.interface';
 
 @Injectable()

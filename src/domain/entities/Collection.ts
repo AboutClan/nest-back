@@ -1,4 +1,4 @@
-import { IUser } from 'src/MSA/User/user/user.entity';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 
 export interface CollectionPrimitives {
   id?: string;

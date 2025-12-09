@@ -7,8 +7,7 @@ import { Result } from 'src/domain/entities/Vote2/Vote2Result';
 import { RequestContext } from 'src/request-context';
 import { PlaceRepository } from 'src/MSA/Place/place/place.repository.interface';
 import RealtimeService from 'src/MSA/Study/realtime/realtime.service';
-import { IUser } from 'src/MSA/User/user/user.entity';
-import { UserService } from 'src/MSA/User/user/user.service';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
@@ -18,6 +17,7 @@ import { CreateNewVoteDTO, CreateParticipateDTO } from './vote2.dto';
 import { IMember, IParticipation, IResult } from './vote2.entity';
 import { IVote2Repository } from './Vote2Repository.interface';
 import { AppError } from 'src/errors/AppError';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)

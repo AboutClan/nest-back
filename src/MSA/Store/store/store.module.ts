@@ -11,13 +11,12 @@ import {
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { StoreRepository } from './StoreRepository';
-import { UserService } from '../../User/user/user.service';
-import { UserRepository } from '../../User/user/UserRepository';
-import { UserSchema } from '../../User/user/user.entity';
+import { UserSchema } from '../../User/entity/user.entity';
 import { MongoGiftRepository } from '../../../routes/gift/gift.repository';
 import { giftSchema } from '../../../routes/gift/gift.entity';
 import { PrizeRepository } from '../prize/PrizeRepository';
 import { PrizeSchema } from '../prize/prize.entity';
+import { UserRepository } from 'src/MSA/User/infra/UserRepository';
 
 const storeRepositoryProvider: ClassProvider = {
   provide: ISTORE_REPOSITORY,

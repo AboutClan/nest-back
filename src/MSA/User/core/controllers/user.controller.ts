@@ -37,9 +37,9 @@ import {
   UpdatePointDto,
   UpdateScoreDto,
   UpdateTicketDto,
-} from './dto';
-import { IUser } from './user.entity';
-import { UserService } from './user.service';
+} from '../../dtos/dto';
+import { IUser } from '../../entity/user.entity';
+import { UserService } from '../services/user.service';
 
 @ApiTags('user')
 @Controller('user')

@@ -1,7 +1,7 @@
 import mongoose, { model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { IPlace } from 'src/MSA/Place/place/place.entity';
-import { IUser } from '../../User/user/user.entity';
+import { IUser } from '../../User/entity/user.entity';
 
 export interface IVote2 {
   date: string;

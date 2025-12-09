@@ -11,9 +11,8 @@ import { Rest } from 'src/domain/entities/User/Rest';
 import { StudyRecord } from 'src/domain/entities/User/StudyRecord';
 import { Temperature } from 'src/domain/entities/User/Temperature';
 import { Ticket } from 'src/domain/entities/User/Ticket';
-import { User } from 'src/domain/entities/User/User';
-import { IUser } from './user.entity';
-import { IUserRepository } from './UserRepository.interface';
+import { IUser, User } from 'src/domain/entities/User/User';
+import { IUserRepository } from '../core/interfaces/UserRepository.interface';
 
 export class UserRepository implements IUserRepository {
   constructor(
@@ -520,7 +519,7 @@ export class UserRepository implements IUserRepository {
       doc?.birth,
       doc?.isPrivate,
       doc?.monthStudyTarget,
-      doc?.isLocationSharingDenided,
+      doc?.isLocationSharingDenied,
       doc?.role,
       doc?.score,
       doc?.monthScore,
@@ -542,8 +541,8 @@ export class UserRepository implements IUserRepository {
       studyRecord,
       temperature,
       doc?.introduceText,
-      doc?.rank,
-      doc?.rankPosition,
+      doc?.rank as string,
+      doc?.rankPosition as number,
       doc?.membership,
     );
   }

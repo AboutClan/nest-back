@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CollectionModule } from 'src/MSA/Event/collection/collection.module';
 import { PlaceModule } from 'src/MSA/Place/place/place.module';
 import { RealtimeModule } from 'src/MSA/Study/realtime/realtime.module';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import { IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { Vote2Controller } from './vote2.controller';

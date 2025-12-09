@@ -3,9 +3,9 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { DailyCheck } from 'src/domain/entities/DailyCheck';
 import { RequestContext } from 'src/request-context';
 import { CollectionService } from 'src/MSA/Event/collection/collection.service';
-import { UserService } from 'src/MSA/User/user/user.service';
 import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { IDailyCheckRepository } from './DailyCheckRepository.interface';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 export class DailyCheckService {
   constructor(
     @Inject(IDAILYCHECK_REPOSITORY)

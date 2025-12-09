@@ -11,7 +11,7 @@ import { DateUtils } from 'src/utils/Date';
 import { IFCM_LOG_REPOSITORY, IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { IGatherData } from '../../Gather/gather/gather.entity';
 import { IGroupStudyData } from '../../GroupStudy/groupStudy/groupStudy.entity';
-import { IUser } from '../../User/user/user.entity';
+import { IUser } from '../../User/entity/user.entity';
 import { FcmRepository } from './fcm.repository.interface';
 import { FcmLogRepository } from './fcmLog.repository.interface';
 import { FcmTokenZodSchema } from './fcmToken.entity';

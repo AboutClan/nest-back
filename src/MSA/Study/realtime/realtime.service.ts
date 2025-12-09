@@ -7,7 +7,6 @@ import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
 import { TimeProps } from 'src/domain/entities/Realtime/Time';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
-import { UserService } from 'src/MSA/User/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { DatabaseError } from '../../../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
@@ -18,6 +17,7 @@ import {
   RealtimeUserZodSchema,
 } from './realtime.entity';
 import { IRealtimeRepository } from './RealtimeRepository.interface';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 
 export default class RealtimeService {
   constructor(

@@ -3,7 +3,7 @@ import { RegisterController } from './register.controller';
 import RegisterService from './register.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RegisteredSchema } from './register.entity';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
 import { MongoRegisterRepository } from './register.repository.interface';
 import { AccountModule } from 'src/MSA/User/account/account.module';

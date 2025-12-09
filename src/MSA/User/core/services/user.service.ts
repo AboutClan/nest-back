@@ -14,10 +14,10 @@ import PlaceService from 'src/MSA/Place/place/place.service';
 import { DateUtils } from 'src/utils/Date';
 import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
-import * as logger from '../../../logger';
-import { FcmService } from '../../Notification/fcm/fcm.service';
-import { IUser, restType } from './user.entity';
-import { IUserRepository } from './UserRepository.interface';
+import { IUserRepository } from '../interfaces/UserRepository.interface';
+import { FcmService } from 'src/MSA/Notification/fcm/fcm.service';
+import { IUser, restType } from '../../entity/user.entity';
+import { logger } from 'src/logger';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {

@@ -2,7 +2,7 @@ import { ClassProvider, Module } from '@nestjs/common';
 import { GatherController } from './gather.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GatherSchema } from './gather.entity';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import { CounterModule } from 'src/routes/counter/couter.module';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import { GatherService } from './gather.service';

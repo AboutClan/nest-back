@@ -1,7 +1,7 @@
 import { ClassProvider, forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import {
   IGATHER_REPOSITORY,
   INOTICE_REPOSITORY,

@@ -1,7 +1,7 @@
 import { ClassProvider, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { CollectionModule } from '../collection/collection.module';
 import { DailyCheckController } from './dailyCheck.controller';

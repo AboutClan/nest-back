@@ -2,7 +2,7 @@ import { ClassProvider, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GatherModule } from 'src/MSA/Gather/gather/gather.module';
 import { GroupStudyModule } from 'src/MSA/GroupStudy/groupStudy/groupStudy.module';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import { IFEED_REPOSITORY } from 'src/utils/di.tokens';
 import { FeedController } from './feed.controller';
 import { FeedSchema } from './feed.entity';

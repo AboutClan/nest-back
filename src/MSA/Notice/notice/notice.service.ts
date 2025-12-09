@@ -5,7 +5,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
-import { IUser } from 'src/MSA/User/user/user.entity';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import {
   IGATHER_REPOSITORY,
   INOTICE_REPOSITORY,

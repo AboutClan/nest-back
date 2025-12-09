@@ -6,9 +6,9 @@ import { RequestContext } from 'src/request-context';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../Notification/fcm/fcm.service';
 import { IChatRepository } from './ChatRepository.interface';
-import { UserRepository } from '../../User/user/UserRepository';
 import { DateUtils } from 'src/utils/Date';
 import { Content } from 'src/domain/entities/chat/Content';
+import { UserRepository } from 'src/MSA/User/infra/UserRepository';
 
 @Injectable()
 export class ChatService {

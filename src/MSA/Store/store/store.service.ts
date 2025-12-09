@@ -10,7 +10,7 @@ import {
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { GiftRepository } from '../../../routes/gift/gift.repository.interface';
-import { IUserRepository } from '../../User/user/UserRepository.interface';
+import { IUserRepository } from '../../User/core/interfaces/UserRepository.interface';
 import { STORE_GIFT_ACTIVE, STORE_GIFT_INACTIVE } from './data';
 import { CreateStoreDto } from './store.dto';
 import { IStoreRepository } from './StoreRepository.interface';

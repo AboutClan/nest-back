@@ -3,7 +3,7 @@ import { GroupStudyController } from './groupStudy.controller';
 import GroupStudyService from './groupStudy.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GroupStudySchema } from './groupStudy.entity';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import { CounterModule } from 'src/routes/counter/couter.module';
 import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
 import { RedisModule } from 'src/redis/redis.module';

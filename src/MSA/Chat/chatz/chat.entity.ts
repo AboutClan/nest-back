@@ -2,7 +2,7 @@ import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { ChatStatus } from 'src/domain/entities/chat/Chat';
-import { IUser } from 'src/MSA/User/user/user.entity';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { z } from 'zod';
 
 // Zod로 IContent 유효성 검사 스키마 정의

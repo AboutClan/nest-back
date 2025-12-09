@@ -3,8 +3,8 @@ import { IPrizeRepository } from './PrizeRepository.interface';
 import { Inject, forwardRef } from '@nestjs/common';
 import { IPRIZE_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { IUserRepository } from '../../User/user/UserRepository.interface';
-import { UserService } from '../../User/user/user.service';
+import { IUserRepository } from '../../User/core/interfaces/UserRepository.interface';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 
 export class PrizeService {
   prizeList = PRIZE;

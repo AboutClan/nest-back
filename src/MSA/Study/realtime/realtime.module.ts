@@ -11,7 +11,7 @@ import RealtimeService from './realtime.service';
 import { ImageModule } from 'src/routes/imagez/image.module';
 import { CollectionModule } from 'src/MSA/Event/collection/collection.module';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
-import { UserModule } from 'src/MSA/User/user/user.module';
+import { UserModule } from 'src/MSA/User/user.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { RealtimeRepository } from './RealtimeRepository';

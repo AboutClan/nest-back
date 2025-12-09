@@ -1,7 +1,7 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { IUser } from 'src/MSA/User/user/user.entity';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { z } from 'zod';
 
 const PlaceSchema = z.object({

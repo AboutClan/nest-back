@@ -1,6 +1,5 @@
 import { Inject } from '@nestjs/common';
 import { RequestContext } from 'src/request-context';
-import { UserService } from 'src/MSA/User/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IPROMOTION_REPOSITORY } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from './promotion.entity';
@@ -10,7 +9,6 @@ export default class PromotionService {
   constructor(
     @Inject(IPROMOTION_REPOSITORY)
     private readonly promotionRepository: PromotionRepository,
-    private readonly userServiceInstance: UserService,
   ) {}
 
   async getPromotion() {

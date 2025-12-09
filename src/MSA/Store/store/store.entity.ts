@@ -1,7 +1,7 @@
 import mongoose, { Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { z } from 'zod';
-import { IUser } from '../../User/user/user.entity';
+import { IUser } from '../../User/entity/user.entity';
 
 export const ApplicantZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),

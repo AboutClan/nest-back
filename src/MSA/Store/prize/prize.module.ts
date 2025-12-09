@@ -6,7 +6,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { PrizeSchema } from './prize.entity';
 import { PrizeController } from './prize.controller';
 import { PrizeService } from './prize.service';
-import { UserModule } from '../../User/user/user.module';
+import { UserModule } from '../../User/user.module';
 
 const placeRepositoryProvider: ClassProvider = {
   provide: IPRIZE_REPOSITORY,

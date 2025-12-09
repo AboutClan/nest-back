@@ -16,18 +16,18 @@ import { logger } from 'src/logger';
 import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
 import ImageService from 'src/routes/imagez/image.service';
-import { UserService } from 'src/MSA/User/user/user.service';
 import { DateUtils } from 'src/utils/Date';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
 import CommentService from '../../../routes/comment/comment.service';
 import { FcmService } from '../../Notification/fcm/fcm.service';
-import { IUser } from '../../User/user/user.entity';
+import { IUser } from '../../User/entity/user.entity';
 import {
   gatherStatus,
   IGatherData,
   ParticipantsZodSchema,
 } from './gather.entity';
 import { IGatherRepository } from './GatherRepository.interface';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 
 //commit
 @Injectable()
