@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { NextFunction, Response } from 'express';
-import { IUser } from 'src/routes/user/user.entity';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import AdminUserService from './adminUser.service';
 
 export type UserFilterType = 'study' | 'monthScore' | 'temperature' | null;

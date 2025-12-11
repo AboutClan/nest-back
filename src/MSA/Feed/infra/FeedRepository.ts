@@ -1,0 +1,171 @@
+import { HttpException, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { ENTITY } from 'src/Constants/ENTITY';
+import { Feed } from 'src/domain/entities/Feed/Feed';
+import { IFeed } from '../entity/feed.entity';
+import { IFeedRepository } from '../core/interfaces/FeedRepository.interface';
+
+export class FeedRepository implements IFeedRepository {
+  constructor(
+    @InjectModel(DB_SCHEMA.FEED) private readonly FeedModel: Model<IFeed>,
+  ) {}
+
+  async create(doc: Feed): Promise<Feed> {
+    const docToCreate = this.mapToDB(doc);
+    const created = await this.FeedModel.create(docToCreate);
+    return this.mapToDomain(created);
+  }
+  async save(doc: Feed): Promise<Feed> {
+    const docToSave = this.mapToDB(doc);
+    const updatedDoc = await this.FeedModel.findByIdAndUpdate(
+      docToSave.id,
+      docToSave,
+      { new: true },
+    );
+
+    if (!updatedDoc) {
+      throw new HttpException(`Chat not found for id=${docToSave._id}`, 500);
+    }
+
+    return this.mapToDomain(updatedDoc);
+  }
+
+  async findByGroupIds(groupIds: string[]): Promise<Feed[]> {
+    const docs = await this.FeedModel.find({
+      typeId: { $in: groupIds },
+    })
+      .populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      ])
+      .sort({ createdAt: -1 });
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
+  async findAllTemp() {
+    const docs = await this.FeedModel.find({}, '_id type typeId').lean();
+    return docs;
+  }
+
+  async findAll(opt: any): Promise<Feed[]> {
+    let query = this.FeedModel.find().populate([
+      { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+      { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+    ]);
+
+    if (opt.start) query = query.skip(opt.start);
+    if (opt.gap) query = query.limit(opt.gap);
+    if (opt.isRecent)
+      query = query.sort({ createdAt: opt.isRecent === 'true' ? -1 : 1 });
+
+    const docs = await query;
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
+  async findById(id: string): Promise<Feed> {
+    const doc = await this.FeedModel.findOne({ typeId: id })
+      .populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      ])
+      .exec(); // ← exec()로 쿼리 실행
+
+    if (!doc) {
+      // 문서를 못 찾았을 때 적절히 예외 처리
+      throw new NotFoundException(`Feed(typeId=${id})를 찾을 수 없습니다.`);
+    }
+
+    return this.mapToDomain(doc);
+  }
+
+  async findByIdJoin(id: string): Promise<Feed> {
+    const doc = await this.FeedModel.findOne({ typeId: id }).populate({
+      path: 'like',
+      select: 'avatar name profileImage uid _id', // 필요한 필드만 선택
+    });
+    return this.mapToDomain(doc);
+  }
+
+  async findByType(type: string, opt: any): Promise<Feed[]> {
+    let query = this.FeedModel.find({ type });
+
+    if (opt.start) query = query.skip(opt.start);
+    if (opt.gap) query = query.limit(opt.gap);
+    if (opt.sort) query = query.sort({ createdAt: opt.sort });
+
+    const docs = await query.populate(['writer', 'like']);
+
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
+  async findMyFeed(userId: string, isPopulate: boolean): Promise<Feed[]> {
+    let query = this.FeedModel.find({
+      writer: userId,
+    }).sort({
+      createdAt: -1,
+    });
+
+    if (isPopulate) {
+      query = query.populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      ]);
+    }
+    const docs = await query;
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+
+  async findRecievedFeed(idArr: string[], isPopulate: boolean) {
+    let query = this.FeedModel.find({
+      $and: [{ typeId: { $in: idArr } }],
+    });
+
+    if (isPopulate) {
+      query = query.populate([
+        { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
+        { path: 'writer', select: ENTITY.USER.C_SIMPLE_USER },
+      ]);
+    }
+
+    const docs = await query;
+    return docs.map((doc) => this.mapToDomain(doc));
+  }
+  private mapToDomain(doc: IFeed): Feed {
+    return new Feed({
+      id: doc._id as string,
+      title: doc.title,
+      text: doc.text,
+      images: doc.images,
+      writer: doc.writer as string,
+      type: doc.type,
+      typeId: doc.typeId,
+      isAnonymous: doc.isAnonymous,
+      like: doc.like as string[],
+      subCategory: doc.subCategory,
+      createdAt: doc.createdAt,
+      date: doc.date,
+    });
+  }
+
+  private mapToDB(doc: Feed): Partial<IFeed> {
+    const feedProps = doc.toPrimitives();
+
+    return {
+      id: feedProps.id,
+      title: feedProps.title,
+      text: feedProps.text,
+      images: feedProps.images,
+      writer: feedProps.writer as string,
+      type: feedProps.type,
+      typeId: feedProps.typeId,
+      isAnonymous: feedProps.isAnonymous,
+      like: feedProps.like as string[],
+      subCategory: feedProps.subCategory,
+      createdAt: feedProps.createdAt,
+      addLike: null,
+      date: feedProps.date,
+    };
+  }
+}

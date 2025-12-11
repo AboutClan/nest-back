@@ -5,19 +5,19 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
 import { BackupService } from 'src/Database/backup.service';
-import { GatherService } from 'src/routes/gather/gather.service';
-import { IGatherRepository } from 'src/routes/gather/GatherRepository.interface';
-import GroupStudyService from 'src/routes/groupStudy/groupStudy.service';
-import { IGroupStudyRepository } from 'src/routes/groupStudy/GroupStudyRepository.interface';
-import { IUser } from 'src/routes/user/user.entity';
-import { UserService } from 'src/routes/user/user.service';
-import { Vote2Service } from 'src/routes/vote2/vote2.service';
+import { GatherService } from 'src/MSA/Gather/core/services/gather.service';
+import GroupStudyService from 'src/MSA/GroupStudy/core/services/groupStudy.service';
+import { IGroupStudyRepository } from 'src/MSA/GroupStudy/core/interfaces/GroupStudyRepository.interface';
+import { IUser } from 'src/MSA/User/entity/user.entity';
+import { Vote2Service } from 'src/MSA/Study/core/services/vote2.service';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { IScheduleLog } from './schedule_log.entity';
+import { UserService } from 'src/MSA/User/core/services/user.service';
+import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 
 @Injectable()
 export class NotificationScheduler {
