@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { IUser } from 'src/routes/user/user.entity';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { UserFilterType } from './adminUser.controller';
 
 const logger = require('../../../logger');

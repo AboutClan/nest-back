@@ -11,29 +11,27 @@ import compression from 'compression';
 import { TokenValidatorMiddleware } from './middlewares/tokenValidator';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './Database/database.module';
-import { WebPushModule } from './routes/webpush/webpush.module';
-import { UserModule } from './routes/user/user.module';
-import { SquareModule } from './routes/square/square.module';
-import { RequestModule } from './routes/request/request.module';
+import { UserModule } from './MSA/User/user.module';
+import { SquareModule } from './MSA/Square/square.module';
+import { RequestModule } from './MSA/Notice/request.module';
 import { RegisterModule } from './routes/register/register.module';
-import { PromotionModule } from './routes/promotion/promotion.module';
-import { PlaceModule } from './routes/place/place.module';
-import { NoticeModule } from './routes/notice/notice.module';
+import { PromotionModule } from './MSA/Event/promotion.module';
+import { PlaceModule } from './MSA/Place/place.module';
+import { NoticeModule } from './MSA/Notice/notice.module';
 import { LogModule } from './routes/logz/log.module';
 import { ImageModule } from './routes/imagez/image.module';
-import { GroupStudyModule } from './routes/groupStudy/groupStudy.module';
 import { GiftModule } from './routes/gift/gift.module';
-import { GatherModule } from './routes/gather/gather.module';
-import { ChatModule } from './routes/chatz/chat.module';
-import { FeedModule } from './routes/feed/feed.module';
+import { GatherModule } from './MSA/Gather/gather.module';
+import { ChatModule } from './MSA/Chat/chat.module';
+import { FeedModule } from './MSA/Feed/feed.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
-import { CollectionModule } from './routes/collection/collection.module';
-import { RealtimeModule } from './routes/realtime/realtime.module';
+import { CollectionModule } from './MSA/Event/collection.module';
+import { RealtimeModule } from './MSA/Study/realtime.module';
 import { AdminCounterModule } from './routes/admin/counter/adminCounter.module';
 import { AdminUserModule } from './routes/admin/user/adminUser.module';
-import { DailyCheckModule } from './routes/dailycheck/dailyCheck.module';
-import { Vote2Module } from './routes/vote2/vote2.module';
+import { DailyCheckModule } from './MSA/Event/dailyCheck.module';
+import { Vote2Module } from './MSA/Study/vote2.module';
 import { PaymentModule } from './routes/payment/payment.module';
 import { AsyncContextInterceptor } from './async-context.interceptor';
 import { UrlTransformInterceptor } from './url-transform.interceptor';
@@ -45,11 +43,12 @@ import { ZodExceptionFilter } from './errors/zod-exception.filter';
 import { LoggingMiddleware } from './middlewares/loggingMiddleware';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from './schedule/schedule.module';
-import { FcmAModule } from './routes/fcm/fcm.module';
-import { GatherRequestModule } from './routes/gatherRequest/gatherRequest.module';
-import { PrizeModule } from './routes/prize/prize.module';
+import { FcmAModule } from './MSA/Notification/fcm.module';
+import { GatherRequestModule } from './MSA/Gather/gatherRequest.module';
+import { PrizeModule } from './MSA/Store/prize.module';
 import { CommentModule } from './routes/comment/comment.module';
-import { StoreModule } from './routes/store/store.module';
+import { StoreModule } from './MSA/Store/store.module';
+import { GroupStudyModule } from './MSA/GroupStudy/groupStudy.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -115,7 +114,6 @@ const corsOptions = {
     SchedulerModule,
 
     DatabaseModule,
-    WebPushModule,
     UserModule,
     SquareModule,
     RequestModule,

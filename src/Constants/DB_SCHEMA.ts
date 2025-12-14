@@ -25,4 +25,7 @@ export const DB_SCHEMA = {
   SCHEDULE_LOG: 'ScheduleLog',
   STORE: 'Store',
   COMMENT: 'Comment',
+  GROUP_COMMENT: 'CommentGroup',
+  GATHER_COMMENT: 'CommentGather',
+  FEED_COMMENT: 'CommentFeed',
 };
