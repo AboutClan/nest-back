@@ -204,7 +204,7 @@ export class UserService {
     user.increasePoint(point);
     await this.UserRepository.save(user);
 
-    logger.logger.info(message, {
+    logger?.logger?.info(message, {
       type: 'point',
       sub,
       uid: userId ?? token.id,
