@@ -207,12 +207,17 @@ export class FeedService {
     await this.sendNotificationGather(
       gather.id.toString(),
       WEBPUSH_MSG.FEED.CREATE,
+      `/feed`,
     );
 
     return;
   }
 
-  async sendNotificationGather(gatherId: string, description: string) {
+  async sendNotificationGather(
+    gatherId: string,
+    description: string,
+    deeplink?: string,
+  ) {
     try {
       const gather = await this.gatherRepository.findById(+gatherId);
 
@@ -227,6 +232,7 @@ export class FeedService {
           memberUid,
           `새로운 모임 후기 도착!`,
           `${DateUtils.formatGatherDate(gather.date)} 모임의 후기가 올라왔어요!`,
+          deeplink,
         );
       }
 
@@ -256,6 +262,7 @@ export class FeedService {
       feed.writer,
       WEBPUSH_MSG.FEED.COMMENT_TITLE,
       content,
+      '/feed',
     );
 
     return;
@@ -308,11 +315,13 @@ export class FeedService {
       commentWriter,
       WEBPUSH_MSG.FEED.COMMENT_TITLE,
       content,
+      '/feed',
     );
     await this.fcmServiceInstance.sendNotificationToXWithId(
       feed.writer,
       WEBPUSH_MSG.FEED.COMMENT_TITLE,
       content,
+      '/feed',
     );
   }
 

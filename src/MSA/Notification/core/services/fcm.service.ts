@@ -7,7 +7,6 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { RequestContext } from 'src/request-context';
-import { DateUtils } from 'src/utils/Date';
 import { IFCM_LOG_REPOSITORY, IFCM_REPOSITORY } from 'src/utils/di.tokens';
 import { IGatherData } from '../../../Gather/entity/gather.entity';
 import { IGroupStudyData } from '../../../GroupStudy/entity/groupStudy.entity';
@@ -39,11 +38,12 @@ export class FcmService {
     }
   }
 
-  async sendNotification(token: any, message: any) {
+  async sendNotification(token: any, message: any, deeplink?: string) {
     const newPayload = this.createPayload(
       token,
       message?.notification.title,
       message?.notification.body,
+      deeplink,
     );
 
     const response = await admin.messaging().send(newPayload);
@@ -102,13 +102,23 @@ export class FcmService {
     return;
   }
 
-  async sendNotificationToXWithId(userId: string, title: string, body: string) {
+  async sendNotificationToXWithId(
+    userId: string,
+    title: string,
+    body: string,
+    deeplink?: string,
+  ) {
     const user = await this.fcmRepository.findByUserId(userId);
 
     if (!user) return;
     try {
       for (const device of user.devices) {
-        const newPayload = this.createPayload(device.token, title, body);
+        const newPayload = this.createPayload(
+          device.token,
+          title,
+          body,
+          deeplink,
+        );
         try {
           const res = await admin.messaging().send(newPayload);
           console.log('[FCM 성공]', device.token, res);
@@ -237,6 +247,7 @@ export class FcmService {
             device.token,
             WEBPUSH_MSG.GROUPSTUDY.TITLE,
             description,
+            `/groupStudy/${groupStudy.id}`,
           );
 
           await admin.messaging().send(newPayload);
@@ -257,6 +268,7 @@ export class FcmService {
     userIds: string[],
     title: string,
     description: string,
+    deeplink?: string,
   ) {
     try {
       const memberArray = Array.from(new Set(userIds));
@@ -270,6 +282,7 @@ export class FcmService {
             device.token,
             title,
             description,
+            deeplink,
           );
 
           if (!newPayload) continue;
@@ -297,7 +310,12 @@ export class FcmService {
       );
     }
   }
-  private createPayload(token: string, title: string, body: string) {
+  private createPayload(
+    token: string,
+    title: string,
+    body: string,
+    deeplink?: string,
+  ) {
     if (!title || !body) return null;
 
     return {
@@ -332,6 +350,9 @@ export class FcmService {
         headers: {
           'apns-priority': '10',
           'apns-push-type': 'alert',
+        },
+        data: {
+          deeplink: deeplink || '',
         },
       },
     };

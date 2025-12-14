@@ -160,6 +160,7 @@ export default class SquareService {
         square.author,
         WEBPUSH_MSG.SQUARE.TITLE,
         WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+        `/community/${squareId}`,
       );
     }
   }
@@ -192,6 +193,7 @@ export default class SquareService {
         square.author,
         WEBPUSH_MSG.SQUARE.TITLE,
         WEBPUSH_MSG.SQUARE.COMMENT_CREATE(token.name),
+        `/community/${squareId}`,
       );
     }
   }
