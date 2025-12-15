@@ -109,7 +109,7 @@ export class FcmService {
     deeplink?: string,
   ) {
     const user = await this.fcmRepository.findByUserId(userId);
-
+    console.log(2, user);
     if (!user) return;
     try {
       for (const device of user.devices) {
@@ -119,6 +119,7 @@ export class FcmService {
           body,
           deeplink,
         );
+        console.log('new', newPayload);
         try {
           const res = await admin.messaging().send(newPayload);
           console.log('[FCM 성공]', device.token, res);
@@ -335,6 +336,9 @@ export class FcmService {
           icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
         },
       },
+      data: {
+        deeplink: deeplink || '',
+      },
       apns: {
         payload: {
           aps: {
@@ -350,9 +354,6 @@ export class FcmService {
         headers: {
           'apns-priority': '10',
           'apns-push-type': 'alert',
-        },
-        data: {
-          deeplink: deeplink || '',
         },
       },
     };
