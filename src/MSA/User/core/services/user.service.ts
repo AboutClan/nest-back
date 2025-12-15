@@ -183,7 +183,7 @@ export class UserService {
     user.increasePoint(newPoint);
     await this.UserRepository.save(user);
 
-    logger.logger.info(newMessage, {
+    logger?.info(newMessage, {
       type: 'point',
       sub,
       uid: uid ?? token.uid,
@@ -204,7 +204,7 @@ export class UserService {
     user.increasePoint(point);
     await this.UserRepository.save(user);
 
-    logger.logger.info(message, {
+    logger?.info(message, {
       type: 'point',
       sub,
       uid: userId ?? token.id,
@@ -226,7 +226,7 @@ export class UserService {
     user.increaseMonthScore(score);
     await this.UserRepository.save(user);
 
-    logger.logger.info(message, {
+    logger?.info(message, {
       type: 'score',
       sub,
       uid: token.uid,
@@ -247,7 +247,7 @@ export class UserService {
     user.increaseMonthScore(score);
     await this.UserRepository.save(user);
 
-    logger.logger.info(message, {
+    logger?.info(message, {
       type: 'score',
       sub,
       uid: uid ?? token.uid,
@@ -274,7 +274,7 @@ export class UserService {
     user.increaseDeposit(deposit);
     await this.UserRepository.save(user);
 
-    logger.logger.info(message, {
+    logger?.info(message, {
       type: 'deposit',
       sub,
       uid: token.uid,
@@ -487,7 +487,7 @@ export class UserService {
     const first = type === 'gather' ? '번개' : '소모임';
     const second = category === 'create' ? '구매' : '반환';
 
-    logger.logger.info(`${first} 참여권 ${second}`, {
+    logger?.info(`${first} 참여권 ${second}`, {
       type,
       uid,
       value: ticketNum,
@@ -511,7 +511,7 @@ export class UserService {
     const message =
       type === 'gather' ? '번개 모임 참여' : '소모임 가입(또는 유지)';
 
-    logger.logger.info(message, {
+    logger?.info(message, {
       type: `${type}Ticket`,
       uid,
       value: ticketNum,
@@ -697,7 +697,7 @@ export class UserService {
         const uid = tempUid;
 
         const message = `월간 최소 활동 미달`;
-        logger.logger.info(message, {
+        logger?.info(message, {
           type: 'point',
           sub: '월간 점수 초기화',
           uid,

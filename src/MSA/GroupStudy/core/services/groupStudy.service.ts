@@ -566,6 +566,7 @@ export default class GroupStudyService {
         groupStudy.organizer,
         WEBPUSH_MSG.GROUPSTUDY.TITLE,
         WEBPUSH_MSG.GROUPSTUDY.REQUEST(token.name, groupStudy.title),
+        `/groupStudy/${groupStudy.id}`,
       );
     } catch (err) {
       throw new Error();
@@ -605,6 +606,7 @@ export default class GroupStudyService {
           userId,
           WEBPUSH_MSG.GROUPSTUDY.TITLE,
           WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
+          `/groupStudy/${groupStudy.id}`,
         );
       } else {
         groupStudy.disagreeWaiting(userId);
@@ -736,6 +738,7 @@ export default class GroupStudyService {
       groupStudy.organizer,
       WEBPUSH_MSG.GROUPSTUDY.TITLE,
       WEBPUSH_MSG.GROUPSTUDY.COMMENT_CREATE(groupStudy.title),
+      `/groupStudy/${groupStudy.id}`,
     );
   }
 

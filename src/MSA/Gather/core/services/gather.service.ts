@@ -400,6 +400,7 @@ export class GatherService {
           token.name,
           DateUtils.formatGatherDate(gather.date),
         ),
+        `/gather/${gather.id}`,
       );
     }
 
@@ -442,6 +443,7 @@ export class GatherService {
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
+        `/gather/${gather.id}`,
       );
     }
 
@@ -637,6 +639,7 @@ export class GatherService {
             token.name,
             DateUtils.formatGatherDate(gather.date),
           ),
+          `/gather/${gather.id}`,
         );
       }
     } catch (err) {
@@ -695,12 +698,14 @@ export class GatherService {
           DateUtils.formatGatherDate(gather.date),
           !!gather?.kakaoUrl,
         ),
+        `/gather/${gather.id}`,
       );
     } else {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.GATHER.REFUSE(DateUtils.formatGatherDate(gather.date)),
+        `/gather/${gather.id}`,
       );
     }
   }
@@ -725,6 +730,7 @@ export class GatherService {
           token.name,
           DateUtils.formatGatherDate(gather.date),
         ),
+        `/gather/${gather.id}`,
       );
       // 모임장 알림
 
@@ -735,6 +741,7 @@ export class GatherService {
           DateUtils.formatGatherDate(gather.date),
         ),
         '',
+        `/gather/${gather.id}`,
       );
     }
 
@@ -782,6 +789,7 @@ export class GatherService {
         token.name,
         DateUtils.formatGatherDate(gather.date),
       ),
+      `/gather/${gather.id}`,
     );
 
     return;

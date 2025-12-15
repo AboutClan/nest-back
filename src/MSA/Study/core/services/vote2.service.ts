@@ -670,6 +670,7 @@ export class Vote2Service {
       userIds,
       '스터디 출석 알림',
       '오늘 스터디, 출석 깜빡한 거 아니죠? 😶 설정한 스터디 시작 시간이 지났어요. 도착하셨다면 출석체크를 진행해 주세요!',
+      `/studyPage?date=${today}`,
     );
   }
 
@@ -736,12 +737,14 @@ export class Vote2Service {
         successUserIds,
         WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
         WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+        `/studyPage?date=${today}`,
       );
 
       await this.fcmServiceInstance.sendNotificationUserIds(
         failedUserIds,
         WEBPUSH_MSG.VOTE.FAILURE_TITLE,
         WEBPUSH_MSG.VOTE.FAILURE_DESC,
+        `/studyPage?date=${today}`,
       );
     } catch (err) {
       console.log(err);
@@ -934,6 +937,7 @@ export class Vote2Service {
       alertedUsers,
       '스터디 예정 알림',
       '내일 스터디 매칭이 예정되어 있어요!',
+      `/studyPage?date=${today}`,
     );
   }
 }
