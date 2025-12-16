@@ -139,6 +139,7 @@ export const ENTITY = {
       'resting',
       'enthusiastic',
       'block',
+      'secede',
     ] as const,
     DEFAULT_ROLE: 'member' as const,
 
