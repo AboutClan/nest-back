@@ -6,18 +6,18 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
+import { logger } from 'src/logger';
+import NoticeService from 'src/MSA/Notice/core/services/notice.service';
+import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
+import PlaceService from 'src/MSA/Place/core/services/place.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
 import { ILog } from 'src/routes/logz/log.entity';
-import NoticeService from 'src/MSA/Notice/core/services/notice.service';
-import PlaceService from 'src/MSA/Place/core/services/place.service';
 import { DateUtils } from 'src/utils/Date';
 import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
-import { IUserRepository } from '../interfaces/UserRepository.interface';
-import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
 import { IUser, restType } from '../../entity/user.entity';
-import { logger } from 'src/logger';
+import { IUserRepository } from '../interfaces/UserRepository.interface';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -348,6 +348,7 @@ export class UserService {
         'previliged',
         'resting',
         'enthusiastic',
+        'secede',
       ].includes(role)
     )
       throw new Error();
