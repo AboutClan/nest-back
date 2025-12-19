@@ -117,6 +117,14 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return docs.map((doc) => this.mapToDomain(doc));
   }
 
+  async findAllForLLM(): Promise<Partial<IGroupStudyData>[]> {
+    const docs = await this.GroupStudy.find(
+      {},
+      'id title category age hashtag',
+    );
+    return docs;
+  }
+
   async findById(groupStudyId: string): Promise<GroupStudy | null> {
     const doc = await this.GroupStudy.findOne({ id: groupStudyId });
 

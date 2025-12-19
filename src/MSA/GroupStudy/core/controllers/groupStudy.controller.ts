@@ -348,6 +348,11 @@ export class GroupStudyController {
     return { status: 'success' };
   }
 
+  @Get('recommmend')
+  async getRecommendGroupStudy(@Query('recommendType') recommend?: string) {
+    return await this.groupStudyService.getRecommendGroupStudy();
+  }
+
   @Get('enthMembers')
   async getEnthMember() {
     return await this.groupStudyService.getEnthMembers();

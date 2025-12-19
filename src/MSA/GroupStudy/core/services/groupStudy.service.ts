@@ -23,6 +23,7 @@ import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interf
 import { AppError } from 'src/errors/AppError';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import GroupCommentService from './groupComment.service';
+import { OpenAIService } from 'src/utils/gpt/gpt.service';
 
 //test
 export default class GroupStudyService {
@@ -36,6 +37,7 @@ export default class GroupStudyService {
     private readonly counterServiceInstance: CounterService,
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
+    private readonly openaiService: OpenAIService,
   ) {}
 
   async getStatusGroupStudy(cursor: number, status: string) {
@@ -845,6 +847,42 @@ export default class GroupStudyService {
         500,
       );
     }
+  }
+
+  async getRecommendGroupStudy(recommend: string) {
+    const groupListForLLM = await this.groupStudyRepository.findAll();
+    const prompt = `
+    나는 대학생 모임 플랫폼을 운영하고 있고 모임 추천 기능을 구현하고 있습니다.
+    모임 추천 기능은 모임 추천 타입에 따라 다르게 작동합니다.
+    모임 리스트와 사용자의 성향을 입력하면 사용자에게 가장 적합한 모임을 추천해주는 기능입니다.
+    input을 보고 output으로 추천 모임의 id를 배열로 반환해주세요.
+    --------------------------------
+    input example:
+    {
+      groupList: [
+        {
+          id: 1,
+          title: '모임 1',
+          category: {
+            main: '친목',
+            sub: '친목',
+          },
+          age: [20, 30],
+          hashtag: '#친목#친목#친목',
+        },
+      ],
+    }
+    output example:
+    {
+      groupId: [1, 2, 3],
+    }
+    --------------------------------
+    input:
+    {
+      groupList: ${groupListForLLM}
+    }
+    `;
+    return await this.openaiService.structured(prompt, input, output);
   }
 
   async belongToParticipateGroupStudy() {
