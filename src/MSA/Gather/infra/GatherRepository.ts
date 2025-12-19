@@ -4,8 +4,8 @@ import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { Gather } from 'src/domain/entities/Gather/Gather';
-import { IGatherData } from '../entity/gather.entity';
 import { IGatherRepository } from '../core/interfaces/GatherRepository.interface';
+import { IGatherData } from '../entity/gather.entity';
 
 export class GatherRepository implements IGatherRepository {
   constructor(

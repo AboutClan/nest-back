@@ -7,18 +7,24 @@ import {
   INOTICE_REPOSITORY,
   IVOTE2_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { FcmAModule } from '../Notification/fcm.module';
 import { GatherSchema } from '../Gather/entity/gather.entity';
 import { GatherRepository } from '../Gather/infra/GatherRepository';
+import { GroupStudySchema } from '../GroupStudy/entity/groupStudy.entity';
+import { GroupStudyRepository } from '../GroupStudy/infra/GroupStudyRepository';
+import { FcmAModule } from '../Notification/fcm.module';
 import { Vote2Repository } from '../Study/infra/Vote2Repository';
+import { NoticeController } from './core/controllers/notice.controller';
+import NoticeService from './core/services/notice.service';
 import { noticeSchema } from './entity/notice.entity';
 import { MongoNoticeRepository } from './infra/notice.repository';
-import NoticeService from './core/services/notice.service';
-import { NoticeController } from './core/controllers/notice.controller';
 
 const noticeRepositoryProvider: ClassProvider = {
   provide: INOTICE_REPOSITORY,
   useClass: MongoNoticeRepository,
+};
+const groupStudyRepositoryProvider: ClassProvider = {
+  provide: INOTICE_REPOSITORY,
+  useClass: GroupStudyRepository,
 };
 
 const gatherRepositoryProvider: ClassProvider = {
@@ -37,6 +43,9 @@ const vote2RepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.NOTICE, schema: noticeSchema },
     ]),
     MongooseModule.forFeature([
+      { name: DB_SCHEMA.GROUPSTUDY, schema: GroupStudySchema },
+    ]),
+    MongooseModule.forFeature([
       { name: DB_SCHEMA.GATHER, schema: GatherSchema },
     ]),
     MongooseModule.forFeature([{ name: DB_SCHEMA.VOTE, schema: GatherSchema }]),
@@ -46,6 +55,7 @@ const vote2RepositoryProvider: ClassProvider = {
   providers: [
     NoticeService,
     noticeRepositoryProvider,
+    groupStudyRepositoryProvider,
     gatherRepositoryProvider,
     vote2RepositoryProvider,
   ],

@@ -35,6 +35,7 @@ export class GroupStudyController {
     @Query('category') category?: string,
     @Query('cursor') cursor?: string,
   ) {
+    console.log(33);
     const cursorNum = cursor ? parseInt(cursor) : 0;
     let groupStudyData;
 
@@ -61,6 +62,12 @@ export class GroupStudyController {
       groupStudyData = await this.groupStudyService.getGroupStudy(cursorNum);
       return groupStudyData;
     }
+  }
+
+  @Get('manner')
+  async getGroupStudyManner(@Query('groupStudyId') groupStudyId: string) {
+    console.log(groupStudyId);
+    return await this.groupStudyService.getMannerByGroupId(groupStudyId);
   }
 
   @Get('status')
