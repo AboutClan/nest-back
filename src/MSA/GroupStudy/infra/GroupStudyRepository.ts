@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import {
@@ -12,8 +12,8 @@ import {
   WaitingProps,
   WeekRecordProps,
 } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
-import { IGroupStudyData } from '../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../core/interfaces/GroupStudyRepository.interface';
+import { IGroupStudyData } from '../entity/groupStudy.entity';
 
 export class GroupStudyRepository implements IGroupStudyRepository {
   constructor(
@@ -68,15 +68,44 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return docs.map((doc) => this.mapToDomain(doc));
   }
 
-  async getUserGroupsTitleByUserId(userId: string): Promise<any> {
-    const docs = await this.GroupStudy.find(
+  async getUserGroupsTitleByUserId(userId: string) {
+    const uid = new Types.ObjectId(userId);
+
+    const docs = await this.GroupStudy.aggregate([
       {
-        status: 'pending',
-        participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
-        isSecret: { $ne: true },
+        $match: {
+          status: 'pending',
+          isSecret: { $ne: true },
+          participants: { $elemMatch: { user: uid } },
+        },
       },
-      'title category.sub meetingType',
-    );
+      {
+        $addFields: {
+          isMember: {
+            $anyElementTrue: {
+              $map: {
+                input: '$participants',
+                as: 'p',
+                in: {
+                  $and: [
+                    { $eq: ['$$p.user', uid] },
+                    { $in: ['$$p.role', ['regularMember', 'admin']] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          'category.sub': 1,
+          meetingType: 1,
+          isMember: 1,
+        },
+      },
+    ]);
 
     return docs;
   }

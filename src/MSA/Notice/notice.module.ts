@@ -4,6 +4,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { UserModule } from 'src/MSA/User/user.module';
 import {
   IGATHER_REPOSITORY,
+  IGROUPSTUDY_REPOSITORY,
   INOTICE_REPOSITORY,
   IVOTE2_REPOSITORY,
 } from 'src/utils/di.tokens';
@@ -23,7 +24,7 @@ const noticeRepositoryProvider: ClassProvider = {
   useClass: MongoNoticeRepository,
 };
 const groupStudyRepositoryProvider: ClassProvider = {
-  provide: INOTICE_REPOSITORY,
+  provide: IGROUPSTUDY_REPOSITORY,
   useClass: GroupStudyRepository,
 };
 
