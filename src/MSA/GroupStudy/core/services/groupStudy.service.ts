@@ -4,24 +4,30 @@ import Redis from 'ioredis';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { AppError } from 'src/errors/AppError';
+import { DatabaseError } from 'src/errors/DatabaseError';
+import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 import {
   GroupStudy,
   GroupStudyProps,
 } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
-import { DatabaseError } from 'src/errors/DatabaseError';
+import { NoticeRepository } from 'src/MSA/Notice/core/interfaces/notice.repository.interface';
+import { UserService } from 'src/MSA/User/core/services/user.service';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
 import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
-import { IUser } from 'src/MSA/User/entity/user.entity';
 import { DateUtils } from 'src/utils/Date';
-import { IGROUPSTUDY_REPOSITORY } from 'src/utils/di.tokens';
+import {
+  IGATHER_REPOSITORY,
+  IGROUPSTUDY_REPOSITORY,
+  INOTICE_REPOSITORY,
+} from 'src/utils/di.tokens';
 import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IGroupStudyData } from '../../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interface';
-import { AppError } from 'src/errors/AppError';
-import { UserService } from 'src/MSA/User/core/services/user.service';
 import GroupCommentService from './groupComment.service';
 
 //test
@@ -29,6 +35,11 @@ export default class GroupStudyService {
   constructor(
     @Inject(REDIS_CLIENT)
     private readonly redisClient: Redis,
+    @Inject(IGATHER_REPOSITORY)
+    private readonly gatherRepository: IGatherRepository,
+    @Inject(INOTICE_REPOSITORY)
+    private readonly noticeRepository: NoticeRepository,
+
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: IGroupStudyRepository,
     private readonly userServiceInstance: UserService,
@@ -140,6 +151,52 @@ export default class GroupStudyService {
       study: groupStudyData,
     };
   }
+
+  async getMannerByGroupId(groupId: string) {
+    const gathers = await this.gatherRepository.findByGroupId(groupId, 'group');
+
+    const uids = [
+      ...new Set(
+        gathers.flatMap((g) => [
+          (g.user as any).uid,
+          ...(g.participants ?? []).map((p) => (p.user as any).uid),
+        ]),
+      ),
+    ];
+
+    const notices = await this.noticeRepository.findTemperatureByUidArr(uids);
+
+    const latestByPair = new Map<string, any>();
+
+    for (const notice of notices) {
+      const key = `${notice.to}-${notice.from}`;
+
+      if (!latestByPair.has(key)) {
+        latestByPair.set(key, notice);
+      }
+    }
+
+    // 여기까지: to-from 기준 최신만 남김
+    const latestNotices = [...latestByPair.values()];
+
+    // 여기부터: to 기준으로 sub 집계
+    const result: Record<
+      string,
+      { great: number; good: number; soso: number; block: number }
+    > = {};
+
+    for (const notice of latestNotices) {
+      const { to, sub } = notice;
+
+      if (!result[to]) {
+        result[to] = { great: 0, good: 0, soso: 0, block: 0 };
+      }
+
+      result[to][sub]++;
+    }
+    return result;
+  }
+
   async getGroupStudySnapshot() {
     const gzip = promisify(zlib.gzip);
     const gunzip = promisify(zlib.gunzip);

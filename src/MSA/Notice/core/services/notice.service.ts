@@ -20,6 +20,8 @@ import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherReposito
 
 export default class NoticeService {
   constructor(
+    @Inject(IGATHER_REPOSITORY)
+    private readonly groupStudyRepository: IGatherRepository,
     @Inject(INOTICE_REPOSITORY)
     private readonly noticeRepository: NoticeRepository,
     @Inject(IGATHER_REPOSITORY)

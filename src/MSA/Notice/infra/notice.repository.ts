@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { INotice } from '../entity/notice.entity';
 import { NoticeRepository } from '../core/interfaces/notice.repository.interface';
+import { INotice } from '../entity/notice.entity';
 
 export class MongoNoticeRepository implements NoticeRepository {
   constructor(
@@ -66,6 +66,16 @@ export class MongoNoticeRepository implements NoticeRepository {
   async findTemperature(uid: string): Promise<INotice[]> {
     return await this.Notice.find(
       { to: uid, type: 'temperature' },
+      '-_id -__v',
+    );
+  }
+  async findTemperatureByUidArr(uidArr: string[]): Promise<INotice[]> {
+    return await this.Notice.find(
+      {
+        type: 'temperature',
+        to: { $in: uidArr },
+        from: { $in: uidArr },
+      },
       '-_id -__v',
     );
   }
