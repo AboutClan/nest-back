@@ -377,7 +377,7 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      await this.useDepositToParticipateGather(gather, token.id);
+      // await this.useDepositToParticipateGather(gather, token.id);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -422,7 +422,7 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      await this.useDepositToParticipateGather(gather, userId);
+      // await this.useDepositToParticipateGather(gather, userId);
 
       await this.gatherRepository.save(gather);
     } catch (err) {
@@ -499,19 +499,19 @@ export class GatherService {
     // 모임 하루 전 = 포인트만 50% 반환
     // 모임 당일 = 반환 X
     try {
-      const handlePointReturn = async (point: number) => {
-        await this.userServiceInstance.updatePointById(
-          point,
-          '번개 모임 보증금 반환',
-          'gather',
-          targetId,
-        );
-        gather.deposit -= point;
-      };
+      // const handlePointReturn = async (point: number) => {
+      //   await this.userServiceInstance.updatePointById(
+      //     point,
+      //     '번개 모임 보증금 반환',
+      //     'gather',
+      //     targetId,
+      //   );
+      //   gather.deposit -= point;
+      // };
       const diffDay = this.getDaysDifferenceFromNowKST(gather.date);
 
       if (diffDay >= 2) {
-        await handlePointReturn(-CONST.POINT.PARTICIPATE_GATHER);
+        // await handlePointReturn(-CONST.POINT.PARTICIPATE_GATHER);
         const targetInfo = gather.participants.find(
           (data) => data.user.toString() == targetId.toString(),
         );
@@ -523,9 +523,10 @@ export class GatherService {
             'return',
           );
         }
-      } else if (diffDay === 1) {
-        await handlePointReturn(-CONST.POINT.PARTICIPATE_GATHER / 2);
       }
+      // else if (diffDay === 1) {
+      //   await handlePointReturn(-CONST.POINT.PARTICIPATE_GATHER / 2);
+      // }
     } catch (err) {}
 
     await this.gatherRepository.save(gather);
@@ -614,6 +615,30 @@ export class GatherService {
     }
   }
 
+  async gatherPanelty() {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const twoDayAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+    const gathers = await this.gatherRepository.findByPeriod(
+      twoDayAgo,
+      oneDayAgo,
+    );
+
+    for (const gather of gathers) {
+      for (const participant of gather.participants) {
+        if (participant.absence) {
+          await this.userServiceInstance.updatePointById(
+            -CONST.POINT.PARTICIPATE_GATHER,
+            '번개 모임 보증금 반환',
+            '',
+            participant.user.toString(),
+          );
+        }
+      }
+    }
+  }
+
   async setWaitingPerson(id: number, phase: 'first' | 'second') {
     const token = RequestContext.getDecodedToken();
 
@@ -674,7 +699,7 @@ export class GatherService {
 
       gather.participate(validatedParticipate as ParticipantsProps);
 
-      await this.useDepositToParticipateGather(gather, userId);
+      // await this.useDepositToParticipateGather(gather, userId);
 
       const targetUser =
         await this.userServiceInstance.getUserWithUserId(userId);

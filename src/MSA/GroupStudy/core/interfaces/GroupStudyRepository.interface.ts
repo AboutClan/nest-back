@@ -1,4 +1,5 @@
 import { GroupStudy } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
+import { IGroupStudyData } from '../../entity/groupStudy.entity';
 
 export interface IGroupStudyRepository {
   findWithQueryPopPage(
@@ -21,5 +22,6 @@ export interface IGroupStudyRepository {
   save(entity: GroupStudy): Promise<GroupStudy>;
   create(entity: GroupStudy): Promise<GroupStudy>;
   findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null>;
+  findAllForLLM(): Promise<Partial<IGroupStudyData>[]>;
   test();
 }

@@ -7,6 +7,7 @@ export const SCHEDULE_CONST = {
   INIT_GROUP_STUDY_ATTENDANCE: 'Weekly Group Study Attendance Reset Scheduler',
   UPDATE_GROUP_STUDY_STATUS: 'Group Study Status Update Scheduler',
   DISTRIBUTE_GATHER_DEPOSIT: 'Gather Deposit Distribution Scheduler',
+  GATHER_PANELTY: 'Gather Penalty Scheduler',
   PROCESS_TEMPERATURE: 'Temperature Processing Scheduler',
   PROCESS_MONTH_SCORE: 'Monthly Score Processing Scheduler',
   PROCESS_TICKET: 'Ticket Processing Scheduler',

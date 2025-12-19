@@ -22,6 +22,8 @@ import { groupCommentSchema } from './entity/groupComment.entity';
 import { GroupStudySchema } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './infra/GroupStudyRepository';
 import { MongoGroupCommentRepository } from './infra/MongoGroupCommentRepository';
+import GroupCommentService from './core/services/groupComment.service';
+import { OpenAIModule } from 'src/utils/gpt/gpt.module';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
@@ -53,6 +55,7 @@ const groupCommentRepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.GROUP_COMMENT, schema: groupCommentSchema },
     ]),
     FcmAModule,
+    OpenAIModule,
   ],
   controllers: [GroupStudyController],
   providers: [

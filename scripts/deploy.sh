@@ -36,6 +36,7 @@ REDIS_PORT=$(echo "$SECRETS" | jq -r '.REDIS_PORT')
 REDIS_PASSWORD=$(echo "$SECRETS" | jq -r '.REDIS_PASSWORD')
 JWT_TOKEN=$(echo "$SECRETS" | jq -r '.JWT_TOKEN')
 FCM_INFO=$(echo "$SECRETS" | jq -r '.FCM_INFO')
+OPENAI_API_KEY=$(echo "$SECRETS" | jq -r '.OPENAI_API_KEY')
 EOF
 
 echo ".env file created successfully."
