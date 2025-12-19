@@ -144,6 +144,20 @@ export class NotificationScheduler {
     }
   }
 
+  // gather 정산
+  @Cron('0 15 0 * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async gatherPanelty() {
+    try {
+      await this.gatherService.gatherPanelty();
+      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'failure', err);
+      throw new Error(err);
+    }
+  }
+
   // temperature 정산
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
     timeZone: 'Asia/Seoul',
