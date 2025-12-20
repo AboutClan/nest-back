@@ -10,6 +10,7 @@ import {
   IGROUPSTUDY_REPOSITORY,
   INOTICE_REPOSITORY,
 } from 'src/utils/di.tokens';
+import { OpenAIModule } from 'src/utils/gpt/gpt.module';
 import { GatherSchema } from '../Gather/entity/gather.entity';
 import { GatherRepository } from '../Gather/infra/GatherRepository';
 import { noticeSchema } from '../Notice/entity/notice.entity';
@@ -22,8 +23,6 @@ import { groupCommentSchema } from './entity/groupComment.entity';
 import { GroupStudySchema } from './entity/groupStudy.entity';
 import { GroupStudyRepository } from './infra/GroupStudyRepository';
 import { MongoGroupCommentRepository } from './infra/MongoGroupCommentRepository';
-import GroupCommentService from './core/services/groupComment.service';
-import { OpenAIModule } from 'src/utils/gpt/gpt.module';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,

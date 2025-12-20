@@ -357,7 +357,7 @@ export class GroupStudyController {
 
   @Get('recommmend')
   async getRecommendGroupStudy(@Query('recommendType') recommend?: string) {
-    return await this.groupStudyService.getRecommendGroupStudy();
+    return await this.groupStudyService.getRecommendGroupStudy(recommend);
   }
 
   @Get('enthMembers')

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import admin from 'firebase-admin';
 import { Model } from 'mongoose';
@@ -96,7 +96,7 @@ export class FcmService {
         }
       }
     } catch (err: any) {
-      throw new AppError('send notifacation failed', 1001);
+      // throw new AppError('send notifacation failed', 1001);
     }
 
     return;
@@ -109,7 +109,7 @@ export class FcmService {
     deeplink?: string,
   ) {
     const user = await this.fcmRepository.findByUserId(userId);
-    console.log(2, user);
+
     if (!user) return;
     try {
       for (const device of user.devices) {
@@ -119,7 +119,7 @@ export class FcmService {
           body,
           deeplink,
         );
-        console.log('new', newPayload);
+
         try {
           const res = await admin.messaging().send(newPayload);
           console.log('[FCM 성공]', device.token, res);
@@ -128,7 +128,7 @@ export class FcmService {
         }
       }
     } catch (err: any) {
-      throw new AppError('send notifacation failed', 1001);
+      // throw new AppError('send notifacation failed', 1001);
     }
 
     return;
@@ -219,7 +219,7 @@ export class FcmService {
         failed,
       };
     } catch (err) {
-      throw new AppError('send notification failed', 1001);
+      // throw new AppError('send notification failed', 1001);
     }
   }
 
@@ -258,10 +258,10 @@ export class FcmService {
       return;
     } catch (err) {
       console.error(err);
-      throw new HttpException(
-        'Error deleting comment',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      // throw new HttpException(
+      //   'Error deleting comment',
+      //   HttpStatus.INTERNAL_SERVER_ERROR,
+      // );
     }
   }
 
@@ -305,10 +305,10 @@ export class FcmService {
       return;
     } catch (err) {
       console.error(err);
-      throw new HttpException(
-        'Error sending notification',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      // throw new HttpException(
+      //   'Error sending notification',
+      //   HttpStatus.INTERNAL_SERVER_ERROR,
+      // );
     }
   }
   private createPayload(

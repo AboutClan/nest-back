@@ -23,13 +23,13 @@ import {
   IGROUPSTUDY_REPOSITORY,
   INOTICE_REPOSITORY,
 } from 'src/utils/di.tokens';
+import { OpenAIService } from 'src/utils/gpt/gpt.service';
 import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IGroupStudyData } from '../../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interface';
 import GroupCommentService from './groupComment.service';
-import { OpenAIService } from 'src/utils/gpt/gpt.service';
 
 //test
 export default class GroupStudyService {
@@ -939,7 +939,7 @@ export default class GroupStudyService {
       groupList: ${groupListForLLM}
     }
     `;
-    return await this.openaiService.structured(prompt, input, output);
+    // return await this.openaiService.structured(prompt, input, output);
   }
 
   async belongToParticipateGroupStudy() {

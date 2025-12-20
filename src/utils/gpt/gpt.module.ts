@@ -10,10 +10,11 @@ import { OpenAIService } from './gpt.service';
     {
       provide: OpenAI,
       useFactory: (cfg: ConfigService) =>
-        new OpenAI({
-          apiKey: cfg.getOrThrow<string>(process.env.OPENAI_API_KEY),
-          baseURL: 'https://api.openai.com/v1',
-        }),
+      {},
+        // new OpenAI({
+        //   apiKey: cfg.getOrThrow<string>(process.env.OPENAI_API_KEY),
+        //   baseURL: 'https://api.openai.com/v1',
+        // }),
       inject: [ConfigService],
     },
     OpenAIService,
