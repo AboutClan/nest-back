@@ -88,19 +88,19 @@ export class MongoNoticeRepository implements NoticeRepository {
   }
 
   async findMyTemperature(toUid: string) {
-    const baseMatch = { to: toUid, type: 'temperature' as const };
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - 1);
+    cutoffDate.setDate(16);
+    cutoffDate.setHours(0, 0, 0, 0); // 15일 00:00:00 포함
+    const baseMatch = {
+      to: toUid,
+      type: 'temperature' as const,
+      createdAt: { $lte: cutoffDate }, // 지난 달 15일 포함 이전
+    };
 
-    // 1) 같은 from 에서 온 평가 중 가장 최신 것만 남기기
     const latestByFrom = await this.Notice.aggregate([
       { $match: baseMatch },
-      { $sort: { createdAt: -1 } }, // 최신순 정렬
-      {
-        $group: {
-          _id: '$from', // from 단위로 묶어서
-          doc: { $first: '$$ROOT' }, // 각 from 에 대해 가장 최신 문서 한 개
-        },
-      },
-      { $replaceRoot: { newRoot: '$doc' } }, // doc를 루트로
+      { $sort: { createdAt: -1 } },
     ]);
 
     const totalCnt = latestByFrom.length;
@@ -112,7 +112,6 @@ export class MongoNoticeRepository implements NoticeRepository {
     const reviewCandidates = latestByFrom.filter((notice) => {
       if (notice.sub === 'great') greatCnt += 1;
       if (notice.sub === 'good') goodCnt += 1;
-
       return (
         (notice.sub === 'great' || notice.sub === 'good') &&
         notice.message &&
