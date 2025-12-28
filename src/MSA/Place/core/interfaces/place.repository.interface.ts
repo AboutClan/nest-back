@@ -9,6 +9,7 @@ export interface PlaceRepository {
   updatePrefCnt(placeId: string, num: number);
   updateLocation(placeId: string, location: any);
   findByIds(placeIds: string[]): Promise<IPlace[]>;
+  addRating(placeId: string, ratings: any): Promise<null>;
   addReview(
     placeId: string,
     userId: string,

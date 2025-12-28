@@ -22,11 +22,27 @@ export class MongoPlaceReposotory implements PlaceRepository {
           path: 'reviews.user',
           select: ENTITY.USER.C_SIMPLE_USER,
         },
-      ]);
+      ])
+      .lean();
   }
 
   async findAll(): Promise<IPlace[]> {
-    return await this.Place.find({});
+    return await this.Place.find({}).lean();
+  }
+
+  async addRating(placeId: string, ratings: any): Promise<null> {
+    await this.Place.updateOne(
+      { _id: placeId },
+      {
+        $push: {
+          'ratings.mood': ratings.mood,
+          'ratings.table': ratings.table,
+          'ratings.beverage': ratings.beverage,
+          'ratings.etc': ratings.etc,
+        },
+      },
+    );
+    return null;
   }
 
   async findByStatus(
@@ -54,7 +70,8 @@ export class MongoPlaceReposotory implements PlaceRepository {
           path: 'reviews.user',
           select: ENTITY.USER.C_SIMPLE_USER,
         },
-      ]);
+      ])
+      .lean();
   }
   async findClosePlace(placeId: string): Promise<IPlace[]> {
     const result = await this.Place.find({});

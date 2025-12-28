@@ -98,6 +98,31 @@ export class PlaceController {
     return places;
   }
 
+  @Post('rating')
+  async updateRating(
+    @Body('placeId') placeId: string,
+    @Body('mood') mood: number,
+    @Body('table') table: number,
+    @Body('beverage') beverage: number,
+    @Body('etc') etc: number,
+  ) {
+    try {
+      const places = await this.placeService.addRating(
+        placeId,
+        mood,
+        table,
+        beverage,
+        etc,
+      );
+      return places;
+    } catch (err) {
+      throw new HttpException(
+        'Error updating rating',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post('test')
   async test() {
     const places = await this.placeService.test();

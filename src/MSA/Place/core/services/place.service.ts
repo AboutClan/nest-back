@@ -27,12 +27,24 @@ export default class PlaceService {
       upperLng,
     );
 
-    return place;
+    if (!place) {
+      return null;
+    }
+
+    const ratings = this.calculateRating(place?.ratings);
+    return { ...place, ratings: ratings || {} };
   }
+
   async getActivePlace(status: 'main' | 'best' | 'good' | 'all') {
     try {
       const places = await this.placeRepository.findByStatus(status);
-      return places;
+      const ratings = places.map((place) =>
+        this.calculateRating(place?.ratings),
+      );
+      return places.map((place, index) => ({
+        ...place,
+        ratings: ratings[index] || {},
+      }));
     } catch (err: any) {
       throw new Error(err);
     }
@@ -40,7 +52,51 @@ export default class PlaceService {
   async getNearPlace(placeId: string) {
     try {
       const places = await this.placeRepository.findClosePlace(placeId);
-      return places;
+      const ratings = places.map((place) =>
+        this.calculateRating(place?.ratings),
+      );
+      return places.map((place, index) => ({
+        ...place,
+        ratings: ratings[index] || {},
+      }));
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
+  async addRating(
+    placeId: string,
+    mood: number,
+    table: number,
+    beverage: number,
+    etc: number,
+  ) {
+    try {
+      const token = RequestContext.getDecodedToken();
+      const userId = token.id as string;
+
+      const ratings = {
+        mood: {
+          user: userId,
+          rating: mood,
+        },
+        table: {
+          user: userId,
+          rating: table,
+        },
+        beverage: {
+          user: userId,
+          rating: beverage,
+        },
+        etc: {
+          user: userId,
+          rating: etc,
+        },
+      };
+
+      await this.placeRepository.addRating(placeId, ratings);
+
+      return;
     } catch (err: any) {
       throw new Error(err);
     }
@@ -48,7 +104,11 @@ export default class PlaceService {
 
   async getAllPlace() {
     const places = await this.placeRepository.findAll();
-    return places;
+    const ratings = places.map((place) => this.calculateRating(place?.ratings));
+    return places.map((place, index) => ({
+      ...place,
+      ratings: ratings[index] || {},
+    }));
   }
 
   async addPlace(placeData: PlaceProps) {
@@ -112,6 +172,49 @@ export default class PlaceService {
     } catch (err: any) {
       throw new Error(err);
     }
+  }
+
+  calculateRating(ratings: any) {
+    const moodArray = ratings?.mood || [];
+    const tableArray = ratings?.table || [];
+    const beverageArray = ratings?.beverage || [];
+    const etcArray = ratings?.etc || [];
+
+    const mood =
+      moodArray.length > 0
+        ? moodArray.reduce((acc: number, curr: any) => acc + curr.rating, 0) /
+          moodArray.length
+        : 0;
+    const table =
+      tableArray.length > 0
+        ? tableArray.reduce((acc: number, curr: any) => acc + curr.rating, 0) /
+          tableArray.length
+        : 0;
+    const beverage =
+      beverageArray.length > 0
+        ? beverageArray.reduce(
+            (acc: number, curr: any) => acc + curr.rating,
+            0,
+          ) / beverageArray.length
+        : 0;
+    const etc =
+      etcArray.length > 0
+        ? etcArray.reduce((acc: number, curr: any) => acc + curr.rating, 0) /
+          etcArray.length
+        : 0;
+
+    const userList = Array.from(
+      new Set([
+        ...moodArray.map((user: any) => user?.user.toString()).filter(Boolean),
+        ...tableArray.map((user: any) => user?.user.toString()).filter(Boolean),
+        ...beverageArray
+          .map((user: any) => user?.user.toString())
+          .filter(Boolean),
+        ...etcArray.map((user: any) => user?.user.toString()).filter(Boolean),
+      ]),
+    );
+
+    return { mood, table, beverage, etc, userList };
   }
 
   async test() {
