@@ -62,31 +62,33 @@ export class GatherService {
 
   async getGather(
     cursor: number | null,
-    category: '취미' | '스터디',
+    category: '모집중' | '마감 임박' | '인기 모임' | null,
     sortBy: 'createdAt' | 'date' | 'basic',
   ) {
-    const allowedCategories = [
-      '소셜 게임',
-      '감상',
-      '운동',
-      '푸드',
-      '힐링',
-      '친목',
-      '파티',
-      '기타',
-    ];
     const query =
-      category === '스터디'
-        ? { 'type.title': { $nin: allowedCategories } }
-        : category === '취미'
-          ? { 'type.title': { $in: allowedCategories } }
-          : {};
+      category === '모집중'
+        ? { status: 'pending' }
+        : category === '마감 임박'
+          ? {
+              status: 'pending',
+              $expr: {
+                $gt: [
+                  { $size: '$participants' }, // participants 배열 길이
+                  { $subtract: ['$memberCnt.max', 4] }, // memberCnt.max - 3
+                ],
+              },
+            }
+          : category === '인기 모임'
+            ? {
+                'participants.8': { $exists: true },
+              }
+            : {};
 
     if (sortBy === 'basic') {
       const todayMidnightKST = dayjs().startOf('day').toISOString();
       const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
 
-      if (cursor === 0) {
+      if (cursor === 0 && category !== '인기 모임') {
         const futureResult = await this.gatherRepository.findWithQueryPop(
           futureQuery,
           cursor,
@@ -112,7 +114,7 @@ export class GatherService {
         const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
         const pastResult = await this.gatherRepository.findWithQueryPop(
           pastQuery,
-          cursor - 1,
+          cursor - (category !== '인기 모임' ? 1 : 0),
           { date: -1 },
         );
 

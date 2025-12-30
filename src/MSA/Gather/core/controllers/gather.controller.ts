@@ -20,8 +20,8 @@ import {
   ParticipateGatherDto,
   SetWaitingPersonDto,
 } from '../../dtos/dto';
-import { GatherService } from '../services/gather.service';
 import { gatherStatus } from '../../entity/gather.entity';
+import { GatherService } from '../services/gather.service';
 @ApiTags('gather')
 @Controller('gather')
 export class GatherController {
@@ -31,7 +31,7 @@ export class GatherController {
   async getGather(
     @Query('cursor') cursor?: string,
     @Query('gatherId') gatherId?: string,
-    @Query('category') category?: '스터디' | '취미' | null,
+    @Query('category') category?: '모집중' | '마감 임박' | '인기 모임' | null,
     @Query('sortBy') sortBy?: 'createdAt' | 'date',
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
