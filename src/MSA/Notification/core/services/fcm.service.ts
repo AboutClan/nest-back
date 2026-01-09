@@ -321,23 +321,31 @@ export class FcmService {
 
     const channelId = 'about_club_app_push_notification_all';
 
+    // 앱에서 쓰기 쉽게 항상 string
+    const dl = deeplink ?? '';
+
     return {
       token,
 
-      // ✅ Android / RN 공용 data-only
+      // ✅ 공통 data (클릭했을 때 RNFirebase가 data로 넘겨줌)
       data: {
-        title: String(title),
-        body: String(body),
-        deeplink: deeplink ? String(deeplink) : '',
+        title,
+        body,
+        deeplink: dl,
         channelId,
       },
 
-      // ✅ Android: 백그라운드 수신 보장
+      // ✅ Android: OS가 "진짜" 알림을 띄우게 notification을 함께 보냄 (가장 안정적)
       android: {
         priority: 'high' as const,
+        notification: {
+          title,
+          body,
+          channelId,
+        },
       },
 
-      // ✅ iOS: OS 알림 항상 표시
+      // ✅ iOS: 기존대로 alert (안정)
       apns: {
         payload: {
           aps: {
