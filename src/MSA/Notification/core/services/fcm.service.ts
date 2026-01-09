@@ -319,36 +319,31 @@ export class FcmService {
   ) {
     if (!title || !body) return null;
 
+    const channelId = 'about_club_app_push_notification_all';
+
     return {
       token,
-      notification: { title, body },
-      android: {
-        notification: {
-          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
-          channelId: 'about_club_app_push_notification_all',
-        },
-      },
-      webpush: {
-        headers: {
-          TTL: '1',
-        },
-        notification: {
-          icon: 'https://studyabout.s3.ap-northeast-2.amazonaws.com/%EB%8F%99%EC%95%84%EB%A6%AC/144.png',
-        },
-      },
+
+      // ✅ Android / RN 공용 data-only
       data: {
-        deeplink: deeplink || '',
+        title: String(title),
+        body: String(body),
+        deeplink: deeplink ? String(deeplink) : '',
+        channelId,
       },
+
+      // ✅ Android: 백그라운드 수신 보장
+      android: {
+        priority: 'high' as const,
+      },
+
+      // ✅ iOS: OS 알림 항상 표시
       apns: {
         payload: {
           aps: {
-            alert: {
-              title,
-              body,
-            },
+            alert: { title, body },
             sound: 'default',
             badge: 1,
-            'content-available': 1,
           },
         },
         headers: {
