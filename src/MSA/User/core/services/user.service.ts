@@ -18,6 +18,7 @@ import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IUser, restType } from '../../entity/user.entity';
 import { IUserRepository } from '../interfaces/UserRepository.interface';
+import { PrizeService } from 'src/MSA/Store/core/services/prize.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -29,6 +30,7 @@ export class UserService {
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
+    private readonly prizeService: PrizeService,
   ) {}
 
   async decodeByAES256(encodedTel: string) {
@@ -689,7 +691,7 @@ export class UserService {
 
       await this.UserRepository.processMonthScore();
 
-      // await this.processMonthPrize();
+      await this.prizeService.processMonthPrize();
 
       await this.UserRepository.resetMonthScore();
 
