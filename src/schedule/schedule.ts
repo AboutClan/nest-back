@@ -5,19 +5,19 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { SCHEDULE_CONST } from 'src/Constants/SCHEDULE';
 import { BackupService } from 'src/Database/backup.service';
+import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 import { GatherService } from 'src/MSA/Gather/core/services/gather.service';
-import GroupStudyService from 'src/MSA/GroupStudy/core/services/groupStudy.service';
 import { IGroupStudyRepository } from 'src/MSA/GroupStudy/core/interfaces/GroupStudyRepository.interface';
-import { IUser } from 'src/MSA/User/entity/user.entity';
+import GroupStudyService from 'src/MSA/GroupStudy/core/services/groupStudy.service';
 import { Vote2Service } from 'src/MSA/Study/core/services/vote2.service';
+import { UserService } from 'src/MSA/User/core/services/user.service';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { IScheduleLog } from './schedule_log.entity';
-import { UserService } from 'src/MSA/User/core/services/user.service';
-import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 
 @Injectable()
 export class NotificationScheduler {
@@ -271,7 +271,7 @@ export class NotificationScheduler {
     }
   }
 
-  //매일 한번 맴버심 초기화
+  //매일 한번 멤버십 초기화
   @Cron('30 0 0 * * *', {
     timeZone: 'Asia/Seoul',
   })

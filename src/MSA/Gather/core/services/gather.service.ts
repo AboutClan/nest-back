@@ -397,10 +397,7 @@ export class GatherService {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         gather?.user as string,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.PARTICIPATE(
-          token.name,
-          DateUtils.formatGatherDate(gather.date),
-        ),
+        WEBPUSH_MSG.GATHER.PARTICIPATE(token.name, gather.title),
         `/gather/${gather.id}`,
       );
     }
@@ -441,7 +438,7 @@ export class GatherService {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(DateUtils.formatGatherDate(gather.date)),
+        WEBPUSH_MSG.GATHER.INVITE(gather.title),
         `/gather/${gather.id}`,
       );
     }
@@ -662,10 +659,7 @@ export class GatherService {
         await this.fcmServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           WEBPUSH_MSG.GATHER.TITLE,
-          WEBPUSH_MSG.GATHER.REQUEST(
-            token.name,
-            DateUtils.formatGatherDate(gather.date),
-          ),
+          WEBPUSH_MSG.GATHER.REQUEST(token.name, gather.title),
           `/gather/${gather.id}`,
         );
       }
@@ -719,17 +713,14 @@ export class GatherService {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.ACCEPT(
-          DateUtils.formatGatherDate(gather.date),
-          !!gather?.kakaoUrl,
-        ),
+        WEBPUSH_MSG.GATHER.ACCEPT(gather.title, !!gather?.kakaoUrl),
         `/gather/${gather.id}`,
       );
     } else {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.REFUSE(DateUtils.formatGatherDate(gather.date)),
+        WEBPUSH_MSG.GATHER.REFUSE(gather.title),
         `/gather/${gather.id}`,
       );
     }
@@ -751,10 +742,7 @@ export class GatherService {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         commentWriter as string,
         WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.COMMENT_CREATE(
-          token.name,
-          DateUtils.formatGatherDate(gather.date),
-        ),
+        WEBPUSH_MSG.GATHER.COMMENT_CREATE(token.name, gather.title),
         `/gather/${gather.id}`,
       );
       // 모임장 알림

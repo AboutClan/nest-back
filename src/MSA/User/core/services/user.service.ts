@@ -10,6 +10,7 @@ import { logger } from 'src/logger';
 import NoticeService from 'src/MSA/Notice/core/services/notice.service';
 import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
 import PlaceService from 'src/MSA/Place/core/services/place.service';
+import { PrizeService } from 'src/MSA/Store/core/services/prize.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
 import { ILog } from 'src/routes/logz/log.entity';
@@ -18,7 +19,6 @@ import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IUser, restType } from '../../entity/user.entity';
 import { IUserRepository } from '../interfaces/UserRepository.interface';
-import { PrizeService } from 'src/MSA/Store/core/services/prize.service';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -733,7 +733,7 @@ export class UserService {
     const title =
       random === 0
         ? '이번주 카공 같이 할 사람? ✨'
-        : '공부도 하고, 포인트도 GET! 💰';
+        : '공부도 하고, 상품도 GET! 💰';
     const description =
       random === 0
         ? '근처에 있는 멤버들이 스터디 기다리고 있어요! 지금 신청하고 같이 카공해요!'
@@ -759,11 +759,11 @@ export class UserService {
     const title =
       random === 0
         ? '🤩 이번주 내 취향을 저격할 모임은?'
-        : '🤩 이번주 내 취향을 저격할 모임은?';
+        : '😎 내 관심사랑 딱 맞는 번개 둘러보기';
     const description =
       random === 0
-        ? '취향이 통하는 멤버들과 함께 다양한 추억을 만들어요!'
-        : '취향이 통하는 멤버들과 함께 다양한 추억을 만들어요!';
+        ? '취향이 통하는 멤버들과 함께 다양한 추억을 만들어보세요🍀'
+        : '지금 가장 인기 있는 모임 주제들을 한눈에 확인하세요🍀';
 
     await this.fcmServiceInstance.sendNotificationUserIds(
       userIds,

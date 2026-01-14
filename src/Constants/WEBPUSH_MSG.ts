@@ -20,14 +20,14 @@ export const WEBPUSH_MSG = {
 
   GATHER: {
     TITLE: `번개 모임`,
-    PARTICIPATE: (user, date) => `${user}님이 ${date} 모임에 합류했습니다.`,
-    INVITE: (date) => `${date} 모임에 초대되었어요!`,
-    REQUEST: (user, date) => `${user}님이 ${date} 모임 참여를 요청했어요!`,
-    ACCEPT: (date, hasLink) =>
-      `${date} 모임 참여가 승인되었습니다. ${hasLink ? '단톡방 링크를 확인하고 바로 입장해 주세요!' : ''}`,
-    REFUSE: (date) => `내부 사정으로 ${date} 모임 참여가 승인되지 않았어요🥲`,
-    COMMENT_CREATE: (name, date) =>
-      `${name}님이 ${date} 모임에 댓글을 남겼어요!`,
+    PARTICIPATE: (user, title) => `${user}님이 [${title}] 모임에 합류했습니다.`,
+    INVITE: (title) => `[${title}] 모임에 초대되었어요!`,
+    REQUEST: (user, title) => `${user}님이 [${title}] 모임 참여를 요청했어요!`,
+    ACCEPT: (title, hasLink) =>
+      `[${title}] 모임 참여가 승인되었습니다. ${hasLink ? '단톡방 링크를 확인하고 바로 입장해 주세요!' : ''}`,
+    REFUSE: (title) => `내부 사정으로 [${title}] 모임 참여가 승인되지 않았어요🥲`,
+    COMMENT_CREATE: (name, title) =>
+      `${name}님이 [${title}] 모임에 댓글을 남겼어요!`,
   },
 
   GROUPSTUDY: {
