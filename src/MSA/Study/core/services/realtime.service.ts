@@ -5,6 +5,7 @@ import { PlaceProps } from 'src/domain/entities/Realtime/Place';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
 import { TimeProps } from 'src/domain/entities/Realtime/Time';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
 import { DateUtils } from 'src/utils/Date';
@@ -17,7 +18,6 @@ import {
   RealtimeUserZodSchema,
 } from '../../entity/realtime.entity';
 import { IRealtimeRepository } from '../interfaces/RealtimeRepository.interface';
-import { UserService } from 'src/MSA/User/core/services/user.service';
 
 export default class RealtimeService {
   constructor(
@@ -188,7 +188,7 @@ export default class RealtimeService {
       }
 
       const todayData = await this.getTodayData(date);
-      if (todayData.isOpen(token.id, 'user')) {
+      if (todayData.isOpen(token.id)) {
         todayData.patchNotSoloUser(
           token.id,
           studyData.time.end,
@@ -209,7 +209,7 @@ export default class RealtimeService {
 
       await this.realtimeRepository.save(todayData);
 
-      if (todayData.isOpen(token.id, 'string')) {
+      if (todayData.isOpen(token.id)) {
         const isLate = todayData.isLate(token.id);
 
         const point = isLate
@@ -234,6 +234,7 @@ export default class RealtimeService {
           message,
         };
       } else {
+        console.log(12);
         const point = CONST.POINT.REALTIME_ATTEND_SOLO();
         await this.userServiceInstance.updateStudyRecord(
           'solo',

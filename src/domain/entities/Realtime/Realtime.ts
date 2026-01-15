@@ -26,7 +26,9 @@ export class Realtime {
   }
 
   public isLate(userId: string) {
-    const user = this.userList.find((u) => u.user === userId);
+    const user = this.userList.find(
+      (u) => (u.user as IUser)._id.toString() === userId,
+    );
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }
@@ -51,11 +53,10 @@ export class Realtime {
     user.updateAbsence(userId, absence, message);
   }
 
-  public isOpen(userId: string, type: 'user' | 'string') {
-    const user =
-      type === 'user'
-        ? this.userList.find((u) => (u.user as IUser)._id.toString() === userId)
-        : this.userList.find((u) => u.user === userId);
+  public isOpen(userId: string) {
+    const user = this.userList.find(
+      (u) => (u.user as IUser)._id.toString() === userId,
+    );
 
     return user?.status === 'open' || user?.status === 'participation';
   }

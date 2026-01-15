@@ -22,7 +22,7 @@ export const CONST = {
     STUDY_ATTEND_BEFORE: () => getLowBiasedRandom(200, 1000),
     STUDY_ATTEND_AFTER: () => getLowBiasedRandom(100, 500),
     REALTIME_ATTEND_SOLO: () => getLowBiasedRandom(50, 500),
-    REALTIME_ATTEND_BEFORE: () => getLowBiasedRandom(50, 500),
+    REALTIME_ATTEND_BEFORE: () => getLowBiasedRandom(60, 500),
     LATE: -50,
     ABSENCE: -500,
     ABSENCE_FEE: -1000,
