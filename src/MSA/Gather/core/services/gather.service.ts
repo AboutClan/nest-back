@@ -283,7 +283,7 @@ export class GatherService {
       ...data,
       user: token.id,
       id: nextId,
-      coverImg: imageUrl,
+      image: imageUrl,
     };
 
     const gatherData = new Gather(gatherInfo as GatherProps);
