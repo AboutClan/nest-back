@@ -8,7 +8,7 @@ export class Avatar {
   }
 
   toPrimitives() {
-    return { type: this.type || null, bg: this.bg || null };
+    return { type: this.type ?? null, bg: this.bg ?? null };
   }
 }
 
