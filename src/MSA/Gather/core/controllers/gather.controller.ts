@@ -80,8 +80,14 @@ export class GatherController {
     @Body() createGatherDto: CreateGatherDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    // multipart/form-data로 전송될 때 gather 필드가 JSON 문자열로 올 수 있음
+    const gatherData =
+      typeof createGatherDto.gather === 'string'
+        ? JSON.parse(createGatherDto.gather)
+        : createGatherDto.gather;
+
     const gatherId = await this.gatherService.createGather(
-      createGatherDto.gather,
+      gatherData,
       file?.buffer,
     );
 
@@ -94,7 +100,13 @@ export class GatherController {
     @Body() updateGatherDto: any,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    await this.gatherService.updateGather(updateGatherDto.gather, file?.buffer);
+    // multipart/form-data로 전송될 때 gather 필드가 JSON 문자열로 올 수 있음
+    const gatherData =
+      typeof updateGatherDto.gather === 'string'
+        ? JSON.parse(updateGatherDto.gather)
+        : updateGatherDto.gather;
+
+    await this.gatherService.updateGather(gatherData, file?.buffer);
     return { status: 'success' };
   }
 
