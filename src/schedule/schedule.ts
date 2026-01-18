@@ -158,13 +158,27 @@ export class NotificationScheduler {
     }
   }
 
-  // temperature 정산
+  // temperature 정산 - 매월 1일
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON, {
     timeZone: 'Asia/Seoul',
   })
-  async processTemperature() {
+  async processTemperatureFirst() {
     try {
-      await this.userService.processTemperature();
+      await this.userService.processTemperature({ type: 1 });
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success');
+    } catch (err: any) {
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', err);
+      throw new Error(err);
+    }
+  }
+
+  // temperature 정산 - 매월 16일
+  @Cron('0 0 16 * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async processTemperatureSecond() {
+    try {
+      await this.userService.processTemperature({ type: 2 });
       this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success');
     } catch (err: any) {
       this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', err);

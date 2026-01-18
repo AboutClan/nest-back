@@ -579,13 +579,21 @@ export class UserService {
     return null;
   }
 
-  async processTemperature() {
+  async processTemperature(options?: { type: 1 | 2 }) {
     const baseDate = new Date();
 
-    // 지난달 15일
-    const end = new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 15);
+    // type 1: 지난달 1일 ~ 지난달 마지막일
+    // type 2: 지지난달 16일 ~ 지난달 15일
+    const end =
+      options?.type === 1
+        ? new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 15)
+        : new Date(baseDate.getFullYear(), baseDate.getMonth(), 0); // 지난달의 마지막 날 (year, month, 0은 이전 달의 마지막 날)
+
     // 지지난달 16일
-    const start = new Date(baseDate.getFullYear(), baseDate.getMonth() - 2, 16);
+    const start =
+      options?.type === 1
+        ? new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1)
+        : new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 16);
     const allTemps = await this.noticeService.getTemperatureByPeriod(
       start,
       end,
