@@ -915,6 +915,20 @@ export class Vote2Service {
     };
   }
 
+  async updateArriveMemo(date: string, memo: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const vote = await this.Vote2Repository.findByDate(date);
+
+    console.log(vote.results[0].members);
+    vote.updateArriveMemo(token.id, memo);
+    await this.Vote2Repository.save(vote);
+
+    return {
+      message: '메모 업데이트 성공',
+    };
+  }
+
   async alertMatching() {
     const today = DateUtils.getTodayYYYYMMDD();
     const vote = await this.Vote2Repository.findByDate(today);
