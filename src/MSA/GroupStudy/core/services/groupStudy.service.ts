@@ -154,7 +154,7 @@ export default class GroupStudyService {
     };
   }
 
-  async getMannerByGroupId(groupId: string) {
+  async getMannerByGroupId(groupId: string, type: 'private' | null) {
     const gathers = await this.gatherRepository.findByGroupId(groupId, 'group');
 
     const uids = [
@@ -178,7 +178,6 @@ export default class GroupStudyService {
       }
     }
 
-    // 여기까지: to-from 기준 최신만 남김
     const latestNotices = [...latestByPair.values()];
 
     // 여기부터: to 기준으로 sub 집계
@@ -187,9 +186,33 @@ export default class GroupStudyService {
       { great: number; good: number; soso: number; block: number }
     > = {};
 
+    // ✅ 추가: to별 총 개수 & to별 허용 개수(5의 배수로 내림)
+    const totalByTo: Record<string, number> = {};
+    for (const n of latestNotices) {
+      totalByTo[n.to] = (totalByTo[n.to] ?? 0) + 1;
+    }
+
+    const UNIT = 5;
+    const limitByTo: Record<string, number> = {};
+    if (type === 'private') {
+      for (const to of Object.keys(totalByTo)) {
+        limitByTo[to] = Math.floor(totalByTo[to] / UNIT) * UNIT;
+      }
+    }
+
+    // ✅ 추가: to별로 실제 집계한 개수 카운트
+    const countedByTo: Record<string, number> = {};
+
     for (const notice of latestNotices) {
       const { to, sub } = notice;
+      if (type === 'private') {
+        const limit = limitByTo[to] ?? 0;
+        if (limit === 0) continue;
 
+        countedByTo[to] = countedByTo[to] ?? 0;
+        if (countedByTo[to] >= limit) continue;
+        countedByTo[to]++;
+      }
       if (!result[to]) {
         result[to] = { great: 0, good: 0, soso: 0, block: 0 };
       }

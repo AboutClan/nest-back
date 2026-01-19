@@ -77,7 +77,7 @@ export class MongoNoticeRepository implements NoticeRepository {
         from: { $in: uidArr },
       },
       '-_id -__v',
-    );
+    ).sort({ createdAt: 1 });
   }
 
   async findTemperatureByPeriod(start: Date, end: Date) {

@@ -65,9 +65,11 @@ export class GroupStudyController {
   }
 
   @Get('manner')
-  async getGroupStudyManner(@Query('groupStudyId') groupStudyId: string) {
-    console.log(groupStudyId);
-    return await this.groupStudyService.getMannerByGroupId(groupStudyId);
+  async getGroupStudyManner(
+    @Query('groupStudyId') groupStudyId: string,
+    @Query('type') type?: 'private' | null,
+  ) {
+    return await this.groupStudyService.getMannerByGroupId(groupStudyId, type);
   }
 
   @Get('status')
