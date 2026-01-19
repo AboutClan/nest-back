@@ -172,6 +172,30 @@ export class Vote2 {
     participant.comment = new VoteComment({ comment: memo });
   }
 
+  updateArriveMemo(userId: string, memo: string) {
+    const result = this.results.find((r) =>
+      r.members.some(
+        (m) =>
+          (m.userId as IUser)?._id?.toString() === userId.toString() ||
+          m.userId.toString() === userId.toString(),
+      ),
+    );
+    if (!result) {
+      throw new Error(
+        `Participant with ID ${userId} not found in participations.`,
+      );
+    }
+    const member = result.members.find(
+      (m) =>
+        (m.userId as IUser)?._id?.toString() === userId.toString() ||
+        m.userId.toString() === userId.toString(),
+    );
+    if (!member) {
+      throw new Error(`Member with ID ${userId} not found in result members.`);
+    }
+    member.memo = memo;
+  }
+
   setOrUpdateParticipation(newParticipation: Participation) {
     const idx = this.participations.findIndex(
       (p) =>

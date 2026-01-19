@@ -173,10 +173,18 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
-
-    return [...gatherData1, ...gatherData2, ...gatherData3].map((doc) =>
-      this.mapToDomain(doc),
-    );
+    console.log(gatherData1, gatherData2, gatherData3);
+    return [
+      ...gatherData1
+        .slice(0, 6)
+        .concat(Array(Math.max(0, 6 - gatherData1.length)).fill(null)),
+      ...gatherData2
+        .slice(0, 6)
+        .concat(Array(Math.max(0, 6 - gatherData2.length)).fill(null)),
+      ...gatherData3
+        .slice(0, 6)
+        .concat(Array(Math.max(0, 6 - gatherData3.length)).fill(null)),
+    ].map((doc) => this.mapToDomain(doc));
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {
@@ -310,6 +318,7 @@ export class GatherRepository implements IGatherRepository {
   }
 
   private mapToDomain(doc: IGatherData): Gather {
+    if (!doc) return null;
     return new Gather({
       _id: doc._id as string,
       title: doc.title,
