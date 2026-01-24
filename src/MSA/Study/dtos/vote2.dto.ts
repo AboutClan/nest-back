@@ -57,6 +57,10 @@ export class CreateNewVotesDTO {
   @IsOptional()
   @IsNumber()
   eps: number;
+
+  @IsOptional()
+  @IsNumber()
+  userId: string;
 }
 
 export class CreateParticipateDTO {

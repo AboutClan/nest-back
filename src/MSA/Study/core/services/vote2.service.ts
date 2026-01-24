@@ -4,20 +4,20 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
-import { RequestContext } from 'src/request-context';
+import { AppError } from 'src/errors/AppError';
+import { PlaceRepository } from 'src/MSA/Place/core/interfaces/place.repository.interface';
 import RealtimeService from 'src/MSA/Study/core/services/realtime.service';
+import { UserService } from 'src/MSA/User/core/services/user.service';
 import { IUser } from 'src/MSA/User/entity/user.entity';
+import { RequestContext } from 'src/request-context';
 import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
 import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
-import { FcmService } from '../../../Notification/core/services/fcm.service';
 import ImageService from '../../../../routes/imagez/image.service';
+import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from '../../dtos/vote2.dto';
 import { IMember, IParticipation, IResult } from '../../entity/vote2.entity';
 import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
-import { AppError } from 'src/errors/AppError';
-import { UserService } from 'src/MSA/User/core/services/user.service';
-import { PlaceRepository } from 'src/MSA/Place/core/interfaces/place.repository.interface';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -236,6 +236,14 @@ export class Vote2Service {
       } else {
         await this.deleteVote(date);
       }
+    }
+    if (createVote?.userId) {
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        createVote?.userId,
+        '스터디 초대',
+        `${dayjs(dates[0]).format('M월 D일(ddd)')} 스터디에 초대되었어요!`,
+        `/study/participations/${dates[0]}?type=participations`,
+      );
     }
   }
 
@@ -920,7 +928,6 @@ export class Vote2Service {
 
     const vote = await this.Vote2Repository.findByDate(date);
 
-    console.log(vote.results[0].members);
     vote.updateArriveMemo(token.id, memo);
     await this.Vote2Repository.save(vote);
 

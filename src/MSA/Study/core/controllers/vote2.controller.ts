@@ -5,21 +5,20 @@ import {
   Get,
   Patch,
   Post,
-  Query,
   Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { Vote2Service } from '../services/vote2.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
 import { memoryStorage } from 'multer';
 import {
-  CreateParticipateDTO,
   CreateArriveDTO,
   CreateNewVoteDTO,
   CreateNewVotesDTO,
+  CreateParticipateDTO,
 } from '../../dtos/vote2.dto';
+import { Vote2Service } from '../services/vote2.service';
 
 @Controller('vote2')
 export class Vote2Controller {
@@ -134,10 +133,11 @@ export class Vote2Controller {
       dates,
       locationDetail,
       eps = 3,
+      userId = null,
     } = createVoteDTO;
 
     await this.voteService2.setVoteWithArr(dates, {
-      userId: null,
+      userId,
       latitude,
       longitude,
       start,

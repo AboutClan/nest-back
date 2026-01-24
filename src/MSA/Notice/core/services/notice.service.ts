@@ -217,7 +217,7 @@ export default class NoticeService {
 
       const study = await this.vote2Repository.findByDateWithoutPopulate(date);
       study.addReviewers(studyId, token.id);
-      console.log(54, study.results);
+    
       await this.vote2Repository.save(study);
     } catch (err: any) {
       throw new Error(err);

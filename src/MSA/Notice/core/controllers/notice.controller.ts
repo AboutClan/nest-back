@@ -130,7 +130,7 @@ export class NoticeController {
     @Body('date') date: string,
     @Body('studyId') studyId: string,
   ) {
-    console.log(44, studyId);
+   
     await this.noticeService.createTemperatureByStudy(infos, date, studyId);
     return { status: 'success' };
   }

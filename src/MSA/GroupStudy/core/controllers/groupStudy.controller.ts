@@ -35,7 +35,7 @@ export class GroupStudyController {
     @Query('category') category?: string,
     @Query('cursor') cursor?: string,
   ) {
-    console.log(33);
+    
     const cursorNum = cursor ? parseInt(cursor) : 0;
     let groupStudyData;
 

@@ -234,7 +234,7 @@ export default class RealtimeService {
           message,
         };
       } else {
-        console.log(12);
+    
         const point = CONST.POINT.REALTIME_ATTEND_SOLO();
         await this.userServiceInstance.updateStudyRecord(
           'solo',

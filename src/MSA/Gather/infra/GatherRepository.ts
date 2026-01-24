@@ -173,7 +173,7 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
-    console.log(gatherData1, gatherData2, gatherData3);
+
     return [
       ...gatherData1
         .slice(0, 6)
