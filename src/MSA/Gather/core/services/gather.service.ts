@@ -273,6 +273,8 @@ export class GatherService {
         'gather',
         buffer,
       );
+    } else {
+      imageUrl = data.image;
     }
     const token = RequestContext.getDecodedToken();
 
