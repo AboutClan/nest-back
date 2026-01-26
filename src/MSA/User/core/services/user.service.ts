@@ -15,17 +15,19 @@ import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
 import { ILog } from 'src/routes/logz/log.entity';
 import { DateUtils } from 'src/utils/Date';
-import { IUSER_REPOSITORY } from 'src/utils/di.tokens';
+import { ILOG_MEMBERSHIP_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IUser, restType } from '../../entity/user.entity';
 import { IUserRepository } from '../interfaces/UserRepository.interface';
+import { ILogMembershipRepository } from '../interfaces/LogMembership.interface';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
   constructor(
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: IUserRepository,
-    @InjectModel(DB_SCHEMA.LOG) private Log: Model<ILog>,
+    @Inject(ILOG_MEMBERSHIP_REPOSITORY)
+    private readonly LogMembershipRepository: ILogMembershipRepository,
     private readonly noticeService: NoticeService,
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
@@ -721,6 +723,32 @@ export class UserService {
         500,
       );
     }
+  }
+
+  async patchMembership(type: 'create' | 'decay') {
+    const token = RequestContext.getDecodedToken();
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    if (type === 'create') {
+      user.createMembership();
+    } else {
+      user.decayMembership();
+    }
+    await this.UserRepository.save(user);
+
+    await this.LogMembershipRepository.create({
+      userId: user._id.toString(),
+      type,
+      timestamp: new Date(),
+    });
+  }
+
+  async getMembershipLog() {
+    const token = RequestContext.getDecodedToken();
+    const logs = await this.LogMembershipRepository.findByUserId(token.id.toString());
+    return logs;
   }
 
   async processTicket() {

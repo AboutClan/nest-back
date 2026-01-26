@@ -209,6 +209,13 @@ export class User {
     }
   }
 
+  createMembership(): void {
+    this.membership = 'newbie';
+  }
+  decayMembership(): void {
+    this.membership = 'normal';
+  }
+
   setRecord(
     accumulationMinutes: number,
     accumulationCnt: number,

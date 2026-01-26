@@ -291,6 +291,18 @@ export class UserController {
     );
   }
 
+  @Get('membership/log')
+  async getMembershipLog() {
+    const logs = await this.userService.getMembershipLog();
+    return logs;
+  }
+  
+  @Patch('membership')
+  async patchMembership(@Body('type') type: 'create' | 'decay') {
+    await this.userService.patchMembership(type);
+    return { message: 'Membership updated successfully' };
+  }
+
   @Get('test')
   async test() {
     try {
