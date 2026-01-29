@@ -35,7 +35,6 @@ export class GroupStudyController {
     @Query('category') category?: string,
     @Query('cursor') cursor?: string,
   ) {
-    
     const cursorNum = cursor ? parseInt(cursor) : 0;
     let groupStudyData;
 
@@ -70,6 +69,13 @@ export class GroupStudyController {
     @Query('type') type?: 'private' | null,
   ) {
     return await this.groupStudyService.getMannerByGroupId(groupStudyId, type);
+  }
+  
+  @Get('memberActivity')
+  async getMemberActivity(@Query('groupStudyId') groupStudyId: string) {
+    return await this.groupStudyService.getGroupStudyMemberActivity(
+      groupStudyId,
+    );
   }
 
   @Get('status')

@@ -1,6 +1,6 @@
+import { Types } from 'mongoose';
 import { Gather } from 'src/domain/entities/Gather/Gather';
 import { IGatherData } from '../../entity/gather.entity';
-
 export interface IGatherRepository {
   findMyGather(userId: string, isPopulate?: boolean): Promise<Gather[] | null>;
   findMyGatherId(userId: string);
@@ -9,6 +9,19 @@ export interface IGatherRepository {
   findThree(): Promise<Gather[] | null>;
   findByPeriod(firstDay: Date, secondDay: Date): Promise<Gather[] | null>;
   findByGroupId(groupId, type): Promise<Gather[] | null>;
+  findGroupActivity(
+    groupId: string,
+    memberIds: string[],
+  ): Promise<{
+    month: {
+      _id: Types.ObjectId;
+      gatherCount: number;
+    }[];
+    total: {
+      _id: Types.ObjectId;
+      gatherCount: number;
+    }[];
+  } | null>;
   createGather(gatherData: Partial<Gather>): Promise<Gather>;
   findWithQueryPop(
     query: any,

@@ -303,6 +303,69 @@ export class GatherRepository implements IGatherRepository {
     );
   }
 
+  async findGroupActivity(
+    groupId: string,
+    memberIds: string[],
+  ): Promise<{
+    month: {
+      _id: Types.ObjectId;
+      gatherCount: number;
+    }[];
+    total: {
+      _id: Types.ObjectId;
+      gatherCount: number;
+    }[];
+  } | null> {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const memberObjectIds = memberIds
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+
+    const [res] = await this.Gather.aggregate<{
+      month: {
+        _id: Types.ObjectId;
+        gatherCount: number;
+      }[];
+      total: {
+        _id: Types.ObjectId;
+        gatherCount: number;
+      }[];
+    }>([
+      { $match: { groupId } }, // 공통으로 groupId 먼저 필터
+      {
+        $facet: {
+          // ✅ 이번 달 기준
+          month: [
+            // ✅ string -> Date 변환
+            { $addFields: { dateAsDate: { $toDate: '$date' } } },
+
+            // ✅ 이번달 필터는 변환된 dateAsDate로
+            {
+              $match: {
+                dateAsDate: { $gte: startOfMonth, $lt: startOfNextMonth },
+              },
+            },
+
+            { $unwind: '$participants' },
+            { $match: { 'participants.user': { $in: memberIds } } },
+            { $group: { _id: '$participants.user', gatherCount: { $sum: 1 } } },
+          ],
+
+          // ✅ 전체 누적 기준
+          total: [
+            { $unwind: '$participants' },
+            { $match: { 'participants.user': { $in: memberIds } } },
+            { $group: { _id: '$participants.user', gatherCount: { $sum: 1 } } },
+          ],
+        },
+      },
+    ]);
+
+    return res ?? { month: [], total: [] };
+  }
+
   async findByGroupId(groupId: string, type: string): Promise<Gather[] | null> {
     const result = await this.Gather.find({
       groupId,

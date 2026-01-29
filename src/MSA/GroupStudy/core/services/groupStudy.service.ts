@@ -1,7 +1,7 @@
 import { HttpException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import Redis from 'ioredis';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
@@ -30,7 +30,6 @@ import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IGroupStudyData } from '../../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interface';
 import GroupCommentService from './groupComment.service';
-
 //test
 export default class GroupStudyService {
   constructor(
@@ -152,6 +151,44 @@ export default class GroupStudyService {
     return {
       study: groupStudyData,
     };
+  }
+  async getGroupStudyMemberActivity(groupId: string) {
+    const groupStudy = await this.groupStudyRepository.findById(groupId);
+
+    if (!groupStudy) return null;
+
+    // participants.user가 ObjectId라고 가정
+    const memberIds: string[] = (groupStudy.participants ?? [])
+      .map((p) => p.user) // p.user가 populate 안된 경우 ObjectId일 것
+      .filter(Boolean);
+
+    const counts = await this.gatherRepository.findGroupActivity(
+      groupId,
+      memberIds,
+    );
+    console.log(memberIds, counts);
+
+    const monthMap = new Map<string, number>(
+      (counts?.month ?? []).map((c) => [String(c._id), c.gatherCount]),
+    );
+
+    const totalMap = new Map<string, number>(
+      (counts?.total ?? []).map((c) => [String(c._id), c.gatherCount]),
+    );
+
+    // groupStudy 멤버 기준으로 0 포함해서 결과 만들기
+    const result = (groupStudy.participants ?? []).map((p) => {
+      const user = p.user; // ObjectId or populate된 객체(상황에 따라)
+      const id = user?.toString(); // ✅ populate/미populate 둘 다 커버
+
+      return {
+        user,
+        monthGatherCount: monthMap.get(id) ?? 0,
+        totalGatherCount: totalMap.get(id) ?? 0,
+      };
+    });
+
+    return result;
   }
 
   async getMannerByGroupId(groupId: string, type: 'private' | null) {
