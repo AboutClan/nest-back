@@ -306,6 +306,7 @@ export class GatherRepository implements IGatherRepository {
   async findGroupActivity(
     groupId: string,
     memberIds: string[],
+    month: 'this' | 'last',
   ): Promise<{
     month: {
       _id: Types.ObjectId;
@@ -317,8 +318,13 @@ export class GatherRepository implements IGatherRepository {
     }[];
   } | null> {
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const temp = month === 'this' ? 0 : 1;
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth() - temp, 1);
+    const startOfNextMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1 - temp,
+      1,
+    );
     const memberObjectIds = memberIds
       .filter((id) => Types.ObjectId.isValid(id))
       .map((id) => new Types.ObjectId(id));

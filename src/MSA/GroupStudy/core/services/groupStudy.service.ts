@@ -1,7 +1,7 @@
 import { HttpException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import Redis from 'ioredis';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
@@ -152,7 +152,7 @@ export default class GroupStudyService {
       study: groupStudyData,
     };
   }
-  async getGroupStudyMemberActivity(groupId: string) {
+  async getGroupStudyMemberActivity(groupId: string, month: 'last' | 'this') {
     const groupStudy = await this.groupStudyRepository.findById(groupId);
 
     if (!groupStudy) return null;
@@ -165,6 +165,7 @@ export default class GroupStudyService {
     const counts = await this.gatherRepository.findGroupActivity(
       groupId,
       memberIds,
+      month,
     );
     console.log(memberIds, counts);
 

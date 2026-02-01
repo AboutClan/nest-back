@@ -70,11 +70,15 @@ export class GroupStudyController {
   ) {
     return await this.groupStudyService.getMannerByGroupId(groupStudyId, type);
   }
-  
+
   @Get('memberActivity')
-  async getMemberActivity(@Query('groupStudyId') groupStudyId: string) {
+  async getMemberActivity(
+    @Query('groupStudyId') groupStudyId: string,
+    @Query('month') month: 'last' | 'this',
+  ) {
     return await this.groupStudyService.getGroupStudyMemberActivity(
       groupStudyId,
+      month,
     );
   }
 

@@ -12,6 +12,7 @@ export interface IGatherRepository {
   findGroupActivity(
     groupId: string,
     memberIds: string[],
+    month: 'this' | 'last',
   ): Promise<{
     month: {
       _id: Types.ObjectId;
