@@ -171,6 +171,7 @@ export class User {
     this.locationDetail.setLocationDetail(name, address, latitude, longitude);
   }
 
+  //acc은 공부 횟수 & month는 공부 시간
   increaseStudyRecord(type: 'study' | 'solo', diffMinutes: number): void {
     if (type === 'study') {
       this.studyRecord.accumulationCnt += 1;

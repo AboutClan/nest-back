@@ -3,8 +3,8 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
-import { IRealtime } from '../entity/realtime.entity';
 import { IRealtimeRepository } from '../core/interfaces/RealtimeRepository.interface';
+import { IRealtime } from '../entity/realtime.entity';
 
 export class RealtimeRepository implements IRealtimeRepository {
   constructor(
