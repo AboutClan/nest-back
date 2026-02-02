@@ -234,7 +234,6 @@ export default class RealtimeService {
           message,
         };
       } else {
-    
         const point = CONST.POINT.REALTIME_ATTEND_SOLO();
         await this.userServiceInstance.updateStudyRecord(
           'solo',
@@ -378,10 +377,10 @@ export default class RealtimeService {
     return await this.getTodayData(date);
   }
 
-  async getTodayDataWithPlace(date?: string) {
+  async getTodayDataWithPlace(date?: string, isPopulate: boolean = true) {
     // const date = this.getToday();
     if (!date) date = this.getToday();
-    const data = await this.realtimeRepository.findByDate(date);
+    const data = await this.realtimeRepository.findByDate(date, isPopulate);
 
     if (!data) {
       const newRealtime = new Realtime({ date });

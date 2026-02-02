@@ -659,7 +659,12 @@ export class Vote2Service {
   async alertStudyAbsence() {
     const today = DateUtils.getTodayYYYYMMDD();
     const vote = await this.Vote2Repository.findByDate(today, false);
+    const realtimeData = await this.RealtimeService.getTodayDataWithPlace(
+      today,
+      false,
+    );
     if (!vote) return;
+
     const results = vote.results;
     const userIds = [];
     for (const result of results) {
@@ -669,6 +674,17 @@ export class Vote2Service {
         if (!member.arrived && startTime < new Date()) {
           userIds.push(member.userId.toString());
         }
+      }
+    }
+
+    const realTimeResult = realtimeData.userList.filter(
+      (who) => who.status !== 'solo',
+    );
+
+    for (const user of realTimeResult) {
+      const startTime = new Date(user.time.start);
+      if (!user.arrived && startTime < new Date()) {
+        userIds.push(user.toString());
       }
     }
 

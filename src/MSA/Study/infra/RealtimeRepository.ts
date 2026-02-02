@@ -12,15 +12,19 @@ export class RealtimeRepository implements IRealtimeRepository {
     private readonly realtime: Model<IRealtime>,
   ) {}
 
-  async findByDate(date): Promise<Realtime | null> {
-    const doc = await this.realtime.findOne({ date }).populate({
-      path: 'userList.user',
-      select: ENTITY.USER.C_SIMPLE_USER,
-    });
+  async findByDate(date, isPopulate: boolean = true): Promise<Realtime | null> {
+    let query = this.realtime.findOne({ date });
 
-    if (!doc) {
-      return null;
+    if (isPopulate) {
+      query = query.populate({
+        path: 'userList.user',
+        select: ENTITY.USER.C_SIMPLE_USER,
+      });
     }
+
+    const doc = await query;
+
+    if (!doc) return null;
     return this.mapToDomain(doc);
   }
 
