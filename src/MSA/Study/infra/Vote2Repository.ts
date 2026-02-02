@@ -5,8 +5,8 @@ import { Vote2 } from 'src/domain/entities/Vote2/Vote2';
 import { Member } from 'src/domain/entities/Vote2/Vote2Member';
 import { Participation } from 'src/domain/entities/Vote2/Vote2Participation';
 import { Result } from 'src/domain/entities/Vote2/Vote2Result';
-import { IVote2 } from '../entity/vote2.entity';
 import { IVote2Repository } from '../core/interfaces/Vote2Repository.interface';
+import { IVote2 } from '../entity/vote2.entity';
 
 export class Vote2Repository implements IVote2Repository {
   constructor(
@@ -14,23 +14,33 @@ export class Vote2Repository implements IVote2Repository {
     private readonly Vote2Model: Model<IVote2>,
   ) {}
 
-  async findByDate(date: string): Promise<Vote2 | null> {
-    const db = await this.Vote2Model.findOne({ date })
-      .populate([
-        {
-          path: 'results.placeId',
-        },
-        {
-          path: 'results.members.userId',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ])
-      .populate({
-        path: 'participations.userId',
-        select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
-      });
+  async findByDate(
+    date: string,
+    isPopulate: boolean = true,
+  ): Promise<Vote2 | null> {
+    let query = this.Vote2Model.findOne({ date });
+
+    if (isPopulate) {
+      query = query
+        .populate([
+          {
+            path: 'results.placeId',
+          },
+          {
+            path: 'results.members.userId',
+            select: ENTITY.USER.C_SIMPLE_USER,
+          },
+        ])
+        .populate({
+          path: 'participations.userId',
+          select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
+        });
+    }
+
+    const db = await query;
     return db ? this.mapToDomain(db) : null;
   }
+
   async findMineById(userId: string): Promise<Vote2[]> {
     const docs = await this.Vote2Model.find({
       'results.members.userId': userId,

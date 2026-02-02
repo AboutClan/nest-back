@@ -658,7 +658,7 @@ export class Vote2Service {
 
   async alertStudyAbsence() {
     const today = DateUtils.getTodayYYYYMMDD();
-    const vote = await this.Vote2Repository.findByDate(today);
+    const vote = await this.Vote2Repository.findByDate(today, false);
     if (!vote) return;
     const results = vote.results;
     const userIds = [];
@@ -684,7 +684,7 @@ export class Vote2Service {
 
   async processAbsenceFee() {
     const today = DateUtils.getTodayYYYYMMDD();
-    const vote = await this.Vote2Repository.findByDate(today);
+    const vote = await this.Vote2Repository.findByDate(today, false);
     if (!vote) return;
     const results = vote.results;
 
@@ -938,7 +938,7 @@ export class Vote2Service {
 
   async alertMatching() {
     const today = DateUtils.getTodayYYYYMMDD();
-    const vote = await this.Vote2Repository.findByDate(today);
+    const vote = await this.Vote2Repository.findByDate(today, false);
     if (!vote) return;
     const results = vote.results;
 
