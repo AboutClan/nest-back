@@ -32,6 +32,10 @@ export class CreateNewVoteDTO {
 export class CreateNewVotesDTO {
   @IsString()
   @IsOptional()
+  type: 'invite';
+
+  @IsString()
+  @IsOptional()
   latitude: string;
 
   @IsOptional()

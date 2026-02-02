@@ -227,13 +227,17 @@ export class Vote2Service {
     return;
   }
 
-  async setVoteWithArr(dates: string[], createVote: CreateNewVoteDTO) {
+  async setVoteWithArr(
+    dates: string[],
+    createVote: CreateNewVoteDTO,
+    type?: 'invite',
+  ) {
     const thisWeek = DateUtils.getWeekDate();
 
     for (const date of thisWeek) {
       if (dates.includes(date)) {
         await this.setVote(date, createVote);
-      } else {
+      } else if (type !== 'invite') {
         await this.deleteVote(date);
       }
     }

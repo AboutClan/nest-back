@@ -134,6 +134,7 @@ export class Vote2Controller {
       locationDetail,
       eps = 3,
       userId = null,
+      type = null,
     } = createVoteDTO;
 
     await this.voteService2.setVoteWithArr(dates, {
@@ -144,7 +145,8 @@ export class Vote2Controller {
       end,
       locationDetail,
       eps,
-    });
+     
+    },type);
 
     return null;
   }
