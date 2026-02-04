@@ -117,7 +117,7 @@ export class Vote2Service {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
-    const { voteResults } = await this.doAlgorithm(participations);
+    const { voteResults } = await this.doAlgorithm(participations, 4);
 
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
@@ -306,9 +306,13 @@ export class Vote2Service {
     });
   }
 
-  private async doAlgorithm(participations: IParticipation[]) {
+  private async doAlgorithm(
+    participations: IParticipation[],
+    defaultStandardCnt?: number,
+  ) {
     const MIN_OVERLAP_MINUTES = 60;
-    const MAX_GROUP_SIZE = 8; //
+    const MAX_GROUP_SIZE = 12; //
+    const standardCnt = defaultStandardCnt || 5;
 
     const toMinutesOfDay = (s: string) => {
       // 1) 'HH:mm'만 들어오는 경우
@@ -417,7 +421,11 @@ export class Vote2Service {
           groupMembers.push(first);
 
           // 2) 이후 멤버는 "그룹 내 누군가와 120분 이상 겹침"을 만족해야 추가
-          for (let i = 1; i < pool.length && groupMembers.length < 4; i++) {
+          for (
+            let i = 1;
+            i < pool.length && groupMembers.length < targetMinSize;
+            i++
+          ) {
             const cand = pool[i];
             // 4인 우선 채우기
             groupMembers.push(cand);
@@ -468,10 +476,10 @@ export class Vote2Service {
         }
       };
 
-      // 4인 우선
-      makeGroupsAtPlace(4);
-      // 4인으로 못 채운 게 남아있으면 3인 이상(최소 3)으로 보조
-      makeGroupsAtPlace(3);
+      // 5인 우선
+      makeGroupsAtPlace(standardCnt);
+      // 5인으로 못 채운 게 남아있으면 4인 이상(최소 4)으로 보조
+      makeGroupsAtPlace(standardCnt - 1);
     }
 
     // ---------- 2) 확장 패스: eps × 1.5 ----------
@@ -587,7 +595,11 @@ export class Vote2Service {
           const first = pool[0];
           group.push(first);
           // 4인 우선 채우기
-          for (let i = 1; i < pool.length && group.length < 4; i++) {
+          for (
+            let i = 1;
+            i < pool.length && group.length < targetMinSize;
+            i++
+          ) {
             const cand = pool[i];
             if (canJoinByTime(group, cand)) group.push(cand);
           }
@@ -625,8 +637,8 @@ export class Vote2Service {
         }
       };
 
-      make(4);
-      make(3);
+      make(standardCnt);
+      make(standardCnt - 1);
     };
 
     // 확장 패스 실행(1) 기존 그룹 합류
