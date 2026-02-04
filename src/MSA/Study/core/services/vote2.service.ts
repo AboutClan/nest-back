@@ -52,7 +52,7 @@ export class Vote2Service {
         time: member?.arrived,
         memo: member?.memo,
         attendanceImage: member?.imageUrl,
-        type: member.arrived ? 'arrived' : member?.absence ? 'absenced' : null,
+        type: member?.absence ? 'absenced' : member.arrived ? 'arrived' : null,
       },
       comment: member.comment,
     };
@@ -311,7 +311,7 @@ export class Vote2Service {
     defaultStandardCnt?: number,
   ) {
     const MIN_OVERLAP_MINUTES = 60;
-    const MAX_GROUP_SIZE = 12; //
+    const MAX_GROUP_SIZE = 8; //
     const standardCnt = defaultStandardCnt || 5;
 
     const toMinutesOfDay = (s: string) => {
@@ -363,9 +363,11 @@ export class Vote2Service {
 
     const voteResults: IResult[] = [];
     const clusteredParticipantIds = new Set<string>(); // 이미 클러스터에 속한 참여자 ID 관리
-
+    const usedPlaceIds = new Set<string>();
     // ---------- 1) 기본 패스: 4인 우선 → 3인 이상 ----------
     for (const place of places) {
+      const placeId = place._id.toString();
+      if (usedPlaceIds.has(placeId)) continue;
       const candidates = [] as Array<{
         user: IUser;
         userId: string;
@@ -407,13 +409,14 @@ export class Vote2Service {
       );
 
       const makeGroupsAtPlace = (targetMinSize: number) => {
+        if (usedPlaceIds.has(placeId)) return;
         // 남아있는 후보(배정 안 된 사람)만
         let pool = candidates.filter(
           (c) => !clusteredParticipantIds.has(c.userId),
         );
 
         // while: 이 장소에서 targetMinSize 이상 뽑을 수 있을 때 계속 만든다
-        while (pool.length >= targetMinSize) {
+        if (pool.length >= targetMinSize) {
           const groupMembers: typeof pool = [];
 
           // 1) 첫 멤버는 제약 없이 추가
@@ -435,7 +438,7 @@ export class Vote2Service {
           }
 
           // targetMinSize(4 또는 3)를 못 채웠다면 종료
-          if (groupMembers.length < targetMinSize) break;
+          if (groupMembers.length < targetMinSize) return;
 
           // 3) "3인 이상" 규칙: 4명이 채워졌다면(또는 3명이 채워졌다면),
           //    남은 pool에서 시간 겹침을 만족하는 멤버를 MAX_GROUP_SIZE까지 추가 허용
@@ -467,7 +470,7 @@ export class Vote2Service {
               lon: place.location.longitude,
             },
           });
-
+          usedPlaceIds.add(placeId);
           // 배정 처리
           groupMembers.forEach((g) => clusteredParticipantIds.add(g.userId));
           // 풀에서 제거
@@ -528,6 +531,8 @@ export class Vote2Service {
           for (const gi of idxList) {
             const g = voteResults[gi];
             // 시간 겹침 검사를 통과해야 합류
+            // ✅ 이미 이 그룹이 가득 찼으면 패스
+            if (g.members.length >= MAX_GROUP_SIZE) continue;
             if (
               canJoinByTime(g.members as any, { start: p.start, end: p.end })
             ) {
@@ -549,6 +554,8 @@ export class Vote2Service {
 
     // (B) eps×1.5로 "새로운 3인 이상" 그룹 형성 (장소별로 다시 수행)
     const formNewGroupsWithExpandedEpsAtPlace = (place: any) => {
+      const placeId = place._id.toString();
+      if (usedPlaceIds.has(placeId)) return;
       // 후보 만들기(확장 eps 적용)
       const expCandidates = [] as Array<{
         user: IUser;
@@ -590,7 +597,7 @@ export class Vote2Service {
         let pool = expCandidates.filter(
           (c) => !clusteredParticipantIds.has(c.userId),
         );
-        while (pool.length >= targetMinSize) {
+        if (pool.length >= targetMinSize) {
           const group: typeof pool = [];
           const first = pool[0];
           group.push(first);
@@ -603,7 +610,7 @@ export class Vote2Service {
             const cand = pool[i];
             if (canJoinByTime(group, cand)) group.push(cand);
           }
-          if (group.length < targetMinSize) break;
+          if (group.length < targetMinSize) return;
 
           // 3인 이상 확장 허용
           for (
@@ -630,7 +637,7 @@ export class Vote2Service {
               lon: place.location.longitude,
             },
           });
-
+          usedPlaceIds.add(placeId);
           group.forEach((g) => clusteredParticipantIds.add(g.userId));
           const set = new Set(group.map((g) => g.userId));
           pool = pool.filter((x) => !set.has(x.userId));
@@ -638,7 +645,7 @@ export class Vote2Service {
       };
 
       make(standardCnt);
-      make(standardCnt - 1);
+      if (!usedPlaceIds.has(placeId)) make(standardCnt - 1);
     };
 
     // 확장 패스 실행(1) 기존 그룹 합류

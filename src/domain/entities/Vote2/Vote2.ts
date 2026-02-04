@@ -113,6 +113,8 @@ export class Vote2 {
       if (member) {
         member.absence = true;
         member.memo = message;
+        //불참 시간으로 사용
+        member.arrived = new Date();
       }
     }
   }
