@@ -1,7 +1,7 @@
 import { Realtime } from 'src/domain/entities/Realtime/Realtime';
 
 export interface IRealtimeRepository {
-  findByDate(date, isPopulate?: boolean): Promise<Realtime | null>;
+  findByDate(date, isPopulate: boolean): Promise<Realtime | null>;
   save(entity: Realtime): Promise<Realtime>;
   create(entity: Realtime): Promise<Realtime>;
   patchRealtime(userId: string, updateFields: any, date: string);

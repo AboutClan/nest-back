@@ -1,9 +1,6 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
-import { Model } from 'mongoose';
 import { CONST } from 'src/Constants/CONSTANTS';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
 import { logger } from 'src/logger';
@@ -13,13 +10,15 @@ import PlaceService from 'src/MSA/Place/core/services/place.service';
 import { PrizeService } from 'src/MSA/Store/core/services/prize.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
-import { ILog } from 'src/routes/logz/log.entity';
 import { DateUtils } from 'src/utils/Date';
-import { ILOG_MEMBERSHIP_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
+import {
+  ILOG_MEMBERSHIP_REPOSITORY,
+  IUSER_REPOSITORY,
+} from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IUser, restType } from '../../entity/user.entity';
-import { IUserRepository } from '../interfaces/UserRepository.interface';
 import { ILogMembershipRepository } from '../interfaces/LogMembership.interface';
+import { IUserRepository } from '../interfaces/UserRepository.interface';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -261,7 +260,9 @@ export class UserService {
   }
   async updateStudyRecord(type: 'study' | 'solo', diffMinutes: number) {
     const token = RequestContext.getDecodedToken();
+    console.log(2, type);
     const user = await this.UserRepository.findByUid(token.uid);
+    console.log(4, type, user);
     user.increaseStudyRecord(type, diffMinutes);
     await this.UserRepository.save(user);
 
@@ -747,7 +748,9 @@ export class UserService {
 
   async getMembershipLog() {
     const token = RequestContext.getDecodedToken();
-    const logs = await this.LogMembershipRepository.findByUserId(token.id.toString());
+    const logs = await this.LogMembershipRepository.findByUserId(
+      token.id.toString(),
+    );
     return logs;
   }
 

@@ -101,7 +101,7 @@ export default class RealtimeService {
   async getTodayData(date?: string) {
     // const date = this.getToday();
     if (!date) date = this.getToday();
-    const data = await this.realtimeRepository.findByDate(date);
+    const data = await this.realtimeRepository.findByDate(date, false);
 
     if (!data) {
       const newRealtime = new Realtime({ date });
@@ -188,6 +188,7 @@ export default class RealtimeService {
       }
 
       const todayData = await this.getTodayData(date);
+      console.log(todayData.isOpen(token.id));
       if (todayData.isOpen(token.id)) {
         todayData.patchNotSoloUser(
           token.id,
@@ -206,7 +207,7 @@ export default class RealtimeService {
         });
         todayData.patchUser(validatedStudy as RealtimeUser);
       }
-
+      console.log(34);
       await this.realtimeRepository.save(todayData);
 
       if (todayData.isOpen(token.id)) {

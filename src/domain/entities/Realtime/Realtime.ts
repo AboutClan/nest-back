@@ -1,5 +1,4 @@
 import { IRealtimeUser } from 'src/MSA/Study/entity/realtime.entity';
-import { IUser } from '../User/User';
 import { Comment } from './Comment';
 import { RealtimeUser, RealtimeUserProps } from './RealtimeUser';
 import { Time } from './Time';
@@ -26,9 +25,7 @@ export class Realtime {
   }
 
   public isLate(userId: string) {
-    const user = this.userList.find(
-      (u) => (u.user as IUser)._id.toString() === userId,
-    );
+    const user = this.userList.find((u) => u.user.toString() === userId);
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }
@@ -45,7 +42,7 @@ export class Realtime {
 
   public updateAbsence(userId: string, absence: boolean, message?: string) {
     const user = this.userList.find(
-      (u) => (u.user as IUser)._id.toString() === userId.toString(),
+      (u) => u.user.toString() === userId.toString(),
     );
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
@@ -54,9 +51,7 @@ export class Realtime {
   }
 
   public isOpen(userId: string) {
-    const user = this.userList.find(
-      (u) => (u.user as IUser)._id.toString() === userId,
-    );
+    const user = this.userList.find((u) => u.user.toString() === userId);
 
     return user?.status === 'open' || user?.status === 'participation';
   }
@@ -66,7 +61,10 @@ export class Realtime {
   }
 
   public patchUser(userProps: RealtimeUserProps): void {
-    const idx = this.userList.findIndex((u) => u.user === userProps.user);
+    console.log(1, this.userList, userProps);
+    const idx = this.userList.findIndex(
+      (u) => u.user.toString() === userProps.user.toString(),
+    );
     const newUser = new RealtimeUser(userProps);
 
     if (idx === -1) {
@@ -85,8 +83,9 @@ export class Realtime {
     memo: string,
     image: string,
   ): void {
+    console.log(25, this.userList);
     const idx = this.userList.findIndex(
-      (u) => (u.user as IUser)._id.toString() === userId.toString(),
+      (u) => u.user.toString() === userId.toString(),
     );
     this.userList[idx].time.start = new Date().toISOString();
     this.userList[idx].time.end = endTime;
@@ -96,9 +95,7 @@ export class Realtime {
   }
 
   increaseHeartCount(userId: string): void {
-    const user = this.userList.find(
-      (u) => (u.user as IUser)._id.toString() === userId,
-    );
+    const user = this.userList.find((u) => u.user.toString() === userId);
 
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
@@ -107,9 +104,7 @@ export class Realtime {
     user.heartCnt += 1;
   }
   updateUserTime(userId: string, start: string, end: string): void {
-    const user = this.userList.find(
-      (u) => (u.user as IUser)._id.toString() === userId,
-    );
+    const user = this.userList.find((u) => u.user.toString() === userId);
 
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
@@ -119,7 +114,7 @@ export class Realtime {
   }
 
   updateStatus(userId: string, status: string): void {
-    const user = this.userList.find((u) => u.user === userId);
+    const user = this.userList.find((u) => u.user.toString() === userId);
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }
@@ -128,9 +123,7 @@ export class Realtime {
   }
 
   updateComment(userId: string, comment: string): void {
-    const user = this.userList.find(
-      (u) => (u.user as IUser)._id.toString() === userId,
-    );
+    const user = this.userList.find((u) => u.user.toString() === userId);
     if (!user) {
       throw new Error(`RealtimeUser not found: ${userId}`);
     }
@@ -141,14 +134,12 @@ export class Realtime {
   deleteVote(userId: string): boolean {
     //user list에 있으면 status 반환
 
-    const user = this.userList.find(
-      (u) => (u.user as IUser)._id.toString() === userId,
-    );
+    const user = this.userList.find((u) => u.user.toString() === userId);
     if (!user) {
       return false;
     }
     this.userList = this.userList.filter(
-      (user) => (user.user as IUser)._id.toString() !== userId,
+      (user) => user.user.toString() !== userId,
     );
     if (user.status === 'open') {
       return true;

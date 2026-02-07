@@ -12,7 +12,10 @@ export class RealtimeRepository implements IRealtimeRepository {
     private readonly realtime: Model<IRealtime>,
   ) {}
 
-  async findByDate(date, isPopulate: boolean = true): Promise<Realtime | null> {
+  async findByDate(
+    date,
+    isPopulate: boolean = false,
+  ): Promise<Realtime | null> {
     let query = this.realtime.findOne({ date });
 
     if (isPopulate) {

@@ -178,6 +178,7 @@ export class User {
       this.studyRecord.monthCnt += diffMinutes;
     }
     if (type === 'solo') {
+      console.log(8, this.studyRecord);
       this.studyRecord.accumulationMinutes += 1;
       this.studyRecord.monthMinutes += diffMinutes;
     }
