@@ -1,5 +1,5 @@
-import { Chat } from 'src/domain/entities/chat/Chat';
-import { ContentProps } from 'src/domain/entities/chat/Content';
+import { Chat } from '../domain/chat/Chat';
+import { ContentProps } from '../domain/chat/Content';
 
 export interface IChatRepository {
   findAll(): Promise<Chat[] | null>;

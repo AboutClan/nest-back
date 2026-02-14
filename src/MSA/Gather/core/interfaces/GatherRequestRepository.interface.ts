@@ -1,4 +1,4 @@
-import { GatherRequest } from 'src/domain/entities/GatherRequest/GatherRequest';
+import { GatherRequest } from '../domain/gatherRequest/GatherRequest';
 
 export interface IGatherRequestRepository {
   findAll(): Promise<GatherRequest[]>;

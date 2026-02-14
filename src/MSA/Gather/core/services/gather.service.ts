@@ -7,8 +7,7 @@ import {
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { Gather, GatherProps } from 'src/domain/entities/Gather/Gather';
-import { ParticipantsProps } from 'src/domain/entities/Gather/Participants';
+
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { logger } from 'src/logger';
@@ -27,6 +26,8 @@ import {
 } from '../../entity/gather.entity';
 import { IGatherRepository } from '../interfaces/GatherRepository.interface';
 import GatherCommentService from './comment.service';
+import { Gather, GatherProps } from '../domain/gather/Gather';
+import { ParticipantsProps } from '../domain/Gather/Participants';
 
 //commit
 @Injectable()
@@ -39,7 +40,7 @@ export class GatherService {
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
     private readonly commentService: GatherCommentService,
-  ) {}
+  ) { }
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
   }
@@ -70,18 +71,18 @@ export class GatherService {
         ? { status: 'pending' }
         : category === '마감 임박'
           ? {
-              status: 'pending',
-              $expr: {
-                $gt: [
-                  { $size: '$participants' }, // participants 배열 길이
-                  { $subtract: ['$memberCnt.max', 4] }, // memberCnt.max - 3
-                ],
-              },
-            }
+            status: 'pending',
+            $expr: {
+              $gt: [
+                { $size: '$participants' }, // participants 배열 길이
+                { $subtract: ['$memberCnt.max', 4] }, // memberCnt.max - 3
+              ],
+            },
+          }
           : category === '인기 모임'
             ? {
-                'participants.8': { $exists: true },
-              }
+              'participants.8': { $exists: true },
+            }
             : {};
 
     if (sortBy === 'basic') {
@@ -528,7 +529,7 @@ export class GatherService {
         //2000원 벌금
         await handlePointPenalty(0, CONST.POINT.PARTICIPATE_GATHER);
       }
-    } catch (err) {}
+    } catch (err) { }
 
     await this.gatherRepository.save(gather);
 

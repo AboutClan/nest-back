@@ -3,14 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { Feed } from 'src/domain/entities/Feed/Feed';
+import { Feed } from '../core/domain/feed/Feed';
 import { IFeed } from '../entity/feed.entity';
 import { IFeedRepository } from '../core/interfaces/FeedRepository.interface';
 
 export class FeedRepository implements IFeedRepository {
   constructor(
     @InjectModel(DB_SCHEMA.FEED) private readonly FeedModel: Model<IFeed>,
-  ) {}
+  ) { }
 
   async create(doc: Feed): Promise<Feed> {
     const docToCreate = this.mapToDB(doc);

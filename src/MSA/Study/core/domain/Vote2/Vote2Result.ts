@@ -1,4 +1,5 @@
-import { Place } from '../Place';
+
+import { Place } from '../Realtime/Place';
 import { Member, MemberProps } from './Vote2Member';
 
 export interface ResultProps {

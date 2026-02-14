@@ -1,4 +1,5 @@
-import { Realtime } from 'src/domain/entities/Realtime/Realtime';
+import { Realtime } from "../domain/Realtime/Realtime";
+
 
 export interface IRealtimeRepository {
   findByDate(date, isPopulate: boolean): Promise<Realtime | null>;

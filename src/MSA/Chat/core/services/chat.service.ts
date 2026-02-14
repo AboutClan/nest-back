@@ -1,13 +1,13 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { Chat } from 'src/domain/entities/chat/Chat';
+import { Chat } from '../domain/chat/Chat';
 import { RequestContext } from 'src/request-context';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IChatRepository } from '../interfaces/ChatRepository.interface';
 import { DateUtils } from 'src/utils/Date';
-import { Content } from 'src/domain/entities/chat/Content';
+import { Content } from '../domain/chat/Content';
 import { UserRepository } from 'src/MSA/User/infra/UserRepository';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class ChatService {
     private readonly fcmServiceInstance: FcmService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
-  ) {}
+  ) { }
 
   async getChat(userId: string) {
     const token = RequestContext.getDecodedToken();

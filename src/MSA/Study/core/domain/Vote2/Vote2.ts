@@ -1,8 +1,8 @@
 import { DateUtils } from 'src/utils/Date';
-import { IUser } from '../User/User';
 import { Participation, ParticipationProps } from './Vote2Participation';
 import { Result, ResultProps } from './Vote2Result';
 import { VoteComment } from './Vote2VoteComment';
+import { IUser } from 'src/domain/entities/User/User';
 export interface Vote2Props {
   date: string;
   participations: ParticipationProps[];

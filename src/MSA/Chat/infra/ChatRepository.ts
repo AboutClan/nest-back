@@ -1,17 +1,17 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Chat } from 'src/domain/entities/chat/Chat';
+import { Chat } from '../core/domain/chat/Chat';
 import { IChat } from '../entity/chat.entity';
 import { IChatRepository } from '../core/interfaces/ChatRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ContentProps } from 'src/domain/entities/chat/Content';
+import { ContentProps } from '../core/domain/chat/Content';
 
 export class ChatRepository implements IChatRepository {
   constructor(
     @InjectModel(DB_SCHEMA.CHAT)
     private readonly ChatModel: Model<IChat>,
-  ) {}
+  ) { }
 
   async findRecentChatByUserId(userId: string): Promise<Chat | null> {
     const doc = await this.ChatModel.find({

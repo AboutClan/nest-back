@@ -1,4 +1,4 @@
-import { Feed } from 'src/domain/entities/Feed/Feed';
+import { Feed } from '../domain/feed/Feed';
 
 export interface IFeedRepository {
   findByType(type: string, opt: any): Promise<Feed[]>;

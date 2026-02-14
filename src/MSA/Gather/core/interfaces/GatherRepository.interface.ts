@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Gather } from 'src/domain/entities/Gather/Gather';
+import { Gather } from '../domain/gather/Gather';
 import { IGatherData } from '../../entity/gather.entity';
 export interface IGatherRepository {
   findMyGather(userId: string, isPopulate?: boolean): Promise<Gather[] | null>;

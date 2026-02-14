@@ -1,6 +1,6 @@
 import mongoose, { model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { IGatherRequest } from 'src/domain/entities/GatherRequest/GatherRequest';
+import { IGatherRequest } from '../core/domain/gatherRequest/GatherRequest';
 
 export const GatherRequestSchema: Schema<IGatherRequest> = new Schema({
   writer: { type: Schema.Types.ObjectId, ref: DB_SCHEMA.USER },

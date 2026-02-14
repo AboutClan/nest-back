@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { Gather } from 'src/domain/entities/Gather/Gather';
+import { Gather } from '../core/domain/gather/Gather';
 import { IGatherRepository } from '../core/interfaces/GatherRepository.interface';
 import { IGatherData } from '../entity/gather.entity';
 
@@ -11,7 +11,7 @@ export class GatherRepository implements IGatherRepository {
   constructor(
     @InjectModel(DB_SCHEMA.GATHER)
     private readonly Gather: Model<IGatherData>,
-  ) {}
+  ) { }
 
   async findMyGather(
     userId: string,
@@ -467,11 +467,11 @@ export class GatherRepository implements IGatherRepository {
       content: props.content,
       location: props?.location
         ? {
-            main: props.location.main,
-            sub: props.location.sub,
-            latitude: props.location.latitude,
-            longitude: props.location.longitude,
-          }
+          main: props.location.main,
+          sub: props.location.sub,
+          latitude: props.location.latitude,
+          longitude: props.location.longitude,
+        }
         : null,
       memberCnt: {
         min: props.memberCnt.min,

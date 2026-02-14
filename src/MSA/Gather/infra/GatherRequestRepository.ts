@@ -5,14 +5,14 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import {
   GatherRequest,
   IGatherRequest,
-} from 'src/domain/entities/GatherRequest/GatherRequest';
+} from '../core/domain/gatherRequest/GatherRequest';
 import { IGatherRequestRepository } from '../core/interfaces/GatherRequestRepository.interface';
 
 export class GatherRequestRepository implements IGatherRequestRepository {
   constructor(
     @InjectModel(DB_SCHEMA.GATHERREQUEST)
     private readonly GatherRequest: Model<IGatherRequest>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<GatherRequest[]> {
     const gatherRequest = await this.GatherRequest.find().populate({

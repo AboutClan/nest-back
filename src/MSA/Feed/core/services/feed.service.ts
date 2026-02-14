@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 
-import { Feed } from 'src/domain/entities/Feed/Feed';
+import { Feed } from '../domain/feed/Feed';
 import { ValidationError } from 'src/errors/ValidationError';
 
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
@@ -229,7 +229,7 @@ export class FeedService {
 
       for (const memberUid of memberArray) {
         await this.fcmServiceInstance.sendNotificationToXWithId(
-          memberUid,
+          memberUid as string,
           `새로운 모임 후기 도착!`,
           `${DateUtils.formatGatherDate(gather.date)} 모임의 후기가 올라왔어요!`,
           deeplink,

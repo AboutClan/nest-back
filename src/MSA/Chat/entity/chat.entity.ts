@@ -1,7 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ENTITY } from 'src/Constants/ENTITY';
-import { ChatStatus } from 'src/domain/entities/chat/Chat';
+import { ChatStatus } from '../core/domain/chat/Chat';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { z } from 'zod';
 

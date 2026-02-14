@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { Realtime } from 'src/domain/entities/Realtime/Realtime';
+import { Realtime } from '../core/domain/Realtime/Realtime';
 import { IRealtimeRepository } from '../core/interfaces/RealtimeRepository.interface';
 import { IRealtime } from '../entity/realtime.entity';
 
@@ -10,7 +10,7 @@ export class RealtimeRepository implements IRealtimeRepository {
   constructor(
     @InjectModel(DB_SCHEMA.REALTIME)
     private readonly realtime: Model<IRealtime>,
-  ) {}
+  ) { }
 
   async findByDate(
     date,

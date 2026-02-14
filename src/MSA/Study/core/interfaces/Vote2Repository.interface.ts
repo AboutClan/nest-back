@@ -1,4 +1,4 @@
-import { Vote2 } from 'src/domain/entities/Vote2/Vote2';
+import { Vote2 } from "../domain/Vote2/Vote2";
 
 export interface IVote2Repository {
   findByDate(date: string, isPopulate?: boolean): Promise<Vote2 | null>;

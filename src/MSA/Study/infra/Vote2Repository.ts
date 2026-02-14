@@ -1,10 +1,10 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { Vote2 } from 'src/domain/entities/Vote2/Vote2';
-import { Member } from 'src/domain/entities/Vote2/Vote2Member';
-import { Participation } from 'src/domain/entities/Vote2/Vote2Participation';
-import { Result } from 'src/domain/entities/Vote2/Vote2Result';
+import { Vote2 } from '../core/domain/Vote2/Vote2';
+import { Member } from '../core/domain/Vote2/Vote2Member';
+import { Participation } from '../core/domain/Vote2/Vote2Participation';
+import { Result } from '../core/domain/Vote2/Vote2Result';
 import { IVote2Repository } from '../core/interfaces/Vote2Repository.interface';
 import { IVote2 } from '../entity/vote2.entity';
 
@@ -12,7 +12,7 @@ export class Vote2Repository implements IVote2Repository {
   constructor(
     @InjectModel('vote2')
     private readonly Vote2Model: Model<IVote2>,
-  ) {}
+  ) { }
 
   async findByDate(
     date: string,

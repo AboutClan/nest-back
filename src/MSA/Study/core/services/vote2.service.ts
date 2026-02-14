@@ -2,8 +2,6 @@ import { Inject } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { Realtime } from 'src/domain/entities/Realtime/Realtime';
-import { Result } from 'src/domain/entities/Vote2/Vote2Result';
 import { AppError } from 'src/errors/AppError';
 import { PlaceRepository } from 'src/MSA/Place/core/interfaces/place.repository.interface';
 import RealtimeService from 'src/MSA/Study/core/services/realtime.service';
@@ -18,6 +16,8 @@ import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from '../../dtos/vote2.dto';
 import { IMember, IParticipation, IResult } from '../../entity/vote2.entity';
 import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
+import { Realtime } from '../domain/Realtime/Realtime';
+import { Result } from '../domain/Vote2/Vote2Result';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -28,7 +28,7 @@ export class Vote2Service {
     private readonly userServiceInstance: UserService,
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
-  ) {}
+  ) { }
 
   formatMember(member: IMember) {
     const form = {
@@ -148,11 +148,11 @@ export class Vote2Service {
       status: 'expected',
       realTimes: realtimeData
         ? {
-            ...realtimeData,
-            userList: realtimeData.userList.map((user) =>
-              Realtime.formatRealtime(user),
-            ),
-          }
+          ...realtimeData,
+          userList: realtimeData.userList.map((user) =>
+            Realtime.formatRealtime(user),
+          ),
+        }
         : null,
     };
   }
@@ -187,11 +187,11 @@ export class Vote2Service {
       status: 'open',
       realTimes: realtimeData
         ? {
-            ...realtimeData,
-            userList: realtimeData.userList.map((user) =>
-              Realtime.formatRealtime(user),
-            ),
-          }
+          ...realtimeData,
+          userList: realtimeData.userList.map((user) =>
+            Realtime.formatRealtime(user),
+          ),
+        }
         : null,
       unmatchedUsers,
     };

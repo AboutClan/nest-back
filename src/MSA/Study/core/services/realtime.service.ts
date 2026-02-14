@@ -1,10 +1,10 @@
 import { Inject } from '@nestjs/common';
 import { CONST } from 'src/Constants/CONSTANTS';
-import { CommentProps } from 'src/domain/entities/Realtime/Comment';
-import { PlaceProps } from 'src/domain/entities/Realtime/Place';
-import { Realtime } from 'src/domain/entities/Realtime/Realtime';
-import { RealtimeUser } from 'src/domain/entities/Realtime/RealtimeUser';
-import { TimeProps } from 'src/domain/entities/Realtime/Time';
+import { CommentProps } from '../domain/Realtime/Comment';
+import { PlaceProps } from '../domain/Realtime/Place';
+import { Realtime } from '../domain/Realtime/Realtime';
+import { RealtimeUser } from '../domain/Realtime/RealtimeUser';
+import { TimeProps } from '../domain/Realtime/Time';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
@@ -26,7 +26,7 @@ export default class RealtimeService {
     private readonly userServiceInstance: UserService,
     private readonly imageServiceInstance: ImageService,
     private readonly placeServiceInstance: PlaceService,
-  ) {}
+  ) { }
 
   private getToday() {
     return DateUtils.getTodayYYYYMMDD();
@@ -412,5 +412,5 @@ export default class RealtimeService {
     return data;
   }
 
-  async test() {}
+  async test() { }
 }
