@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { Gather } from '../core/domain/gather/Gather';
+import { Gather } from '../core/domain/Gather/Gather';
 import { IGatherRepository } from '../core/interfaces/GatherRepository.interface';
 import { IGatherData } from '../entity/gather.entity';
 

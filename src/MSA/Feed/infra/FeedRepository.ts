@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
-import { Feed } from '../core/domain/feed/Feed';
+import { Feed } from '../core/domain/Feed/Feed';
 import { IFeed } from '../entity/feed.entity';
 import { IFeedRepository } from '../core/interfaces/FeedRepository.interface';
 

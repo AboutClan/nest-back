@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 
-import { Feed } from '../domain/feed/Feed';
+import { Feed } from '../domain/Feed/Feed';
 import { ValidationError } from 'src/errors/ValidationError';
 
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';

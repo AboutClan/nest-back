@@ -26,7 +26,7 @@ import {
 } from '../../entity/gather.entity';
 import { IGatherRepository } from '../interfaces/GatherRepository.interface';
 import GatherCommentService from './comment.service';
-import { Gather, GatherProps } from '../domain/gather/Gather';
+import { Gather, GatherProps } from '../domain/Gather/Gather';
 import { ParticipantsProps } from '../domain/Gather/Participants';
 
 //commit

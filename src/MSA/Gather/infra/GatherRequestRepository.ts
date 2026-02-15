@@ -5,7 +5,7 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import {
   GatherRequest,
   IGatherRequest,
-} from '../core/domain/gatherRequest/GatherRequest';
+} from '../core/domain/GatherRequest/GatherRequest';
 import { IGatherRequestRepository } from '../core/interfaces/GatherRequestRepository.interface';
 
 export class GatherRequestRepository implements IGatherRequestRepository {
