@@ -3,11 +3,11 @@ import { FcmService } from './core/services/fcm.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FcmTokenSchema } from './entity/fcmToken.entity';
 import { IFCM_LOG_REPOSITORY, IFCM_REPOSITORY } from 'src/utils/di.tokens';
-import { MongoFcmRepository } from './infra/fcm.repository';
+import { MongoFcmRepository } from './infra/MongoFcmRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { GatherSchema } from '../Gather/entity/gather.entity';
 import { GroupStudySchema } from '../GroupStudy/entity/groupStudy.entity';
-import { MongoFcmLogRepository } from './infra/fcmLog.repository';
+import { MongoFcmLogRepository } from './infra/MongoFcmLogRepository';
 import { FcmLogSchema } from './entity/fcmLog.entity';
 import { Vote2Schema } from '../Study/entity/vote2.entity';
 import { RealtimeSchema } from '../Study/entity/realtime.entity';
@@ -47,4 +47,4 @@ const fcmLogRepositoryProvider: ClassProvider = {
     fcmLogRepositoryProvider,
   ],
 })
-export class FcmAModule {}
+export class FcmAModule { }

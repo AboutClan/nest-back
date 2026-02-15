@@ -12,16 +12,16 @@ import {
 } from 'src/utils/di.tokens';
 import { OpenAIModule } from 'src/utils/gpt/gpt.module';
 import { GatherSchema } from '../Gather/entity/gather.entity';
-import { GatherRepository } from '../Gather/infra/GatherRepository';
+import { GatherRepository } from '../Gather/infra/MongoGatherRepository';
 import { noticeSchema } from '../Notice/entity/notice.entity';
-import { MongoNoticeRepository } from '../Notice/infra/notice.repository';
+import { MongoNoticeRepository } from '../Notice/infra/MongoNoticeRepository';
 import { FcmAModule } from '../Notification/fcm.module';
 import { GroupStudyController } from './core/controllers/groupStudy.controller';
 import GroupCommentService from './core/services/groupComment.service';
 import GroupStudyService from './core/services/groupStudy.service';
 import { groupCommentSchema } from './entity/groupComment.entity';
 import { GroupStudySchema } from './entity/groupStudy.entity';
-import { GroupStudyRepository } from './infra/GroupStudyRepository';
+import { GroupStudyRepository } from './infra/MongoGroupStudyRepository';
 import { MongoGroupCommentRepository } from './infra/MongoGroupCommentRepository';
 
 const groupStudyRepositoryProvider: ClassProvider = {
@@ -67,4 +67,4 @@ const groupCommentRepositoryProvider: ClassProvider = {
   ],
   exports: [GroupStudyService, MongooseModule, groupStudyRepositoryProvider],
 })
-export class GroupStudyModule {}
+export class GroupStudyModule { }

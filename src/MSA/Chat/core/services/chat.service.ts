@@ -8,7 +8,7 @@ import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IChatRepository } from '../interfaces/ChatRepository.interface';
 import { DateUtils } from 'src/utils/Date';
 import { Content } from '../domain/chat/Content';
-import { UserRepository } from 'src/MSA/User/infra/UserRepository';
+import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
 
 @Injectable()
 export class ChatService {

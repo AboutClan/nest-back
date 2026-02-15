@@ -1,7 +1,7 @@
 import { ClassProvider, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { IGATHERREQUEST_REPOSITORY } from 'src/utils/di.tokens';
-import { GatherRequestRepository } from './infra/GatherRequestRepository';
+import { GatherRequestRepository } from './infra/MongoGatherRequestRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { GatherRequestSchema } from './entity/gatherRequest.entity';
 import { GatherRequestController } from './core/controllers/gatherRequest.controller';
@@ -26,4 +26,4 @@ const gatherRequestRepositoryProvider: ClassProvider = {
     gatherRequestRepositoryProvider,
   ],
 })
-export class GatherRequestModule {}
+export class GatherRequestModule { }

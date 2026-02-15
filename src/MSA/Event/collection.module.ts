@@ -5,10 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CollectionSchema } from './entity/collection.entity';
 import { UserModule } from 'src/MSA/User/user.module';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
-import { CollectionRepository } from './infra/CollectionRepository';
+import { CollectionRepository } from './infra/MongoCollectionRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../Notification/fcm.module';
-import { UserRepository } from 'src/MSA/User/infra/UserRepository';
+import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
 import { CollectionController } from './core/controllers/collection.controller';
 
 const collectionRepositoryProvider: ClassProvider = {
@@ -38,4 +38,4 @@ const userRepositoryProvider: ClassProvider = {
   ],
   exports: [CollectionService, MongooseModule, collectionRepositoryProvider],
 })
-export class CollectionModule {}
+export class CollectionModule { }

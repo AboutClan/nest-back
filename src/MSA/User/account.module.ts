@@ -13,4 +13,4 @@ import { AccountSchema } from './entity/account.entity';
   providers: [],
   exports: [MongooseModule],
 })
-export class AccountModule {}
+export class AccountModule { }

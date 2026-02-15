@@ -13,9 +13,9 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { PrizeModule } from '../Store/prize.module';
 import { BackupModule } from 'src/Database/backup.module';
 import { FcmAModule } from '../Notification/fcm.module';
-import { UserRepository } from './infra/UserRepository';
+import { UserRepository } from './infra/MongoUserRepository';
 import { UserService } from './core/services/user.service';
-import { LogMembershipRepository } from './infra/LogMembershipRepository';
+import { LogMembershipRepository } from './infra/MongoLogMembershipRepository';
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,

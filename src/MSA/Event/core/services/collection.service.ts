@@ -13,7 +13,7 @@ import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/MSA/Notice/entity/request.entity';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
-import { UserRepository } from 'src/MSA/User/infra/UserRepository';
+import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
 import { ICollectionRepository } from '../interfaces/CollectionRepository.interface';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class CollectionService {
     private readonly collectionRepository: ICollectionRepository,
 
     private readonly fcmServiceInstance: FcmService,
-  ) {}
+  ) { }
 
   async setCollectionStamp(id: string) {
     let currentCollection = await this.collectionRepository.findByUser(id);
@@ -148,9 +148,8 @@ export class CollectionService {
         category: '건의',
         title: '알파벳 완성',
         writer: token.id,
-        content: `${token.name}/${
-          collection?.collectCnt ? collection.collectCnt + 1 : 0
-        }`,
+        content: `${token.name}/${collection?.collectCnt ? collection.collectCnt + 1 : 0
+          }`,
       });
     } else {
       throw new InternalServerErrorException('mission not completed');

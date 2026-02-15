@@ -9,7 +9,7 @@ import { Vote2Schema } from './entity/vote2.entity';
 import { Vote2Service } from './core/services/vote2.service';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../Notification/fcm.module';
-import { Vote2Repository } from './infra/Vote2Repository';
+import { Vote2Repository } from './infra/MongoVote2Repository';
 import { ImageModule } from '../../routes/imagez/image.module';
 import { Vote2Controller } from './core/controllers/vote2.controller';
 import { SetDateParamMiddleware } from './middleware/setDateParam';

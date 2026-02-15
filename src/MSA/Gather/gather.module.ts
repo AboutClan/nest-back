@@ -8,7 +8,7 @@ import {
   IGATHERCOMMENT_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { GatherService } from './core/services/gather.service';
-import { GatherRepository } from './infra/GatherRepository';
+import { GatherRepository } from './infra/MongoGatherRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../Notification/fcm.module';
 import { ImageModule } from 'src/routes/imagez/image.module';
@@ -46,4 +46,4 @@ const gatherCommentRepositoryProvider: ClassProvider = {
   ],
   exports: [GatherService, MongooseModule, gatherRepositoryProvider],
 })
-export class GatherModule {}
+export class GatherModule { }

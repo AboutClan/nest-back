@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { RegisterRepository } from '../../infra/register.repository';
+import { RegisterRepository } from '../../infra/MongoRegisterRepository';
 import { Model } from 'mongoose';
 import { IRegistered } from '../../entity/register.entity';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';

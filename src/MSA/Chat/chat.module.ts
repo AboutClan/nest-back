@@ -4,10 +4,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from 'src/MSA/User/user.module';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { ChatSchema } from './entity/chat.entity';
-import { ChatRepository } from './infra/ChatRepository';
+import { ChatRepository } from './infra/MongoChatRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../Notification/fcm.module';
-import { UserRepository } from 'src/MSA/User/infra/UserRepository';
+import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
 import { ChatContoller } from './core/controllers/chat.controller';
 
 const chatRepositoryProvider: ClassProvider = {
@@ -30,4 +30,4 @@ const userRepositoryProvider: ClassProvider = {
   providers: [ChatService, chatRepositoryProvider, userRepositoryProvider],
   exports: [chatRepositoryProvider, MongooseModule],
 })
-export class ChatModule {}
+export class ChatModule { }

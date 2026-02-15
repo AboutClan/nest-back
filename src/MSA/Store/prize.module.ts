@@ -1,6 +1,6 @@
 import { ClassProvider, forwardRef, Module } from '@nestjs/common';
 import { IPRIZE_REPOSITORY } from 'src/utils/di.tokens';
-import { PrizeRepository } from './infra/PrizeRepository';
+import { PrizeRepository } from './infra/MongoPrizeRepository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { PrizeSchema } from './entity/prize.entity';
@@ -22,4 +22,4 @@ const placeRepositoryProvider: ClassProvider = {
   providers: [PrizeService, placeRepositoryProvider],
   exports: [PrizeService, MongooseModule, placeRepositoryProvider],
 })
-export class PrizeModule {}
+export class PrizeModule { }

@@ -5,7 +5,7 @@ import { UserModule } from 'src/MSA/User/user.module';
 import { IFEED_REPOSITORY, IFEEDCOMMENT_REPOSITORY } from 'src/utils/di.tokens';
 import { FeedSchema } from './entity/feed.entity';
 import { FeedService } from './core/services/feed.service';
-import { FeedRepository } from './infra/FeedRepository';
+import { FeedRepository } from './infra/MongoFeedRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../Notification/fcm.module';
 import { GroupStudyModule } from 'src/MSA/GroupStudy/groupStudy.module';
@@ -43,4 +43,4 @@ const feedCommentRepositoryProvider: ClassProvider = {
   ],
   exports: [FeedService, MongooseModule, feedRepositoryProvider],
 })
-export class FeedModule {}
+export class FeedModule { }

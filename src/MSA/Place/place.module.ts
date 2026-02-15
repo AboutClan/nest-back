@@ -3,7 +3,7 @@ import PlaceService from './core/services/place.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PlaceSchema } from './entity/place.entity';
 import { IPLACE_REPOSITORY, IPLACE_SERVICE } from 'src/utils/di.tokens';
-import { MongoPlaceReposotory } from './infra/place.repository';
+import { MongoPlaceReposotory } from './infra/MongoPlaceRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { PlaceController } from './core/controllers/place.controller';
 
@@ -20,4 +20,4 @@ const placeRepositoryProvider: ClassProvider = {
   providers: [PlaceService, placeRepositoryProvider],
   exports: [PlaceService, MongooseModule, placeRepositoryProvider],
 })
-export class PlaceModule {}
+export class PlaceModule { }

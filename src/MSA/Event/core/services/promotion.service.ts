@@ -3,13 +3,13 @@ import { RequestContext } from 'src/request-context';
 import { DateUtils } from 'src/utils/Date';
 import { IPROMOTION_REPOSITORY } from 'src/utils/di.tokens';
 import { PromotionZodSchema } from '../../entity/promotion.entity';
-import { PromotionRepository } from '../../infra/promotion.repository';
+import { PromotionRepository } from '../../infra/MongoPromotionRepository';
 
 export default class PromotionService {
   constructor(
     @Inject(IPROMOTION_REPOSITORY)
     private readonly promotionRepository: PromotionRepository,
-  ) {}
+  ) { }
 
   async getPromotion() {
     const promotionData = await this.promotionRepository.findAll();

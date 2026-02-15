@@ -12,7 +12,7 @@ import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
 import * as logger from 'src/logger';
 import { IRegistered } from '../../entity/register.entity';
-import { RegisterRepository } from '../../infra/register.repository';
+import { RegisterRepository } from '../../infra/MongoRegisterRepository';
 
 export default class RegisterService {
   constructor(

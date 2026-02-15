@@ -4,7 +4,7 @@ import ImageService from 'src/routes/imagez/image.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { secretSquareSchema } from './entity/square.entity';
 import { ISQUARE_REPOSITORY, ISQUARECOMMENT_REPOSITORY } from 'src/utils/di.tokens';
-import { SquareRepository } from './infra/square.repository';
+import { SquareRepository } from './infra/MongoSquareRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../Notification/fcm.module';
 import { CommentModule } from '../../routes/comment/comment.module';

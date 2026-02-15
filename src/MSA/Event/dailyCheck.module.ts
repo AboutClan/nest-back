@@ -6,7 +6,7 @@ import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { CollectionModule } from './collection.module';
 import { dailyCheckSchema } from './entity/dailycheck.entity';
 import { DailyCheckService } from './core/services/dailyCheck.service';
-import { DailyCheckRepository } from './infra/DailyCheckRepository';
+import { DailyCheckRepository } from './infra/MongoDailyCheckRepository';
 import { DailyCheckController } from './core/controllers/dailyCheck.controller';
 
 const dailyCheckRepositoryProvider: ClassProvider = {
@@ -26,4 +26,4 @@ const dailyCheckRepositoryProvider: ClassProvider = {
   providers: [DailyCheckService, dailyCheckRepositoryProvider],
   exports: [DailyCheckService, MongooseModule, dailyCheckRepositoryProvider],
 })
-export class DailyCheckModule {}
+export class DailyCheckModule { }

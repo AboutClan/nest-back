@@ -9,15 +9,15 @@ import {
   IVOTE2_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { GatherSchema } from '../Gather/entity/gather.entity';
-import { GatherRepository } from '../Gather/infra/GatherRepository';
+import { GatherRepository } from '../Gather/infra/MongoGatherRepository';
 import { GroupStudySchema } from '../GroupStudy/entity/groupStudy.entity';
-import { GroupStudyRepository } from '../GroupStudy/infra/GroupStudyRepository';
+import { GroupStudyRepository } from '../GroupStudy/infra/MongoGroupStudyRepository';
 import { FcmAModule } from '../Notification/fcm.module';
-import { Vote2Repository } from '../Study/infra/Vote2Repository';
+import { Vote2Repository } from '../Study/infra/MongoVote2Repository';
 import { NoticeController } from './core/controllers/notice.controller';
 import NoticeService from './core/services/notice.service';
 import { noticeSchema } from './entity/notice.entity';
-import { MongoNoticeRepository } from './infra/notice.repository';
+import { MongoNoticeRepository } from './infra/MongoNoticeRepository';
 
 const noticeRepositoryProvider: ClassProvider = {
   provide: INOTICE_REPOSITORY,
@@ -62,4 +62,4 @@ const vote2RepositoryProvider: ClassProvider = {
   ],
   exports: [NoticeService, MongooseModule, noticeRepositoryProvider],
 })
-export class NoticeModule {}
+export class NoticeModule { }

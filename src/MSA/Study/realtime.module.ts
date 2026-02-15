@@ -13,7 +13,7 @@ import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { UserModule } from 'src/MSA/User/user.module';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { SetDateParamMiddleware } from './middleware/setDateParam';
-import { RealtimeRepository } from './infra/RealtimeRepository';
+import { RealtimeRepository } from './infra/MongoRealtimeRepository';
 import { PlaceModule } from '../Place/place.module';
 import { RealtimeController } from './core/controllers/realtime.controller';
 

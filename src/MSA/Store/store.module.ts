@@ -9,13 +9,13 @@ import {
   ISTORE_REPOSITORY,
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
-import { StoreRepository } from './infra/StoreRepository';
+import { StoreRepository } from './infra/MongoStoreRepository';
 import { UserSchema } from '../User/entity/user.entity';
 import { MongoGiftRepository } from '../../routes/gift/gift.repository';
 import { giftSchema } from '../../routes/gift/gift.entity';
-import { PrizeRepository } from './infra/PrizeRepository';
+import { PrizeRepository } from './infra/MongoPrizeRepository';
 import { PrizeSchema } from './entity/prize.entity';
-import { UserRepository } from 'src/MSA/User/infra/UserRepository';
+import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
 import { StoreService } from './core/services/store.service';
 
 const storeRepositoryProvider: ClassProvider = {
@@ -55,4 +55,4 @@ const prizeRepositoryProvider: ClassProvider = {
   ],
   exports: [StoreService, MongooseModule, storeRepositoryProvider],
 })
-export class StoreModule {}
+export class StoreModule { }
