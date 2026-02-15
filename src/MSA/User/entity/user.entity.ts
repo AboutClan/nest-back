@@ -7,7 +7,7 @@ import {
   InterestSchema,
   IRegistered,
   MajorSchema,
-} from 'src/routes/register/register.entity';
+} from 'src/MSA/User/entity/register.entity';
 import { z } from 'zod';
 
 // restType Zod schema

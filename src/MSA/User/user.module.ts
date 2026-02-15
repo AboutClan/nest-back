@@ -45,4 +45,4 @@ const logMembershipRepositoryProvider: ClassProvider = {
   providers: [UserService, userRepositoryProvider, logMembershipRepositoryProvider],
   exports: [UserService, userRepositoryProvider, logMembershipRepositoryProvider, MongooseModule],
 })
-export class UserModule {}
+export class UserModule { }

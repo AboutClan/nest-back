@@ -6,17 +6,15 @@ import {
   Body,
   HttpException,
   HttpStatus,
-  Inject,
 } from '@nestjs/common';
-import { ApproveUserDto } from './dto';
-import { IREGISTER_SERVICE } from 'src/utils/di.tokens';
+import { ApproveUserDto } from '../../dtos/registerDto';
 import { ApiTags } from '@nestjs/swagger';
-import RegisterService from './register.service';
+import RegisterService from '../services/register.service';
 
 @ApiTags('register')
 @Controller('register')
 export class RegisterController {
-  constructor(private readonly registerService: RegisterService) {}
+  constructor(private readonly registerService: RegisterService) { }
 
   @Get()
   async getRegisteredUsers() {

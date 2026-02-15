@@ -10,9 +10,9 @@ import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
 import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
-import * as logger from '../../logger';
-import { IRegistered } from './register.entity';
-import { RegisterRepository } from './register.repository';
+import * as logger from 'src/logger';
+import { IRegistered } from '../../entity/register.entity';
+import { RegisterRepository } from '../../infra/register.repository';
 
 export default class RegisterService {
   constructor(
@@ -20,7 +20,7 @@ export default class RegisterService {
     private readonly registerRepository: RegisterRepository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     @InjectModel(DB_SCHEMA.ACCOUNT) private Account: Model<IAccount>,
-  ) {}
+  ) { }
 
   async encodeByAES56(tel: string) {
     const key = process.env.cryptoKey;

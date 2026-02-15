@@ -14,7 +14,7 @@ import { DatabaseModule } from './Database/database.module';
 import { UserModule } from './MSA/User/user.module';
 import { SquareModule } from './MSA/Square/square.module';
 import { RequestModule } from './MSA/Notice/request.module';
-import { RegisterModule } from './routes/register/register.module';
+import { RegisterModule } from './MSA/User/register.module';
 import { PromotionModule } from './MSA/Event/promotion.module';
 import { PlaceModule } from './MSA/Place/place.module';
 import { NoticeModule } from './MSA/Notice/notice.module';

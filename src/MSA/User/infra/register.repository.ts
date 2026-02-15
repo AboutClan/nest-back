@@ -1,4 +1,4 @@
-import { IRegistered } from './register.entity';
+import { IRegistered } from '../entity/register.entity';
 
 export interface RegisterRepository {
   updateByUid(uid: string, data: any): Promise<null>;
