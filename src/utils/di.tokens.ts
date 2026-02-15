@@ -49,6 +49,7 @@ export const IREALTIME_REPOSITORY = 'RealtimeRepository';
 export const IREGISTER_REPOSITORY = 'RegisterRepository';
 export const IREQUEST_REPOSITORY = 'RequestRepository';
 export const ISQUARE_REPOSITORY = 'SquareRepository';
+export const ISQUARECOMMENT_REPOSITORY = 'SquareCommentRepository';
 export const IVOTE_REPOSITORY = 'VoteRepository';
 export const IVOTE2_REPOSITORY = 'Vote2Repository';
 export const IPAYMENT_REPOSITORY = 'PaymentRepository';

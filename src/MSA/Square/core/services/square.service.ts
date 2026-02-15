@@ -7,7 +7,7 @@ import { Square } from 'src/domain/entities/Square/Square';
 import { SquarePoll } from 'src/domain/entities/Square/SquarePoll';
 import { ISquareRepository } from '../interfaces/square.repository.interface';
 import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
-import CommentService from 'src/routes/comment/comment.service';
+import SquareCommentService from './comment.service';
 
 export default class SquareService {
   constructor(
@@ -15,8 +15,8 @@ export default class SquareService {
     private readonly squareRepository: ISquareRepository,
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
-    private readonly commentService: CommentService,
-  ) {}
+    private readonly commentService: SquareCommentService,
+  ) { }
 
   async getSquareList({
     category,
@@ -149,7 +149,6 @@ export default class SquareService {
 
     await this.commentService.createComment({
       postId: square._id.toString(),
-      postType: 'square',
       user: token.id,
       comment,
     });
@@ -181,7 +180,6 @@ export default class SquareService {
     const square = await this.squareRepository.findById(squareId);
     await this.commentService.createSubComment({
       postId: square._id.toString(),
-      postType: 'square',
       parentId: commentId,
       user: token.id,
       comment: content,
@@ -316,7 +314,6 @@ export default class SquareService {
 
           const saveComment = await this.commentService.createComment({
             postId: feed._id.toString(),
-            postType: 'square',
             user: comment.user,
             comment: comment.comment,
             likeList: comment?.likeList || [],
@@ -329,7 +326,6 @@ export default class SquareService {
 
             const saveSubComment = await this.commentService.createSubComment({
               postId: feed._id.toString(),
-              postType: 'square',
               user: subComment.user,
               comment: subComment.comment,
               parentId: saveComment._id.toString(),

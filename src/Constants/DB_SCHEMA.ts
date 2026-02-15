@@ -28,5 +28,6 @@ export const DB_SCHEMA = {
   GROUP_COMMENT: 'CommentGroup',
   GATHER_COMMENT: 'CommentGather',
   FEED_COMMENT: 'CommentFeed',
+  SQUARE_COMMENT: 'CommentSquare',
   LOG_MEMBERSHIP: 'LogMembership',
 };
