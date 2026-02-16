@@ -7,6 +7,7 @@ export const ScheduleLogZodSchema = z.object({
   date: z.date(),
   scheduleName: z.string().optional(),
   status: z.string().optional(),
+  flag: z.string().optional(),
   error: z.string().optional(),
 });
 
@@ -24,6 +25,9 @@ export const ScheduleLogSchema = new Schema<IScheduleLog>(
     status: {
       type: String,
       default: 'success',
+    },
+    flag: {
+      type: String,
     },
     error: {
       type: String,

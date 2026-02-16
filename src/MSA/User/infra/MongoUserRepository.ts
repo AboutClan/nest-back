@@ -1,24 +1,24 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { Avatar } from 'src/domain/entities/User/Avatar';
-import { Badge } from 'src/domain/entities/User/Badge';
-import { Interest } from 'src/domain/entities/User/Interest';
-import { LocationDetail } from 'src/domain/entities/User/Location';
-import { Major } from 'src/domain/entities/User/Major';
-import { Preference } from 'src/domain/entities/User/Preference';
-import { Rest } from 'src/domain/entities/User/Rest';
-import { StudyRecord } from 'src/domain/entities/User/StudyRecord';
-import { Temperature } from 'src/domain/entities/User/Temperature';
-import { Ticket } from 'src/domain/entities/User/Ticket';
-import { User } from 'src/domain/entities/User/User';
+import { Avatar } from 'src/MSA/User/core/domain/User/Avatar';
+import { Badge } from 'src/MSA/User/core/domain/User/Badge';
+import { Interest } from 'src/MSA/User/core/domain/User/Interest';
+import { LocationDetail } from 'src/MSA/User/core/domain/User/Location';
+import { Major } from 'src/MSA/User/core/domain/User/Major';
+import { Preference } from 'src/MSA/User/core/domain/User/Preference';
+import { Rest } from 'src/MSA/User/core/domain/User/Rest';
+import { StudyRecord } from 'src/MSA/User/core/domain/User/StudyRecord';
+import { Temperature } from 'src/MSA/User/core/domain/User/Temperature';
+import { Ticket } from 'src/MSA/User/core/domain/User/Ticket';
+import { User } from 'src/MSA/User/core/domain/User/User';
 import { IUserRepository } from '../core/interfaces/UserRepository.interface';
 import { IUser } from '../entity/user.entity';
 
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(DB_SCHEMA.USER) private readonly UserModel: Model<IUser>,
-  ) {}
+  ) { }
 
   async findById(userId: string): Promise<User> {
     const user = await this.UserModel.findById(userId);
@@ -478,11 +478,11 @@ export class UserRepository implements IUserRepository {
     );
     const preference = doc.studyPreference
       ? new Preference(
-          doc?.studyPreference?.place?.toString(),
-          ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
-            o.toString(),
-          ),
-        )
+        doc?.studyPreference?.place?.toString(),
+        ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
+          o.toString(),
+        ),
+      )
       : null;
     const ticket = new Ticket(
       doc?.ticket?.gatherTicket,
@@ -493,11 +493,11 @@ export class UserRepository implements IUserRepository {
       : undefined;
     const studyRecord = doc.studyRecord
       ? new StudyRecord(
-          doc?.studyRecord?.accumulationMinutes,
-          doc?.studyRecord?.accumulationCnt,
-          doc?.studyRecord?.monthCnt,
-          doc?.studyRecord?.monthMinutes,
-        )
+        doc?.studyRecord?.accumulationMinutes,
+        doc?.studyRecord?.accumulationCnt,
+        doc?.studyRecord?.monthCnt,
+        doc?.studyRecord?.monthMinutes,
+      )
       : undefined;
     const temperature = new Temperature(
       doc?.temperature?.temperature,

@@ -2,7 +2,7 @@ import { DateUtils } from 'src/utils/Date';
 import { Participation, ParticipationProps } from './Vote2Participation';
 import { Result, ResultProps } from './Vote2Result';
 import { VoteComment } from './Vote2VoteComment';
-import { IUser } from 'src/domain/entities/User/User';
+import { IUser } from 'src/MSA/User/core/domain/User/User';
 export interface Vote2Props {
   date: string;
   participations: ParticipationProps[];

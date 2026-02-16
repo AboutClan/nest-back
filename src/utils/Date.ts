@@ -115,6 +115,20 @@ export class DateUtils {
     return dayjs().format('YYYY-MM-DD');
   }
 
+  //년-월
+  static getYearMonth(): string {
+    return dayjs().format('YYYY-MM');
+  }
+
+  //년-월-주차
+  static getYearMonthWeek(): string {
+    return dayjs().format('YYYY-MM-W');
+  }
+  //년-월-일-시간
+  static getYearMonthDayHour(): string {
+    return dayjs().format('YYYY-MM-DD-HH');
+  }
+
   static formatDateToYYYYMMDD(dateString: string): string {
     const date = new Date(dateString);
 

@@ -11,7 +11,6 @@ import { IGroupStudyRepository } from 'src/MSA/GroupStudy/core/interfaces/GroupS
 import GroupStudyService from 'src/MSA/GroupStudy/core/services/groupStudy.service';
 import { Vote2Service } from 'src/MSA/Study/core/services/vote2.service';
 import { UserService } from 'src/MSA/User/core/services/user.service';
-import { IUser } from 'src/MSA/User/entity/user.entity';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
@@ -33,16 +32,16 @@ export class NotificationScheduler {
     private readonly vote2Service: Vote2Service,
     private readonly gatherService: GatherService,
     private readonly userService: UserService,
-    @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
     @InjectModel(DB_SCHEMA.SCHEDULE_LOG)
     private readonly ScheduleLog: Model<IScheduleLog>,
 
     private readonly backupService: BackupService,
-  ) {}
+  ) { }
 
   async logSchedule(
     scheduleName: string,
     status: string = 'success',
+    flag: string,
     err?: string,
   ): Promise<void> {
     const currentKrTime = DateUtils.getKoreaTime();
@@ -61,15 +60,25 @@ export class NotificationScheduler {
     }
   }
 
+  async findLogByFlag(flag: string) {
+    return this.ScheduleLog.findOne({ flag });
+  }
+
+  //매일 2시 DB 백업
   @Cron('0 2 * * *', {
     timeZone: 'Asia/Seoul',
   })
   async backupDatabase() {
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.backupService.backupDatabase();
-      this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'success');
+      await this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'success', flag);
     } catch (error) {
-      this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'failure', error);
+      await this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'failure', flag, error);
       throw new Error(error);
     }
   }
@@ -79,11 +88,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async announceVoteResult() {
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.vote2Service.setResult(DateUtils.getTodayYYYYMMDD());
-      this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'success');
+      await this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'success', flag);
     } catch (error) {
-      this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'failure', error);
+      await this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'failure', flag, error);
       throw new Error(error);
     }
   }
@@ -94,13 +108,20 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async initGroupstudyAttend() {
+    //flag는 년-월-주차
+    const flag = DateUtils.getYearMonthWeek();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.groupstudyRepository.initWeekAttendance();
-      this.logSchedule(SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE, 'success');
+      this.logSchedule(SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE, 'success', flag);
     } catch (err: any) {
       this.logSchedule(
         SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE,
         'failure',
+        flag,
         err,
       );
       throw new Error(err);
@@ -112,14 +133,20 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async updateGroupStudyStatus() {
+    const flag = DateUtils.getYearMonthDayHour();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       const current = new Date();
       await this.gatherRepository.updateNotOpened(current);
-      this.logSchedule(SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS, 'success');
+      this.logSchedule(SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS, 'success', flag);
     } catch (err: any) {
       this.logSchedule(
         SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS,
         'failure',
+        flag,
         err,
       );
       throw new Error(err);
@@ -131,13 +158,19 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async distributeGatherDeposit() {
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.gatherService.distributeDeposit();
-      this.logSchedule(SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT, 'success');
+      this.logSchedule(SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT, 'success', flag);
     } catch (err: any) {
       this.logSchedule(
         SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT,
         'failure',
+        flag,
         err,
       );
       throw new Error(err);
@@ -149,11 +182,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async gatherPanelty() {
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.gatherService.gatherPanelty();
-      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'success');
+      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -163,11 +201,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processTemperatureFirst() {
+    const flag = DateUtils.getYearMonth();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.userService.processTemperature({ type: 1 });
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -177,11 +220,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processTemperatureSecond() {
+    const flag = DateUtils.getYearMonth();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.userService.processTemperature({ type: 2 });
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -191,11 +239,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processMonthScore() {
+    const flag = DateUtils.getYearMonth();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.userService.processMonthScore();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -205,24 +258,35 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processTicket() {
+    const flag = DateUtils.getYearMonth();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.userService.processTicket();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'failure', flag, err);
       throw new Error(err);
     }
   }
 
+  //매월 1일 0시 10분   
   @Cron('0 10 0 1 * *', {
     timeZone: 'Asia/Seoul',
   })
   async processGroupStudyAttend() {
+    const flag = DateUtils.getYearMonth();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.groupStudyService.processGroupStudyAttend();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -232,11 +296,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processDailyCheck() {
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.vote2Service.alertMatching();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -247,25 +316,36 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processStudyAbsence() {
+    const flag = DateUtils.getYearMonthDayHour();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.vote2Service.alertStudyAbsence();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'failure', flag, err);
       throw new Error(err);
     }
   }
 
+  //매일 새벽 1시 10분 0초
   // 스터디 미참여 요금 정산
   @Cron('0 10 1 * * *', {
     timeZone: 'Asia/Seoul',
   })
   async processAbsenceFee() {
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.vote2Service.processAbsenceFee();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -276,11 +356,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async studyEngage() {
+    const flag = DateUtils.getYearMonthWeek();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.userService.processStudyEngage();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'success');
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -290,11 +375,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async initMembership() {
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.userService.initMembership();
-      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'success');
+      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -304,11 +394,16 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async noticeAllUser() {
+    const flag = DateUtils.getYearMonthWeek();
+    const log = await this.findLogByFlag(flag);
+    if (log) {
+      return;
+    }
     try {
       await this.userService.recommendNoticeAllUser();
-      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'success');
+      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'failure', err);
+      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'failure', flag, err);
       throw new Error(err);
     }
   }

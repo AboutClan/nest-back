@@ -1,6 +1,6 @@
 import mongoose, { Document, model, Model, Schema } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { IUser } from 'src/domain/entities/User/User';
+import { IUser } from 'src/MSA/User/core/domain/User/User';
 import { z } from 'zod';
 
 export const ZodPrizeSchema = z.object({

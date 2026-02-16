@@ -1,4 +1,4 @@
-import { User } from 'src/domain/entities/User/User';
+import { User } from 'src/MSA/User/core/domain/User/User';
 
 export interface IUserRepository {
   findById(userId: string): Promise<User>;
