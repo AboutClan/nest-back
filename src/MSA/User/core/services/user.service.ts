@@ -32,7 +32,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) {}
+  ) { }
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -458,6 +458,13 @@ export class UserService {
   async patchLocationDetailAll() {
     await this.UserRepository.updateLocationDetailAll();
 
+    return;
+  }
+
+  async updateAddRandomTicket(userId: string, number: number) {
+    const user = await this.UserRepository.findByUserId(userId);
+    user.increaseRandomTicket(number);
+    await this.UserRepository.save(user);
     return;
   }
 

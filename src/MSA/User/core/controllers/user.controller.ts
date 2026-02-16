@@ -44,7 +44,7 @@ import { UserService } from '../services/user.service';
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get('active')
   async getActive() {
@@ -296,11 +296,17 @@ export class UserController {
     const logs = await this.userService.getMembershipLog();
     return logs;
   }
-  
+
   @Patch('membership')
   async patchMembership(@Body('type') type: 'create' | 'decay') {
     await this.userService.patchMembership(type);
     return { message: 'Membership updated successfully' };
+  }
+
+  @Post('randomTicket')
+  async postRandomTicket(@Body('userId') userId: string, @Body('number') number: number) {
+    await this.userService.updateAddRandomTicket(userId, number);
+    return { message: 'Random ticket updated successfully' };
   }
 
   @Get('test')

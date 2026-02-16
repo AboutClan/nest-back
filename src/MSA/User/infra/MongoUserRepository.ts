@@ -545,6 +545,7 @@ export class UserRepository implements IUserRepository {
       doc?.rank,
       doc?.rankPosition,
       doc?.membership,
+      doc?.randomTicket,
     );
   }
 
@@ -597,7 +598,7 @@ export class UserRepository implements IUserRepository {
     if (result.studyPreference?.place?.length === 0)
       result.studyPreference.place = null;
     if (p.membership !== null) result.membership = p.membership;
-
+    if (p.randomTicket !== null) result.randomTicket = p.randomTicket;
     return result;
   }
 }

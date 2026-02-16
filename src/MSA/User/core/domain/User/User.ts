@@ -49,6 +49,7 @@ export interface IUser {
   rank?: String;
   rankPosition?: Number;
   membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
+  randomTicket?: number;
 }
 
 export class User {
@@ -91,6 +92,7 @@ export class User {
     public rank?: string,
     public rankPosition?: number,
     public membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number],
+    public randomTicket?: number,
   ) {
     this._id = _id || '';
     this.uid = uid || '';
@@ -130,6 +132,7 @@ export class User {
     this.rank = rank || 'bronze';
     this.rankPosition = rankPosition || 0;
     this.membership = membership || 'normal';
+    this.randomTicket = randomTicket || 0;
   }
 
   setRest(
@@ -196,6 +199,10 @@ export class User {
   }
   selectBadge(badgeIdx: number): void {
     this.badge?.selectBadge(badgeIdx);
+  }
+
+  increaseRandomTicket(num: number): void {
+    this.randomTicket += num;
   }
 
   setTemperature(
@@ -280,6 +287,7 @@ export class User {
       rankPosition: this.rankPosition,
       introduceText: this.introduceText,
       membership: this.membership,
+      randomTicket: this.randomTicket,
     };
   }
 }

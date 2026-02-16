@@ -46,6 +46,10 @@ export class PrizeService {
     return this.PrizeRepository.findPrizes(category, cursorNumber);
   }
 
+  async addRandomRoulette(userId: string, gift: string) {
+    await this.PrizeRepository.recordPrize(userId, gift.toString(), new Date(), 'randomRoulette', '랜덤 룰렛 보상');
+  }
+
   async processMonthPrize() {
     //processMonthScore와 processMonthPrize 과정 합쳐야 할 부분 존재
     const ranks = ENTITY.USER.ENUM_RANK;
