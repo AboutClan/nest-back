@@ -46,7 +46,6 @@ import { SchedulerModule } from './schedule/schedule.module';
 import { FcmAModule } from './MSA/Notification/fcm.module';
 import { GatherRequestModule } from './MSA/Gather/gatherRequest.module';
 import { PrizeModule } from './MSA/Store/prize.module';
-import { CommentModule } from './routes/comment/comment.module';
 import { StoreModule } from './MSA/Store/store.module';
 import { GroupStudyModule } from './MSA/GroupStudy/groupStudy.module';
 
@@ -138,7 +137,6 @@ const corsOptions = {
     Vote2Module,
     PaymentModule,
     FcmAModule,
-    CommentModule,
     StoreModule,
   ],
   controllers: [AppController],

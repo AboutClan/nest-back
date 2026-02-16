@@ -7,7 +7,6 @@ import { ISQUARE_REPOSITORY, ISQUARECOMMENT_REPOSITORY } from 'src/utils/di.toke
 import { SquareRepository } from './infra/MongoSquareRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { FcmAModule } from '../Notification/fcm.module';
-import { CommentModule } from '../../routes/comment/comment.module';
 import SquareService from './core/services/square.service';
 import { squareCommentSchema } from './entity/comment.entity';
 import { MongoSquareCommentRepository } from './infra/MongoSquareCommentRepository';
@@ -29,7 +28,6 @@ const squareCommentRepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.SQUARE_COMMENT, schema: squareCommentSchema },
     ]),
     FcmAModule,
-    CommentModule,
   ],
   controllers: [SquareController],
   providers: [SquareService, SquareCommentService, ImageService, squareRepositoryProvider, squareCommentRepositoryProvider], // SquareCommentService 추가
