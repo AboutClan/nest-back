@@ -80,6 +80,7 @@ export interface GroupStudyProps {
   notionUrl?: string;
   requiredTicket?: number;
   totalDeposit?: number;
+  randomTicket?: number;
 }
 
 // src/domain/entities/GroupStudy.ts
@@ -120,7 +121,7 @@ export class GroupStudy {
   public notionUrl?: string;
   public requiredTicket?: number;
   public totalDeposit?: number;
-
+  public randomTicket?: number;
   constructor(props: GroupStudyProps) {
     this._id = props._id;
     this.id = props.id;
@@ -157,6 +158,7 @@ export class GroupStudy {
     this.notionUrl = props.notionUrl;
     this.requiredTicket = props.requiredTicket ?? 1;
     this.totalDeposit = props.totalDeposit ?? 0;
+    this.randomTicket = props.randomTicket ?? 0;
   }
 
   participateGroupStudy(userId: string, role: UserRole): void {
@@ -387,6 +389,10 @@ export class GroupStudy {
     participant.deposit = deposit;
   }
 
+  updateRandomTicket(): void {
+    this.randomTicket += 1;
+  }
+
   toPrimitives(): GroupStudyProps {
     return {
       _id: this._id,
@@ -427,6 +433,7 @@ export class GroupStudy {
       updatedAt: this.updatedAt,
       requiredTicket: this.requiredTicket,
       totalDeposit: this.totalDeposit,
+      randomTicket: this.randomTicket,
     };
   }
 }

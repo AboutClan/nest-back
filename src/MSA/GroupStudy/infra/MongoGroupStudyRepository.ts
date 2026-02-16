@@ -19,7 +19,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
   constructor(
     @InjectModel(DB_SCHEMA.GROUPSTUDY)
     private readonly GroupStudy: Model<IGroupStudyData>,
-  ) {}
+  ) { }
 
   async findAllTemp() {
     const docs = await this.GroupStudy.find({}, '_id comments').lean();
@@ -353,6 +353,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       notionUrl: doc?.notionUrl,
       requiredTicket: doc?.requiredTicket,
       totalDeposit: doc?.totalDeposit,
+      randomTicket: doc?.randomTicket,
     };
 
     return new GroupStudy(props);
@@ -431,6 +432,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       meetingType: p.meetingType as IGroupStudyData['meetingType'],
       id: p.id,
       requiredTicket: p.requiredTicket,
+      randomTicket: p.randomTicket,
     };
   }
 }

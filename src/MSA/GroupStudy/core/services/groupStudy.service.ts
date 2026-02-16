@@ -48,7 +48,7 @@ export default class GroupStudyService {
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
     private readonly openaiService: OpenAIService,
-  ) {}
+  ) { }
 
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
@@ -691,6 +691,14 @@ export default class GroupStudyService {
     } catch (err) {
       throw new Error();
     }
+  }
+
+  async updateRandomTicket(id: string) {
+    const groupStudy = await this.groupStudyRepository.findById(id);
+    if (!groupStudy) throw new Error();
+    groupStudy.updateRandomTicket();
+    await this.groupStudyRepository.save(groupStudy);
+    return;
   }
 
   //randomId 중복가능성

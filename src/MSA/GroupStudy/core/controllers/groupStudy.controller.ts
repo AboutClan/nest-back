@@ -25,7 +25,7 @@ import GroupStudyService from '../services/groupStudy.service';
 @Controller('groupStudy')
 @UseInterceptors(GroupStudyInterceptor)
 export class GroupStudyController {
-  constructor(private readonly groupStudyService: GroupStudyService) {}
+  constructor(private readonly groupStudyService: GroupStudyService) { }
 
   //todo: groupStudyId정도는 분리하는게 좋아보임
   @Get()
@@ -375,6 +375,12 @@ export class GroupStudyController {
   @Get('enthMembers')
   async getEnthMember() {
     return await this.groupStudyService.getEnthMembers();
+  }
+
+  @Post('randomTicket')
+  async updateRandomTicket(@Body('id') id: string) {
+    await this.groupStudyService.updateRandomTicket(id);
+    return { status: 'success' };
   }
 
   @Get('test')

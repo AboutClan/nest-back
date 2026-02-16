@@ -86,6 +86,7 @@ const groupStudyZodSchema = z.object({
   notionUrl: z.string().optional(),
   requiredTicket: z.number().default(1),
   totalDeposit: z.number().default(0),
+  randomTicket: z.number().default(0),
 });
 
 export type GroupStudyStatus = 'end' | 'pending';
@@ -309,6 +310,10 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     totalDeposit: {
       type: Number,
+    },
+    randomTicket: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },
