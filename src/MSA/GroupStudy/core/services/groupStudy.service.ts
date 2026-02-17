@@ -48,7 +48,7 @@ export default class GroupStudyService {
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
     private readonly openaiService: OpenAIService,
-  ) { }
+  ) {}
 
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
@@ -641,16 +641,12 @@ export default class GroupStudyService {
     return;
   }
 
-  async exileParticipate(id: string, toUid: string, randomId?: number) {
+  async exileParticipate(id: string, userId: string) {
     const groupStudy = await this.groupStudyRepository.findById(id);
 
     if (!groupStudy) throw new Error();
     try {
-      if (!randomId) {
-        groupStudy.deleteParticipant(toUid);
-      } else {
-        groupStudy.deleteParticipantByRandomId(randomId);
-      }
+      groupStudy.deleteParticipant(userId);
       await this.groupStudyRepository.save(groupStudy);
     } catch (err) {
       throw new Error();
