@@ -383,6 +383,12 @@ export class GroupStudyController {
     return { status: 'success' };
   }
 
+  @Patch('status')
+  async updateGroupStudyStatus(@Body('id') id: string, @Body('userId') userId: string, @Body('status') status: "active" | "rest" | "warning") {
+    await this.groupStudyService.updateGroupStudyStatus(id, userId, status);
+    return { status: 'success' };
+  }
+
   @Get('test')
   async test() {
     await this.groupStudyService.test();

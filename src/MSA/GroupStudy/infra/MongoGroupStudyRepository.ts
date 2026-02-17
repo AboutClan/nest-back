@@ -287,6 +287,8 @@ export class GroupStudyRepository implements IGroupStudyRepository {
         deposit: p.deposit,
         monthAttendance: p.monthAttendance || true,
         lastMonthAttendance: p.lastMonthAttendance || true,
+        status: p.status as ParticipantProps['status'],
+        registerDate: p.registerDate,
       }),
     );
 
@@ -371,7 +373,8 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       deposit: pt.deposit,
       monthAttendance: pt.monthAttendance,
       lastMonthAttendance: pt.lastMonthAttendance,
-      createdAt: pt.createdAt,
+      status: pt.status,
+      registerDate: new Date(),
     }));
 
     const waitingDb = (p.waiting || []).map((w) => ({
