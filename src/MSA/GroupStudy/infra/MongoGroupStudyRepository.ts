@@ -287,6 +287,8 @@ export class GroupStudyRepository implements IGroupStudyRepository {
         deposit: p.deposit,
         monthAttendance: p.monthAttendance || true,
         lastMonthAttendance: p.lastMonthAttendance || true,
+        status: p.status as ParticipantProps['status'],
+        createdAt: p.createdAt,
       }),
     );
 
@@ -371,6 +373,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       deposit: pt.deposit,
       monthAttendance: pt.monthAttendance,
       lastMonthAttendance: pt.lastMonthAttendance,
+      status: pt.status,
       createdAt: pt.createdAt,
     }));
 
