@@ -42,7 +42,7 @@ export interface ParticipantProps {
   monthAttendance?: boolean;
   lastMonthAttendance?: boolean;
   status?: "active" | "rest" | "warning";
-  createdAt?: Date;
+  registerDate?: Date;
 }
 
 export interface GroupStudyProps {
@@ -183,7 +183,7 @@ export class GroupStudy {
       deposit: 0,
       monthAttendance: false,
       status: "active",
-      createdAt: new Date(),
+      registerDate: new Date(),
     };
 
     this.participants.push(newParticipant);
