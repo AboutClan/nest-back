@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
@@ -15,7 +15,7 @@ import {
   CreateGroupStudyDto,
   inviteGroupStudyDto,
   ParticipateGroupStudyDto,
-  PatchRole,
+  PatchRole
 } from '../../dtos/dto';
 import { GroupStudyStatus } from '../../entity/groupStudy.entity';
 import { GroupStudyInterceptor } from '../../interceptors/groupstudy.interceptor';
@@ -168,10 +168,10 @@ export class GroupStudyController {
   @Delete('participate/exile')
   async exileParticipate(
     @Body('id') id: string,
-    @Body('toUid') toUid: string,
-    @Body('randomId') randomId: number,
+    @Body('userId') userId: string,
+   
   ) {
-    await this.groupStudyService.exileParticipate(id, toUid, randomId);
+    await this.groupStudyService.exileParticipate(id, userId);
     return { status: 'success' };
   }
 
