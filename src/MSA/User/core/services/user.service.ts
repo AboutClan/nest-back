@@ -32,7 +32,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) { }
+  ) {}
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -462,9 +462,18 @@ export class UserService {
   }
 
   async updateAddRandomTicket(userId: string, number: number) {
+    const token = RequestContext.getDecodedToken();
     const user = await this.UserRepository.findByUserId(userId);
     user.increaseRandomTicket(number);
+
     await this.UserRepository.save(user);
+    await this.fcmServiceInstance.sendNotificationToXWithId(
+      userId,
+      '🎁 이벤트 뽑기권 도착!',
+      `${token.name === '이승주' || !token.name ? '어바웃' : token.name}님이 열활 멤버 보상으로 이벤트 뽑기권을 선물했어요. 접속해서 확인해 보세요!`,
+      `/random-roulette`,
+    );
+
     return;
   }
 
