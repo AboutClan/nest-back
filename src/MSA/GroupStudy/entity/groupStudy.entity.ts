@@ -28,6 +28,7 @@ const participantsZodSchema = z.object({
   lastMonthAttendance: z.boolean().default(true),
   deposit: z.number().optional(),
   createdAt: z.date(),
+  status: z.enum(["active", "rest", "warning"]).default("active"),
 });
 // IWaiting Zod schema
 const waitingZodSchema = z.object({
@@ -170,6 +171,11 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
     randomId: {
       type: Number,
+    },
+    status: {
+      type: String,
+      enum: ["active", "rest", "warning"],
+      default: "active",
     },
     monthAttendance: {
       type: Boolean,

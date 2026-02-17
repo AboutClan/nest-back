@@ -628,6 +628,13 @@ export default class GroupStudyService {
     return;
   }
 
+  async updateGroupStudyStatus(id: string, userId: string, status: "active" | "rest" | "warning") {
+    const groupStudy = await this.groupStudyRepository.findById(id);
+    if (!groupStudy) throw new Error();
+    groupStudy.updateStatus(userId, status);
+    await this.groupStudyRepository.save(groupStudy);
+  }
+
   async deleteParticipate(id: string) {
     const token = RequestContext.getDecodedToken();
     const groupStudy = await this.groupStudyRepository.findById(id);
