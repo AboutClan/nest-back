@@ -15,9 +15,9 @@ import ImageService from '../../../../routes/imagez/image.service';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from '../../dtos/vote2.dto';
 import { IMember, IParticipation, IResult } from '../../entity/vote2.entity';
-import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
 import { Realtime } from '../domain/Realtime/Realtime';
 import { Result } from '../domain/Vote2/Vote2Result';
+import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -28,7 +28,7 @@ export class Vote2Service {
     private readonly userServiceInstance: UserService,
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
-  ) { }
+  ) {}
 
   formatMember(member: IMember) {
     const form = {
@@ -148,11 +148,11 @@ export class Vote2Service {
       status: 'expected',
       realTimes: realtimeData
         ? {
-          ...realtimeData,
-          userList: realtimeData.userList.map((user) =>
-            Realtime.formatRealtime(user),
-          ),
-        }
+            ...realtimeData,
+            userList: realtimeData.userList.map((user) =>
+              Realtime.formatRealtime(user),
+            ),
+          }
         : null,
     };
   }
@@ -187,11 +187,11 @@ export class Vote2Service {
       status: 'open',
       realTimes: realtimeData
         ? {
-          ...realtimeData,
-          userList: realtimeData.userList.map((user) =>
-            Realtime.formatRealtime(user),
-          ),
-        }
+            ...realtimeData,
+            userList: realtimeData.userList.map((user) =>
+              Realtime.formatRealtime(user),
+            ),
+          }
         : null,
       unmatchedUsers,
     };
@@ -311,7 +311,8 @@ export class Vote2Service {
     defaultStandardCnt?: number,
   ) {
     const MIN_OVERLAP_MINUTES = 60;
-    const MAX_GROUP_SIZE = 8; //
+    const INITIAL_MAX_GROUP_SIZE = 6; // ✅ 처음 그룹 만들 때 cap
+    const FINAL_MAX_GROUP_SIZE = 8; // ✅ 남은 인원 채울 때 cap
     const standardCnt = defaultStandardCnt || 5;
 
     const toMinutesOfDay = (s: string) => {
@@ -444,7 +445,7 @@ export class Vote2Service {
           //    남은 pool에서 시간 겹침을 만족하는 멤버를 MAX_GROUP_SIZE까지 추가 허용
           for (
             let i = 1;
-            i < pool.length && groupMembers.length < MAX_GROUP_SIZE;
+            i < pool.length && groupMembers.length < INITIAL_MAX_GROUP_SIZE;
             i++
           ) {
             const cand = pool[i];
@@ -532,7 +533,7 @@ export class Vote2Service {
             const g = voteResults[gi];
             // 시간 겹침 검사를 통과해야 합류
             // ✅ 이미 이 그룹이 가득 찼으면 패스
-            if (g.members.length >= MAX_GROUP_SIZE) continue;
+            if (g.members.length >= FINAL_MAX_GROUP_SIZE) continue;
             if (
               canJoinByTime(g.members as any, { start: p.start, end: p.end })
             ) {
@@ -615,7 +616,7 @@ export class Vote2Service {
           // 3인 이상 확장 허용
           for (
             let i = 1;
-            i < pool.length && group.length < MAX_GROUP_SIZE;
+            i < pool.length && group.length < FINAL_MAX_GROUP_SIZE;
             i++
           ) {
             const cand = pool[i];
