@@ -4,8 +4,8 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { Collection } from 'src/domain/entities/Collection';
-import { ICollection } from '../entity/collection.entity';
 import { ICollectionRepository } from '../core/interfaces/CollectionRepository.interface';
+import { ICollection } from '../entity/collection.entity';
 
 export class CollectionRepository implements ICollectionRepository {
   constructor(
@@ -60,17 +60,19 @@ export class CollectionRepository implements ICollectionRepository {
 
   async save(collection: Collection): Promise<Collection> {
     const docToSave = this.mapToDB(collection);
+    const { id, collectCnt, ...toUpdate } = docToSave;
 
     const updatedDoc = await this.Collection.findByIdAndUpdate(
-      docToSave.id,
-      docToSave,
-      { new: true },
+      id,
+      {
+        $set: toUpdate, // collects, stamps 등
+        $inc: { collectCnt: 1 }, // ✅ 1 증가
+      },
+      { new: true, runValidators: true },
     );
+
     if (!updatedDoc) {
-      throw new HttpException(
-        `Collection not found for id=${docToSave._id}`,
-        500,
-      );
+      throw new HttpException(`Collection not found for id=${id}`, 500);
     }
 
     return this.mapToDomain(updatedDoc);

@@ -9,11 +9,11 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { Collection } from 'src/domain/entities/Collection';
-import { RequestContext } from 'src/request-context';
 import { IRequestData } from 'src/MSA/Notice/entity/request.entity';
+import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
+import { RequestContext } from 'src/request-context';
 import { ICOLLECTION_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
-import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
 import { ICollectionRepository } from '../interfaces/CollectionRepository.interface';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class CollectionService {
     private readonly collectionRepository: ICollectionRepository,
 
     private readonly fcmServiceInstance: FcmService,
-  ) { }
+  ) {}
 
   async setCollectionStamp(id: string) {
     let currentCollection = await this.collectionRepository.findByUser(id);
@@ -137,20 +137,47 @@ export class CollectionService {
         myAlphabets?.includes(item),
       )
     ) {
+      console.log('before', collection);
       ENTITY.COLLECTION.ENUM_ALPHABET.forEach((item) => {
         collection.removeAlphabet(item);
         // const idx = myAlphabets?.indexOf(item);
         // if (idx !== -1) myAlphabets?.splice(idx as number, 1);
       });
+      console.log('after remove (before save):', collection.collects);
+
       await this.collectionRepository.save(collection);
+      //    point: number,
+      // message: string,
+      // sub?: string,
+      // userId?: string,
+      const count = collection.collectCnt;
+      console.log(count);
+
+      const COUNT_MAPPING = {
+        0: 2000,
+        1: 2500,
+        2: 3000,
+      };
+
+      if (count <= 2) {
+        // await this.userServiceInstance.updatePointById(
+        //   COUNT_MAPPING[count],
+        //   '알파벳 교환 보상',
+        //   'alphabet',
+        //   token.id,
+        // );
+      }
       // await this.collectionRepository.updateCollection(token.id, myAlphabets);
-      await this.Request.create({
-        category: '건의',
-        title: '알파벳 완성',
-        writer: token.id,
-        content: `${token.name}/${collection?.collectCnt ? collection.collectCnt + 1 : 0
+      else {
+        await this.Request.create({
+          category: '건의',
+          title: '알파벳 완성',
+          writer: token.id,
+          content: `${token.name}/${
+            collection?.collectCnt ? collection.collectCnt + 1 : 0
           }`,
-      });
+        });
+      }
     } else {
       throw new InternalServerErrorException('mission not completed');
     }
