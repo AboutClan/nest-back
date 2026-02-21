@@ -48,12 +48,15 @@ import { GatherRequestModule } from './MSA/Gather/gatherRequest.module';
 import { PrizeModule } from './MSA/Store/prize.module';
 import { StoreModule } from './MSA/Store/store.module';
 import { GroupStudyModule } from './MSA/GroupStudy/groupStudy.module';
+import { AuthModule } from './MSA/Auth/auth.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://about-aboutclub20s-projects.vercel.app',
   'https://studyabout.herokuapp.com',
+  'http://localhost:5500', // VS Code Live Server (localhost 접속용)
+  'http://127.0.0.1:5500', // VS Code Live Server (IP 접속용) - 추가!
 ]; // 허용하고자 하는 URL 목록을 배열로 작성
 
 const corsOptions = {
@@ -138,6 +141,7 @@ const corsOptions = {
     PaymentModule,
     FcmAModule,
     StoreModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

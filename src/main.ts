@@ -39,12 +39,12 @@ async function bootstrap() {
     rawBody: true,
     logger: isProd
       ? WinstonModule.createLogger({
-          transports: [
-            new winston.transports.Console({
-              format: winston.format.json(),
-            }),
-          ],
-        })
+        transports: [
+          new winston.transports.Console({
+            format: winston.format.json(),
+          }),
+        ],
+      })
       : ['log', 'error', 'warn', 'debug', 'verbose'], // 기본 Nest Logger 사용
   });
 
@@ -56,6 +56,8 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3001',
       'https://about-aboutclub20s-projects.vercel.app',
+      'http://localhost:5500', // VS Code Live Server (localhost 접속용)
+      'http://127.0.0.1:5500', // VS Code Live Server (IP 접속용) - 추가!
       'https://studyabout.herokuapp.com',
       'https://about-front.kro.kr',
       'https://study-about.club',
