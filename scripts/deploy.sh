@@ -37,6 +37,8 @@ REDIS_PASSWORD=$(echo "$SECRETS" | jq -r '.REDIS_PASSWORD')
 JWT_TOKEN=$(echo "$SECRETS" | jq -r '.JWT_TOKEN')
 FCM_INFO=$(echo "$SECRETS" | jq -r '.FCM_INFO')
 OPENAI_API_KEY=$(echo "$SECRETS" | jq -r '.OPENAI_API_KEY')
+NICE_CLIENT_ID=$(echo "$SECRETS" | jq -r '.NICE_CLIENT_ID')
+NICE_CLIENT_SECRET=$(echo "$SECRETS" | jq -r '.NICE_CLIENT_SECRET')
 EOF
 
 echo ".env file created successfully."
