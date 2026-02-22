@@ -94,9 +94,8 @@ export class NiceService {
         `${this.baseUrl}/auth/url`,
         {
           request_no: requestNo,
-          return_url:
-            returnUrl || 'https://study-about.club/nice-auth/callback',
-          close_url: closeUrl || 'https://study-about.club/nice-auth/callback',
+          return_url: returnUrl || 'http://localhost:3000/nice-auth/callback',
+          close_url: closeUrl || 'http://localhost:3000/nice-auth/callback',
           svc_types: ['M'],
           method_type: 'GET',
           exp_mods: ['closeButtonOn'],
