@@ -483,7 +483,7 @@ export class Vote2Service {
       // 5인 우선
       makeGroupsAtPlace(standardCnt);
       // 5인으로 못 채운 게 남아있으면 4인 이상(최소 4)으로 보조
-      makeGroupsAtPlace(standardCnt - 1);
+      makeGroupsAtPlace(4);
     }
 
     // ---------- 2) 확장 패스: eps × 1.5 ----------
