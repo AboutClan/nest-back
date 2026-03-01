@@ -5,12 +5,12 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
+import * as logger from 'src/logger';
 import { IAccount } from 'src/MSA/User/entity/account.entity';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
 import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
-import * as logger from 'src/logger';
 import { IRegistered } from '../../entity/register.entity';
 import { RegisterRepository } from '../../infra/MongoRegisterRepository';
 
@@ -20,7 +20,7 @@ export default class RegisterService {
     private readonly registerRepository: RegisterRepository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     @InjectModel(DB_SCHEMA.ACCOUNT) private Account: Model<IAccount>,
-  ) { }
+  ) {}
 
   async encodeByAES56(tel: string) {
     const key = process.env.cryptoKey;
@@ -97,7 +97,7 @@ export default class RegisterService {
       role: 'human',
       registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
-      point: 10000,
+      point: 5000,
       ticket: {
         gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
         groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
@@ -126,7 +126,7 @@ export default class RegisterService {
     logger.logger.info('가입 보증금', {
       type: 'point',
       uid,
-      value: 10000,
+      value: 5000,
     });
     return;
   }
