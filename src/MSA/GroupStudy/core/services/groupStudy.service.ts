@@ -48,7 +48,7 @@ export default class GroupStudyService {
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
     private readonly openaiService: OpenAIService,
-  ) {}
+  ) { }
 
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
@@ -599,10 +599,10 @@ export default class GroupStudyService {
 
     await this.groupStudyRepository.save(groupStudy);
 
-    await this.fcmServiceInstance.sendNotificationGroupStudy(
-      id,
-      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
-    );
+    // await this.fcmServiceInstance.sendNotificationGroupStudy(
+    //   id,
+    //   WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
+    // );
 
     return;
   }
@@ -1132,6 +1132,6 @@ export default class GroupStudyService {
   }
 
   async test() {
-    await this.processGroupStudyAttend();
+    await this.groupStudyRepository.test();
   }
 }
