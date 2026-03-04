@@ -41,7 +41,7 @@ export interface ParticipantProps {
   deposit?: number;
   monthAttendance?: boolean;
   lastMonthAttendance?: boolean;
-  status?: "active" | "rest" | "warning";
+  status?: 'active' | 'rest' | 'warning';
   registerDate?: Date;
 }
 
@@ -160,7 +160,6 @@ export class GroupStudy {
     this.requiredTicket = props.requiredTicket ?? 1;
     this.totalDeposit = props.totalDeposit ?? 0;
     this.randomTicket = props.randomTicket ?? 0;
-    this.status = props.status ?? "active";
   }
 
   participateGroupStudy(userId: string, role: UserRole): void {
@@ -182,14 +181,14 @@ export class GroupStudy {
       role,
       deposit: 0,
       monthAttendance: false,
-      status: "active",
+      status: 'active',
       registerDate: new Date(),
     };
 
     this.participants.push(newParticipant);
   }
 
-  updateStatus(userId: string, status: "active" | "rest" | "warning"): void {
+  updateStatus(userId: string, status: 'active' | 'rest' | 'warning'): void {
     const participant = this.participants.find(
       (p) => p.user.toString() === userId,
     );
