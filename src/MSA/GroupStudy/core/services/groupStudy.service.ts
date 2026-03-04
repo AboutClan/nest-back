@@ -550,7 +550,7 @@ export default class GroupStudyService {
         organizer: token.id,
         id: nextId as number,
       } as unknown as Partial<GroupStudyProps>;
-
+console.log(groupStudyInfo)
       const groupStudyData = new GroupStudy(groupStudyInfo);
 
       await this.groupStudyRepository.create(groupStudyData);
