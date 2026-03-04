@@ -256,10 +256,11 @@ export class GroupStudyRepository implements IGroupStudyRepository {
   }
 
   async test() {
+    //모든 participants의 registerDate를 null로 변경
     await this.GroupStudy.updateMany(
       {},
       {
-        $set: { 'participants.$[].monthAttendance': true },
+        $set: { 'participants.$[].registerDate': null },
       },
     );
   }
@@ -374,7 +375,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       monthAttendance: pt.monthAttendance,
       lastMonthAttendance: pt.lastMonthAttendance,
       status: pt.status,
-      registerDate: new Date(),
+      registerDate: pt.registerDate || null,
     }));
 
     const waitingDb = (p.waiting || []).map((w) => ({

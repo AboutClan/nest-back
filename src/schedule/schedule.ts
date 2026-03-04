@@ -50,6 +50,7 @@ export class NotificationScheduler {
       date: currentKrTime,
       scheduleName,
       status,
+      flag,
       error: err ? err.toString() : undefined,
     };
 
@@ -60,8 +61,8 @@ export class NotificationScheduler {
     }
   }
 
-  async findLogByFlag(flag: string) {
-    return this.ScheduleLog.findOne({ flag });
+  async findLogByFlagAndName(flag: string, name: string) {
+    return this.ScheduleLog.findOne({ flag, scheduleName: name });
   }
 
   //매일 2시 DB 백업
@@ -69,16 +70,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async backupDatabase() {
+    const name = SCHEDULE_CONST.BACKUP_DATABASE;
     const flag = DateUtils.getTodayYYYYMMDD();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.backupService.backupDatabase();
-      await this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (error) {
-      await this.logSchedule(SCHEDULE_CONST.BACKUP_DATABASE, 'failure', flag, error);
+      await this.logSchedule(name, 'failure', flag, error);
       throw new Error(error);
     }
   }
@@ -88,16 +90,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async announceVoteResult() {
+    const name = SCHEDULE_CONST.VOTE_RESULT;
     const flag = DateUtils.getTodayYYYYMMDD();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.vote2Service.setResult(DateUtils.getTodayYYYYMMDD());
-      await this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (error) {
-      await this.logSchedule(SCHEDULE_CONST.VOTE_RESULT, 'failure', flag, error);
+      await this.logSchedule(name, 'failure', flag, error);
       throw new Error(error);
     }
   }
@@ -108,22 +111,18 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async initGroupstudyAttend() {
+    const name = SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE;
     //flag는 년-월-주차
     const flag = DateUtils.getYearMonthWeek();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.groupstudyRepository.initWeekAttendance();
-      this.logSchedule(SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(
-        SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE,
-        'failure',
-        flag,
-        err,
-      );
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -133,22 +132,19 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async updateGroupStudyStatus() {
+    const name = SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS;
     const flag = DateUtils.getYearMonthDayHour();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       const current = new Date();
       await this.gatherRepository.updateNotOpened(current);
-      this.logSchedule(SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(
-        SCHEDULE_CONST.UPDATE_GROUP_STUDY_STATUS,
-        'failure',
-        flag,
-        err,
-      );
+      await this.logSchedule(
+        name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -158,21 +154,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async distributeGatherDeposit() {
+    const name = SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT;
     const flag = DateUtils.getTodayYYYYMMDD();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.gatherService.distributeDeposit();
-      this.logSchedule(SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(
-        SCHEDULE_CONST.DISTRIBUTE_GATHER_DEPOSIT,
-        'failure',
-        flag,
-        err,
-      );
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -182,16 +174,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async gatherPanelty() {
+    const name = SCHEDULE_CONST.GATHER_PANELTY;
     const flag = DateUtils.getTodayYYYYMMDD();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.gatherService.gatherPanelty();
-      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.GATHER_PANELTY, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -201,16 +194,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processTemperatureFirst() {
+    const name = SCHEDULE_CONST.PROCESS_TEMPERATURE;
     const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.userService.processTemperature({ type: 1 });
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -220,16 +214,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processTemperatureSecond() {
+    const name = SCHEDULE_CONST.PROCESS_TEMPERATURE;
     const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.userService.processTemperature({ type: 2 });
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TEMPERATURE, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -239,16 +234,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processMonthScore() {
+    const name = SCHEDULE_CONST.PROCESS_MONTH_SCORE;
     const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.userService.processMonthScore();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_MONTH_SCORE, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -258,16 +254,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processTicket() {
+    const name = SCHEDULE_CONST.PROCESS_TICKET;
     const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.userService.processTicket();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_TICKET, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -277,16 +274,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processGroupStudyAttend() {
+    const name = SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE;
     const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.groupStudyService.processGroupStudyAttend();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -296,16 +294,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processDailyCheck() {
+    const name = SCHEDULE_CONST.PROCESS_VOTE_RESULT;
     const flag = DateUtils.getTodayYYYYMMDD();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.vote2Service.alertMatching();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_VOTE_RESULT, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -316,16 +315,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processStudyAbsence() {
+    const name = SCHEDULE_CONST.PROCESS_STUDY_ABSENCE;
     const flag = DateUtils.getYearMonthDayHour();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.vote2Service.alertStudyAbsence();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ABSENCE, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -336,16 +336,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async processAbsenceFee() {
+    const name = SCHEDULE_CONST.PROCESS_ABSENCE_FEE;
     const flag = DateUtils.getTodayYYYYMMDD();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.vote2Service.processAbsenceFee();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_ABSENCE_FEE, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -356,16 +357,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async studyEngage() {
+    const name = SCHEDULE_CONST.PROCESS_STUDY_ENGAGE;
     const flag = DateUtils.getYearMonthWeek();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.userService.processStudyEngage();
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.PROCESS_STUDY_ENGAGE, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -375,16 +377,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async initMembership() {
+    const name = SCHEDULE_CONST.INIT_MEMBERSHIP;
     const flag = DateUtils.getTodayYYYYMMDD();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.userService.initMembership();
-      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.INIT_MEMBERSHIP, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -394,16 +397,17 @@ export class NotificationScheduler {
     timeZone: 'Asia/Seoul',
   })
   async noticeAllUser() {
+    const name = SCHEDULE_CONST.NOTICE_ALL_USER;
     const flag = DateUtils.getYearMonthWeek();
-    const log = await this.findLogByFlag(flag);
+    const log = await this.findLogByFlagAndName(flag, name);
     if (log) {
       return;
     }
     try {
       await this.userService.recommendNoticeAllUser();
-      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'success', flag);
+      await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      this.logSchedule(SCHEDULE_CONST.NOTICE_ALL_USER, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
