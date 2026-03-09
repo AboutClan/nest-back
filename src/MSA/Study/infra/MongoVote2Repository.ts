@@ -12,7 +12,7 @@ export class Vote2Repository implements IVote2Repository {
   constructor(
     @InjectModel('vote2')
     private readonly Vote2Model: Model<IVote2>,
-  ) { }
+  ) {}
 
   async findByDate(
     date: string,
@@ -101,7 +101,7 @@ export class Vote2Repository implements IVote2Repository {
       });
     }
 
-    return vote.participations;
+    return vote.participations?.filter((p) => p?.userId);
   }
 
   async getVoteByPeriod(startDay: string, endDay: string) {

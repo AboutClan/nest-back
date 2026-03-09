@@ -307,13 +307,15 @@ export class Vote2Service {
   }
 
   private async doAlgorithm(
-    participations: IParticipation[],
+    participations2: IParticipation[],
     defaultStandardCnt?: number,
   ) {
     const MIN_OVERLAP_MINUTES = 60;
     const INITIAL_MAX_GROUP_SIZE = 6; // ✅ 처음 그룹 만들 때 cap
     const FINAL_MAX_GROUP_SIZE = 8; // ✅ 남은 인원 채울 때 cap
     const standardCnt = defaultStandardCnt || 5;
+
+    const participations = participations2?.filter((p) => p?.userId);
 
     const toMinutesOfDay = (s: string) => {
       // 1) 'HH:mm'만 들어오는 경우
@@ -349,7 +351,8 @@ export class Vote2Service {
     ) {
       return group.some((m) => overlapMinutes(m, c) >= MIN_OVERLAP_MINUTES);
     }
-    const coords = participations.map((par) => ({
+
+    const coords = participations?.map((par) => ({
       user: par.userId,
       userId: (par.userId as unknown as IUser)._id.toString(),
       lat: par.latitude,
@@ -359,7 +362,7 @@ export class Vote2Service {
       end: par.end,
       isBeforeResult: par.isBeforeResult,
     }));
-
+    console.log(524);
     const places = await this.PlaceRepository.findByStatus('main');
 
     const voteResults: IResult[] = [];
@@ -661,6 +664,7 @@ export class Vote2Service {
     const successParticipations = voteResults.flatMap((result) =>
       result.members.map((member) => (member.userId as IUser)._id.toString()),
     );
+    console.log(1212, participations);
     const failedParticipations = participations.filter(
       (p) =>
         !clusteredParticipantIds.has(
