@@ -48,7 +48,7 @@ export default class GroupStudyService {
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
     private readonly openaiService: OpenAIService,
-  ) { }
+  ) {}
 
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
@@ -269,7 +269,7 @@ export default class GroupStudyService {
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
     try {
-      groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
+      // groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
     } catch (error) {
       // Redis 연결이 안 되어 있거나 장애가 있을 경우
       console.error('Redis 연결 에러:', error);
@@ -326,10 +326,16 @@ export default class GroupStudyService {
         return group.status === 'pending' && group.participants.length < 2;
       }),
     );
-
+    const crewData = suffleArray(
+      groupStudyData.filter((group) => {
+        return group.category.main === '크루';
+      }),
+    );
+    console.log(22, crewData);
     const returnVal = {
       hobby: hobbyData.slice(0, 6),
       develop: developData.slice(0, 6),
+      crew: crewData.slice(0, 6),
       waiting: waitingData.slice(0, 6),
     };
 
@@ -361,6 +367,7 @@ export default class GroupStudyService {
       '취미 · 창작': ['힐링'],
       푸드: ['푸드'],
       친목: ['친목', '파티'],
+      크루: ['크루'],
     };
 
     const filterQuery: any = {
@@ -550,7 +557,7 @@ export default class GroupStudyService {
         organizer: token.id,
         id: nextId as number,
       } as unknown as Partial<GroupStudyProps>;
-console.log(groupStudyInfo)
+      console.log(groupStudyInfo);
       const groupStudyData = new GroupStudy(groupStudyInfo);
 
       await this.groupStudyRepository.create(groupStudyData);
@@ -628,7 +635,11 @@ console.log(groupStudyInfo)
     return;
   }
 
-  async updateGroupStudyStatus(id: string, userId: string, status: "active" | "rest" | "warning") {
+  async updateGroupStudyStatus(
+    id: string,
+    userId: string,
+    status: 'active' | 'rest' | 'warning',
+  ) {
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
     groupStudy.updateStatus(userId, status);
