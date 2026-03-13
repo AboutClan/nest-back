@@ -352,7 +352,7 @@ export class Vote2Service {
       return group.some((m) => overlapMinutes(m, c) >= MIN_OVERLAP_MINUTES);
     }
 
-    const coords = participations?.map((par) => ({
+    const coords = participations?.map((par, idx) => ({
       user: par.userId,
       userId: (par.userId as unknown as IUser)._id.toString(),
       lat: par.latitude,
@@ -361,6 +361,7 @@ export class Vote2Service {
       start: par.start,
       end: par.end,
       isBeforeResult: par.isBeforeResult,
+      order: idx,
     }));
     console.log(524);
     const places = await this.PlaceRepository.findByStatus('main');
@@ -381,6 +382,7 @@ export class Vote2Service {
         isBeforeResult: boolean;
         lat: number;
         lon: number;
+        order: number;
       }>;
 
       for (const participant of coords) {
@@ -403,14 +405,13 @@ export class Vote2Service {
             isBeforeResult: participant.isBeforeResult,
             lat: participant.lat,
             lon: participant.lon,
+            order: participant.order,
           });
         }
       }
 
       // 결정성 보장: 거리↑ → userId↑
-      candidates.sort(
-        (a, b) => a.dist - b.dist || a.userId.localeCompare(b.userId),
-      );
+      candidates.sort((a, b) => a.dist - b.dist || a.order - b.order);
 
       const makeGroupsAtPlace = (targetMinSize: number) => {
         if (usedPlaceIds.has(placeId)) return;

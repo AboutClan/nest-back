@@ -1,8 +1,8 @@
+import { IUser } from 'src/MSA/User/core/domain/User/User';
 import { DateUtils } from 'src/utils/Date';
 import { Participation, ParticipationProps } from './Vote2Participation';
 import { Result, ResultProps } from './Vote2Result';
 import { VoteComment } from './Vote2VoteComment';
-import { IUser } from 'src/MSA/User/core/domain/User/User';
 export interface Vote2Props {
   date: string;
   participations: ParticipationProps[];
@@ -16,7 +16,9 @@ export class Vote2 {
 
   constructor(props: Vote2Props) {
     this.date = props.date;
-    this.participations = props.participations.map((p) => new Participation(p));
+    this.participations = props.participations
+      .filter((p) => p.userId)
+      .map((p) => new Participation(p));
     this.results = props.results.map((r) => new Result(r));
   }
 
@@ -72,6 +74,7 @@ export class Vote2 {
   }
 
   removeParticipationByUserId(userId: string) {
+    console.log(3, this.participations);
     if (
       this.participations.some((p) => p.userId.toString() === userId.toString())
     ) {
