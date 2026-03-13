@@ -163,7 +163,7 @@ export class Vote2Service {
     const realtimeData = await this.RealtimeService.getTodayDataWithPlace(date);
     //results
 
-    const participations = voteData?.participations;
+    const participations = voteData?.participations?.filter((p) => p?.userId);
 
     const unmatchedUsers = [];
 
