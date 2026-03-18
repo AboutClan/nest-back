@@ -920,7 +920,7 @@ export class Vote2Service {
   async changeStudyPlace(date: string, placeId: string, beforeId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const vote = await this.Vote2Repository.findByDate(date);
+    const vote = await this.Vote2Repository.findByDate(date, false);
 
     const result = vote.findStudyPlace(beforeId);
     result.placeId = placeId;
