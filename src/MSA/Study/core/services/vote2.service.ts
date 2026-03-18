@@ -807,6 +807,15 @@ export class Vote2Service {
     }
   }
 
+  async updateParticipation(date: string, start: string, end: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const vote = await this.Vote2Repository.findByDate(date, false);
+
+    vote.updateParticipation(token.id, start, end);
+    await this.Vote2Repository.save(vote);
+  }
+
   async updateResult(date: string, start: string, end: string) {
     const token = RequestContext.getDecodedToken();
 

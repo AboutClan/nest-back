@@ -233,6 +233,17 @@ export class Vote2Controller {
     return 'success';
   }
 
+  @Patch(':date/participation')
+  async updateParticipation(
+    @Req() req: Request,
+    @Body('start') start: string,
+    @Body('end') end: string,
+  ): Promise<any> {
+    const { date } = req;
+    await this.voteService2.updateParticipation(date as string, start, end);
+
+    return 'success';
+  }
   @Patch(':date/result')
   async updateResult(
     @Req() req: Request,

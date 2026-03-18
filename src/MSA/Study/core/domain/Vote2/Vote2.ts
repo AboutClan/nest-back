@@ -49,6 +49,14 @@ export class Vote2 {
     return diffMinutes >= 60;
   }
 
+  updateParticipation(userId: string, start: string, end: string) {
+    this.participations.forEach((par) => {
+      if (par.userId.toString() === userId) {
+        par.start = start;
+        par.end = end;
+      }
+    });
+  }
   updateResult(userId: string, start: string, end: string) {
     this.results.forEach((result) => {
       result.members.forEach((member) => {
