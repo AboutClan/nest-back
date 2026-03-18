@@ -137,16 +137,19 @@ export class Vote2Controller {
       type = null,
     } = createVoteDTO;
 
-    await this.voteService2.setVoteWithArr(dates, {
-      userId,
-      latitude,
-      longitude,
-      start,
-      end,
-      locationDetail,
-      eps,
-     
-    },type);
+    await this.voteService2.setVoteWithArr(
+      dates,
+      {
+        userId,
+        latitude,
+        longitude,
+        start,
+        end,
+        locationDetail,
+        eps,
+      },
+      type,
+    );
 
     return null;
   }
@@ -206,6 +209,18 @@ export class Vote2Controller {
       placeId,
       eps,
     });
+
+    return 'success';
+  }
+  @Patch(':date/studyPlace')
+  async changePlaceId(
+    @Req() req: Request,
+    @Body() createParticipateDTO: { placeId: string; beforeId: string },
+  ): Promise<any> {
+    const { placeId, beforeId } = createParticipateDTO;
+    const { date } = req;
+
+    await this.voteService2.changeStudyPlace(date as string, placeId, beforeId);
 
     return 'success';
   }

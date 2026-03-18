@@ -19,7 +19,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
   constructor(
     @InjectModel(DB_SCHEMA.GROUPSTUDY)
     private readonly GroupStudy: Model<IGroupStudyData>,
-  ) { }
+  ) {}
 
   async findAllTemp() {
     const docs = await this.GroupStudy.find({}, '_id comments').lean();
@@ -111,11 +111,51 @@ export class GroupStudyRepository implements IGroupStudyRepository {
   }
 
   async getSigningGroupByStatus(userId: string, status: string): Promise<any> {
-    const docs = await this.GroupStudy.find({
-      status: status === 'pending' ? 'pending' : { $in: ['pending', 'end'] },
-      participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
-    });
+    // const docs = await this.GroupStudy.find({
+    //   status: status === 'pending' ? 'pending' : { $in: ['pending', 'end'] },
+    //   participants: { $elemMatch: { user: userId } }, // userId가 일치하는지 확인
+    // });
+    const userObjectId = new Types.ObjectId(userId);
 
+    const docs = await this.GroupStudy.aggregate([
+      {
+        $match: {
+          status:
+            status === 'pending' ? 'pending' : { $in: ['pending', 'end'] },
+
+          participants: { $elemMatch: { user: userObjectId } },
+        },
+      },
+      {
+        $addFields: {
+          isMember: {
+            $anyElementTrue: {
+              $map: {
+                input: '$participants',
+                as: 'p',
+                in: {
+                  $and: [
+                    { $eq: ['$$p.user', userObjectId] },
+                    { $in: ['$$p.role', ['regularMember', 'admin']] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          squareImage: 1,
+          id: 1,
+          requiredTicket: 1,
+          meetingType: 1,
+          isMember: 1,
+        },
+      },
+    ]);
+    console.log(3, docs);
     return docs;
   }
 

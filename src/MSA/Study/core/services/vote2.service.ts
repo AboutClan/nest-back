@@ -363,7 +363,7 @@ export class Vote2Service {
       isBeforeResult: par.isBeforeResult,
       order: idx,
     }));
-    console.log(524);
+
     const places = await this.PlaceRepository.findByStatus('main');
 
     const voteResults: IResult[] = [];
@@ -394,7 +394,9 @@ export class Vote2Service {
           participant.lat,
           participant.lon,
         );
-
+        if ((participant.user as IUser)?.name === '이승주' && distance < 5) {
+          console.log(place, participant, distance);
+        }
         if (distance <= participant.eps) {
           candidates.push({
             user: participant.user as IUser,
@@ -665,7 +667,7 @@ export class Vote2Service {
     const successParticipations = voteResults.flatMap((result) =>
       result.members.map((member) => (member.userId as IUser)._id.toString()),
     );
-    console.log(1212, participations);
+
     const failedParticipations = participations.filter(
       (p) =>
         !clusteredParticipantIds.has(
@@ -912,6 +914,28 @@ export class Vote2Service {
       eps,
       userId: token.id,
     });
+
+    await this.Vote2Repository.save(vote);
+  }
+  async changeStudyPlace(date: string, placeId: string, beforeId: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const vote = await this.Vote2Repository.findByDate(date);
+
+    const result = vote.findStudyPlace(beforeId);
+    result.placeId = placeId;
+    const userIds = result.members
+      .map((member) => member.userId?.toString?.())
+      .filter(Boolean);
+
+    if (userIds.length > 0) {
+      await this.fcmServiceInstance.sendNotificationUserIds(
+        userIds,
+        '스터디 장소 변경 안내',
+        `${token.name}님이 오늘 스터디 장소를 변경했어요. 변경된 장소를 확인해 주세요!`,
+        `/study/${placeId}/${date}?type=results`,
+      );
+    }
 
     await this.Vote2Repository.save(vote);
   }

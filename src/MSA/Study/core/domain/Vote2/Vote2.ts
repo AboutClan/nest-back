@@ -1,5 +1,6 @@
 import { IUser } from 'src/MSA/User/core/domain/User/User';
 import { DateUtils } from 'src/utils/Date';
+import { Place } from '../Realtime/Place';
 import { Participation, ParticipationProps } from './Vote2Participation';
 import { Result, ResultProps } from './Vote2Result';
 import { VoteComment } from './Vote2VoteComment';
@@ -103,6 +104,24 @@ export class Vote2 {
         imageUrl && (member.imageUrl = imageUrl);
       }
     }
+  }
+
+  findStudyPlace(placeId: string) {
+    const result = this.results.find(
+      (r) => (r.placeId as Place)._id.toString() === placeId.toString(),
+    );
+    return result;
+    // if (result) {
+    //   const member = result.members.find(
+    //     (m) => (m.userId as IUser)._id.toString() === userId,
+    //   );
+    //   if (member) {
+    //     member.absence = true;
+    //     member.memo = message;
+    //     //불참 시간으로 사용
+    //     member.arrived = new Date();
+    //   }
+    // }
   }
 
   setAbsence(userId: string, message: string) {
