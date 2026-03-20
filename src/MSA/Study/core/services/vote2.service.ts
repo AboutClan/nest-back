@@ -730,8 +730,8 @@ export class Vote2Service {
   }
 
   async processAbsenceFee() {
-    const today = DateUtils.getTodayYYYYMMDD();
-    const vote = await this.Vote2Repository.findByDate(today, false);
+    const yesterday = DateUtils.getYesterdayYYYYMMDD();
+    const vote = await this.Vote2Repository.findByDate(yesterday, false);
     if (!vote) return;
     const results = vote.results;
 
