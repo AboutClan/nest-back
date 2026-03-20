@@ -110,6 +110,10 @@ export default class RegisterService {
     };
 
     try {
+       await this.User.findOneAndUpdate({ uid }, userForm, {
+         upsert: true,
+         new: true,
+       });
       await this.removeUnnecessaryUserField();
 
       await this.deleteRegisterUser(uid, true);
