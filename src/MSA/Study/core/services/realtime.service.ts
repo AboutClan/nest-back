@@ -1,10 +1,5 @@
 import { Inject } from '@nestjs/common';
 import { CONST } from 'src/Constants/CONSTANTS';
-import { CommentProps } from '../domain/Realtime/Comment';
-import { PlaceProps } from '../domain/Realtime/Place';
-import { Realtime } from '../domain/Realtime/Realtime';
-import { RealtimeUser } from '../domain/Realtime/RealtimeUser';
-import { TimeProps } from '../domain/Realtime/Time';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
@@ -17,6 +12,11 @@ import {
   IRealtimeUser,
   RealtimeUserZodSchema,
 } from '../../entity/realtime.entity';
+import { CommentProps } from '../domain/Realtime/Comment';
+import { PlaceProps } from '../domain/Realtime/Place';
+import { Realtime } from '../domain/Realtime/Realtime';
+import { RealtimeUser } from '../domain/Realtime/RealtimeUser';
+import { TimeProps } from '../domain/Realtime/Time';
 import { IRealtimeRepository } from '../interfaces/RealtimeRepository.interface';
 
 export default class RealtimeService {
@@ -26,7 +26,7 @@ export default class RealtimeService {
     private readonly userServiceInstance: UserService,
     private readonly imageServiceInstance: ImageService,
     private readonly placeServiceInstance: PlaceService,
-  ) { }
+  ) {}
 
   private getToday() {
     return DateUtils.getTodayYYYYMMDD();
@@ -188,7 +188,7 @@ export default class RealtimeService {
       }
 
       const todayData = await this.getTodayData(date);
-      console.log(todayData.isOpen(token.id));
+
       if (todayData.isOpen(token.id)) {
         todayData.patchNotSoloUser(
           token.id,
@@ -207,7 +207,7 @@ export default class RealtimeService {
         });
         todayData.patchUser(validatedStudy as RealtimeUser);
       }
-      console.log(34);
+
       await this.realtimeRepository.save(todayData);
 
       if (todayData.isOpen(token.id)) {
@@ -412,5 +412,5 @@ export default class RealtimeService {
     return data;
   }
 
-  async test() { }
+  async test() {}
 }

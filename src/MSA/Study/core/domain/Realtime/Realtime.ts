@@ -61,7 +61,6 @@ export class Realtime {
   }
 
   public patchUser(userProps: RealtimeUserProps): void {
-    console.log(1, this.userList, userProps);
     const idx = this.userList.findIndex(
       (u) => u.user.toString() === userProps.user.toString(),
     );
@@ -83,7 +82,6 @@ export class Realtime {
     memo: string,
     image: string,
   ): void {
-    console.log(25, this.userList);
     const idx = this.userList.findIndex(
       (u) => u.user.toString() === userId.toString(),
     );

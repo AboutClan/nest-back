@@ -87,11 +87,11 @@ export default class RegisterService {
 
   async approve(uid: string) {
     let userForm;
-    console.log(uid);
+
     const user = await this.registerRepository.findByUid(uid);
-    console.log(2142424, user);
+
     if (!user) throw new ValidationError('wrong uid');
-    console.log('user', user);
+
     userForm = {
       ...user.toObject(),
       role: 'human',
@@ -110,12 +110,6 @@ export default class RegisterService {
     };
 
     try {
-      console.log(155);
-      const A = await this.User.findOneAndUpdate({ uid }, userForm, {
-        upsert: true,
-        new: true,
-      });
-      console.log(32, A);
       await this.removeUnnecessaryUserField();
 
       await this.deleteRegisterUser(uid, true);

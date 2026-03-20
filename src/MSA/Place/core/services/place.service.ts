@@ -68,7 +68,7 @@ export default class PlaceService {
     placeId: string,
     mood: number,
     table: number,
-    beverage: number,
+    space: number,
     etc: number,
   ) {
     try {
@@ -78,15 +78,16 @@ export default class PlaceService {
       const ratings = {
         mood: {
           user: userId,
+
           rating: mood,
         },
         table: {
           user: userId,
           rating: table,
         },
-        beverage: {
+        space: {
           user: userId,
-          rating: beverage,
+          rating: space,
         },
         etc: {
           user: userId,
@@ -177,7 +178,7 @@ export default class PlaceService {
   calculateRating(ratings: any) {
     const moodArray = ratings?.mood || [];
     const tableArray = ratings?.table || [];
-    const beverageArray = ratings?.beverage || [];
+    const beverageArray = ratings?.space || [];
     const etcArray = ratings?.etc || [];
 
     const mood =
@@ -190,7 +191,7 @@ export default class PlaceService {
         ? tableArray.reduce((acc: number, curr: any) => acc + curr.rating, 0) /
           tableArray.length
         : 0;
-    const beverage =
+    const space =
       beverageArray.length > 0
         ? beverageArray.reduce(
             (acc: number, curr: any) => acc + curr.rating,
@@ -214,7 +215,7 @@ export default class PlaceService {
       ]),
     );
 
-    return { mood, table, beverage, etc, userList };
+    return { mood, table, space, etc, userList };
   }
 
   async test() {

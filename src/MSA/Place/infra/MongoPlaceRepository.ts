@@ -37,7 +37,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
         $push: {
           'ratings.mood': ratings.mood,
           'ratings.table': ratings.table,
-          'ratings.beverage': ratings.beverage,
+          'ratings.space': ratings.space,
           'ratings.etc': ratings.etc,
         },
       },

@@ -13,7 +13,7 @@ import ImageService from 'src/routes/imagez/image.service';
 import { DateUtils } from 'src/utils/Date';
 import {
   ILOG_MEMBERSHIP_REPOSITORY,
-  IUSER_REPOSITORY,
+  IUSER_REPOSITORY
 } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { IUser, restType } from '../../entity/user.entity';
@@ -260,9 +260,9 @@ export class UserService {
   }
   async updateStudyRecord(type: 'study' | 'solo', diffMinutes: number) {
     const token = RequestContext.getDecodedToken();
-    console.log(2, type);
+  
     const user = await this.UserRepository.findByUid(token.uid);
-    console.log(4, type, user);
+
     user.increaseStudyRecord(type, diffMinutes);
     await this.UserRepository.save(user);
 

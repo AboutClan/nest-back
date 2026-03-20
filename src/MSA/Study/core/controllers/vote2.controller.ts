@@ -27,6 +27,8 @@ export class Vote2Controller {
   @Get('week')
   async getWeekData(@Req() req: Request): Promise<any> {
     const filteredVote = await this.voteService2.getWeekData();
+
+    
     return filteredVote;
   }
   @Get('mine')

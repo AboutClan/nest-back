@@ -137,13 +137,11 @@ export class CollectionService {
         myAlphabets?.includes(item),
       )
     ) {
-      console.log('before', collection);
       ENTITY.COLLECTION.ENUM_ALPHABET.forEach((item) => {
         collection.removeAlphabet(item);
         // const idx = myAlphabets?.indexOf(item);
         // if (idx !== -1) myAlphabets?.splice(idx as number, 1);
       });
-      console.log('after remove (before save):', collection.collects);
 
       await this.collectionRepository.save(collection);
       //    point: number,
@@ -151,7 +149,6 @@ export class CollectionService {
       // sub?: string,
       // userId?: string,
       const count = collection.collectCnt;
-      console.log(count);
 
       const COUNT_MAPPING = {
         0: 2000,

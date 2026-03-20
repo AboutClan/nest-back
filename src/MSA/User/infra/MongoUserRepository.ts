@@ -18,7 +18,7 @@ import { IUser } from '../entity/user.entity';
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(DB_SCHEMA.USER) private readonly UserModel: Model<IUser>,
-  ) { }
+  ) {}
 
   async findById(userId: string): Promise<User> {
     const user = await this.UserModel.findById(userId);
@@ -206,7 +206,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async updateLocationDetailAll() {
-    console.log(55);
     await this.UserModel.updateMany(
       {
         registerDate: { $gte: '2025-11-01' }, // 포함 이후
@@ -478,11 +477,11 @@ export class UserRepository implements IUserRepository {
     );
     const preference = doc.studyPreference
       ? new Preference(
-        doc?.studyPreference?.place?.toString(),
-        ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
-          o.toString(),
-        ),
-      )
+          doc?.studyPreference?.place?.toString(),
+          ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
+            o.toString(),
+          ),
+        )
       : null;
     const ticket = new Ticket(
       doc?.ticket?.gatherTicket,
@@ -493,11 +492,11 @@ export class UserRepository implements IUserRepository {
       : undefined;
     const studyRecord = doc.studyRecord
       ? new StudyRecord(
-        doc?.studyRecord?.accumulationMinutes,
-        doc?.studyRecord?.accumulationCnt,
-        doc?.studyRecord?.monthCnt,
-        doc?.studyRecord?.monthMinutes,
-      )
+          doc?.studyRecord?.accumulationMinutes,
+          doc?.studyRecord?.accumulationCnt,
+          doc?.studyRecord?.monthCnt,
+          doc?.studyRecord?.monthMinutes,
+        )
       : undefined;
     const temperature = new Temperature(
       doc?.temperature?.temperature,

@@ -114,6 +114,9 @@ export class DateUtils {
   static getTodayYYYYMMDD(): string {
     return dayjs().format('YYYY-MM-DD');
   }
+  static getYesterdayYYYYMMDD(): string {
+    return dayjs().subtract(1,'day').format('YYYY-MM-DD');
+  }
 
   //년-월
   static getYearMonth(): string {

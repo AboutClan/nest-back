@@ -155,7 +155,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
         },
       },
     ]);
-    console.log(3, docs);
+
     return docs;
   }
 

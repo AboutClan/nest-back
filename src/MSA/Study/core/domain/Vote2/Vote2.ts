@@ -83,7 +83,6 @@ export class Vote2 {
   }
 
   removeParticipationByUserId(userId: string) {
-    console.log(3, this.participations);
     if (
       this.participations.some((p) => p.userId.toString() === userId.toString())
     ) {

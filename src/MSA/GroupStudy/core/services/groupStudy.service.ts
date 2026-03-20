@@ -167,7 +167,6 @@ export default class GroupStudyService {
       memberIds,
       month,
     );
-    console.log(memberIds, counts);
 
     const monthMap = new Map<string, number>(
       (counts?.month ?? []).map((c) => [String(c._id), c.gatherCount]),
@@ -331,7 +330,7 @@ export default class GroupStudyService {
         return group.category.main === '크루';
       }),
     );
-    console.log(22, crewData);
+
     const returnVal = {
       hobby: hobbyData.slice(0, 6),
       develop: developData.slice(0, 6),
@@ -557,7 +556,7 @@ export default class GroupStudyService {
         organizer: token.id,
         id: nextId as number,
       } as unknown as Partial<GroupStudyProps>;
-      console.log(groupStudyInfo);
+
       const groupStudyData = new GroupStudy(groupStudyInfo);
 
       await this.groupStudyRepository.create(groupStudyData);

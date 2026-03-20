@@ -103,7 +103,7 @@ export class PlaceController {
     @Body('placeId') placeId: string,
     @Body('mood') mood: number,
     @Body('table') table: number,
-    @Body('beverage') beverage: number,
+    @Body('space') space: number,
     @Body('etc') etc: number,
   ) {
     try {
@@ -111,7 +111,7 @@ export class PlaceController {
         placeId,
         mood,
         table,
-        beverage,
+        space,
         etc,
       );
       return places;
