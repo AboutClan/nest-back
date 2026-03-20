@@ -83,10 +83,12 @@ export class MongoLogRepository implements LogRepository {
 
     return await this.Log.find(query, '-_id timestamp message meta');
   }
-  async findTicketLog(uid: String, type: string[]): Promise<ILog[]> {
+  async findTicketLog(uid: string, type: string[]): Promise<ILog[]> {
     return await this.Log.find(
       { 'meta.type': { $in: type }, 'meta.uid': uid },
       '-_id timestamp message meta',
-    );
+    )
+      .sort({ timestamp: -1 })
+      .lean();
   }
 }
