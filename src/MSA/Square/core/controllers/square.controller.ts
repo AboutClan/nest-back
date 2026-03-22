@@ -16,9 +16,9 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
+import { CreateSquareDto } from '../../dtos/createSquareDto';
 import { SecretSquareCategory } from '../../entity/square.entity';
 import SquareService from '../services/square.service';
-import { CreateSquareDto } from '../../dtos/createSquareDto';
 
 // DTOs for request validation
 
@@ -51,7 +51,7 @@ export class SquareController {
   @Get()
   async getSquareList(
     @Query('category')
-    category: SecretSquareCategory | 'secretAll' | 'normalAll' = 'normalAll',
+    category: SecretSquareCategory,
     @Query('cursor') cursor: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor, 10) : null;
@@ -59,7 +59,7 @@ export class SquareController {
       category,
       cursorNum,
     });
-    return { squareList };
+    return squareList;
   }
 
   @Post()

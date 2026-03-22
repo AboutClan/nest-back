@@ -1,12 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import ImageService from 'src/routes/imagez/image.service';
-import { RequestContext } from 'src/request-context';
-import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
 import { Square } from 'src/domain/entities/Square/Square';
 import { SquarePoll } from 'src/domain/entities/Square/SquarePoll';
-import { ISquareRepository } from '../interfaces/square.repository.interface';
 import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
+import { RequestContext } from 'src/request-context';
+import ImageService from 'src/routes/imagez/image.service';
+import { ISQUARE_REPOSITORY } from 'src/utils/di.tokens';
+import { ISquareRepository } from '../interfaces/square.repository.interface';
 import SquareCommentService from './comment.service';
 
 export default class SquareService {
@@ -16,25 +16,25 @@ export default class SquareService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: SquareCommentService,
-  ) { }
+  ) {}
 
   async getSquareList({
     category,
     cursorNum,
   }: {
-    category: string | 'all';
+    category: string;
     cursorNum: number | null;
   }) {
     const gap = 12;
     let start = gap * (cursorNum || 0);
 
-    if (category === 'all') {
+    if (category === '전체') {
       const result = await this.squareRepository.findWithPagination(
         Math.floor(start / gap) + 1,
         gap,
       );
       const squareIds = result.squares.map((square) => square._id.toString());
-
+      console.log(2, result);
       const comments =
         await this.commentService.findCommetsByPostIds(squareIds);
 
@@ -45,7 +45,7 @@ export default class SquareService {
       });
 
       return {
-        squares: result.squares,
+        squareList: result.squares,
         comments,
       };
     } else {

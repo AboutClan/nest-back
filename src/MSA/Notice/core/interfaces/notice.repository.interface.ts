@@ -1,7 +1,7 @@
 import { INotice } from '../../entity/notice.entity';
 
 export interface NoticeRepository {
-  findActiveLog(uid: string): Promise<INotice[]>;
+  findActiveLog(uid: string, isRecent?: 'true' | 'false'): Promise<INotice[]>;
   createNotice(noticeData: Partial<INotice>): Promise<INotice>;
   findLike(uid: string): Promise<INotice[]>;
   findLikeAll(): Promise<INotice[]>;

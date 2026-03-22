@@ -9,7 +9,10 @@ export class MongoNoticeRepository implements NoticeRepository {
     @InjectModel(DB_SCHEMA.NOTICE)
     private readonly Notice: Model<INotice>,
   ) {}
-  async findActiveLog(uid: string): Promise<INotice[]> {
+  async findActiveLog(
+    uid: string,
+    isRecent?: 'true' | 'false',
+  ): Promise<INotice[]> {
     const types = ['like', 'friend', 'alphabet'];
 
     const docs = await this.Notice.aggregate([
@@ -29,7 +32,12 @@ export class MongoNoticeRepository implements NoticeRepository {
       { $project: { __v: 0 } }, // 필요시 '_id'도 제외 가능
     ]);
 
-    return docs;
+    if (isRecent === 'true') {
+      return docs?.length ? [docs[docs.length - 1]] : [];
+    }
+
+    return docs?.slice()?.reverse();
+
     // return await this.Notice.find(
     //   {
     //     to: uid,

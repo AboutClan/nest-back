@@ -4,8 +4,9 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { DatabaseError } from 'src/errors/DatabaseError';
-import { RequestContext } from 'src/request-context';
+import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 import { IUser } from 'src/MSA/User/entity/user.entity';
+import { RequestContext } from 'src/request-context';
 import {
   IGATHER_REPOSITORY,
   INOTICE_REPOSITORY,
@@ -16,7 +17,6 @@ import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IVote2Repository } from '../../../Study/core/interfaces/Vote2Repository.interface';
 import { INotice, NoticeZodSchema } from '../../entity/notice.entity';
 import { NoticeRepository } from '../interfaces/notice.repository.interface';
-import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 
 export default class NoticeService {
   constructor(
@@ -36,9 +36,13 @@ export default class NoticeService {
     await this.noticeRepository.createNotice(noticeData);
   }
 
-  async findActiveLog() {
+  async findActiveLog(isRecent: 'true' | 'false') {
     const token = RequestContext.getDecodedToken();
-    const result = await this.noticeRepository.findActiveLog(token.uid);
+
+    const result = await this.noticeRepository.findActiveLog(
+      token.uid,
+      isRecent,
+    );
     return result;
   }
   async getActiveLog() {
@@ -217,7 +221,7 @@ export default class NoticeService {
 
       const study = await this.vote2Repository.findByDateWithoutPopulate(date);
       study.addReviewers(studyId, token.id);
-    
+
       await this.vote2Repository.save(study);
     } catch (err: any) {
       throw new Error(err);

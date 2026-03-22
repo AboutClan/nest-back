@@ -1,28 +1,38 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Chat } from '../core/domain/chat/Chat';
-import { IChat } from '../entity/chat.entity';
-import { IChatRepository } from '../core/interfaces/ChatRepository.interface';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
+import { Chat } from '../core/domain/chat/Chat';
 import { ContentProps } from '../core/domain/chat/Content';
+import { IChatRepository } from '../core/interfaces/ChatRepository.interface';
+import { IChat } from '../entity/chat.entity';
 
 export class ChatRepository implements IChatRepository {
   constructor(
     @InjectModel(DB_SCHEMA.CHAT)
     private readonly ChatModel: Model<IChat>,
-  ) { }
+  ) {}
 
   async findRecentChatByUserId(userId: string): Promise<Chat | null> {
-    const doc = await this.ChatModel.find({
+    const docs = await this.ChatModel.find({
       $or: [{ user1: userId }, { user2: userId }],
-    })
-      .sort({ createdAt: -1 })
-      .limit(1);
+    });
 
-    if (!doc) return null;
+    if (!docs.length) return null;
 
-    return this.mapToDomain(doc[0]);
+    const sortedDocs = docs.sort((a, b) => {
+      const aLast = a.contents?.length
+        ? new Date(a.contents[a.contents.length - 1].createdAt).getTime()
+        : 0;
+
+      const bLast = b.contents?.length
+        ? new Date(b.contents[b.contents.length - 1].createdAt).getTime()
+        : 0;
+
+      return bLast - aLast;
+    });
+
+    return this.mapToDomain(sortedDocs[0]);
   }
 
   async findByUserId(userId: string): Promise<Chat[] | null> {

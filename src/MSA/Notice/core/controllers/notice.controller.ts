@@ -17,8 +17,8 @@ export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
-  async findActiveLog() {
-    const result = await this.noticeService.findActiveLog();
+  async findActiveLog(@Query('isRecent') isRecent?: 'true' | 'false') {
+    const result = await this.noticeService.findActiveLog(isRecent);
     return result;
   }
 
@@ -130,7 +130,6 @@ export class NoticeController {
     @Body('date') date: string,
     @Body('studyId') studyId: string,
   ) {
-   
     await this.noticeService.createTemperatureByStudy(infos, date, studyId);
     return { status: 'success' };
   }
