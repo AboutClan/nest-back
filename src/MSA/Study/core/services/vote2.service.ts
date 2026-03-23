@@ -201,7 +201,7 @@ export class Vote2Service {
     const token = RequestContext.getDecodedToken();
 
     const vote2 = await this.Vote2Repository.findByDate(date);
-
+    console.log(2, date);
     const { latitude, longitude, start, end, locationDetail, userId, eps } =
       createVote;
 
@@ -219,7 +219,7 @@ export class Vote2Service {
     if (end !== null) voteData.end = end;
     if (locationDetail !== null) voteData.locationDetail = locationDetail;
     if (eps !== null) voteData.eps = eps;
-
+    console.log(51);
     vote2.setOrUpdateParticipation(voteData);
 
     await this.Vote2Repository.save(vote2);
@@ -394,9 +394,7 @@ export class Vote2Service {
           participant.lat,
           participant.lon,
         );
-        if ((participant.user as IUser)?.name === '이승주' && distance < 5) {
-          console.log(place, participant, distance);
-        }
+
         if (distance <= participant.eps) {
           candidates.push({
             user: participant.user as IUser,

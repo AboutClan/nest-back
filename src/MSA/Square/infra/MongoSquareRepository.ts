@@ -1,11 +1,10 @@
-import { NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { Square } from 'src/domain/entities/Square/Square';
-import { SecretSquareItem } from '../entity/square.entity';
 import { ISquareRepository } from '../core/interfaces/square.repository.interface';
+import { SecretSquareItem } from '../entity/square.entity';
 
 export class SquareRepository implements ISquareRepository {
   constructor(
@@ -150,6 +149,7 @@ export class SquareRepository implements ISquareRepository {
   ): Promise<any[]> {
     // 1) summary projection
     let query = {};
+    console.log(25);
 
     if (category === 'normalAll') {
       query = { type: { $in: ['info', 'poll2'] } };
@@ -171,11 +171,10 @@ export class SquareRepository implements ISquareRepository {
           else: { $arrayElemAt: ['$images', 0] },
         },
       },
-      viewCount: { $size: '$viewers' },
-      likeCount: { $size: '$like' },
+      viewers: 1,
+      like: 1,
       createdAt: 1,
       author: 1,
-      like: 1,
       comments: 1,
     })
       .sort({ createdAt: 'desc' })

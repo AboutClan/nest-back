@@ -28,7 +28,6 @@ export class Vote2Controller {
   async getWeekData(@Req() req: Request): Promise<any> {
     const filteredVote = await this.voteService2.getWeekData();
 
-    
     return filteredVote;
   }
   @Get('mine')
@@ -104,10 +103,10 @@ export class Vote2Controller {
       end,
       locationDetail,
       userId,
-      eps = 3,
+      eps = 1,
     } = createVoteDTO;
     const { date } = req;
-
+    console.log(date, createVoteDTO);
     await this.voteService2.setVote(date as string, {
       latitude,
       longitude,

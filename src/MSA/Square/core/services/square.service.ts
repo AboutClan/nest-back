@@ -25,16 +25,15 @@ export default class SquareService {
     category: string;
     cursorNum: number | null;
   }) {
-    const gap = 12;
+    const gap = 20;
     let start = gap * (cursorNum || 0);
-
     if (category === '전체') {
       const result = await this.squareRepository.findWithPagination(
         Math.floor(start / gap) + 1,
         gap,
       );
       const squareIds = result.squares.map((square) => square._id.toString());
-      console.log(2, result);
+
       const comments =
         await this.commentService.findCommetsByPostIds(squareIds);
 
@@ -60,14 +59,20 @@ export default class SquareService {
       const comments =
         await this.commentService.findCommetsByPostIds(squareIds);
 
-      const squaresWithComments = squares.map((square) => ({
-        ...square?._doc,
-        commentsCount: comments.filter(
-          (comment) => comment.postId === square._id.toString(),
-        ).length,
-      }));
+      const squaresWithComments = squares.map((square) => {
+        const obj = square.toObject();
+        return {
+          ...obj,
+          commentsCount: comments.filter(
+            (comment) => comment.postId === square._id.toString(),
+          ).length,
+        };
+      });
 
-      return squaresWithComments.slice(start, start + gap);
+      return {
+        squareList: squaresWithComments,
+        comments,
+      };
     }
   }
 
