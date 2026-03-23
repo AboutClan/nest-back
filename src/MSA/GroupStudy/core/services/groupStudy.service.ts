@@ -48,7 +48,7 @@ export default class GroupStudyService {
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
     private readonly openaiService: OpenAIService,
-  ) {}
+  ) { }
 
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
@@ -962,24 +962,31 @@ export default class GroupStudyService {
         await this.groupStudyRepository.save(group);
       }
 
-      for (const group of groupStudies) {
-        if (group.status === 'end') continue;
+      const reduceTicketJobs = groupStudies.flatMap((group) => {
+        if (group.status === 'end') return [];
 
-        const promises = group.participants.map((par) =>
-          this.userServiceInstance.updateReduceTicket(
-            'group',
-            par?.user,
-            group?.requiredTicket,
-          ),
-        );
+        return group.participants
+          .filter((par) => par.role === 'member')
+          .map(async (par) => {
+            const updatedTicket =
+              await this.userServiceInstance.updateReduceTicket(
+                'group',
+                par?.user,
+                group?.requiredTicket,
+              );
 
-        await Promise.all(promises);
+            if (updatedTicket < 0) {
+              await this.userServiceInstance.updatePoint(
+                -group?.requiredTicket * 1000,
+                '소모임 참여 차감',
+                'groupStudy',
+                par?.user,
+              );
+            }
+          });
+      });
 
-        await this.userServiceInstance.updateTicketWithUserIds(
-          group?.participants?.map((part) => part.user),
-          group?.requiredTicket,
-        );
-      }
+      await Promise.all(reduceTicketJobs);
     } catch (err) {
       throw new AppError(
         err?.message ?? 'Failed to process group study attendance',

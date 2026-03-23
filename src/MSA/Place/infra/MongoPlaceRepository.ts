@@ -9,7 +9,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
   constructor(
     @InjectModel(DB_SCHEMA.PLACE)
     private readonly Place: Model<IPlace>,
-  ) {}
+  ) { }
 
   async findByIds(placeIds: string[]): Promise<IPlace[]> {
     return await this.Place.find({ _id: { $in: placeIds } })
@@ -35,10 +35,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
       { _id: placeId },
       {
         $push: {
-          'ratings.mood': ratings.mood,
-          'ratings.table': ratings.table,
-          'ratings.space': ratings.space,
-          'ratings.etc': ratings.etc,
+          'ratings': ratings,
         },
       },
     );
@@ -162,29 +159,6 @@ export class MongoPlaceReposotory implements PlaceRepository {
       },
     );
 
-    return null;
-  }
-
-  async addReview(
-    placeId: string,
-    userId: string,
-    review: string,
-    rating: number,
-    isSecret: boolean,
-  ): Promise<null> {
-    await this.Place.updateOne(
-      { _id: placeId },
-      {
-        $push: {
-          reviews: {
-            user: userId,
-            review,
-            rating,
-            isSecret,
-          },
-        },
-      },
-    );
     return null;
   }
 

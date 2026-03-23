@@ -32,7 +32,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) {}
+  ) { }
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -524,10 +524,11 @@ export class UserService {
     userId: string,
     ticketNum: number,
   ) {
+    let updatedTicket = null;
     if (type === 'gather') {
-      await this.UserRepository.updateGatherTicket(userId, ticketNum);
+      updatedTicket = await this.UserRepository.updateGatherTicket(userId, ticketNum);
     } else {
-      await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
+      updatedTicket = await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
     }
 
     const { uid } = await this.getUserWithUserId(userId);
@@ -540,6 +541,8 @@ export class UserService {
       uid,
       value: ticketNum,
     });
+
+    return updatedTicket;
   }
 
   async addBadge(id: string, badgeName: string) {

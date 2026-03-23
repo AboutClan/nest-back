@@ -14,7 +14,7 @@ import PlaceService from '../services/place.service';
 @ApiTags('place')
 @Controller('place')
 export class PlaceController {
-  constructor(private readonly placeService: PlaceService) {}
+  constructor(private readonly placeService: PlaceService) { }
 
   @Get()
   async getActivePlace(
@@ -66,29 +66,6 @@ export class PlaceController {
     }
   }
 
-  @Post('review')
-  async addReview(
-    @Body('placeId') placeId: string,
-    @Body('review') review: string,
-    @Body('rating') rating: number,
-    @Body('isSecret') isSecret: boolean,
-  ) {
-    try {
-      const places = await this.placeService.addReview(
-        placeId,
-        review,
-        rating,
-        isSecret,
-      );
-      return places;
-    } catch (err) {
-      throw new HttpException(
-        'Error adding review',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
   @Patch('location')
   async updateLocation(
     @Body('placeId') placeId: string,
@@ -105,6 +82,7 @@ export class PlaceController {
     @Body('table') table: number,
     @Body('space') space: number,
     @Body('etc') etc: number,
+    @Body('comment') comment: string,
   ) {
     try {
       const places = await this.placeService.addRating(
@@ -113,6 +91,7 @@ export class PlaceController {
         table,
         space,
         etc,
+        comment,
       );
       return places;
     } catch (err) {
