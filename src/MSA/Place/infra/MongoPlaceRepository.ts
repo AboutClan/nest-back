@@ -9,7 +9,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
   constructor(
     @InjectModel(DB_SCHEMA.PLACE)
     private readonly Place: Model<IPlace>,
-  ) { }
+  ) {}
 
   async findByIds(placeIds: string[]): Promise<IPlace[]> {
     return await this.Place.find({ _id: { $in: placeIds } })
@@ -17,12 +17,12 @@ export class MongoPlaceReposotory implements PlaceRepository {
         path: 'registrant',
         select: ENTITY.USER.C_SIMPLE_USER,
       })
-      .populate([
-        {
-          path: 'reviews.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ])
+      // .populate([
+      //   {
+      //     path: 'reviews.userId',
+      //     select: ENTITY.USER.C_SIMPLE_USER,
+      //   },
+      // ])
       .lean();
   }
 
@@ -35,7 +35,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
       { _id: placeId },
       {
         $push: {
-          'ratings': ratings,
+          ratings: ratings,
         },
       },
     );
@@ -62,12 +62,12 @@ export class MongoPlaceReposotory implements PlaceRepository {
         path: 'registrant',
         select: ENTITY.USER.C_SIMPLE_USER,
       })
-      .populate([
-        {
-          path: 'reviews.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ])
+      // .populate([
+      //   {
+      //     path: 'reviews.user',
+      //     select: ENTITY.USER.C_SIMPLE_USER,
+      //   },
+      // ])
       .lean();
   }
   async findClosePlace(placeId: string): Promise<IPlace[]> {
@@ -129,12 +129,12 @@ export class MongoPlaceReposotory implements PlaceRepository {
       'location.latitude': { $gte: lowerLat, $lte: upperLat },
       'location.longitude': { $gte: lowerLng, $lte: upperLng },
     })
-      .populate([
-        {
-          path: 'reviews.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
-        },
-      ])
+      // .populate([
+      //   {
+      //     path: 'reviews.user',
+      //     select: ENTITY.USER.C_SIMPLE_USER,
+      //   },
+      // ])
       .lean();
   }
 
