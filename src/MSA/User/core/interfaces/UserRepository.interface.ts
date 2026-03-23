@@ -29,8 +29,8 @@ export interface IUserRepository {
   processMonthScore();
   findMonthPrize(ranks: any[]);
   updateUser(uid: string, updateInfo: any): Promise<null>;
-  updateGatherTicket(uid: string, value: number);
-  updateGroupStudyTicket(uid: string, value: number);
+  updateGatherTicket(uid: string, value: number): Promise<number | null>;
+  updateGroupStudyTicket(uid: string, value: number): Promise<number | null>;
   updateTicketWithUserIds(userIds: string[], ticketNum: number);
   updateLocationDetailAll();
   test(): Promise<any>;

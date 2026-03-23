@@ -10,13 +10,6 @@ export interface PlaceRepository {
   updateLocation(placeId: string, location: any);
   findByIds(placeIds: string[]): Promise<IPlace[]>;
   addRating(placeId: string, ratings: any): Promise<null>;
-  addReview(
-    placeId: string,
-    userId: string,
-    review: string,
-    rating: number,
-    isSecret: boolean,
-  ): Promise<null>;
   findByLatLng(
     lowerLat: number,
     upperLat: number,

@@ -4,14 +4,6 @@ import { ENTITY } from 'src/Constants/ENTITY';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { z } from 'zod';
 
-export const ReviewZodSchema = z.object({
-  user: z.union([z.string(), z.custom<IUser>()]),
-  review: z.string(),
-  rating: z.number(),
-  isSecret: z.boolean(),
-  isFixed: z.boolean(),
-});
-
 export const LocationZodSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
@@ -25,10 +17,12 @@ export const ratingDetailZodSchema = z.object({
 });
 
 export const ratingZodSchema = z.object({
-  mood: z.array(ratingDetailZodSchema).optional(),
-  table: z.array(ratingDetailZodSchema).optional(),
-  beverage: z.array(ratingDetailZodSchema).optional(),
-  etc: z.array(ratingDetailZodSchema).optional(),
+  mood: z.number().optional().default(0),
+  table: z.number().optional().default(0),
+  space: z.number().optional().default(0),
+  etc: z.number().optional().default(0),
+  comment: z.string().optional().default(''),
+  user: z.union([z.string(), z.custom<IUser>()]),
 });
 
 export const PlaceZodSchema = z.object({
@@ -38,14 +32,12 @@ export const PlaceZodSchema = z.object({
   coverImage: z.string().optional(),
   registerDate: z.string(),
   prefCnt: z.number().optional().default(0),
-  reviews: z.array(ReviewZodSchema).optional(),
   rating: z.number().optional(),
-  ratings: ratingZodSchema.optional(),
+  ratings: z.array(ratingZodSchema).optional(),
   registrant: z.union([z.string(), z.custom<IUser>()]),
   _id: z.string().optional(),
 });
 
-export type ReviewType = z.infer<typeof ReviewZodSchema> & Document;
 export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
 export type LocationType = z.infer<typeof LocationZodSchema>;
 export type ratingType = z.infer<typeof ratingZodSchema>;
@@ -73,61 +65,31 @@ export const locationSchema: Schema<LocationType> = new Schema(
   { _id: false, timestamps: false },
 );
 
-export const ReviewZReviewZodSchema: Schema<ReviewType> = new Schema(
+export const ratingSchema: Schema<ratingType> = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
       ref: DB_SCHEMA.USER,
     },
-    isSecret: {
-      type: Boolean,
-      required: true,
-    },
-    isFixed: {
-      type: Boolean,
-      default: false,
-    },
-    review: {
-      type: String,
-      required: true,
-    },
-    rating: {
-      type: Number,
-    },
-  },
-  {
-    _id: false,
-    timestamps: true,
-  },
-);
-
-export const ratingDetailSchema: Schema<ratingDetailType> = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: DB_SCHEMA.USER,
-  },
-  rating: {
-    type: Number,
-  },
-});
-
-export const ratingSchema: Schema<ratingType> = new Schema(
-  {
     mood: {
-      type: [ratingDetailSchema],
-      default: [],
+      type: Number,
+      default: 0,
     },
     table: {
-      type: [ratingDetailSchema],
-      default: [],
+      type: Number,
+      default: 0,
     },
-    beverage: {
-      type: [ratingDetailSchema],
-      default: [],
+    space: {
+      type: Number,
+      default: 0,
     },
     etc: {
-      type: [ratingDetailSchema],
-      default: [],
+      type: Number,
+      default: 0,
+    },
+    comment: {
+      type: String,
+      default: '',
     },
   },
   { _id: false, timestamps: false },
@@ -158,9 +120,6 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     type: Number,
     default: 0,
   },
-  reviews: {
-    type: [ReviewZReviewZodSchema],
-  },
   rating: {
     type: Number,
     default: null,
@@ -170,7 +129,8 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     ref: DB_SCHEMA.USER,
   },
   ratings: {
-    type: ratingSchema,
+    type: [ratingSchema],
+    default: [],
   },
 });
 
