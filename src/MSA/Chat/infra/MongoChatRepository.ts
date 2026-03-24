@@ -34,13 +34,24 @@ export class ChatRepository implements IChatRepository {
 
     return this.mapToDomain(sortedDocs[0]);
   }
-
-  async findByUserId(userId: string): Promise<Chat[] | null> {
-    const doc = await this.ChatModel.find({
+  async findByUserId(userId: string): Promise<Chat[]> {
+    const docs = await this.ChatModel.find({
       $or: [{ user1: userId }, { user2: userId }],
     });
-    if (!doc) return null;
-    return doc.map((d) => this.mapToDomain(d));
+
+    return docs
+      .map((d) => this.mapToDomain(d))
+      .sort((a, b) => {
+        const aLast = a.contents?.length
+          ? new Date(a.contents[a.contents.length - 1].createdAt).getTime()
+          : 0;
+
+        const bLast = b.contents?.length
+          ? new Date(b.contents[b.contents.length - 1].createdAt).getTime()
+          : 0;
+
+        return bLast - aLast;
+      });
   }
 
   async findAll(): Promise<Chat[] | null> {

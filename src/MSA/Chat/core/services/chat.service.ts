@@ -1,14 +1,14 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { Chat } from '../domain/chat/Chat';
+import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
 import { RequestContext } from 'src/request-context';
+import { DateUtils } from 'src/utils/Date';
 import { ICHAT_REPOSITORY, IUSER_REPOSITORY } from 'src/utils/di.tokens';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
-import { IChatRepository } from '../interfaces/ChatRepository.interface';
-import { DateUtils } from 'src/utils/Date';
+import { Chat } from '../domain/chat/Chat';
 import { Content } from '../domain/chat/Content';
-import { UserRepository } from 'src/MSA/User/infra/MongoUserRepository';
+import { IChatRepository } from '../interfaces/ChatRepository.interface';
 
 @Injectable()
 export class ChatService {
@@ -19,7 +19,7 @@ export class ChatService {
     private readonly fcmServiceInstance: FcmService,
     @Inject(IUSER_REPOSITORY)
     private readonly UserRepository: UserRepository,
-  ) { }
+  ) {}
 
   async getChat(userId: string) {
     const token = RequestContext.getDecodedToken();
@@ -55,7 +55,6 @@ export class ChatService {
 
     const chats = await this.chatRepository.findByUserId(token.id);
 
-    //채팅 데이터가 생성돼있으면 전부 가져옴
     const chatWithUsers = (
       await Promise.all(
         chats.map(async (chat) => {
@@ -66,14 +65,13 @@ export class ChatService {
 
           const opponent = await this.UserRepository.findById(opponentId);
 
-          if (!opponent) {
-            return null; // opponent 없으면 스킵
-          }
+          if (!opponent) return null;
+
           return {
             user: {
               name: opponent.name,
               profileImage: opponent.profileImage,
-              avatar: opponent?.avatar,
+              avatar: opponent.avatar,
               _id: opponent._id,
             },
             content: chat.contents.length
@@ -82,7 +80,7 @@ export class ChatService {
           };
         }),
       )
-    ).filter((chatForm) => chatForm !== null); // null 제거
+    ).filter(Boolean);
 
     return chatWithUsers;
   }

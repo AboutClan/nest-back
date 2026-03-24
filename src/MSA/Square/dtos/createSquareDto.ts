@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
 } from 'class-validator';
+import { IAvatar } from 'src/MSA/User/core/domain/User/Avatar';
 import {
   PollItem,
   SecretSquareCategory,
@@ -23,6 +24,9 @@ export class CreateSquareDto {
 
   @IsNotEmpty({ message: 'Category is required' })
   category: SecretSquareCategory;
+
+  @IsOptional()
+  avatar?: IAvatar;
 
   @IsOptional()
   @IsArray()

@@ -38,6 +38,7 @@ export class SquareRepository implements ISquareRepository {
       author: dbEntity.author,
       viewers: dbEntity.viewers || [],
       like: dbEntity.like || [],
+      avatar: dbEntity.avatar || { type: 0, bg: 0 },
       createdAt: (dbEntity as any).createdAt,
       updatedAt: (dbEntity as any).updatedAt,
     });
@@ -66,6 +67,7 @@ export class SquareRepository implements ISquareRepository {
       like: domainEntity.like,
       createdAt: domainEntity.createdAt,
       updatedAt: domainEntity.updatedAt,
+      avatar: domainEntity.avatar,
     };
   }
 

@@ -32,7 +32,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) { }
+  ) {}
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -526,9 +526,15 @@ export class UserService {
   ) {
     let updatedTicket = null;
     if (type === 'gather') {
-      updatedTicket = await this.UserRepository.updateGatherTicket(userId, ticketNum);
+      updatedTicket = await this.UserRepository.updateGatherTicket(
+        userId,
+        ticketNum,
+      );
     } else {
-      updatedTicket = await this.UserRepository.updateGroupStudyTicket(userId, ticketNum);
+      updatedTicket = await this.UserRepository.updateGroupStudyTicket(
+        userId,
+        ticketNum,
+      );
     }
 
     const { uid } = await this.getUserWithUserId(userId);

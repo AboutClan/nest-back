@@ -1,6 +1,5 @@
-import { SquareComment } from './SquareComment';
+import { IAvatar } from 'src/MSA/User/core/domain/User/Avatar';
 import { SquarePoll } from './SquarePoll';
-import { SquareSubComment } from './SquareSubComment';
 
 export interface SquareProps {
   _id?: string;
@@ -22,6 +21,7 @@ export interface SquareProps {
   like: any[];
   createdAt?: Date;
   updatedAt?: Date;
+  avatar?: IAvatar;
 }
 
 export class Square {
@@ -37,6 +37,7 @@ export class Square {
   like: string[];
   createdAt?: Date;
   updatedAt?: Date;
+  avatar?: IAvatar;
 
   constructor(props: SquareProps) {
     this._id = props._id;
@@ -51,6 +52,7 @@ export class Square {
     this.like = props.like || [];
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
+    this.avatar = props.avatar;
   }
 
   addLike(userId: string) {
@@ -134,6 +136,7 @@ export class Square {
       like: this.like,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      avatar: this.avatar,
     };
   }
 }

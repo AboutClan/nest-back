@@ -78,13 +78,14 @@ export default class SquareService {
 
   async createSquare(square: Partial<Square> & { buffers: Buffer[] }) {
     const token = RequestContext.getDecodedToken();
-
+    console.log(5, square);
     const {
       category,
       title,
       content,
       type: squareType,
       poll,
+      avatar,
       buffers,
     } = square;
 
@@ -98,6 +99,9 @@ export default class SquareService {
 
     const author = token.id;
 
+    const parsedAvatar =
+      typeof avatar === 'string' ? JSON.parse(avatar) : avatar;
+
     const squareEntity = new Square({
       category,
       title,
@@ -106,10 +110,11 @@ export default class SquareService {
       poll: new SquarePoll(poll),
       images,
       author,
+      avatar: parsedAvatar,
       viewers: [],
       like: [],
     });
-
+    console.log(124, parsedAvatar);
     const createdSquare = await this.squareRepository.create(squareEntity);
     return { squareId: createdSquare._id };
   }

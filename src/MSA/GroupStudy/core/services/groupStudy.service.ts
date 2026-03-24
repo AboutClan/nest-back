@@ -48,7 +48,7 @@ export default class GroupStudyService {
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
     private readonly openaiService: OpenAIService,
-  ) { }
+  ) {}
 
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
@@ -361,8 +361,8 @@ export default class GroupStudyService {
     const categoryMapping = {
       '공부·자기계발': ['스터디', '자기계발', '말하기', '크루'],
       취미: ['힐링', '소셜 게임'],
-      '문화·예술': ['감상'],
-      스포츠: ['운동'],
+      '문화·감상': ['감상'],
+      액티비티: ['운동'],
       친목: ['친목', '파티', '푸드'],
     };
 

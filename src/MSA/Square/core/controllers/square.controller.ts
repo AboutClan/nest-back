@@ -69,7 +69,7 @@ export class SquareController {
     @Body(new ValidationPipe()) createSquareDto: CreateSquareDto,
   ) {
     const buffers: Buffer[] = files ? files.map((file) => file.buffer) : [];
-
+    console.log(12, createSquareDto);
     const { squareId } = await this.squareService.createSquare({
       ...createSquareDto,
       poll: {
