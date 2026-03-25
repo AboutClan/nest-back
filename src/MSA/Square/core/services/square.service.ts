@@ -164,7 +164,7 @@ export default class SquareService {
     });
 
     // 웹푸시 알림 발송
-    if (square && square.author !== token.id) {
+    if (square && square.author.toString() !== token.id.toString()) {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         square.author,
         WEBPUSH_MSG.SQUARE.TITLE,
@@ -196,7 +196,7 @@ export default class SquareService {
     });
 
     // 웹푸시 알림 발송
-    if (square && square.author !== token.id) {
+    if (square && square.author.toString() !== token.id.toString()) {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         square.author,
         WEBPUSH_MSG.SQUARE.TITLE,
