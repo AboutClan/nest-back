@@ -150,16 +150,7 @@ export class SquareRepository implements ISquareRepository {
     gap: number,
   ): Promise<any[]> {
     // 1) summary projection
-    let query = {};
-    console.log(25);
-
-    if (category === 'normalAll') {
-      query = { type: { $in: ['info', 'poll2'] } };
-    } else if (category === 'secretAll') {
-      query = { type: { $in: ['general', 'poll', 'secret'] } };
-    } else {
-      query = { category };
-    }
+    const query = { category };
 
     const squares = await this.SquareModel.find(query, {
       category: 1,
@@ -178,20 +169,13 @@ export class SquareRepository implements ISquareRepository {
       createdAt: 1,
       author: 1,
       comments: 1,
+      avatar: 1,
+      poll: 1,
     })
       .sort({ createdAt: 'desc' })
       .skip(start)
       .limit(gap)
       .exec();
-
-    for (const square of squares) {
-      if (square.type === 'info' || square.type === 'poll2') {
-        await square.populate([
-          { path: 'author', select: ENTITY.USER.C_SIMPLE_USER },
-          { path: 'like', select: ENTITY.USER.C_SIMPLE_USER },
-        ]);
-      }
-    }
 
     return squares;
   }
