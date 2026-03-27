@@ -82,7 +82,14 @@ export const ENTITY = {
 
   SQUARE: {
     ENUM_CATEGORY: ['일상 · 자유', '정보공유', '팀원모집', '홍보'] as const,
-    ENUM_TYPE: ['general', 'poll', 'poll2', 'info', 'secret'] as const,
+    ENUM_TYPE: [
+      'general',
+      'poll',
+      'poll2',
+      'info',
+      'secret',
+      'blindnes',
+    ] as const,
   },
 
   USER: {

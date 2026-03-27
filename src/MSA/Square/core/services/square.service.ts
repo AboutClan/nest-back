@@ -96,7 +96,7 @@ export default class SquareService {
         buffers,
       );
     }
-
+    console.log(token.id, token.name);
     const author = token.id;
 
     const parsedAvatar =

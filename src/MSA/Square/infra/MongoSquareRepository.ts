@@ -88,13 +88,9 @@ export class SquareRepository implements ISquareRepository {
       return null;
     }
 
-    if (square.type === 'info' || square.type === 'poll2') {
+    if (square.type === 'blindnes' || square.type === 'poll2') {
       await square.populate({
         path: 'author',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      });
-      await square.populate({
-        path: 'like',
         select: ENTITY.USER.C_SIMPLE_USER,
       });
     }
