@@ -177,6 +177,9 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       })
       .select('-_id');
 
+    doc.participants = (doc.participants || []).filter((p: any) => p.user);
+    doc.waiting = (doc.waiting || []).filter((w: any) => w.user);
+
     return doc ? this.mapToDomain(doc) : null;
   }
 

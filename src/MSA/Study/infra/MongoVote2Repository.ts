@@ -60,7 +60,11 @@ export class Vote2Repository implements IVote2Repository {
 
     // docs: (Document & IVote2)[]
 
-    return docs.map((doc) => this.mapToDomain(doc));
+    return docs
+      .filter((doc) =>
+        doc.results.every((r) => r.placeId && r.members.every((m) => m.userId)),
+      )
+      .map((doc) => this.mapToDomain(doc));
   }
 
   async findByDateWithoutPopulate(date: string): Promise<Vote2 | null> {
