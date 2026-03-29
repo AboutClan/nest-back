@@ -33,7 +33,7 @@ export default class AdminUserService {
     } else if (type === 'monthScore') {
       query.monthScore = { $gt: 0 };
     } else if (type === 'temperature') {
-      query['temperature.temperature'] = { $gt: 36.5 };
+      query['temperature.cnt'] = { $gt: 1 };
     }
 
     const filterArr = ['3224546232'];
@@ -50,8 +50,9 @@ export default class AdminUserService {
         query,
         ENTITY.USER.C_SIMPLE_USER + addField,
       )
-        .sort({ 'temperature.temperature': -1, 'temperature.cnt': -1 }) // 내림차순 정렬
-        .limit(101);
+        .sort({ 'temperature.temperature': -1, 'temperature.cnt': -1 })
+        .limit(502); // 내림차순 정렬
+
       return res.filter((who) => !filterArr.includes(who.uid));
     } else {
       const res = await this.User.find(

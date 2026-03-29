@@ -587,25 +587,42 @@ export default class GroupStudyService {
 
     //ticket 차감 로직
     const ticketInfo = await this.userServiceInstance.getTicketInfo(token.id);
-    if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
 
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
+    const extraTemp = groupStudy.requiredTicket - ticketInfo.groupStudyTicket;
+
+    if (extraTemp <= 0) {
+      await this.userServiceInstance.updateReduceTicket(
+        'group',
+        token.id,
+        -groupStudy.requiredTicket,
+      );
+    } else {
+      if (ticketInfo.groupStudyTicket >= 0) {
+        await this.userServiceInstance.updateReduceTicket(
+          'group',
+          token.id,
+          -ticketInfo.groupStudyTicket,
+        );
+      }
+      await this.userServiceInstance.updatePoint(
+        -1000 * extraTemp,
+        '소모임 참여권 대체 사용',
+        'ticket',
+      );
+    }
+
     groupStudy.participateGroupStudy(token.id, 'member');
 
     //ticket 차감 로직
-    await this.userServiceInstance.updateReduceTicket(
-      'group',
-      token.id,
-      -groupStudy.requiredTicket,
-    );
 
     await this.groupStudyRepository.save(groupStudy);
 
-    // await this.fcmServiceInstance.sendNotificationGroupStudy(
-    //   id,
-    //   WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
-    // );
+    await this.fcmServiceInstance.sendNotificationGroupStudy(
+      id,
+      WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
+    );
 
     return;
   }
@@ -722,30 +739,37 @@ export default class GroupStudyService {
 
         //ticket 소모 로직
         const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
-        if (ticketInfo.groupStudyTicket < groupStudy.requiredTicket) {
-          throw new HttpException('no ticket', 500);
-        }
-        this.userServiceInstance.updateReduceTicket(
-          'group',
-          userId,
-          -groupStudy.requiredTicket,
-        );
-        // if (groupStudy.meetingType !== 'online') {
-        //   if (ticketInfo.groupStudyTicket <= 1)
-        //     throw new HttpException('no ticket', 500);
-        //   this.userServiceInstance.updateReduceTicket('groupOffline', userId);
-        // } else {
-        //   if (ticketInfo.groupStudyTicket <= 0)
-        //     throw new HttpException('no ticket', 500);
-        //   this.userServiceInstance.updateReduceTicket('groupOnline', userId);
-        // }
+        const extraTemp =
+          groupStudy.requiredTicket - ticketInfo.groupStudyTicket;
 
-        await this.fcmServiceInstance.sendNotificationToXWithId(
-          userId,
-          WEBPUSH_MSG.GROUPSTUDY.TITLE,
-          WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
-          `/groupStudy/${groupStudy.id}`,
-        );
+        if (extraTemp <= 0) {
+          await this.userServiceInstance.updateReduceTicket(
+            'group',
+            userId,
+            -groupStudy.requiredTicket,
+          );
+        } else {
+          if (ticketInfo.groupStudyTicket > 0) {
+            await this.userServiceInstance.updateReduceTicket(
+              'group',
+              userId,
+              -ticketInfo.groupStudyTicket,
+            );
+          }
+          await this.userServiceInstance.updatePointById(
+            -1000 * extraTemp,
+            '소모임 참여권 대체 사용',
+            'ticket',
+            userId,
+          );
+
+          await this.fcmServiceInstance.sendNotificationToXWithId(
+            userId,
+            WEBPUSH_MSG.GROUPSTUDY.TITLE,
+            WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
+            `/groupStudy/${groupStudy.id}`,
+          );
+        }
       } else {
         groupStudy.disagreeWaiting(userId);
       }
