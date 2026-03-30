@@ -693,6 +693,7 @@ export class UserService {
 
       let addTemp = 0;
       if (
+        user.role === 'previliged' ||
         user.membership === 'manager' ||
         user.membership === 'gatherSupporters'
       ) {
