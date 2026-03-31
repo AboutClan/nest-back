@@ -11,6 +11,7 @@ import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { logger } from 'src/logger';
+import RequestService from 'src/MSA/Notice/core/services/request.service';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
@@ -40,6 +41,7 @@ export class GatherService {
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
     private readonly commentService: GatherCommentService,
+    private readonly requestService: RequestService,
   ) {}
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
@@ -139,6 +141,35 @@ export class GatherService {
 
     return gatherData?.length;
   }
+
+  async voteOpenGatherMember(
+    infos: { toUid: string; type: 'good' | 'bad' }[],
+    gatherId: string,
+  ) {
+    const token = RequestContext.getDecodedToken();
+    try {
+      this.requestService.createRequest({
+        category: '오픈 번개',
+        title: '오픈 번개 평가',
+        content: JSON.stringify(infos),
+      });
+      // const validatedNotice = NoticeZodSchema.parse({
+      //   from: token.uid,
+      //   type: 'temperature',
+      //   to: info.toUid,
+      //   message: info.message,
+      //   sub: info.rating,
+      // });
+      // await this.noticeRepository.createNotice(validatedNotice);
+
+      const gather = await this.gatherRepository.findById(parseInt(gatherId));
+      gather.addReviewers(token.id);
+      await this.gatherRepository.save(gather);
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
+
   async getStatusGather(cursor: number, userId: string) {
     const token = RequestContext.getDecodedToken();
 

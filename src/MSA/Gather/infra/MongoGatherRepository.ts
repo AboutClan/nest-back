@@ -11,7 +11,7 @@ export class GatherRepository implements IGatherRepository {
   constructor(
     @InjectModel(DB_SCHEMA.GATHER)
     private readonly Gather: Model<IGatherData>,
-  ) { }
+  ) {}
 
   async findMyGather(
     userId: string,
@@ -73,7 +73,8 @@ export class GatherRepository implements IGatherRepository {
       query = query
         .populate({
           path: 'participants.user',
-          select: ENTITY.USER.C_SIMPLE_USER + 'telephone',
+          select:
+            ENTITY.USER.C_SIMPLE_USER + 'telephone introduceText gender mbti',
         })
         .populate({
           path: 'waiting.user',
@@ -467,11 +468,11 @@ export class GatherRepository implements IGatherRepository {
       content: props.content,
       location: props?.location
         ? {
-          main: props.location.main,
-          sub: props.location.sub,
-          latitude: props.location.latitude,
-          longitude: props.location.longitude,
-        }
+            main: props.location.main,
+            sub: props.location.sub,
+            latitude: props.location.latitude,
+            longitude: props.location.longitude,
+          }
         : null,
       memberCnt: {
         min: props.memberCnt.min,

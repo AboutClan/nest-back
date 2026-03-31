@@ -76,6 +76,7 @@ export const ENTITY = {
       '장소 추가',
       '출금',
       '인스타',
+      '오픈 번개',
     ],
     ENUM_REST: ['일반', '특별'] as const,
   },

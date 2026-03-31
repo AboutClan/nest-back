@@ -1,21 +1,22 @@
 import { ClassProvider, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GatherSchema } from './entity/gather.entity';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { UserModule } from 'src/MSA/User/user.module';
 import { CounterModule } from 'src/routes/counter/couter.module';
-import {
-  IGATHER_REPOSITORY,
-  IGATHERCOMMENT_REPOSITORY,
-} from 'src/utils/di.tokens';
-import { GatherService } from './core/services/gather.service';
-import { GatherRepository } from './infra/MongoGatherRepository';
-import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { FcmAModule } from '../Notification/fcm.module';
 import { ImageModule } from 'src/routes/imagez/image.module';
+import {
+  IGATHERCOMMENT_REPOSITORY,
+  IGATHER_REPOSITORY,
+} from 'src/utils/di.tokens';
+import { RequestModule } from '../Notice/request.module';
+import { FcmAModule } from '../Notification/fcm.module';
 import { GatherController } from './core/controllers/gather.controller';
-import { MongoGatherCommentRepository } from './infra/MongoGatherCommentRepository';
 import GatherCommentService from './core/services/comment.service';
+import { GatherService } from './core/services/gather.service';
 import { gatherCommentSchema } from './entity/comment.entity';
+import { GatherSchema } from './entity/gather.entity';
+import { MongoGatherCommentRepository } from './infra/MongoGatherCommentRepository';
+import { GatherRepository } from './infra/MongoGatherRepository';
 
 const gatherRepositoryProvider: ClassProvider = {
   provide: IGATHER_REPOSITORY,
@@ -36,6 +37,7 @@ const gatherCommentRepositoryProvider: ClassProvider = {
     ]),
     FcmAModule,
     ImageModule,
+    RequestModule,
   ],
   controllers: [GatherController],
   providers: [
@@ -46,4 +48,4 @@ const gatherCommentRepositoryProvider: ClassProvider = {
   ],
   exports: [GatherService, MongooseModule, gatherRepositoryProvider],
 })
-export class GatherModule { }
+export class GatherModule {}

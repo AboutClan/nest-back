@@ -126,6 +126,16 @@ export class GatherController {
     return gatherData;
   }
 
+  @Post('openGather')
+  async voteOpenGatherMember(
+    @Body('infos') infos: { toUid: string; type: 'good' | 'bad' }[],
+    @Body('gatherId') gatherId: string,
+  ) {
+    console.log(infos);
+    await this.gatherService.voteOpenGatherMember(infos, gatherId);
+    return { status: 'success' };
+  }
+
   @Post('waiting')
   async setWaitingPerson(@Body() setWaitingPersonDto: SetWaitingPersonDto) {
     await this.gatherService.setWaitingPerson(
