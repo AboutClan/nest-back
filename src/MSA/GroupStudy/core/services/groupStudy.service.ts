@@ -407,7 +407,7 @@ export default class GroupStudyService {
 
   async getGroupStudyByFilter(filter: string, cursor: number | null) {
     let groupStudyData;
-    const gap = 8;
+    const gap = filter === 'planned' ? 20 : 8;
     const start = gap * (cursor || 0);
 
     const filterQuery = {

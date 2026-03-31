@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
@@ -15,7 +15,7 @@ import {
   CreateGroupStudyDto,
   inviteGroupStudyDto,
   ParticipateGroupStudyDto,
-  PatchRole
+  PatchRole,
 } from '../../dtos/dto';
 import { GroupStudyStatus } from '../../entity/groupStudy.entity';
 import { GroupStudyInterceptor } from '../../interceptors/groupstudy.interceptor';
@@ -25,25 +25,30 @@ import GroupStudyService from '../services/groupStudy.service';
 @Controller('groupStudy')
 @UseInterceptors(GroupStudyInterceptor)
 export class GroupStudyController {
-  constructor(private readonly groupStudyService: GroupStudyService) { }
+  constructor(private readonly groupStudyService: GroupStudyService) {}
 
   //todo: groupStudyId정도는 분리하는게 좋아보임
   @Get()
   async getGroupStudy(
     @Query('groupStudyId') groupStudyId?: string,
-    @Query('filter') filter?: GroupStudyStatus,
+    @Query('filter') filter?: GroupStudyStatus | 'planned',
     @Query('category') category?: string,
     @Query('cursor') cursor?: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor) : 0;
     let groupStudyData;
-
+    console.log(category, filter);
     if (groupStudyId) {
       groupStudyData =
         await this.groupStudyService.getGroupStudyById(groupStudyId);
       return groupStudyData;
     } else if (filter) {
-      if (category && category !== '전체') {
+      if (filter === 'planned') {
+        groupStudyData = await this.groupStudyService.getGroupStudyByFilter(
+          filter,
+          cursorNum,
+        );
+      } else if (category && category !== '전체') {
         groupStudyData =
           await this.groupStudyService.getGroupStudyByFilterAndCategory(
             filter,
@@ -169,7 +174,6 @@ export class GroupStudyController {
   async exileParticipate(
     @Body('id') id: string,
     @Body('userId') userId: string,
-   
   ) {
     await this.groupStudyService.exileParticipate(id, userId);
     return { status: 'success' };
@@ -384,7 +388,11 @@ export class GroupStudyController {
   }
 
   @Patch('status')
-  async updateGroupStudyStatus(@Body('id') id: string, @Body('userId') userId: string, @Body('status') status: "active" | "rest" | "warning") {
+  async updateGroupStudyStatus(
+    @Body('id') id: string,
+    @Body('userId') userId: string,
+    @Body('status') status: 'active' | 'rest' | 'warning',
+  ) {
     await this.groupStudyService.updateGroupStudyStatus(id, userId, status);
     return { status: 'success' };
   }
