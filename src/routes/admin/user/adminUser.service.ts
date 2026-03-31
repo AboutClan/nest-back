@@ -43,7 +43,7 @@ export default class AdminUserService {
         ? 'studyRecord'
         : type === 'monthScore'
           ? 'monthScore rank'
-          : 'locationDetail';
+          : 'locationDetail isPrivate';
 
     if (type === 'temperature') {
       const res = await this.User.find(
