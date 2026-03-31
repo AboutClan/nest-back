@@ -469,12 +469,12 @@ export class GatherService {
     );
 
     if (userId) {
-      // await this.fcmServiceInstance.sendNotificationToXWithId(
-      //   userId,
-      //   WEBPUSH_MSG.GATHER.TITLE,
-      //   WEBPUSH_MSG.GATHER.INVITE(gather.title),
-      //   `/gather/${gather.id}`,
-      // );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.INVITE(gather.title),
+        `/gather/${gather.id}`,
+      );
     }
 
     return;
