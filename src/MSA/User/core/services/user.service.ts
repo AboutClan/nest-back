@@ -467,12 +467,23 @@ export class UserService {
     user.increaseRandomTicket(number);
 
     await this.UserRepository.save(user);
+
+    const userUid = user.uid;
+
     if (number > 0) {
+      console.log(12);
+      await this.noticeService.createNotice({
+        from: token.uid,
+        to: userUid,
+        type: 'randomTicket',
+        message: `${token.name === '이승주' || !token.name ? '어바웃' : token.name}님에게 이벤트 뽑기권을 받았어요!`,
+        status: 'pending',
+      });
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         '🎁 이벤트 뽑기권 도착!',
         `${token.name === '이승주' || !token.name ? '어바웃' : token.name}님이 열활 멤버 보상으로 이벤트 뽑기권을 선물했어요. 접속해서 확인해 보세요!`,
-        `/random-roulette`,
+        `/notice?type=active`,
       );
     }
 

@@ -37,7 +37,7 @@ export class GroupStudyController {
   ) {
     const cursorNum = cursor ? parseInt(cursor) : 0;
     let groupStudyData;
-    console.log(category, filter);
+
     if (groupStudyId) {
       groupStudyData =
         await this.groupStudyService.getGroupStudyById(groupStudyId);

@@ -13,7 +13,7 @@ export class MongoNoticeRepository implements NoticeRepository {
     uid: string,
     isRecent?: 'true' | 'false',
   ): Promise<INotice[]> {
-    const types = ['like', 'friend', 'alphabet'];
+    const types = ['like', 'friend', 'alphabet', 'randomTicket'];
 
     const docs = await this.Notice.aggregate([
       { $match: { to: uid, type: { $in: types } } },

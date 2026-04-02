@@ -45,7 +45,7 @@ export const ENTITY = {
   },
 
   NOTICE: {
-    ENUM_TYPE: ['like', 'friend', 'alphabet', 'temperature'] as const,
+    ENUM_TYPE: ['like', 'friend', 'alphabet', 'temperature',"randomTicket"] as const,
     DEFAULT_TYPE: 'like' as const,
     ENUM_STATUS: ['pending', 'refusal', 'approval', 'response'] as const,
   },
