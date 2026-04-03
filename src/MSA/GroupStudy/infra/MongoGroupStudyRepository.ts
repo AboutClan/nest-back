@@ -197,8 +197,17 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return docs;
   }
 
-  async findById(groupStudyId: string): Promise<GroupStudy | null> {
-    const doc = await this.GroupStudy.findOne({ id: groupStudyId });
+  async findById(
+    groupStudyId: string,
+    isPopulate?: boolean,
+  ): Promise<GroupStudy | null> {
+    let query = this.GroupStudy.findOne({ id: groupStudyId });
+
+    if (isPopulate) {
+      query = query.populate('participants.user');
+    }
+
+    const doc = await query;
 
     return doc ? this.mapToDomain(doc) : null;
   }

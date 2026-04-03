@@ -192,14 +192,23 @@ export default class GroupStudyService {
   }
 
   async getMannerByGroupId(groupId: string, type: 'private' | null) {
+    const group = await this.groupStudyRepository.findById(groupId, true);
     const gathers = await this.gatherRepository.findByGroupId(groupId, 'group');
+
+    const gatherUids = gathers.flatMap((g) => [
+      (g.user as any)?.uid,
+      ...(g.participants ?? []).map((p) => (p.user as any)?.uid),
+    ]);
+
+    const groupUids = (group?.participants ?? []).map(
+      (p) => (p.user as any)?.uid,
+    );
 
     const uids = [
       ...new Set(
-        gathers.flatMap((g) => [
-          (g.user as any).uid,
-          ...(g.participants ?? []).map((p) => (p.user as any).uid),
-        ]),
+        [...gatherUids, ...groupUids].filter((uid): uid is string =>
+          Boolean(uid),
+        ),
       ),
     ];
 
@@ -217,13 +226,11 @@ export default class GroupStudyService {
 
     const latestNotices = [...latestByPair.values()];
 
-    // 여기부터: to 기준으로 sub 집계
     const result: Record<
       string,
       { great: number; good: number; soso: number; block: number }
     > = {};
 
-    // ✅ 추가: to별 총 개수 & to별 허용 개수(5의 배수로 내림)
     const totalByTo: Record<string, number> = {};
     for (const n of latestNotices) {
       totalByTo[n.to] = (totalByTo[n.to] ?? 0) + 1;
@@ -237,11 +244,11 @@ export default class GroupStudyService {
       }
     }
 
-    // ✅ 추가: to별로 실제 집계한 개수 카운트
     const countedByTo: Record<string, number> = {};
 
     for (const notice of latestNotices) {
       const { to, sub } = notice;
+
       if (type === 'private') {
         const limit = limitByTo[to] ?? 0;
         if (limit === 0) continue;
@@ -250,12 +257,14 @@ export default class GroupStudyService {
         if (countedByTo[to] >= limit) continue;
         countedByTo[to]++;
       }
+
       if (!result[to]) {
         result[to] = { great: 0, good: 0, soso: 0, block: 0 };
       }
 
       result[to][sub]++;
     }
+
     return result;
   }
 

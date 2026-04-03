@@ -15,7 +15,10 @@ export interface IGroupStudyRepository {
   findByIdWithPop(groupStudyId: number): Promise<GroupStudy | null>;
   findAll(): Promise<GroupStudy[]>;
   findAllTemp();
-  findById(groupStudyId: string): Promise<GroupStudy | null>;
+  findById(
+    groupStudyId: string,
+    isPopulate?: boolean,
+  ): Promise<GroupStudy | null>;
   findBy_Id(groupStudyId: string): Promise<GroupStudy | null>;
   initWeekAttendance(): Promise<void>;
   findMyGroupStudyComment(userId: string): Promise<any[]>;
