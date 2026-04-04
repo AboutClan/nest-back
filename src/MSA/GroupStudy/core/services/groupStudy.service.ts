@@ -628,9 +628,11 @@ export default class GroupStudyService {
 
     await this.groupStudyRepository.save(groupStudy);
 
-    await this.fcmServiceInstance.sendNotificationGroupStudy(
-      id,
+    await this.fcmServiceInstance.sendNotificationToXWithId(
+      groupStudy.organizer.toString(),
+      '소모임',
       WEBPUSH_MSG.GROUPSTUDY.PARTICIPATE(token.name, groupStudy.title),
+      `/group/${id}`,
     );
 
     return;
