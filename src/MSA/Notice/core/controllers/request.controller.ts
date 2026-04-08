@@ -32,7 +32,6 @@ export class RequestController {
   @Get()
   async getRequestData() {
     try {
-      console.log(1);
       const requestData = await this.requestService.getRequest();
       return requestData;
     } catch (err) {

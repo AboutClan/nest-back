@@ -168,7 +168,9 @@ export class Vote2Service {
     const unmatchedUsers = [];
 
     const resultMembers = voteData.results.flatMap((result) =>
-      result.members.map((member) => member.userId.toString()),
+      result.members
+        .filter((p) => p?.userId)
+        .map((member) => member.userId.toString()),
     );
 
     participations?.forEach((par) => {
@@ -180,9 +182,9 @@ export class Vote2Service {
     return {
       results: voteData.results.map((result) => ({
         place: result.placeId,
-        members: result.members.map((member: any) =>
-          this.formatResultMember(member),
-        ),
+        members: result.members
+          .filter((m) => !!m.userId)
+          .map((member: any) => this.formatResultMember(member)),
       })),
       status: 'open',
       realTimes: realtimeData
@@ -201,7 +203,7 @@ export class Vote2Service {
     const token = RequestContext.getDecodedToken();
 
     const vote2 = await this.Vote2Repository.findByDate(date);
-    console.log(2, date);
+
     const { latitude, longitude, start, end, locationDetail, userId, eps } =
       createVote;
 
@@ -241,14 +243,14 @@ export class Vote2Service {
         await this.deleteVote(date);
       }
     }
-    if (createVote?.userId) {
-      await this.fcmServiceInstance.sendNotificationToXWithId(
-        createVote?.userId,
-        '스터디 초대',
-        `${dayjs(dates[0]).format('M월 D일(ddd)')} 스터디에 초대되었어요!`,
-        `/study/participations/${dates[0]}?type=participations`,
-      );
-    }
+    // if (createVote?.userId) {
+    //   await this.fcmServiceInstance.sendNotificationToXWithId(
+    //     createVote?.userId,
+    //     '스터디 초대',
+    //     `${dayjs(dates[0]).format('M월 D일(ddd)')} 스터디에 초대되었어요!`,
+    //     `/study/participations/${dates[0]}?type=participations`,
+    //   );
+    // }
   }
 
   async deleteVote(date: string) {
