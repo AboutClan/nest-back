@@ -368,6 +368,7 @@ export default class GroupStudyService {
     const start = gap * (cursor || 0);
 
     const categoryMapping = {
+      크루: ['크루'],
       '공부·자기계발': ['스터디', '자기계발', '말하기', '크루'],
       취미: ['힐링', '소셜 게임'],
       '문화·감상': ['감상'],
@@ -380,6 +381,7 @@ export default class GroupStudyService {
       $expr: { $gt: [{ $size: '$participants' }, 1] },
     };
 
+    console.log(category, filterQuery);
     if (filter === 'pending') {
       filterQuery.status = { $in: ['pending', 'resting'] };
     } else {

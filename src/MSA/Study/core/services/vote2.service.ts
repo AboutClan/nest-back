@@ -885,11 +885,11 @@ export class Vote2Service {
       point = isLate
         ? CONST.POINT.STUDY_ATTEND_BEFORE() + CONST.POINT.LATE
         : CONST.POINT.STUDY_ATTEND_BEFORE();
-      await this.userServiceInstance.updatePoint(
-        point,
-        `스터디 출석 ${isLate ? '(지각)' : ''}`,
-        'study',
-      );
+      // await this.userServiceInstance.updatePoint(
+      //   point,
+      //   `스터디 출석 ${isLate ? '(지각)' : ''}`,
+      //   'study',
+      // );
 
       return {
         point,
@@ -898,7 +898,7 @@ export class Vote2Service {
     } else {
       point = CONST.POINT.STUDY_ATTEND_AFTER();
       const message = `스터디 당일 참여`;
-      await this.userServiceInstance.updatePoint(point, message, 'study');
+      // await this.userServiceInstance.updatePoint(point, message, 'study');
 
       return {
         point,
