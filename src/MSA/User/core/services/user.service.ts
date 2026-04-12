@@ -470,7 +470,7 @@ export class UserService {
 
     const userUid = user.uid;
 
-    if (number > 0) {
+    if (number > 0 && token.id.toString() !== userId) {
       await this.noticeService.createNotice({
         from: token.uid,
         to: userUid,
