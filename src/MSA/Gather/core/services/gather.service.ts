@@ -50,6 +50,24 @@ export class GatherService {
   async getGatherById(gatherId: number) {
     const gatherData = await this.gatherRepository.findById(gatherId, true);
 
+    // const par = gatherData.participants;
+    // console.log(par);
+    // const ids = par.map((p) => (p.user as any)?._id.toString());
+    // console.log(1, ids);
+
+    // await this.fcmServiceInstance.sendNotificationUserIds(
+    //   ids,
+    //   '오픈 번개',
+    //   '멤버 선택이 시작됐어요! 오늘까지 함께하고 싶은 멤버를 선택해 주세요 🤩',
+    //   `/gather/${gatherData.id}`,
+    // );
+
+    // await this.fcmServiceInstance.sendNotificationToXWithId(
+    //   gather?.user as string,
+    //   WEBPUSH_MSG.GATHER.TITLE,
+    //   WEBPUSH_MSG.GATHER.PARTICIPATE(token.name, gather.title),
+    //   `/gather/${gather.id}`,
+    // );
     const comments = await this.commentService.findCommentsByPostId(
       gatherData._id.toString(),
     );
@@ -268,7 +286,9 @@ export class GatherService {
     );
 
     const notReviewed = myGathers.filter((g) => {
-      const reviewerIds = g.reviewers.map((r) => r.toString());
+      const reviewerIds = g.reviewers
+        .filter((r) => !!r)
+        .map((r) => r.toString());
       const isReviewed = reviewerIds.includes(userIdString);
 
       const isParticipant = g.participants.some(
@@ -469,12 +489,12 @@ export class GatherService {
     );
 
     if (userId) {
-      await this.fcmServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(gather.title),
-        `/gather/${gather.id}`,
-      );
+      // await this.fcmServiceInstance.sendNotificationToXWithId(
+      //   userId,
+      //   WEBPUSH_MSG.GATHER.TITLE,
+      //   WEBPUSH_MSG.GATHER.INVITE(gather.title),
+      //   `/gather/${gather.id}`,
+      // );
     }
 
     return;

@@ -166,11 +166,11 @@ export class GroupStudy {
     if (!userId) {
       throw new Error('User ID, name, and UID cannot be empty');
     }
-    console.log(3, this.participants, userId);
+ 
     const existingParticipant = this.participants.find(
       (p) => p.user.toString() === userId.toString(),
     );
-    console.log(2, existingParticipant);
+
 
     if (existingParticipant) {
       throw new Error('User is already a participant');

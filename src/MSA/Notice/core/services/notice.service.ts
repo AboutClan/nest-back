@@ -49,7 +49,7 @@ export default class NoticeService {
       token.uid,
       isRecent,
     );
-    console.log(2, result);
+  
     return result;
   }
   async getActiveLog() {

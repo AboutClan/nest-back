@@ -11,9 +11,9 @@ export default class RequestService {
 
   //todo: 다가져와야하나
   async getRequest() {
-    console.log(2);
+
     const requestData = await this.requestRepository.findAll();
-    console.log(requestData);
+  
     return requestData;
   }
 
