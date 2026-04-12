@@ -8,7 +8,7 @@ export class MongoNoticeRepository implements NoticeRepository {
   constructor(
     @InjectModel(DB_SCHEMA.NOTICE)
     private readonly Notice: Model<INotice>,
-  ) {}
+  ) { }
   async findActiveLog(
     uid: string,
     isRecent?: 'true' | 'false',
@@ -153,5 +153,11 @@ export class MongoNoticeRepository implements NoticeRepository {
       .sort({ createdAt: -1 })
       .skip(offset * (page - 1))
       .limit(offset);
+  }
+
+  async test() {
+    return await this.Notice.find({
+      type: 'temperature',
+    });
   }
 }

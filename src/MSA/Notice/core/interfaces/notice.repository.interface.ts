@@ -17,4 +17,5 @@ export interface NoticeRepository {
   findTemperatureByPeriod(start: Date, end: Date): Promise<INotice[]>;
   findMyTemperature(toUid: string);
   findAllTemperature(page, uid: string);
+  test();
 }

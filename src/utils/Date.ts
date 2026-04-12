@@ -111,6 +111,18 @@ export class DateUtils {
     return dayjs().tz('Asia/Seoul').toDate();
   }
 
+  // Asia/Seoul 기준, 오늘에서 monthsAgo만큼 이전 달 (1=지난달, 2=지지난달)
+  static getSeoulMonthRangeByMonthsAgo(monthsAgo: number): {
+    start: Date;
+    end: Date;
+  } {
+    const d = dayjs().tz('Asia/Seoul').subtract(monthsAgo, 'month');
+    return {
+      start: d.startOf('month').toDate(),
+      end: d.endOf('month').toDate(),
+    };
+  }
+
   static getTodayYYYYMMDD(): string {
     return dayjs().format('YYYY-MM-DD');
   }

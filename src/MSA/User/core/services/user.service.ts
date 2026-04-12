@@ -13,12 +13,15 @@ import ImageService from 'src/routes/imagez/image.service';
 import { DateUtils } from 'src/utils/Date';
 import {
   ILOG_MEMBERSHIP_REPOSITORY,
+  ILOG_TEMPERATURE_REPOSITORY,
   IUSER_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
+import { ILogTemperature } from '../../entity/logTemperature.entity';
 import { IUser, restType } from '../../entity/user.entity';
 import { ILogMembershipRepository } from '../interfaces/LogMembership.interface';
 import { IUserRepository } from '../interfaces/UserRepository.interface';
+import { ILogTemperatureRepository } from '../interfaces/LogTemperature.interface';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
@@ -27,12 +30,14 @@ export class UserService {
     private readonly UserRepository: IUserRepository,
     @Inject(ILOG_MEMBERSHIP_REPOSITORY)
     private readonly LogMembershipRepository: ILogMembershipRepository,
+    @Inject(ILOG_TEMPERATURE_REPOSITORY)
+    private readonly LogTemperatureRepository: ILogTemperatureRepository,
     private readonly noticeService: NoticeService,
     private placeService: PlaceService,
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) {}
+  ) { }
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -731,6 +736,103 @@ export class UserService {
     return +final;
   }
 
+  private scoreForTemperatureDegree(degree: string): number {
+    switch (degree) {
+      case 'great':
+        return 4.8;
+      case 'good':
+        return 0.8;
+      case 'soso':
+        return -1.2;
+      case 'block':
+        return -5.2;
+      case 'cancel':
+        return -1.0;
+      case 'noshow':
+        return -2.0;
+      default:
+        return 0;
+    }
+  }
+
+  /** (from,to) 쌍별 최신 3건까지 집계. 최근순 가중: 1번째 1.0, 2번째 0.5, 3번째 0.3 */
+  private aggregateLogTemperatureDeltasByTo(
+    logs: Pick<ILogTemperature, 'from' | 'to' | 'sub' | 'timestamp'>[],
+  ): Map<string, { score: number; cnt: number; blockCnt: number }> {
+    const byPair = new Map<
+      string,
+      Pick<ILogTemperature, 'from' | 'to' | 'sub' | 'timestamp'>[]
+    >();
+    for (const log of logs) {
+      const { from, to } = log;
+      if (from === to) continue;
+      const pairKey = `${from}-${to}`;
+      if (!byPair.has(pairKey)) byPair.set(pairKey, []);
+      byPair.get(pairKey)!.push(log);
+    }
+
+    const byTo = new Map<
+      string,
+      { score: number; cnt: number; blockCnt: number }
+    >();
+
+    for (const pairLogs of byPair.values()) {
+      pairLogs.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      );
+      const picked = pairLogs.slice(0, 3);
+      const recencyWeights = [1.0, 0.5, 0.3];
+      for (let i = 0; i < picked.length; i++) {
+        const log = picked[i];
+        const w = recencyWeights[i] ?? 0;
+        const degree = log.sub;
+        const score = this.scoreForTemperatureDegree(degree) * w;
+        const { to } = log;
+        const prev = byTo.get(to) ?? { score: 0, cnt: 0, blockCnt: 0 };
+        byTo.set(to, {
+          score: prev.score + score,
+          cnt: prev.cnt + 1,
+          blockCnt: degree === 'block' ? prev.blockCnt + 1 : prev.blockCnt,
+        });
+      }
+    }
+
+    return byTo;
+  }
+
+  /** processTemperature와 동일한 방식으로 배치 반영 */
+  private applyTemperatureBatch(
+    sum: number,
+    cnt: number,
+    blockCnt: number,
+    batch: { score: number; cnt: number; blockCnt: number },
+  ): { sum: number; cnt: number; blockCnt: number } {
+    const newBlockCnt = blockCnt + batch.blockCnt;
+    let newSum = sum + Math.round(batch.score * 10) / 10;
+    if (batch.blockCnt > 0) {
+      newSum -= newBlockCnt * 5.2;
+    }
+    const newCnt = cnt + batch.cnt;
+    return { sum: newSum, cnt: newCnt, blockCnt: newBlockCnt };
+  }
+
+  /** applyTemperatureBatch로 반영된 배치를 되돌림 (현재 sum·cnt·blockCnt는 배치 적용 후 상태) */
+  private undoTemperatureBatch(
+    sum: number,
+    cnt: number,
+    blockCnt: number,
+    batch: { score: number; cnt: number; blockCnt: number },
+  ): { sum: number; cnt: number; blockCnt: number } {
+    const newBlockCnt = blockCnt - batch.blockCnt;
+    let newSum = sum - Math.round(batch.score * 10) / 10;
+    if (batch.blockCnt > 0) {
+      newSum += blockCnt * 5.2;
+    }
+    const newCnt = cnt - batch.cnt;
+    return { sum: newSum, cnt: newCnt, blockCnt: newBlockCnt };
+  }
+
   async processMonthScore() {
     try {
       const firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth();
@@ -850,50 +952,82 @@ export class UserService {
   }
 
   async test() {
-    await this.UserRepository.test();
+    await this.processTemperature2();
+  }
 
-    // try {
-    //   const allLogs = await this.Log.find({
-    //     'meta.type': 'point',
-    //   }).cursor();
+  async processTemperature2() {
+    console.log('processTemperature2');
+    const monthBeforeLast = DateUtils.getSeoulMonthRangeByMonthsAgo(2);
+    const lastMonth = DateUtils.getSeoulMonthRangeByMonthsAgo(1);
 
-    //   const userMap = new Map<string, number>();
-    //   for await (const log of allLogs) {
-    //     const { meta } = log;
-    //     const { uid, value } = meta;
+    const logTemperatureMonthBeforeLast =
+      await this.LogTemperatureRepository.findTemperatureByPeriod(
+        monthBeforeLast.start,
+        monthBeforeLast.end,
+      );
 
-    //     let userId = uid?.toString();
+    const logTemperatureLastMonth =
+      await this.LogTemperatureRepository.findTemperatureByPeriod(
+        lastMonth.start,
+        lastMonth.end,
+      );
 
-    //     if (!userId) continue;
-    //     if (uid.toString().length !== 10) {
-    //       const user = await this.UserRepository.findByUserId(uid.toString());
-    //       const uid2 = user?.uid.toString();
-    //       userId = uid2;
-    //     }
+    console.log('logTemperatureMonthBeforeLast', logTemperatureMonthBeforeLast);
+    console.log('logTemperatureLastMonth', logTemperatureLastMonth);
 
-    //     if (userMap.has(userId)) {
-    //       userMap.set(userId, userMap.get(userId)! + value);
-    //     } else {
-    //       userMap.set(userId, value as number);
-    //     }
+    const subMap = this.aggregateLogTemperatureDeltasByTo(
+      logTemperatureMonthBeforeLast,
+    );
+    const addMap = this.aggregateLogTemperatureDeltasByTo(
+      logTemperatureLastMonth,
+    );
 
-    //     if (log.message == '가입 보증금' && value == 10000) {
-    //       userMap.set(userId, userMap.get(userId)! - 3000);
-    //     }
-    //   }
+    const uids = new Set([...subMap.keys(), ...addMap.keys()]);
 
-    //   //모든 user들에게 3000 point 지급
-    //   for (const [userId, point] of userMap) {
-    //     const newPoint = point + 3000;
-    //     userMap.set(userId, newPoint);
-    //   }
+    for (const uid of uids) {
+      const user = await this.UserRepository.findByUid(uid);
+      if (!user) continue;
 
-    //   for (const [userId, point] of userMap) {
-    //     await this.UserRepository.updateUser(userId, { point });
-    //   }
-    // } catch (error) {
-    //   console.error('Error processing point:', error);
-    //   throw new AppError('Failed to process point', 500);
-    // }
+      const temp = user.temperature ?? { sum: 0, cnt: 0, blockCnt: 0 };
+      const sub = subMap.get(uid) ?? { score: 0, cnt: 0, blockCnt: 0 };
+      const add = addMap.get(uid) ?? { score: 0, cnt: 0, blockCnt: 0 };
+
+      let sum = temp.sum ?? 0;
+      let cnt = temp.cnt ?? 0;
+      let blockCnt = temp.blockCnt ?? 0;
+
+      ({ sum, cnt, blockCnt } = this.undoTemperatureBatch(sum, cnt, blockCnt, sub));
+      ({ sum, cnt, blockCnt } = this.applyTemperatureBatch(sum, cnt, blockCnt, add));
+
+      let addTemp = 0;
+      if (cnt > 0) {
+        if (
+          user.role === 'previliged' ||
+          user.membership === 'manager' ||
+          user.membership === 'gatherSupporters'
+        ) {
+          addTemp = this.calculateScore(sum * 2, cnt * 2);
+        } else {
+          addTemp = this.calculateScore(sum, cnt);
+        }
+      } else {
+        sum = 0;
+        cnt = 0;
+        blockCnt = 0;
+      }
+
+      const userData = await this.UserRepository.findByUid(uid);
+
+      console.log(userData.name, userData.uid, 36.5 + addTemp);
+
+      if (!userData) continue;
+      userData.setTemperature(
+        Math.ceil(addTemp * 10) / 10,
+        sum,
+        cnt,
+        blockCnt,
+      );
+      // await this.UserRepository.save(userData);
+    }
   }
 }

@@ -30,4 +30,5 @@ export const DB_SCHEMA = {
   FEED_COMMENT: 'CommentFeed',
   SQUARE_COMMENT: 'CommentSquare',
   LOG_MEMBERSHIP: 'LogMembership',
+  LOG_TEMPERATURE: 'LogTemperature',
 };

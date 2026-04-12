@@ -3,7 +3,7 @@ import { UserController } from './core/controllers/user.controller';
 import { PlaceModule } from 'src/MSA/Place/place.module';
 import { LogModule } from 'src/routes/logz/log.module';
 import { NoticeModule } from 'src/MSA/Notice/notice.module';
-import { ILOG_MEMBERSHIP_REPOSITORY, IUSER_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
+import { ILOG_MEMBERSHIP_REPOSITORY, ILOG_TEMPERATURE_REPOSITORY, IUSER_REPOSITORY, IUSER_SERVICE } from 'src/utils/di.tokens';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './entity/user.entity';
 import { LogMembershipSchema } from './entity/logMembership.entity';
@@ -16,6 +16,8 @@ import { FcmAModule } from '../Notification/fcm.module';
 import { UserRepository } from './infra/MongoUserRepository';
 import { UserService } from './core/services/user.service';
 import { LogMembershipRepository } from './infra/MongoLogMembershipRepository';
+import { LogTemperatureSchema } from './entity/logTemperature.entity';
+import { LogTemperatureRepository } from './infra/MongoLogTemperatureRepository';
 
 const userRepositoryProvider: ClassProvider = {
   provide: IUSER_REPOSITORY,
@@ -26,11 +28,18 @@ const logMembershipRepositoryProvider: ClassProvider = {
   provide: ILOG_MEMBERSHIP_REPOSITORY,
   useClass: LogMembershipRepository,
 };
+
+const logTemperatureRepositoryProvider: ClassProvider = {
+  provide: ILOG_TEMPERATURE_REPOSITORY,
+  useClass: LogTemperatureRepository,
+};
+
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: DB_SCHEMA.USER, schema: UserSchema },
       { name: DB_SCHEMA.LOG_MEMBERSHIP, schema: LogMembershipSchema },
+      { name: DB_SCHEMA.LOG_TEMPERATURE, schema: LogTemperatureSchema },
     ]),
     PlaceModule,
     LogModule,
@@ -42,7 +51,7 @@ const logMembershipRepositoryProvider: ClassProvider = {
     FcmAModule,
   ],
   controllers: [UserController],
-  providers: [UserService, userRepositoryProvider, logMembershipRepositoryProvider],
-  exports: [UserService, userRepositoryProvider, logMembershipRepositoryProvider, MongooseModule],
+  providers: [UserService, userRepositoryProvider, logMembershipRepositoryProvider, logTemperatureRepositoryProvider],
+  exports: [UserService, userRepositoryProvider, logMembershipRepositoryProvider, logTemperatureRepositoryProvider, MongooseModule],
 })
 export class UserModule { }

@@ -5,6 +5,7 @@ import { UserModule } from 'src/MSA/User/user.module';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
+  ILOG_TEMPERATURE_REPOSITORY,
   INOTICE_REPOSITORY,
   IVOTE2_REPOSITORY,
 } from 'src/utils/di.tokens';
@@ -18,6 +19,8 @@ import { NoticeController } from './core/controllers/notice.controller';
 import NoticeService from './core/services/notice.service';
 import { noticeSchema } from './entity/notice.entity';
 import { MongoNoticeRepository } from './infra/MongoNoticeRepository';
+import { LogTemperatureRepository } from '../User/infra/MongoLogTemperatureRepository';
+import { LogTemperatureSchema } from '../User/entity/logTemperature.entity';
 
 const noticeRepositoryProvider: ClassProvider = {
   provide: INOTICE_REPOSITORY,
@@ -37,6 +40,11 @@ const vote2RepositoryProvider: ClassProvider = {
   useClass: Vote2Repository,
 };
 
+const logTemperatureRepositoryProvider: ClassProvider = {
+  provide: ILOG_TEMPERATURE_REPOSITORY,
+  useClass: LogTemperatureRepository,
+};
+
 @Module({
   imports: [
     forwardRef(() => UserModule),
@@ -49,6 +57,9 @@ const vote2RepositoryProvider: ClassProvider = {
     MongooseModule.forFeature([
       { name: DB_SCHEMA.GATHER, schema: GatherSchema },
     ]),
+    MongooseModule.forFeature([
+      { name: DB_SCHEMA.LOG_TEMPERATURE, schema: LogTemperatureSchema },
+    ]),
     MongooseModule.forFeature([{ name: DB_SCHEMA.VOTE, schema: GatherSchema }]),
     FcmAModule,
   ],
@@ -59,6 +70,7 @@ const vote2RepositoryProvider: ClassProvider = {
     groupStudyRepositoryProvider,
     gatherRepositoryProvider,
     vote2RepositoryProvider,
+    logTemperatureRepositoryProvider,
   ],
   exports: [NoticeService, MongooseModule, noticeRepositoryProvider],
 })

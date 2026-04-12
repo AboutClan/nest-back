@@ -14,7 +14,7 @@ import NoticeService from '../services/notice.service';
 @ApiTags('notice')
 @Controller('notice')
 export class NoticeController {
-  constructor(private readonly noticeService: NoticeService) {}
+  constructor(private readonly noticeService: NoticeService) { }
 
   @Get()
   async findActiveLog(@Query('isRecent') isRecent?: 'true' | 'false') {
@@ -132,5 +132,11 @@ export class NoticeController {
   ) {
     await this.noticeService.createTemperatureByStudy(infos, date, studyId);
     return { status: 'success' };
+  }
+
+  @Get('test')
+  async test() {
+    const result = await this.noticeService.test();
+    return result;
   }
 }

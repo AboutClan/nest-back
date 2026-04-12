@@ -9,6 +9,7 @@ import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
 import {
   IGATHER_REPOSITORY,
+  ILOG_TEMPERATURE_REPOSITORY,
   INOTICE_REPOSITORY,
   IVOTE2_REPOSITORY,
 } from 'src/utils/di.tokens';
@@ -17,6 +18,8 @@ import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IVote2Repository } from '../../../Study/core/interfaces/Vote2Repository.interface';
 import { INotice, NoticeZodSchema } from '../../entity/notice.entity';
 import { NoticeRepository } from '../interfaces/notice.repository.interface';
+import { ILogTemperatureRepository } from 'src/MSA/User/core/interfaces/LogTemperature.interface';
+import { ILogTemperature } from 'src/MSA/User/entity/logTemperature.entity';
 
 export default class NoticeService {
   constructor(
@@ -28,9 +31,12 @@ export default class NoticeService {
     private readonly gatherRepository: IGatherRepository,
     @Inject(IVOTE2_REPOSITORY)
     private readonly vote2Repository: IVote2Repository,
+    @Inject(ILOG_TEMPERATURE_REPOSITORY)
+    private readonly logTemperatureRepository: ILogTemperatureRepository,
+
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     private readonly fcmServiceInstance: FcmService,
-  ) {}
+  ) { }
 
   async createNotice(noticeData: Partial<INotice>) {
     await this.noticeRepository.createNotice(noticeData);
@@ -153,25 +159,25 @@ export default class NoticeService {
   }
 
   async getMyTemperature(userId: string) {
-    const result = await this.noticeRepository.findMyTemperature(userId);
+    const result = await this.logTemperatureRepository.findMyTemperature(userId);
     return result;
   }
 
   async getAllTemperature(page: number, userId: string) {
     const token = RequestContext.getDecodedToken();
 
-    const result = await this.noticeRepository.findAllTemperature(page, userId);
+    const result = await this.logTemperatureRepository.findAllTemperature(page, userId);
     return result;
   }
 
   async getTemperature() {
     const token = RequestContext.getDecodedToken();
-    const result = await this.noticeRepository.findTemperature(token.uid);
+    const result = await this.logTemperatureRepository.findTemperature(token.uid);
     return result;
   }
 
   async getTemperatureByPeriod(start: Date, end: Date) {
-    const result = await this.noticeRepository.findTemperatureByPeriod(
+    const result = await this.logTemperatureRepository.findTemperatureByPeriod(
       start,
       end,
     );
@@ -185,14 +191,12 @@ export default class NoticeService {
     const token = RequestContext.getDecodedToken();
     try {
       for (let info of infos) {
-        const validatedNotice = NoticeZodSchema.parse({
+        await this.logTemperatureRepository.create({
           from: token.uid,
-          type: 'temperature',
           to: info.toUid,
-          message: info.message,
           sub: info.rating,
-        });
-        await this.noticeRepository.createNotice(validatedNotice);
+          timestamp: new Date(),
+        } as ILogTemperature);
       }
 
       const gather = await this.gatherRepository.findById(parseInt(gatherId));
@@ -210,14 +214,12 @@ export default class NoticeService {
     const token = RequestContext.getDecodedToken();
     try {
       for (let info of infos) {
-        const validatedNotice = NoticeZodSchema.parse({
+        await this.logTemperatureRepository.create({
           from: token.uid,
-          type: 'temperature',
           to: info.toUid,
-          message: info.message,
           sub: info.rating,
-        });
-        await this.noticeRepository.createNotice(validatedNotice);
+          timestamp: new Date(),
+        } as ILogTemperature);
       }
 
       const study = await this.vote2Repository.findByDateWithoutPopulate(date);
@@ -226,6 +228,20 @@ export default class NoticeService {
       await this.vote2Repository.save(study);
     } catch (err: any) {
       throw new Error(err);
+    }
+  }
+
+  async test() {
+    const result = await this.noticeRepository.test();
+
+    for (const log of result) {
+      if (!log?.sub || !log?.from || !log?.to || !log?.createdAt) continue;
+      await this.logTemperatureRepository.create({
+        from: log.from,
+        to: log.to,
+        sub: log?.sub,
+        timestamp: log?.createdAt,
+      } as ILogTemperature);
     }
   }
 }
