@@ -226,6 +226,15 @@ export class Vote2Service {
 
     await this.Vote2Repository.save(vote2);
 
+    if (createVote?.userId) {
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        createVote?.userId,
+        `스터디 초대 알림 ${dayjs(date).format('(M월 D일)')}`,
+        `[${locationDetail}] 스터디에 초대되었어요!`,
+        `/study/participations/${date}?type=participations`,
+      );
+    }
+
     return;
   }
 
