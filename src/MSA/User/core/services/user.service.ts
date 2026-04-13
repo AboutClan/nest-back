@@ -1,5 +1,7 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
+import * as fs from 'fs';
+import * as path from 'path';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
@@ -20,9 +22,8 @@ import { getProfile } from 'src/utils/oAuthUtils';
 import { ILogTemperature } from '../../entity/logTemperature.entity';
 import { IUser, restType } from '../../entity/user.entity';
 import { ILogMembershipRepository } from '../interfaces/LogMembership.interface';
-import { IUserRepository } from '../interfaces/UserRepository.interface';
 import { ILogTemperatureRepository } from '../interfaces/LogTemperature.interface';
-
+import { IUserRepository } from '../interfaces/UserRepository.interface';
 @Injectable({ scope: Scope.DEFAULT })
 export class UserService {
   constructor(
@@ -37,7 +38,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) { }
+  ) {}
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -707,12 +708,13 @@ export class UserService {
       const newCnt = temp.cnt + cnt;
 
       let addTemp = 0;
-      if (
-        user.role === 'previliged' ||
+      if (user.role === 'previliged') {
+        addTemp = this.calculateScore(newSum * 5, newCnt * 5);
+      } else if (
         user.membership === 'manager' ||
         user.membership === 'gatherSupporters'
       ) {
-        addTemp = this.calculateScore(newSum * 2, newCnt * 2);
+        addTemp = this.calculateScore(newSum * 2.5, newCnt * 2.5);
       } else {
         addTemp = this.calculateScore(newSum, newCnt);
       }
@@ -730,7 +732,7 @@ export class UserService {
 
   calculateScore(totalScore: number, cnt: number): number {
     const result =
-      (totalScore / cnt) * 2.2 * Math.pow(1 - Math.exp(-0.07 * cnt), 1.2);
+      (totalScore / cnt) * 2.2 * Math.pow(1 - Math.exp(-0.07 * cnt), 1.3);
     const final = result.toFixed(1);
 
     return +final;
@@ -739,13 +741,13 @@ export class UserService {
   private scoreForTemperatureDegree(degree: string): number {
     switch (degree) {
       case 'great':
-        return 4.8;
+        return 5.5;
       case 'good':
         return 0.8;
       case 'soso':
-        return -1.2;
+        return -1.8;
       case 'block':
-        return -5.2;
+        return -6.5;
       case 'cancel':
         return -1.0;
       case 'noshow':
@@ -952,10 +954,85 @@ export class UserService {
   }
 
   async test() {
-    await this.processTemperature2();
+    return await this.processTemperature2();
   }
 
   async processTemperature2() {
+    console.log('processTemperatureAll');
+
+    const allLogs = await this.LogTemperatureRepository.findTemperatureByPeriod(
+      new Date(),
+      new Date(),
+    );
+
+    const filePath2 = path.join(process.cwd(), 'temperature-average2.json');
+
+    fs.writeFileSync(
+      filePath2,
+      JSON.stringify(allLogs.entries(), null, 2),
+      'utf-8',
+    );
+
+    const totalMap = this.aggregateLogTemperatureDeltasByTo(allLogs);
+    const result = [];
+    console.log(11);
+    for (const [uid, total] of totalMap.entries()) {
+      const user = await this.UserRepository.findByUid(uid);
+      if (!user) continue;
+
+      let { score: sum, cnt, blockCnt } = total;
+
+      if (blockCnt > 0) {
+        sum -= blockCnt * 6.5;
+      }
+      let addTemp = 0;
+
+      if (cnt > 0) {
+        if (user.role === 'previliged') {
+          addTemp = this.calculateScore(sum * 4, cnt * 4);
+        } else if (
+          user.membership === 'manager' ||
+          user.membership === 'gatherSupporters'
+        ) {
+          addTemp = this.calculateScore(sum * 2, cnt * 2);
+        } else {
+          addTemp = this.calculateScore(sum, cnt);
+        }
+      } else {
+        sum = 0;
+        cnt = 0;
+        blockCnt = 0;
+      }
+
+      const finalTemp = 36.5 + addTemp;
+
+      result.push({
+        uid,
+        name: user.name,
+        temperature: Math.ceil(finalTemp * 10) / 10,
+        sum,
+        cnt,
+        blockCnt,
+      });
+    }
+
+    // 평균(score/cnt) 기준으로 변환 + 정렬
+    const finalResult = result
+      .map((r) => ({
+        name: r.name,
+        temperature: r.temperature,
+        sum: r.sum,
+        cnt: r.cnt,
+        blockCnt: r.blockCnt,
+      }))
+      .sort((a, b) => b.temperature - a.temperature);
+
+    // 파일 저장
+    const filePath = path.join(process.cwd(), 'temperature-average.json');
+
+    fs.writeFileSync(filePath, JSON.stringify(finalResult, null, 2), 'utf-8');
+    console.log(`saved: ${filePath}`);
+    return;
     console.log('processTemperature2');
     const monthBeforeLast = DateUtils.getSeoulMonthRangeByMonthsAgo(2);
     const lastMonth = DateUtils.getSeoulMonthRangeByMonthsAgo(1);
@@ -996,8 +1073,18 @@ export class UserService {
       let cnt = temp.cnt ?? 0;
       let blockCnt = temp.blockCnt ?? 0;
 
-      ({ sum, cnt, blockCnt } = this.undoTemperatureBatch(sum, cnt, blockCnt, sub));
-      ({ sum, cnt, blockCnt } = this.applyTemperatureBatch(sum, cnt, blockCnt, add));
+      ({ sum, cnt, blockCnt } = this.undoTemperatureBatch(
+        sum,
+        cnt,
+        blockCnt,
+        sub,
+      ));
+      ({ sum, cnt, blockCnt } = this.applyTemperatureBatch(
+        sum,
+        cnt,
+        blockCnt,
+        add,
+      ));
 
       let addTemp = 0;
       if (cnt > 0) {
@@ -1021,12 +1108,7 @@ export class UserService {
       console.log(userData.name, userData.uid, 36.5 + addTemp);
 
       if (!userData) continue;
-      userData.setTemperature(
-        Math.ceil(addTemp * 10) / 10,
-        sum,
-        cnt,
-        blockCnt,
-      );
+      userData.setTemperature(Math.ceil(addTemp * 10) / 10, sum, cnt, blockCnt);
       // await this.UserRepository.save(userData);
     }
   }
