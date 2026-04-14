@@ -1,7 +1,5 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
-import * as fs from 'fs';
-import * as path from 'path';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
@@ -964,19 +962,12 @@ export class UserService {
       new Date(),
       new Date(),
     );
-
-    const filePath2 = path.join(process.cwd(), 'temperature-average2.json');
-
-    fs.writeFileSync(
-      filePath2,
-      JSON.stringify(allLogs.entries(), null, 2),
-      'utf-8',
-    );
-
+    console.log('find', allLogs);
     const totalMap = this.aggregateLogTemperatureDeltasByTo(allLogs);
     const result = [];
-    console.log(11);
+    console.log('test');
     for (const [uid, total] of totalMap.entries()) {
+      console.log(uid);
       const user = await this.UserRepository.findByUid(uid);
       if (!user) continue;
 
@@ -1005,16 +996,11 @@ export class UserService {
       }
 
       const finalTemp = 36.5 + addTemp;
-
-      result.push({
-        uid,
-        name: user.name,
-        temperature: Math.ceil(finalTemp * 10) / 10,
-        sum,
-        cnt,
-        blockCnt,
-      });
+      const roundedTemp = Math.ceil(finalTemp * 10) / 10;
+      user.setTemperature(roundedTemp, sum, cnt, blockCnt);
+      await this.UserRepository.save(user);
     }
+    console.log('complete');
 
     // 평균(score/cnt) 기준으로 변환 + 정렬
     const finalResult = result
@@ -1027,11 +1013,6 @@ export class UserService {
       }))
       .sort((a, b) => b.temperature - a.temperature);
 
-    // 파일 저장
-    const filePath = path.join(process.cwd(), 'temperature-average.json');
-
-    fs.writeFileSync(filePath, JSON.stringify(finalResult, null, 2), 'utf-8');
-    console.log(`saved: ${filePath}`);
     return;
     console.log('processTemperature2');
     const monthBeforeLast = DateUtils.getSeoulMonthRangeByMonthsAgo(2);
@@ -1087,9 +1068,11 @@ export class UserService {
       ));
 
       let addTemp = 0;
+
       if (cnt > 0) {
-        if (
-          user.role === 'previliged' ||
+        if (user.role === 'previliged') {
+          addTemp = this.calculateScore(sum * 4, cnt * 4);
+        } else if (
           user.membership === 'manager' ||
           user.membership === 'gatherSupporters'
         ) {
@@ -1104,9 +1087,6 @@ export class UserService {
       }
 
       const userData = await this.UserRepository.findByUid(uid);
-
-      console.log(userData.name, userData.uid, 36.5 + addTemp);
-
       if (!userData) continue;
       userData.setTemperature(Math.ceil(addTemp * 10) / 10, sum, cnt, blockCnt);
       // await this.UserRepository.save(userData);
