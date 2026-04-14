@@ -811,7 +811,7 @@ export class UserService {
     const newBlockCnt = blockCnt + batch.blockCnt;
     let newSum = sum + Math.round(batch.score * 10) / 10;
     if (batch.blockCnt > 0) {
-      newSum -= newBlockCnt * 5.2;
+      newSum -= newBlockCnt * 6.5;
     }
     const newCnt = cnt + batch.cnt;
     return { sum: newSum, cnt: newCnt, blockCnt: newBlockCnt };
@@ -827,7 +827,7 @@ export class UserService {
     const newBlockCnt = blockCnt - batch.blockCnt;
     let newSum = sum - Math.round(batch.score * 10) / 10;
     if (batch.blockCnt > 0) {
-      newSum += blockCnt * 5.2;
+      newSum += blockCnt * 6.5;
     }
     const newCnt = cnt - batch.cnt;
     return { sum: newSum, cnt: newCnt, blockCnt: newBlockCnt };
@@ -956,65 +956,6 @@ export class UserService {
   }
 
   async processTemperature2() {
-    console.log('processTemperatureAll');
-
-    const allLogs = await this.LogTemperatureRepository.findTemperatureByPeriod(
-      new Date(),
-      new Date(),
-    );
-    console.log('find', allLogs);
-    const totalMap = this.aggregateLogTemperatureDeltasByTo(allLogs);
-    const result = [];
-    console.log('test');
-    for (const [uid, total] of totalMap.entries()) {
-      console.log(uid);
-      const user = await this.UserRepository.findByUid(uid);
-      if (!user) continue;
-
-      let { score: sum, cnt, blockCnt } = total;
-
-      if (blockCnt > 0) {
-        sum -= blockCnt * 6.5;
-      }
-      let addTemp = 0;
-
-      if (cnt > 0) {
-        if (user.role === 'previliged') {
-          addTemp = this.calculateScore(sum * 4, cnt * 4);
-        } else if (
-          user.membership === 'manager' ||
-          user.membership === 'gatherSupporters'
-        ) {
-          addTemp = this.calculateScore(sum * 2, cnt * 2);
-        } else {
-          addTemp = this.calculateScore(sum, cnt);
-        }
-      } else {
-        sum = 0;
-        cnt = 0;
-        blockCnt = 0;
-      }
-
-      const finalTemp = 36.5 + addTemp;
-      const roundedTemp = Math.ceil(finalTemp * 10) / 10;
-      user.setTemperature(roundedTemp, sum, cnt, blockCnt);
-      await this.UserRepository.save(user);
-    }
-    console.log('complete');
-
-    // 평균(score/cnt) 기준으로 변환 + 정렬
-    const finalResult = result
-      .map((r) => ({
-        name: r.name,
-        temperature: r.temperature,
-        sum: r.sum,
-        cnt: r.cnt,
-        blockCnt: r.blockCnt,
-      }))
-      .sort((a, b) => b.temperature - a.temperature);
-
-    return;
-    console.log('processTemperature2');
     const monthBeforeLast = DateUtils.getSeoulMonthRangeByMonthsAgo(2);
     const lastMonth = DateUtils.getSeoulMonthRangeByMonthsAgo(1);
 
