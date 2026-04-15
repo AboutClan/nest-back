@@ -474,18 +474,20 @@ export class UserService {
 
     const userUid = user.uid;
 
-    if (number > 0 && token.id.toString() !== userId) {
+    if (number > 0) {
+      const isMine = token.id.toString() !== userId;
+
       await this.noticeService.createNotice({
         from: token.uid,
         to: userUid,
         type: 'randomTicket',
-        message: `${token.name === '이승주' || !token.name ? '어바웃' : token.name}님에게 이벤트 뽑기권을 받았어요!`,
+        message: `${token.name === '이승주' || !token.name || isMine ? '어바웃' : token.name}님에게 이벤트 뽑기권을 받았어요!`,
         status: 'pending',
       });
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         '🎁 이벤트 뽑기권 도착!',
-        `${token.name === '이승주' || !token.name ? '어바웃' : token.name}님이 열활 멤버 보상으로 이벤트 뽑기권을 선물했어요. 접속해서 확인해 보세요!`,
+        `${token.name === '이승주' || !token.name || isMine ? '어바웃' : token.name}님이 열활 멤버 보상으로 이벤트 뽑기권을 선물했어요. 접속해서 확인해 보세요!`,
         `/notice?type=active`,
       );
     }
