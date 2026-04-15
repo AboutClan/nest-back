@@ -789,14 +789,14 @@ export class Vote2Service {
 
       await this.Vote2Repository.save(vote2);
 
-      for (let participation of participations) {
-        await this.userServiceInstance.updatePointById(
-          CONST.POINT.STUDY_ALL_RESULT,
-          `스터디 매칭 신청 리워드`,
-          'study',
-          (participation.userId as unknown as IUser)._id?.toString(),
-        );
-      }
+      // for (let participation of participations) {
+      //   await this.userServiceInstance.updatePointById(
+      //     CONST.POINT.STUDY_ALL_RESULT,
+      //     `스터디 매칭 신청 리워드`,
+      //     'study',
+      //     (participation.userId as unknown as IUser)._id?.toString(),
+      //   );
+      // }
       await this.fcmServiceInstance.sendNotificationUserIds(
         successUserIds,
         WEBPUSH_MSG.VOTE.SUCCESS_TITLE,

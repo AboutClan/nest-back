@@ -92,7 +92,7 @@ export const ratingSchema: Schema<ratingType> = new Schema(
       default: '',
     },
   },
-  { _id: false, timestamps: false },
+  { _id: false, timestamps: true },
 );
 
 export const PlaceSchema: Schema<IPlace> = new Schema({

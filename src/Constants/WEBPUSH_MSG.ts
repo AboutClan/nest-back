@@ -25,7 +25,8 @@ export const WEBPUSH_MSG = {
     REQUEST: (user, title) => `${user}님이 [${title}] 모임 참여를 요청했어요!`,
     ACCEPT: (title, hasLink) =>
       `[${title}] 모임 참여가 승인되었습니다. ${hasLink ? '단톡방 링크를 확인하고 바로 입장해 주세요!' : ''}`,
-    REFUSE: (title) => `내부 사정으로 [${title}] 모임 참여가 승인되지 않았어요🥲`,
+    REFUSE: (title) =>
+      `내부 사정으로 [${title}] 모임 참여가 승인되지 않았어요🥲`,
     COMMENT_CREATE: (name, title) =>
       `${name}님이 [${title}] 모임에 댓글을 남겼어요!`,
   },
@@ -49,10 +50,11 @@ export const WEBPUSH_MSG = {
 
   VOTE: {
     SUCCESS_TITLE: '스터디 매칭 성공 🎉',
-    SUCCESS_DESC: '100 Point가 적립됐어요! 스터디 매칭 결과를 확인하세요✨',
-    FAILURE_TITLE: '스터디 매칭 알림',
+    SUCCESS_DESC:
+      '오늘의 스터디가 확정됐어요! 스터디 매칭 결과를 확인해 주세요✨',
+    FAILURE_TITLE: '스터디 결과 발표',
     FAILURE_DESC:
-      '오늘은 매칭되지 않았지만, 100 Point가 적립됐어요! 개인 공부 인증에 참여해봐요✨',
+      '아쉽지만 오늘 스터디는 매칭되지 않았어요🥲 오늘은 개인 공부 인증에 참여해 보세요✨',
   },
 
   SQUARE: {
