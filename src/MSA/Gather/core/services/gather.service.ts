@@ -168,7 +168,7 @@ export class GatherService {
     try {
       this.requestService.createRequest({
         category: '오픈 번개',
-        title: '오픈 번개 평가',
+        title: `오픈 번개 ${gatherId}`,
         content: JSON.stringify(infos),
       });
       // const validatedNotice = NoticeZodSchema.parse({
