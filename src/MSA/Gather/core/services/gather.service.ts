@@ -50,15 +50,15 @@ export class GatherService {
   async getGatherById(gatherId: number) {
     const gatherData = await this.gatherRepository.findById(gatherId, true);
 
-    // const par = gatherData.participants;
-    // console.log(par);
-    // const ids = par.map((p) => (p.user as any)?._id.toString());
-    // console.log(1, ids);
+    const par = gatherData.participants;
+    console.log(par);
+    const ids = par.map((p) => (p.user as any)?._id.toString());
+    console.log(1, ids);
 
     // await this.fcmServiceInstance.sendNotificationUserIds(
     //   ids,
-    //   '오픈 번개',
-    //   '멤버 선택이 시작됐어요! 오늘까지 함께하고 싶은 멤버를 선택해 주세요 🤩',
+    //   '오픈번개 매칭 결과',
+    //   '오픈번개 최종 결과가 발표됐습니다. 접속해서 확인해 보세요!',
     //   `/gather/${gatherData.id}`,
     // );
 
@@ -197,7 +197,9 @@ export class GatherService {
         { user: userId || token.id },
       ],
       ...(userId && { status: 'open' }),
+      category: { $ne: 'openGather' }, // 👈 추가
     };
+
     const gatherData = await this.gatherRepository.findWithQueryPop(
       query,
       cursor,
@@ -297,6 +299,7 @@ export class GatherService {
       const isOwner = (g.user as any)._id.toString() === userIdString;
 
       return (
+        g.category !== 'openGather' && // 👈 추가
         dayjs(g.date).add(1, 'day').startOf('day').isBefore(dayjs()) &&
         !isReviewed &&
         (isParticipant || isOwner)
