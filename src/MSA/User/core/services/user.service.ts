@@ -69,7 +69,9 @@ export class UserService {
 
   async getUserWithUid(uid: string) {
     const result = await this.UserRepository.findByUid(uid);
-
+    if (!result) {
+      throw new NotFoundException(`User not found`);
+    }
     if (result && result.telephone)
       result.telephone = await this.decodeByAES256(result.telephone);
 

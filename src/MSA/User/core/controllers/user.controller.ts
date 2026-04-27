@@ -44,7 +44,7 @@ import { UserService } from '../services/user.service';
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get('active')
   async getActive() {
@@ -126,9 +126,15 @@ export class UserController {
   }
 
   @Get('profile/:userId')
-  async getUserByUid(@Param('userId') userId: string) {
+  async getUserByUserId(@Param('userId') userId: string) {
     const isActive = await this.userService.getUserWithUserId(userId);
     return isActive;
+  }
+  @Get('profile/uid/:uid')
+  async getUserByUid(@Param('uid') uid: string) {
+    const user = await this.userService.getUserWithUid(uid);
+
+    return user;
   }
 
   @Get('profiles')
@@ -304,7 +310,10 @@ export class UserController {
   }
 
   @Post('randomTicket')
-  async postRandomTicket(@Body('userId') userId: string, @Body('number') number: number) {
+  async postRandomTicket(
+    @Body('userId') userId: string,
+    @Body('number') number: number,
+  ) {
     await this.userService.updateAddRandomTicket(userId, number);
     return { message: 'Random ticket updated successfully' };
   }
