@@ -20,7 +20,7 @@ export const CONST = {
     PARTICIPATE_GATHER: -2000,
     STUDY_ALL_RESULT: 100,
     STUDY_ATTEND_BEFORE: () => getLowBiasedRandom(100, 1000),
-    STUDY_ATTEND_AFTER: () => getLowBiasedRandom(20, 500),
+    STUDY_ATTEND_AFTER: () => getLowBiasedRandom(30, 500),
     REALTIME_ATTEND_SOLO: () => getLowBiasedRandom(30, 500),
     REALTIME_ATTEND_BEFORE: () => getLowBiasedRandom(20, 500),
     LATE: -50,
