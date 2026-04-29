@@ -51,9 +51,8 @@ export class GatherService {
     const gatherData = await this.gatherRepository.findById(gatherId, true);
 
     const par = gatherData.participants;
-    console.log(par);
+
     const ids = par.map((p) => (p.user as any)?._id.toString());
-    console.log(1, ids);
 
     // await this.fcmServiceInstance.sendNotificationUserIds(
     //   ids,
@@ -419,10 +418,6 @@ export class GatherService {
     const token = RequestContext.getDecodedToken();
     const ticket = await this.userServiceInstance.getTicketInfo(token.id);
 
-    if (ticket.gatherTicket <= 0 && !isFree) {
-      throw new HttpException('ticket이 부족합니다.', 500);
-    }
-
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
@@ -436,15 +431,27 @@ export class GatherService {
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
 
       gather.participate(validatedParticipate as ParticipantsProps);
-
       await this.gatherRepository.save(gather);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
     }
 
     if (!isFree) {
-      await this.userServiceInstance.updateReduceTicket('gather', token.id, -1);
+      if (ticket.gatherTicket <= 0) {
+        await this.userServiceInstance.updatePoint(
+          -2000,
+          '번개 참여권 구매',
+          'gatherTicket',
+        );
+      } else {
+        await this.userServiceInstance.updateReduceTicket(
+          'gather',
+          token.id,
+          -1,
+        );
+      }
     }
+
     await this.userServiceInstance.updateScore(
       CONST.SCORE.PARTICIPATE_GATHER,
       '번개 모임 참여',
@@ -492,12 +499,12 @@ export class GatherService {
     );
 
     if (userId) {
-      // await this.fcmServiceInstance.sendNotificationToXWithId(
-      //   userId,
-      //   WEBPUSH_MSG.GATHER.TITLE,
-      //   WEBPUSH_MSG.GATHER.INVITE(gather.title),
-      //   `/gather/${gather.id}`,
-      // );
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.GATHER.INVITE(gather.title),
+        `/gather/${gather.id}`,
+      );
     }
 
     return;
@@ -546,7 +553,7 @@ export class GatherService {
 
     const targetId = userId ?? token.id;
 
-    gather.exile(targetId);
+    const participants = gather.participants;
 
     // 모임 이틀 전까지 = 포인트 100% + 티켓 반환
     // 모임 하루 전 = 포인트만 50% 반환
@@ -565,10 +572,11 @@ export class GatherService {
       );
 
       if (diffDay >= 2) {
-        const targetInfo = gather.participants.find(
+        const targetInfo = participants.find(
           (data) => data.user.toString() == targetId.toString(),
         );
-        if (!targetInfo?.invited) {
+        console.log(participants, targetId, targetInfo);
+        if (targetInfo?.invited === false) {
           await this.userServiceInstance.updateAddTicket(
             'gather',
             targetId,
@@ -585,6 +593,7 @@ export class GatherService {
       }
     } catch (err) {}
 
+    gather.exile(targetId);
     await this.gatherRepository.save(gather);
 
     await this.userServiceInstance.updateScoreWithUserId(
@@ -732,17 +741,20 @@ export class GatherService {
     status: string,
     text?: string,
   ) {
-    const token = RequestContext.getDecodedToken();
-
     const gather = await this.gatherRepository.findById(+id);
-
     gather.removeWaiting(userId);
-
     if (status === 'agree') {
       const ticket = await this.userServiceInstance.getTicketInfo(userId);
 
       if (ticket.gatherTicket <= 0) {
-        throw new AppError(`${token.uid} ticket이 부족합니다.`, 500);
+        await this.userServiceInstance.updatePointById(
+          -2000,
+          '번개 참여권 구매',
+          'gatherTicket',
+          userId,
+        );
+      } else {
+        await this.userServiceInstance.updateReduceTicket('gather', userId, -1);
       }
 
       const validatedParticipate = ParticipantsZodSchema.parse({
@@ -761,12 +773,6 @@ export class GatherService {
         undefined,
         targetUser.uid,
       );
-      await this.userServiceInstance.updateReduceTicket('gather', userId, -1);
-    }
-
-    await this.gatherRepository.save(gather);
-
-    if (status === 'agree') {
       await this.fcmServiceInstance.sendNotificationToXWithId(
         userId,
         WEBPUSH_MSG.GATHER.TITLE,
@@ -781,6 +787,8 @@ export class GatherService {
         `/gather/${gather.id}`,
       );
     }
+
+    await this.gatherRepository.save(gather);
   }
 
   async createSubComment(gatherId: string, commentId: string, content: string) {

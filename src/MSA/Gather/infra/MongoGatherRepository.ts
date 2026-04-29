@@ -78,7 +78,8 @@ export class GatherRepository implements IGatherRepository {
         })
         .populate({
           path: 'waiting.user',
-          select: ENTITY.USER.C_SIMPLE_USER,
+          select:
+            ENTITY.USER.C_SIMPLE_USER + 'telephone introduceText gender mbti',
         })
         .populate({
           path: 'user',
