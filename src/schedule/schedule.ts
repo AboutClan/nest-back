@@ -201,7 +201,7 @@ export class NotificationScheduler {
       return;
     }
     try {
-      await this.userService.processTemperature({ type: 1 });
+      await this.userService.processTemperature2();
       await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
       await this.logSchedule(name, 'failure', flag, err);

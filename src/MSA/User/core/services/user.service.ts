@@ -36,7 +36,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) {}
+  ) { }
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -975,9 +975,6 @@ export class UserService {
         lastMonth.end,
       );
 
-    console.log('logTemperatureMonthBeforeLast', logTemperatureMonthBeforeLast);
-    console.log('logTemperatureLastMonth', logTemperatureLastMonth);
-
     const subMap = this.aggregateLogTemperatureDeltasByTo(
       logTemperatureMonthBeforeLast,
     );
@@ -1034,7 +1031,7 @@ export class UserService {
       const userData = await this.UserRepository.findByUid(uid);
       if (!userData) continue;
       userData.setTemperature(Math.ceil(addTemp * 10) / 10, sum, cnt, blockCnt);
-      // await this.UserRepository.save(userData);
+      await this.UserRepository.save(userData);
     }
   }
 }
