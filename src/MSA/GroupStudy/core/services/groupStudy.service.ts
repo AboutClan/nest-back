@@ -11,7 +11,7 @@ import {
   GroupStudy,
   GroupStudyProps,
 } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
-import { NoticeRepository } from 'src/MSA/Notice/core/interfaces/notice.repository.interface';
+import { ILogTemperatureRepository } from 'src/MSA/User/core/interfaces/LogTemperature.interface';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
@@ -21,7 +21,7 @@ import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
-  INOTICE_REPOSITORY,
+  ILOG_TEMPERATURE_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { OpenAIService } from 'src/utils/gpt/gpt.service';
 import { promisify } from 'util';
@@ -37,8 +37,8 @@ export default class GroupStudyService {
     private readonly redisClient: Redis,
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: IGatherRepository,
-    @Inject(INOTICE_REPOSITORY)
-    private readonly noticeRepository: NoticeRepository,
+    @Inject(ILOG_TEMPERATURE_REPOSITORY)
+    private readonly LogTemperatureRepository: ILogTemperatureRepository,
 
     @Inject(IGROUPSTUDY_REPOSITORY)
     private readonly groupStudyRepository: IGroupStudyRepository,
@@ -212,7 +212,8 @@ export default class GroupStudyService {
       ),
     ];
 
-    const notices = await this.noticeRepository.findTemperatureByUidArr(uids);
+    const notices =
+      await this.LogTemperatureRepository.findTemperatureByUidArr(uids);
 
     const latestByPair = new Map<string, any>();
 
@@ -999,25 +1000,26 @@ export default class GroupStudyService {
       const reduceTicketJobs = groupStudies.flatMap((group) => {
         if (group.status === 'end') return [];
 
-        return group.participants
-          .filter((par) => par.role === 'member')
-          .map(async (par) => {
-            const updatedTicket =
-              await this.userServiceInstance.updateReduceTicket(
-                'group',
-                par?.user,
-                group?.requiredTicket,
-              );
+        return group.participants.map(async (par) => {
+          const requiredTicket =
+            group?.requiredTicket - (par.role === 'member' ? 0 : 1);
 
-            if (updatedTicket < 0) {
-              await this.userServiceInstance.updatePoint(
-                -group?.requiredTicket * 1000,
-                '소모임 참여 차감',
-                'groupStudy',
-                par?.user,
-              );
-            }
-          });
+          const updatedTicket =
+            await this.userServiceInstance.updateReduceTicket(
+              'group',
+              par?.user,
+              requiredTicket,
+            );
+
+          if (updatedTicket < 0) {
+            await this.userServiceInstance.updatePoint(
+              -requiredTicket * 1000,
+              '소모임 참여 차감',
+              'groupStudy',
+              par?.user,
+            );
+          }
+        });
       });
 
       await Promise.all(reduceTicketJobs);

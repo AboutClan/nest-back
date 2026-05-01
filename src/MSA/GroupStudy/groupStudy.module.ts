@@ -8,21 +8,22 @@ import {
   IGATHER_REPOSITORY,
   IGROUPCOMMENT_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
-  INOTICE_REPOSITORY,
+  ILOG_TEMPERATURE_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { OpenAIModule } from 'src/utils/gpt/gpt.module';
 import { GatherSchema } from '../Gather/entity/gather.entity';
 import { GatherRepository } from '../Gather/infra/MongoGatherRepository';
 import { noticeSchema } from '../Notice/entity/notice.entity';
-import { MongoNoticeRepository } from '../Notice/infra/MongoNoticeRepository';
 import { FcmAModule } from '../Notification/fcm.module';
+import { LogTemperatureSchema } from '../User/entity/logTemperature.entity';
+import { LogTemperatureRepository } from '../User/infra/MongoLogTemperatureRepository';
 import { GroupStudyController } from './core/controllers/groupStudy.controller';
 import GroupCommentService from './core/services/groupComment.service';
 import GroupStudyService from './core/services/groupStudy.service';
 import { groupCommentSchema } from './entity/groupComment.entity';
 import { GroupStudySchema } from './entity/groupStudy.entity';
-import { GroupStudyRepository } from './infra/MongoGroupStudyRepository';
 import { MongoGroupCommentRepository } from './infra/MongoGroupCommentRepository';
+import { GroupStudyRepository } from './infra/MongoGroupStudyRepository';
 
 const groupStudyRepositoryProvider: ClassProvider = {
   provide: IGROUPSTUDY_REPOSITORY,
@@ -32,9 +33,9 @@ const gatherRepositoryProvider: ClassProvider = {
   provide: IGATHER_REPOSITORY,
   useClass: GatherRepository,
 };
-const noticeRepositoryProvider: ClassProvider = {
-  provide: INOTICE_REPOSITORY,
-  useClass: MongoNoticeRepository,
+const logTemperatureRepositoryProvider: ClassProvider = {
+  provide: ILOG_TEMPERATURE_REPOSITORY,
+  useClass: LogTemperatureRepository,
 };
 
 const groupCommentRepositoryProvider: ClassProvider = {
@@ -52,6 +53,7 @@ const groupCommentRepositoryProvider: ClassProvider = {
       { name: DB_SCHEMA.NOTICE, schema: noticeSchema },
       { name: DB_SCHEMA.GATHER, schema: GatherSchema },
       { name: DB_SCHEMA.GROUP_COMMENT, schema: groupCommentSchema },
+      { name: DB_SCHEMA.LOG_TEMPERATURE, schema: LogTemperatureSchema },
     ]),
     FcmAModule,
     OpenAIModule,
@@ -61,10 +63,15 @@ const groupCommentRepositoryProvider: ClassProvider = {
     GroupStudyService,
     GroupCommentService,
     groupStudyRepositoryProvider,
-    noticeRepositoryProvider,
+    logTemperatureRepositoryProvider,
     gatherRepositoryProvider,
     groupCommentRepositoryProvider,
   ],
-  exports: [GroupStudyService, MongooseModule, groupStudyRepositoryProvider],
+  exports: [
+    GroupStudyService,
+    MongooseModule,
+    groupStudyRepositoryProvider,
+    logTemperatureRepositoryProvider,
+  ],
 })
-export class GroupStudyModule { }
+export class GroupStudyModule {}

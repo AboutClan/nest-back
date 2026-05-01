@@ -88,7 +88,7 @@ export class UserRepository implements IUserRepository {
     const users = queryString
       ? await this.UserModel.find({}, queryString)
       : await this.UserModel.find();
-
+    console.log(25, users?.length);
     return users.map((user) => this.mapToDomain(user));
   }
 
