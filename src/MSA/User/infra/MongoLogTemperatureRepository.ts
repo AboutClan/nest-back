@@ -15,15 +15,11 @@ export class LogTemperatureRepository implements ILogTemperatureRepository {
   }
 
   async findTemperature(uid: string) {
-    return await this.LogTemperature.find(
-      { to: uid, type: 'temperature' },
-      '-_id -__v',
-    );
+    return await this.LogTemperature.find({ to: uid }, '-_id -__v');
   }
   async findTemperatureByUidArr(uidArr: string[]) {
     return await this.LogTemperature.find(
       {
-        type: 'temperature',
         to: { $in: uidArr },
         from: { $in: uidArr },
       },
@@ -48,7 +44,7 @@ export class LogTemperatureRepository implements ILogTemperatureRepository {
     return await this.LogTemperature.find(
       {
         toUid: uid,
-        type: 'temperature',
+
         message: { $exists: true },
       },
       '-_id -__v',

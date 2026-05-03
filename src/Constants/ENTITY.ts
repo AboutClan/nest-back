@@ -45,7 +45,13 @@ export const ENTITY = {
   },
 
   NOTICE: {
-    ENUM_TYPE: ['like', 'friend', 'alphabet', 'temperature',"randomTicket"] as const,
+    ENUM_TYPE: [
+      'like',
+      'friend',
+      'alphabet',
+      'temperature',
+      'randomTicket',
+    ] as const,
     DEFAULT_TYPE: 'like' as const,
     ENUM_STATUS: ['pending', 'refusal', 'approval', 'response'] as const,
   },
@@ -72,6 +78,7 @@ export const ENTITY = {
       '출석',
       '배지',
       '불참',
+      '경로',
       '조모임',
       '장소 추가',
       '출금',

@@ -18,7 +18,7 @@ import { IUser } from '../entity/user.entity';
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(DB_SCHEMA.USER) private readonly UserModel: Model<IUser>,
-  ) { }
+  ) {}
 
   async findById(userId: string): Promise<User> {
     const user = await this.UserModel.findById(userId);
@@ -88,7 +88,7 @@ export class UserRepository implements IUserRepository {
     const users = queryString
       ? await this.UserModel.find({}, queryString)
       : await this.UserModel.find();
-
+    console.log(25, users?.length);
     return users.map((user) => this.mapToDomain(user));
   }
 
@@ -324,7 +324,7 @@ export class UserRepository implements IUserRepository {
         { $set: { 'ticket.gatherTicket': 1 } },
         {
           $set: {
-            'ticket.groupStudyTicket': 3,
+            'ticket.groupStudyTicket': 2,
           },
         },
       ],
@@ -483,11 +483,11 @@ export class UserRepository implements IUserRepository {
     );
     const preference = doc.studyPreference
       ? new Preference(
-        doc?.studyPreference?.place?.toString(),
-        ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
-          o.toString(),
-        ),
-      )
+          doc?.studyPreference?.place?.toString(),
+          ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
+            o.toString(),
+          ),
+        )
       : null;
     const ticket = new Ticket(
       doc?.ticket?.gatherTicket,
@@ -498,11 +498,11 @@ export class UserRepository implements IUserRepository {
       : undefined;
     const studyRecord = doc.studyRecord
       ? new StudyRecord(
-        doc?.studyRecord?.accumulationMinutes,
-        doc?.studyRecord?.accumulationCnt,
-        doc?.studyRecord?.monthCnt,
-        doc?.studyRecord?.monthMinutes,
-      )
+          doc?.studyRecord?.accumulationMinutes,
+          doc?.studyRecord?.accumulationCnt,
+          doc?.studyRecord?.monthCnt,
+          doc?.studyRecord?.monthMinutes,
+        )
       : undefined;
     const temperature = new Temperature(
       doc?.temperature?.temperature,

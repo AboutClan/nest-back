@@ -37,6 +37,8 @@ export class GatherController {
     const cursorNum = cursor ? parseInt(cursor) : null;
     const gatherIdNum = gatherId ? parseInt(gatherId) : null;
 
+
+    
     if (gatherIdNum) {
       return await this.gatherService.getGatherById(gatherIdNum);
     } else if (cursorNum === -1) {

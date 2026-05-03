@@ -93,6 +93,7 @@ export class User {
     public rankPosition?: number,
     public membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number],
     public randomTicket?: number,
+    public studyIntroduce?: string,
   ) {
     this._id = _id || '';
     this.uid = uid || '';
@@ -133,6 +134,7 @@ export class User {
     this.rankPosition = rankPosition || 0;
     this.membership = membership || 'normal';
     this.randomTicket = randomTicket || 0;
+    this.studyIntroduce = studyIntroduce || '';
   }
 
   setRest(
@@ -287,6 +289,7 @@ export class User {
       introduceText: this.introduceText,
       membership: this.membership,
       randomTicket: this.randomTicket,
+      studyIntroduce: this.studyIntroduce,
     };
   }
 }

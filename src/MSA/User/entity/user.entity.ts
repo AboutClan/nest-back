@@ -132,6 +132,7 @@ export const userZodSchema = z.object({
   introduceText: z.string(),
   membership: z.enum(ENTITY.USER.ENUM_MEMBERSHIP).optional(),
   randomTicket: z.number().default(0),
+  studyIntroduce: z.string(),
 });
 
 export interface IUser extends Document, IRegistered {
@@ -159,6 +160,7 @@ export interface IUser extends Document, IRegistered {
   isLocationSharingDenided: boolean;
   temperature: temperatureType;
   introduceText: string;
+  studyIntroduce: string;
   rank: string;
   rankPosition: number;
   membership: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
@@ -437,6 +439,10 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   introduceText: {
     type: String,
+  },
+  studyIntroduce: {
+    type: String,
+    default: '',
   },
   membership: {
     type: String,
