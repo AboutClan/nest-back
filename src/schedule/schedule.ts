@@ -210,24 +210,24 @@ export class NotificationScheduler {
   }
 
   // temperature 정산 - 매월 16일
-  @Cron('0 0 16 * *', {
-    timeZone: 'Asia/Seoul',
-  })
-  async processTemperatureSecond() {
-    const name = SCHEDULE_CONST.PROCESS_TEMPERATURE;
-    const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlagAndName(flag, name);
-    if (log) {
-      return;
-    }
-    try {
-      await this.userService.processTemperature({ type: 2 });
-      await this.logSchedule(name, 'success', flag);
-    } catch (err: any) {
-      await this.logSchedule(name, 'failure', flag, err);
-      throw new Error(err);
-    }
-  }
+  // @Cron('0 0 16 * *', {
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async processTemperatureSecond() {
+  //   const name = SCHEDULE_CONST.PROCESS_TEMPERATURE;
+  //   const flag = DateUtils.getYearMonth();
+  //   const log = await this.findLogByFlagAndName(flag, name);
+  //   if (log) {
+  //     return;
+  //   }
+  //   try {
+  //     await this.userService.processTemperature({ type: 2 });
+  //     await this.logSchedule(name, 'success', flag);
+  //   } catch (err: any) {
+  //     await this.logSchedule(name, 'failure', flag, err);
+  //     throw new Error(err);
+  //   }
+  // }
 
   //monthScore 정산
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {

@@ -971,7 +971,7 @@ export class UserService {
 
     const logTemperatureLastMonth =
       await this.LogTemperatureRepository.findTemperatureByPeriod(
-        lastMonth.start,
+        monthBeforeLast.start,
         lastMonth.end,
       );
 
@@ -1028,6 +1028,7 @@ export class UserService {
         blockCnt = 0;
       }
 
+      console.log(uid, addTemp);
       const userData = await this.UserRepository.findByUid(uid);
       if (!userData) continue;
       userData.setTemperature(Math.ceil(addTemp * 10) / 10, sum, cnt, blockCnt);

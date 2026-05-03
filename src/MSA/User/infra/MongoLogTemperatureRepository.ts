@@ -8,7 +8,7 @@ export class LogTemperatureRepository implements ILogTemperatureRepository {
   constructor(
     @InjectModel(DB_SCHEMA.LOG_TEMPERATURE)
     private readonly LogTemperature: Model<ILogTemperature>,
-  ) {}
+  ) { }
 
   async create(logTemperature: ILogTemperature) {
     return await this.LogTemperature.create(logTemperature);
