@@ -83,6 +83,27 @@ export class Vote2Service {
       }),
     }));
   }
+  async getLastWeekData(idx: string) {
+    const dates = Array.from({ length: 7 }, (_, i) =>
+      dayjs()
+        .subtract(i + 1 + 7 * (+idx - 1), 'day')
+        .format('YYYY-MM-DD'),
+    );
+
+    const rawData = await Promise.all(
+      dates.map(async (date, idx) => {
+        return await this.getAfterVoteInfo(date);
+      }),
+    );
+
+    return dates.map((date, idx) => ({
+      date,
+      ...rawData[idx],
+      ...(rawData[idx].realTimes && {
+        realTimes: rawData[idx].realTimes.userList,
+      }),
+    }));
+  }
   async getMine() {
     const token = RequestContext.getDecodedToken();
 
@@ -226,14 +247,14 @@ export class Vote2Service {
 
     await this.Vote2Repository.save(vote2);
 
-    if (createVote?.userId) {
-      await this.fcmServiceInstance.sendNotificationToXWithId(
-        createVote?.userId,
-        `스터디 초대 알림 ${dayjs(date).format('(M월 D일)')}`,
-        `[${locationDetail}] 스터디에 초대되었어요!`,
-        `/study/participations/${date}?type=participations`,
-      );
-    }
+    // if (createVote?.userId) {
+    //   await this.fcmServiceInstance.sendNotificationToXWithId(
+    //     createVote?.userId,
+    //     `스터디 초대 알림 ${dayjs(date).format('(M월 D일)')}`,
+    //     `[${locationDetail}] 스터디에 초대되었어요!`,
+    //     `/study/participations/${date}?type=participations`,
+    //   );
+    // }
 
     return;
   }

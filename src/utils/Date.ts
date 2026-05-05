@@ -127,7 +127,7 @@ export class DateUtils {
     return dayjs().format('YYYY-MM-DD');
   }
   static getYesterdayYYYYMMDD(): string {
-    return dayjs().subtract(1,'day').format('YYYY-MM-DD');
+    return dayjs().subtract(1, 'day').format('YYYY-MM-DD');
   }
 
   //년-월
@@ -137,7 +137,14 @@ export class DateUtils {
 
   //년-월-주차
   static getYearMonthWeek(): string {
-    return dayjs().format('YYYY-MM-W');
+    const now = dayjs();
+
+    const year = now.format('YYYY');
+    const month = now.format('MM');
+
+    const weekOfMonth = Math.ceil(now.date() / 7);
+
+    return `${year}-${month}-${weekOfMonth}`;
   }
   //년-월-일-시간
   static getYearMonthDayHour(): string {

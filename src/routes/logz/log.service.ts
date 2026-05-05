@@ -45,6 +45,7 @@ export default class LogService {
 
   async getTotalPointLog() {
     const token = RequestContext.getDecodedToken();
+
     const logs = await this.logRepository.findByUidType(
       token.uid,
       token.id,

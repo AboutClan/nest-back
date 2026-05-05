@@ -36,7 +36,7 @@ export class NotificationScheduler {
     private readonly ScheduleLog: Model<IScheduleLog>,
 
     private readonly backupService: BackupService,
-  ) { }
+  ) {}
 
   async logSchedule(
     scheduleName: string,
@@ -143,8 +143,7 @@ export class NotificationScheduler {
       await this.gatherRepository.updateNotOpened(current);
       await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
-      await this.logSchedule(
-        name, 'failure', flag, err);
+      await this.logSchedule(name, 'failure', flag, err);
       throw new Error(err);
     }
   }
@@ -269,7 +268,7 @@ export class NotificationScheduler {
     }
   }
 
-  //매월 1일 0시 10분   
+  //매월 1일 0시 10분
   @Cron('0 10 0 1 * *', {
     timeZone: 'Asia/Seoul',
   })
@@ -393,7 +392,7 @@ export class NotificationScheduler {
   }
 
   //월요일 오후 8시
-  @Cron('0 0 20 * * 1', {
+  @Cron('0 0 20 * * 2', {
     timeZone: 'Asia/Seoul',
   })
   async noticeAllUser() {
