@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
+import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
@@ -740,7 +741,10 @@ export class UserService {
     return +final;
   }
 
-  private scoreForTemperatureDegree(degree: string): number {
+  private scoreForTemperatureDegree(
+    degree: string,
+    blockCnt: number = 1,
+  ): number {
     switch (degree) {
       case 'great':
         return 5.5;
@@ -749,7 +753,7 @@ export class UserService {
       case 'soso':
         return -1.8;
       case 'block':
-        return -6.5;
+        return -6.5 * blockCnt;
       case 'cancel':
         return -1.0;
       case 'noshow':
@@ -780,13 +784,16 @@ export class UserService {
       { score: number; cnt: number; blockCnt: number }
     >();
 
+    const MAX_APPLY_CNT = 3;
+
     for (const pairLogs of byPair.values()) {
       pairLogs.sort(
         (a, b) =>
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
       );
-      const picked = pairLogs.slice(0, 3);
+      const picked = pairLogs.slice(0, MAX_APPLY_CNT);
       const recencyWeights = [1.0, 0.5, 0.3];
+
       for (let i = 0; i < picked.length; i++) {
         const log = picked[i];
         const w = recencyWeights[i] ?? 0;
@@ -797,6 +804,71 @@ export class UserService {
         byTo.set(to, {
           score: prev.score + score,
           cnt: prev.cnt + 1,
+          blockCnt: degree === 'block' ? prev.blockCnt + 1 : prev.blockCnt,
+        });
+      }
+    }
+
+    return byTo;
+  }
+  private async aggregateLogTemperatureDeltasByToReset(
+    logs: Pick<ILogTemperature, 'from' | 'to' | 'sub' | 'timestamp'>[],
+  ): Promise<Map<string, { score: number; cnt: number; blockCnt: number }>> {
+    const byPair = new Map<
+      string,
+      Pick<ILogTemperature, 'from' | 'to' | 'sub' | 'timestamp'>[]
+    >();
+    for (const log of logs) {
+      const { from, to } = log;
+      if (from === to) continue;
+      const pairKey = `${from}-${to}`;
+      if (!byPair.has(pairKey)) byPair.set(pairKey, []);
+      byPair.get(pairKey)!.push(log);
+    }
+
+    // 새로 업데이트 할 평가 집합
+    const byTo = new Map<
+      string,
+      { score: number; cnt: number; blockCnt: number }
+    >();
+
+    const MAX_APPLY_CNT = 3;
+
+    for (const pairLogs of byPair.values()) {
+      pairLogs.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      );
+      const picked = pairLogs.slice(0, MAX_APPLY_CNT);
+      const recencyWeights = [1.0, 0.5, 0.3];
+
+      //최대  3개까지만 적용
+      for (let i = 0; i < picked.length; i++) {
+        const log = picked[i];
+        const { to, from } = log;
+        //가중치
+        const w = recencyWeights[i] ?? 0;
+        const user = await this.UserRepository.findByUid(from);
+        let w2 =
+          user.role === 'previliged'
+            ? 4
+            : user.role === 'manager' || user.role === 'gatherSupporters'
+              ? 2
+              : 1;
+        //적용 할 1차 초기값 또는 반복 누적 값
+        const prev = byTo.get(to) ?? { score: 0, cnt: 0, blockCnt: 0 };
+        const degree = log.sub;
+        const score =
+          this.scoreForTemperatureDegree(
+            degree,
+            degree === 'block' ? prev.blockCnt + 1 : prev.blockCnt,
+          ) *
+          w *
+          w2;
+
+        byTo.set(to, {
+          score: prev.score + score,
+          cnt: prev.cnt + w2,
           blockCnt: degree === 'block' ? prev.blockCnt + 1 : prev.blockCnt,
         });
       }
@@ -959,42 +1031,85 @@ export class UserService {
     return await this.processTemperature2();
   }
 
+  async processTemperatureReset() {
+    const d = dayjs().tz('Asia/Seoul');
+    const logs = await this.LogTemperatureRepository.findTemperatureByPeriod(
+      d.subtract(2, 'year').startOf('month').toDate(),
+      d.subtract(1, 'month').startOf('month').toDate(),
+    );
+
+    const mapping = await this.aggregateLogTemperatureDeltasByToReset(logs);
+    console.log('length2', [...mapping].length);
+
+    const uids = new Set([...mapping.keys()]);
+
+    for (const uid of uids) {
+      const user = await this.UserRepository.findByUid(uid);
+      if (!user) continue;
+
+      const userTemp = mapping.get(uid);
+      const addTemp = this.calculateScore(userTemp.score, userTemp.cnt);
+      // 초기 값에 더함
+      user.setTemperature(
+        Math.ceil(addTemp * 10) / 10,
+        userTemp.score,
+        userTemp.cnt,
+        userTemp.blockCnt,
+      );
+      await this.UserRepository.save(user);
+    }
+  }
+
   async processTemperature2() {
     const monthBeforeLast = DateUtils.getSeoulMonthRangeByMonthsAgo(2);
     const lastMonth = DateUtils.getSeoulMonthRangeByMonthsAgo(1);
 
+    // 지난번에 적용했던 평가 기록
     const logTemperatureMonthBeforeLast =
       await this.LogTemperatureRepository.findTemperatureByPeriod(
         monthBeforeLast.start,
         monthBeforeLast.end,
       );
 
+    // 이번에 적용해야 할 평가 기록
     const logTemperatureLastMonth =
       await this.LogTemperatureRepository.findTemperatureByPeriod(
         lastMonth.start,
         lastMonth.end,
       );
 
+    // 지난번에 유저마다 적용된 score,cnt,blockCnt 총합산 집합
     const subMap = this.aggregateLogTemperatureDeltasByTo(
       logTemperatureMonthBeforeLast,
     );
+
+    // 이번에 적용해야 할 유저마다 받은 score,cnt,blockCnt 총합산 집합
     const addMap = this.aggregateLogTemperatureDeltasByTo(
       logTemperatureLastMonth,
     );
 
-    const uids = new Set([...subMap.keys(), ...addMap.keys()]);
+    // 한달 전과 두달 전 모든 기록의 적용 uid 모음
+    const uids2 = new Set([...subMap.keys(), ...addMap.keys()]);
+    const uids = [...uids2].filter((u) => u === '3968103670');
 
+    console.log('U', uids, subMap.get(uids[0]), addMap.get(uids[0]));
+
+    // 각 유저마다 정산 진행
     for (const uid of uids) {
       const user = await this.UserRepository.findByUid(uid);
       if (!user) continue;
 
+      // temp는 현재 유저의 데이터
       const temp = user.temperature ?? { sum: 0, cnt: 0, blockCnt: 0 };
+      //차감해야 할 유저의 평가
       const sub = subMap.get(uid) ?? { score: 0, cnt: 0, blockCnt: 0 };
+      //적용해야 할 유저의 평가
       const add = addMap.get(uid) ?? { score: 0, cnt: 0, blockCnt: 0 };
 
       let sum = temp.sum ?? 0;
       let cnt = temp.cnt ?? 0;
       let blockCnt = temp.blockCnt ?? 0;
+      console.log(sum, cnt, blockCnt);
 
       ({ sum, cnt, blockCnt } = this.undoTemperatureBatch(
         sum,
@@ -1002,6 +1117,7 @@ export class UserService {
         blockCnt,
         sub,
       ));
+      console.log(2, sum, cnt, blockCnt);
       ({ sum, cnt, blockCnt } = this.applyTemperatureBatch(
         sum,
         cnt,

@@ -184,6 +184,8 @@ export default class NoticeService {
     return result;
   }
 
+  
+
   async createTemperature(
     infos: { toUid: string; message: string; rating: string }[],
     gatherId: string,

@@ -200,7 +200,7 @@ export class NotificationScheduler {
       return;
     }
     try {
-      await this.userService.processTemperature2();
+      await this.userService.processTemperatureReset();
       await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
       await this.logSchedule(name, 'failure', flag, err);
