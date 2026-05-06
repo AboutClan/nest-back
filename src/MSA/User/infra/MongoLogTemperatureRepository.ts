@@ -8,7 +8,7 @@ export class LogTemperatureRepository implements ILogTemperatureRepository {
   constructor(
     @InjectModel(DB_SCHEMA.LOG_TEMPERATURE)
     private readonly LogTemperature: Model<ILogTemperature>,
-  ) { }
+  ) {}
 
   async create(logTemperature: ILogTemperature) {
     return await this.LogTemperature.create(logTemperature);
@@ -31,7 +31,8 @@ export class LogTemperatureRepository implements ILogTemperatureRepository {
     return await this.LogTemperature.find(
       {
         timestamp: {
-          $lte: new Date('2026-03-31T23:59:59.999Z'),
+          $gte: start,
+          $lte: end,
         },
       },
       '-_id -__v',

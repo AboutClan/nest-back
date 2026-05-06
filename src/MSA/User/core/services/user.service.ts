@@ -36,7 +36,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) { }
+  ) {}
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -963,6 +963,7 @@ export class UserService {
     const monthBeforeLast = DateUtils.getSeoulMonthRangeByMonthsAgo(2);
     const lastMonth = DateUtils.getSeoulMonthRangeByMonthsAgo(1);
 
+    console.log('prev', monthBeforeLast, lastMonth);
     const logTemperatureMonthBeforeLast =
       await this.LogTemperatureRepository.findTemperatureByPeriod(
         monthBeforeLast.start,
@@ -971,7 +972,7 @@ export class UserService {
 
     const logTemperatureLastMonth =
       await this.LogTemperatureRepository.findTemperatureByPeriod(
-        monthBeforeLast.start,
+        lastMonth.start,
         lastMonth.end,
       );
 
@@ -983,7 +984,8 @@ export class UserService {
     );
 
     const uids = new Set([...subMap.keys(), ...addMap.keys()]);
-
+    console.log('uids');
+    console.log(uids);
     for (const uid of uids) {
       const user = await this.UserRepository.findByUid(uid);
       if (!user) continue;
@@ -1028,7 +1030,6 @@ export class UserService {
         blockCnt = 0;
       }
 
-      console.log(uid, addTemp);
       const userData = await this.UserRepository.findByUid(uid);
       if (!userData) continue;
       userData.setTemperature(Math.ceil(addTemp * 10) / 10, sum, cnt, blockCnt);

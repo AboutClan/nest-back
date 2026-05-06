@@ -15,7 +15,14 @@ export const ENTITY = {
     ENUM_STATUS: ['pending', 'open', 'close', 'end'] as const,
     DEFAULT_STATUS: 'pending' as const,
     ENUM_PART_PHASE: ['all', 'first', 'second'] as const,
-    ENUM_CATEGORY_TYPE: ['gather', 'event', 'group', 'official'] as const,
+    ENUM_CATEGORY_TYPE: [
+      'gather',
+      'event',
+      'group',
+      'official',
+      'openGather',
+      'secretGather',
+    ] as const,
     DEFAULT_CATEGORY_TYPE: 'gather' as const,
   },
 

@@ -256,7 +256,7 @@ export class NotificationScheduler {
     const name = SCHEDULE_CONST.PROCESS_TICKET;
     const flag = DateUtils.getYearMonth();
     const log = await this.findLogByFlagAndName(flag, name);
-    if (log) {
+  if (log) {
       return;
     }
     try {
