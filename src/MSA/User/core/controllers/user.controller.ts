@@ -26,6 +26,7 @@ import {
   PatchLocationDetailDto,
   PatchRestDto,
   PatchRoleDto,
+  PatchStudyIntroduceDto,
   SelectBadgeDto,
   SetFriendDto,
   SetMonthStudyTargetDto,
@@ -78,6 +79,23 @@ export class UserController {
       instagram: updateInstagramDto.instagram,
     });
     return { message: 'Instagram updated successfully' };
+  }
+
+  @Get('studyIntroduce')
+  async getStudyIntroduce() {
+    return this.userService.getUserInfo(['studyIntroduce']);
+  }
+
+  @Patch('studyIntroduce')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async patchStudyIntroduce(@Body() body: PatchStudyIntroduceDto) {
+    const studyIntroduce = await this.userService.patchStudyIntroduce(
+      body.studyIntroduce,
+    );
+    return {
+      message: 'Study introduce updated successfully',
+      studyIntroduce,
+    };
   }
 
   @Patch('role')

@@ -1,9 +1,12 @@
+import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsDefined,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 
 export class UpdateAvatarDto {
@@ -24,6 +27,27 @@ export class UpdateInstagramDto {
   @IsNotEmpty()
   @IsString()
   instagram: string;
+}
+
+export class StudyIntroduceBodyDto {
+  @IsOptional()
+  @IsString()
+  subject?: string;
+
+  @IsOptional()
+  @IsString()
+  studyStyle?: string;
+
+  @IsOptional()
+  @IsString()
+  studyTool?: string;
+}
+
+export class PatchStudyIntroduceDto {
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => StudyIntroduceBodyDto)
+  studyIntroduce: StudyIntroduceBodyDto;
 }
 
 export class PatchRoleDto {

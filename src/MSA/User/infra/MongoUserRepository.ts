@@ -13,7 +13,7 @@ import { Temperature } from 'src/MSA/User/core/domain/User/Temperature';
 import { Ticket } from 'src/MSA/User/core/domain/User/Ticket';
 import { User } from 'src/MSA/User/core/domain/User/User';
 import { IUserRepository } from '../core/interfaces/UserRepository.interface';
-import { IUser } from '../entity/user.entity';
+import { IUser, parseStudyIntroduce } from '../entity/user.entity';
 
 export class UserRepository implements IUserRepository {
   constructor(
@@ -551,6 +551,7 @@ export class UserRepository implements IUserRepository {
       doc?.rankPosition,
       doc?.membership,
       doc?.randomTicket,
+      parseStudyIntroduce(doc?.studyIntroduce),
     );
   }
 
@@ -604,6 +605,8 @@ export class UserRepository implements IUserRepository {
       result.studyPreference.place = null;
     if (p.membership !== null) result.membership = p.membership;
     if (p.randomTicket !== null) result.randomTicket = p.randomTicket;
+    if (p.studyIntroduce !== null)
+      result.studyIntroduce = parseStudyIntroduce(p.studyIntroduce);
     return result;
   }
 }

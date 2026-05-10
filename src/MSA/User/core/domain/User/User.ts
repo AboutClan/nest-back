@@ -1,4 +1,5 @@
 import { ENTITY } from 'src/Constants/ENTITY';
+import { studyIntroduceType } from 'src/MSA/User/entity/user.entity';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { Interest } from './Interest';
@@ -50,6 +51,7 @@ export interface IUser {
   rankPosition?: Number;
   membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
   randomTicket?: number;
+  studyIntroduce?: studyIntroduceType;
 }
 
 export class User {
@@ -93,7 +95,7 @@ export class User {
     public rankPosition?: number,
     public membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number],
     public randomTicket?: number,
-    public studyIntroduce?: string,
+    public studyIntroduce?: studyIntroduceType,
   ) {
     this._id = _id || '';
     this.uid = uid || '';
@@ -134,7 +136,11 @@ export class User {
     this.rankPosition = rankPosition || 0;
     this.membership = membership || 'normal';
     this.randomTicket = randomTicket || 0;
-    this.studyIntroduce = studyIntroduce || '';
+    this.studyIntroduce = studyIntroduce ?? {
+      subject: '',
+      studyStyle: '',
+      studyTool: '',
+    };
   }
 
   setRest(
