@@ -67,7 +67,29 @@ const studyRecordZodSchema = z
   })
   .optional();
 
+const studyIntroduceZodSchema = z.object({
+  subject: z.string().default(''),
+  studyStyle: z.string().default(''),
+  studyTool: z.string().default(''),
+});
+
 export type restType = z.infer<typeof restZodSchema>;
+export type studyIntroduceType = z.infer<typeof studyIntroduceZodSchema>;
+
+export function parseStudyIntroduce(raw: unknown): studyIntroduceType {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    const o = raw as Record<string, unknown>;
+    return {
+      subject: String(o.subject ?? ''),
+      studyStyle: String(o.studyStyle ?? ''),
+      studyTool: String(o.studyTool ?? ''),
+    };
+  }
+  if (typeof raw === 'string') {
+    return { subject: raw, studyStyle: '', studyTool: '' };
+  }
+  return { subject: '', studyStyle: '', studyTool: '' };
+}
 export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
 export type ticketType = z.infer<typeof ticketZodSchema>;
@@ -132,7 +154,11 @@ export const userZodSchema = z.object({
   introduceText: z.string(),
   membership: z.enum(ENTITY.USER.ENUM_MEMBERSHIP).optional(),
   randomTicket: z.number().default(0),
-  studyIntroduce: z.string(),
+  studyIntroduce: studyIntroduceZodSchema.default({
+    subject: '',
+    studyStyle: '',
+    studyTool: '',
+  }),
 });
 
 export interface IUser extends Document, IRegistered {
@@ -160,7 +186,7 @@ export interface IUser extends Document, IRegistered {
   isLocationSharingDenided: boolean;
   temperature: temperatureType;
   introduceText: string;
-  studyIntroduce: string;
+  studyIntroduce: studyIntroduceType;
   rank: string;
   rankPosition: number;
   membership: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
@@ -290,6 +316,16 @@ export const badgeSchema: Schema<badgeType> = new Schema(
     timestamps: false,
   },
 );
+
+export const studyIntroduceSchema: Schema<studyIntroduceType> = new Schema(
+  {
+    subject: { type: String, default: '' },
+    studyStyle: { type: String, default: '' },
+    studyTool: { type: String, default: '' },
+  },
+  { _id: false, timestamps: false },
+);
+
 export const rankSchema: Schema<badgeType> = new Schema(
   {
     badgeIdx: Number,
@@ -441,8 +477,12 @@ export const UserSchema: Schema<IUser> = new Schema({
     type: String,
   },
   studyIntroduce: {
-    type: String,
-    default: '',
+    type: studyIntroduceSchema,
+    default: () => ({
+      subject: '',
+      studyStyle: '',
+      studyTool: '',
+    }),
   },
   membership: {
     type: String,

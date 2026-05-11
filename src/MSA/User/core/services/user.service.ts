@@ -147,6 +147,31 @@ export class UserService {
     return updated;
   }
 
+  async patchStudyIntroduce(partial: {
+    subject?: string;
+    studyStyle?: string;
+    studyTool?: string;
+  }) {
+    const token = RequestContext.getDecodedToken();
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new NotFoundException(`User not found: ${token.uid}`);
+    }
+    const cur = user.studyIntroduce ?? {
+      subject: '',
+      studyStyle: '',
+      studyTool: '',
+    };
+    const merged = {
+      ...cur,
+      ...(partial.subject !== undefined && { subject: partial.subject }),
+      ...(partial.studyStyle !== undefined && { studyStyle: partial.studyStyle }),
+      ...(partial.studyTool !== undefined && { studyTool: partial.studyTool }),
+    };
+    await this.UserRepository.updateUser(token.uid, { studyIntroduce: merged });
+    return merged;
+  }
+
   async patchProfile() {
     const token = RequestContext.getDecodedToken();
     const profile = await getProfile(
