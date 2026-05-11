@@ -256,7 +256,7 @@ export class NotificationScheduler {
     const name = SCHEDULE_CONST.PROCESS_TICKET;
     const flag = DateUtils.getYearMonth();
     const log = await this.findLogByFlagAndName(flag, name);
-  if (log) {
+    if (log) {
       return;
     }
     try {
@@ -392,7 +392,7 @@ export class NotificationScheduler {
   }
 
   //월요일 오후 8시
-  @Cron('0 0 20 * * 2', {
+  @Cron('0 0 20 * * 1', {
     timeZone: 'Asia/Seoul',
   })
   async noticeAllUser() {

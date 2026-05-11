@@ -165,7 +165,9 @@ export class UserService {
     const merged = {
       ...cur,
       ...(partial.subject !== undefined && { subject: partial.subject }),
-      ...(partial.studyStyle !== undefined && { studyStyle: partial.studyStyle }),
+      ...(partial.studyStyle !== undefined && {
+        studyStyle: partial.studyStyle,
+      }),
       ...(partial.studyTool !== undefined && { studyTool: partial.studyTool }),
     };
     await this.UserRepository.updateUser(token.uid, { studyIntroduce: merged });
@@ -1038,12 +1040,13 @@ export class UserService {
     const random = Math.floor(Math.random() * 2);
     const title =
       random === 0
-        ? '🤩 이번주 내 취향을 저격할 모임은?'
-        : '😎 내 관심사랑 딱 맞는 번개 둘러보기';
+        ? '👀 오늘은 어떤 모임이 열렸을까?'
+        : '✨ 취향 맞는 번개 모임 둘러보기';
+
     const description =
       random === 0
-        ? '취향이 통하는 멤버들과 함께 다양한 추억을 만들어보세요🍀'
-        : '지금 가장 인기 있는 모임 주제들을 한눈에 확인하세요🍀';
+        ? '지금 참여 가능한 다양한 번개 모임을 확인해 보세요🍀'
+        : '관심사 맞는 사람들과 새로운 취미와 일상을 함께해요🍀';
 
     await this.fcmServiceInstance.sendNotificationUserIds(
       userIds,
