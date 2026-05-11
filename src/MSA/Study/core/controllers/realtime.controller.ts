@@ -180,17 +180,27 @@ export class RealtimeController {
   @Patch(':date/status')
   async patchStatus(
     @Body('status') status: string,
+    @Body('userId') userId: string,
     @Res() res: Response,
     @Req() req: Request,
     @Next() next: NextFunction,
   ) {
     const { date } = req;
 
-    const result = await this.realtimeService.patchStatus(
-      status,
-      date as string,
-    );
-    return res.status(HttpStatus.OK).json(result);
+    if (status === 'participation') {
+      const result = await this.realtimeService.patchStatus(
+        status,
+        date as string,
+        userId,
+      );
+      return res.status(HttpStatus.OK).json(result);
+    } else {
+      const result = await this.realtimeService.deleteVote(
+        date as string,
+        userId,
+      );
+      return res.status(HttpStatus.OK).json(result);
+    }
   }
 
   @Patch(':date/absence')

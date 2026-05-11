@@ -1,5 +1,8 @@
 import { Inject } from '@nestjs/common';
+import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
@@ -24,6 +27,7 @@ export default class RealtimeService {
     @Inject(IREALTIME_REPOSITORY)
     private readonly realtimeRepository: IRealtimeRepository,
     private readonly userServiceInstance: UserService,
+    private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
     private readonly placeServiceInstance: PlaceService,
   ) {}
@@ -331,12 +335,12 @@ export default class RealtimeService {
     }
   }
 
-  async deleteVote(date: string) {
+  async deleteVote(date: string, userId?: string) {
     const token = RequestContext.getDecodedToken();
 
     const todayData = await this.getTodayData(date);
 
-    const isOpen = todayData.deleteVote(token.id);
+    const isOpen = todayData.deleteVote(userId || token.id);
     await this.realtimeRepository.save(todayData);
 
     if (isOpen) {
@@ -354,14 +358,22 @@ export default class RealtimeService {
     }
   }
 
-  async patchStatus(status: any, date: string) {
+  async patchStatus(status: any, date: string, userId: string) {
     const token = RequestContext.getDecodedToken();
 
     const todayData = await this.getTodayData(date);
 
-    todayData.updateStatus(token.id, status);
+    todayData.updateStatus(userId ?? token.id, status);
 
     await this.realtimeRepository.save(todayData);
+    if (status === 'participation') {
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        userId,
+        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.STUDY.ACCEPT(dayjs(date).format('M월 D일(ddd)')),
+        `/studyPage`,
+      );
+    }
   }
 
   async patchComment(comment: string, date: string) {

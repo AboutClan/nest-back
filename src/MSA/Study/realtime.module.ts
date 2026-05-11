@@ -16,6 +16,7 @@ import { SetDateParamMiddleware } from './middleware/setDateParam';
 import { RealtimeRepository } from './infra/MongoRealtimeRepository';
 import { PlaceModule } from '../Place/place.module';
 import { RealtimeController } from './core/controllers/realtime.controller';
+import { FcmAModule } from '../Notification/fcm.module';
 
 const realtimeRepositoryProvider: ClassProvider = {
   provide: IREALTIME_REPOSITORY,
@@ -26,6 +27,7 @@ const realtimeRepositoryProvider: ClassProvider = {
   imports: [
     ImageModule,
     CollectionModule,
+    FcmAModule,
     MongooseModule.forFeature([
       { name: DB_SCHEMA.REALTIME, schema: RealtimeSchema },
     ]),

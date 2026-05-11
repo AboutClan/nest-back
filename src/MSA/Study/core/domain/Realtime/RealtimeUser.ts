@@ -5,7 +5,7 @@ import { Time, TimeProps } from './Time';
 /**
  * Status enum for RealtimeUser
  */
-export type RealtimeUserStatus = 'solo' | 'open' | 'participation';
+export type RealtimeUserStatus = 'solo' | 'open' | 'participation' | 'pending';
 
 /**
  * Primitive props for RealtimeUser entity

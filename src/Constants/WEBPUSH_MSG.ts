@@ -47,6 +47,10 @@ export const WEBPUSH_MSG = {
     FRIEND_TITLE: '친구 요청',
     FRIEND_RECIEVE: (user) => `${user}님이 친구 요청을 보냈어요!`,
   },
+  STUDY: {
+    ACCEPT: (date) =>
+      `${date} 스터디 참여가 승인되었습니다. 단톡방에 바로 입장해 주세요!`,
+  },
 
   VOTE: {
     SUCCESS_TITLE: '스터디 매칭 성공 🎉',
