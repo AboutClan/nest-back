@@ -28,12 +28,14 @@ export class Vote2Repository implements IVote2Repository {
           },
           {
             path: 'results.members.userId',
-            select: ENTITY.USER.C_SIMPLE_USER,
+            select: ENTITY.USER.C_SIMPLE_USER + `studyIntroduce`,
           },
         ])
         .populate({
           path: 'participations.userId',
-          select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
+          select:
+            ENTITY.USER.C_SIMPLE_USER +
+            'isLocationSharingDenided studyIntroduce',
         });
     }
 
@@ -79,7 +81,8 @@ export class Vote2Repository implements IVote2Repository {
       })
       .populate({
         path: 'participations.userId',
-        select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
+        select:
+          ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided studyIntroduce',
       });
     return db ? this.mapToDomain(db) : null;
   }
@@ -94,14 +97,16 @@ export class Vote2Repository implements IVote2Repository {
   async findParticipationsByDate(date: string) {
     let vote = await this.Vote2Model.findOne({ date }).populate({
       path: 'participations.userId',
-      select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
+      select:
+        ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided studyIntroduce',
     });
 
     if (!vote) {
       await this.Vote2Model.create({ date, results: [], participations: [] });
       vote = await this.Vote2Model.findOne({ date }).populate({
         path: 'participations.userId',
-        select: ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided',
+        select:
+          ENTITY.USER.C_SIMPLE_USER + 'isLocationSharingDenided studyIntroduce',
       });
     }
 
@@ -116,7 +121,7 @@ export class Vote2Repository implements IVote2Repository {
       },
     }).populate({
       path: 'results.members.userId',
-      select: ENTITY.USER.C_SIMPLE_USER,
+      select: ENTITY.USER.C_SIMPLE_USER + `studyIntroduce`,
     });
   }
 
