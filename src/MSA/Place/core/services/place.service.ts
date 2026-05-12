@@ -35,21 +35,25 @@ export default class PlaceService {
     // return { ...place, ratings: ratings || {} };
     return {
       ...place,
-      ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
+      // ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
     };
   }
 
   async getActivePlace(status: 'main' | 'best' | 'good' | 'all') {
     try {
+      console.log(1234);
       const places = await this.placeRepository.findByStatus(status);
-      const ratings = places.map((place) =>
-        this.calculateRating(place?.ratings),
-      );
-      return places.map((place, index) => ({
-        ...place,
-        // // ratings: ratings[index] || {},
-        // ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
-      }));
+      // const ratings = places.map((place) =>
+      //   this.calculateRating(place?.ratings),
+      // );
+      return places;
+      // console.log(places[0]);
+      // return places.map((place, index) => ({
+      //   ...place,
+      //   ratings: place?.ratings || [],
+      //   // // ratings: ratings[index] || {},
+      //   // ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
+      // }));
     } catch (err: any) {
       throw new Error(err);
     }
@@ -63,7 +67,7 @@ export default class PlaceService {
       return places.map((place, index) => ({
         ...place,
         // ratings: ratings[index] || {},
-        ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
+        // ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
       }));
     } catch (err: any) {
       throw new Error(err);
@@ -105,7 +109,7 @@ export default class PlaceService {
     return places.map((place, index) => ({
       ...place,
       // ratings: ratings[index] || {},
-      ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
+      // ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
     }));
   }
 

@@ -55,7 +55,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
     } else if (status === 'main') {
       query = { status: 'main' };
     }
-
+    console.log(52525, query);
     //임시로 status 제거
     return await this.Place.find(query)
       .populate({
