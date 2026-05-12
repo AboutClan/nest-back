@@ -10,7 +10,7 @@ export default class PlaceService {
   constructor(
     @Inject(IPLACE_REPOSITORY)
     private readonly placeRepository: PlaceRepository,
-  ) { }
+  ) {}
   async getPlaceByLatLng(lat: number, lng: number) {
     const multiplier = Math.pow(10, 5);
 
@@ -33,7 +33,10 @@ export default class PlaceService {
 
     const ratings = this.calculateRating(place?.ratings);
     // return { ...place, ratings: ratings || {} };
-    return { ...place, ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] } };
+    return {
+      ...place,
+      ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
+    };
   }
 
   async getActivePlace(status: 'main' | 'best' | 'good' | 'all') {
@@ -44,8 +47,8 @@ export default class PlaceService {
       );
       return places.map((place, index) => ({
         ...place,
-        // ratings: ratings[index] || {},
-        ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
+        // // ratings: ratings[index] || {},
+        // ratings: { mood: 5, table: 5, space: 5, etc: 5, userList: [] },
       }));
     } catch (err: any) {
       throw new Error(err);
@@ -146,7 +149,6 @@ export default class PlaceService {
     return;
   }
 
-
   calculateRating(ratings: any) {
     const moodArray = ratings?.mood || [];
     const tableArray = ratings?.table || [];
@@ -156,24 +158,24 @@ export default class PlaceService {
     const mood =
       moodArray.length > 0
         ? moodArray.reduce((acc: number, curr: any) => acc + curr.rating, 0) /
-        moodArray.length
+          moodArray.length
         : 0;
     const table =
       tableArray.length > 0
         ? tableArray.reduce((acc: number, curr: any) => acc + curr.rating, 0) /
-        tableArray.length
+          tableArray.length
         : 0;
     const space =
       beverageArray.length > 0
         ? beverageArray.reduce(
-          (acc: number, curr: any) => acc + curr.rating,
-          0,
-        ) / beverageArray.length
+            (acc: number, curr: any) => acc + curr.rating,
+            0,
+          ) / beverageArray.length
         : 0;
     const etc =
       etcArray.length > 0
         ? etcArray.reduce((acc: number, curr: any) => acc + curr.rating, 0) /
-        etcArray.length
+          etcArray.length
         : 0;
 
     const userList = Array.from(
