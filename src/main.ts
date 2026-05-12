@@ -1,10 +1,9 @@
+import { HttpException } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
-import { NotificationScheduler } from './schedule/schedule';
-import { HttpException } from '@nestjs/common';
+import { AppModule } from './app.module';
 
 const logger = winston.createLogger({
   level: 'error',
@@ -39,12 +38,12 @@ async function bootstrap() {
     rawBody: true,
     logger: isProd
       ? WinstonModule.createLogger({
-        transports: [
-          new winston.transports.Console({
-            format: winston.format.json(),
-          }),
-        ],
-      })
+          transports: [
+            new winston.transports.Console({
+              format: winston.format.json(),
+            }),
+          ],
+        })
       : ['log', 'error', 'warn', 'debug', 'verbose'], // 기본 Nest Logger 사용
   });
 
@@ -61,6 +60,8 @@ async function bootstrap() {
       'https://studyabout.herokuapp.com',
       'https://about-front.kro.kr',
       'https://study-about.club',
+      'https://xn--ob0b42knwutje.com',
+      'https://카공지도.com',
     ], // 허용하고자 하는 URL 목록을 배열로 작성
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
