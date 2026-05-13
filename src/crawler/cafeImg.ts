@@ -110,15 +110,35 @@ class NaverMapCrawler {
                     place._id?.toString() || '',
                 );
 
-                if (placeInfo && placeInfo.imageUrl) {
-                    await Place.findByIdAndUpdate(place._id, {
-                        image: placeInfo.imageUrl,
-                    });
-                    console.log(`✅ Success: ${placeName} - DB updated.`);
-                    naverMapInfos.push(placeInfo);
-                    successCount++;
+                if (placeInfo) {
+                    const updateData: {
+                        image?: string;
+                        operatingHours: string[][];
+                    } = {
+                        operatingHours: placeInfo.operatingHours ?? [],
+                    };
+
+                    // if (placeInfo.imageUrl) {
+                    //     updateData.image = placeInfo.imageUrl;
+                    // }
+
+                    await Place.findByIdAndUpdate(place._id, updateData);
+
+                    if (
+                        placeInfo.imageUrl ||
+                        (placeInfo.operatingHours?.length ?? 0) > 0
+                    ) {
+                        console.log(`✅ Success: ${placeName} - DB updated.`);
+                        naverMapInfos.push(placeInfo);
+                        successCount++;
+                    } else {
+                        logger.warn(
+                            `⚠️ Failed to find image and operating hours for ${placeName}.`,
+                        );
+                        errorCount++;
+                    }
                 } else {
-                    logger.warn(`⚠️ Failed to find image for ${placeName}.`);
+                    logger.warn(`⚠️ Failed to crawl place info for ${placeName}.`);
                     errorCount++;
                 }
             } catch (placeError) {
@@ -273,7 +293,6 @@ class NaverMapCrawler {
                 console.log(`[${placeName}] Operating hours:`, operatingHours);
             }
 
-            console.log(operatingHours)
             return {
                 placeName,
                 placeId,
