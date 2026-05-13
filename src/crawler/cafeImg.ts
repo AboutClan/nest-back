@@ -15,6 +15,7 @@ interface NaverMapInfo {
     rating?: number;
     reviewCount?: number;
     imageUrl?: string;
+    operatingHours?: string[][];
     crawledAt: Date;
 }
 
@@ -42,7 +43,7 @@ class NaverMapCrawler {
     // Get data from the Place collection
     async getPlacesFromDB(): Promise<IPlace[]> {
         try {
-            const places = await Place.find({ image: null }).exec();
+            const places = await Place.find().exec();
             console.log(`Fetched ${places.length} active places from DB.`);
             return places;
         } catch (error) {
@@ -219,15 +220,66 @@ class NaverMapCrawler {
                 return undefined;
             }, imageSelector);
 
+            const hoursToggleSelector = 'a.gKP9i.RMgN0[role="button"]';
+            const hoursToggleButton = await frame.$(hoursToggleSelector);
+
+            if (hoursToggleButton) {
+                const isExpanded = await frame.evaluate((element) => {
+                    return element.getAttribute('aria-expanded') === 'true';
+                }, hoursToggleButton);
+
+                if (!isExpanded) {
+                    await hoursToggleButton.click();
+
+                    await frame.waitForFunction(
+                        (selector) => {
+                            const button = document.querySelector(selector);
+                            return button?.getAttribute('aria-expanded') === 'true';
+                        },
+                        { timeout: 3000 },
+                        hoursToggleSelector,
+                    );
+                }
+            }
+
+            const operatingHours = await frame.evaluate((selector) => {
+                const expandedButton = document.querySelector(
+                    `${selector}[aria-expanded="true"]`,
+                );
+
+                if (!expandedButton) {
+                    return [];
+                }
+
+                return Array.from(expandedButton.querySelectorAll('span.A_cdD'))
+                    .map((item) => {
+                        return Array.from(item.children)
+                            .filter((child) => {
+                                return (
+                                    child.tagName === 'SPAN' || child.tagName === 'DIV'
+                                );
+                            })
+                            .map((child) => child.textContent?.trim() ?? '')
+                            .filter(Boolean);
+                    })
+                    .filter((texts) => texts.length > 0);
+            }, hoursToggleSelector);
+
             if (!imageUrl) {
                 logger.warn(`Image URL not found for ${placeName} even after waiting.`);
             }
 
+            if (operatingHours.length > 0) {
+                console.log(`[${placeName}] Operating hours:`, operatingHours);
+            }
+
+            console.log(operatingHours)
             return {
                 placeName,
                 placeId,
                 address: null, // 필요 시 이 부분도 파싱 로직 추가
                 imageUrl: imageUrl || undefined,
+                operatingHours,
                 crawledAt: new Date(),
             };
         } catch (error) {
@@ -241,6 +293,7 @@ class NaverMapCrawler {
                 address: null,
                 crawledAt: new Date(),
                 imageUrl: undefined,
+                operatingHours: [],
             };
         }
     }
