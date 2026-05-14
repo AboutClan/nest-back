@@ -1,5 +1,8 @@
 import { ENTITY } from 'src/Constants/ENTITY';
-import { studyIntroduceType } from 'src/MSA/User/entity/user.entity';
+import {
+  notificationConsentType,
+  studyIntroduceType,
+} from 'src/MSA/User/entity/user.entity';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { Interest } from './Interest';
@@ -52,6 +55,7 @@ export interface IUser {
   membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
   randomTicket?: number;
   studyIntroduce?: studyIntroduceType;
+  notificationConsent?: notificationConsentType;
 }
 
 export class User {
@@ -96,6 +100,7 @@ export class User {
     public membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number],
     public randomTicket?: number,
     public studyIntroduce?: studyIntroduceType,
+    public notificationConsent?: notificationConsentType,
   ) {
     this._id = _id || '';
     this.uid = uid || '';
@@ -140,6 +145,10 @@ export class User {
       subject: '',
       studyStyle: '',
       studyTool: '',
+    };
+    this.notificationConsent = notificationConsent ?? {
+      cafe: false,
+      gather: false,
     };
   }
 
@@ -296,6 +305,7 @@ export class User {
       membership: this.membership,
       randomTicket: this.randomTicket,
       studyIntroduce: this.studyIntroduce,
+      notificationConsent: this.notificationConsent,
     };
   }
 }

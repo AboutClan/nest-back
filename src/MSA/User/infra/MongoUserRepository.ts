@@ -13,7 +13,11 @@ import { Temperature } from 'src/MSA/User/core/domain/User/Temperature';
 import { Ticket } from 'src/MSA/User/core/domain/User/Ticket';
 import { User } from 'src/MSA/User/core/domain/User/User';
 import { IUserRepository } from '../core/interfaces/UserRepository.interface';
-import { IUser, parseStudyIntroduce } from '../entity/user.entity';
+import {
+  IUser,
+  notificationConsentType,
+  parseStudyIntroduce,
+} from '../entity/user.entity';
 
 export class UserRepository implements IUserRepository {
   constructor(
@@ -32,8 +36,17 @@ export class UserRepository implements IUserRepository {
         { 'studyRecord.accumulationMinutes': { $gte: 2 } },
         { 'studyRecord.accumulationCnt': { $gte: 2 } },
       ],
+      'notificationConsent.cafe': true,
     })
       .select('_id uid studyRecord')
+      .lean();
+  }
+
+  async findAllForGatherNotification() {
+    return await this.UserModel.find({
+      'notificationConsent.gather': true,
+    })
+      .select('_id uid')
       .lean();
   }
 
@@ -511,6 +524,11 @@ export class UserRepository implements IUserRepository {
       doc?.temperature?.blockCnt,
     );
 
+    const notificationConsent: notificationConsentType = {
+      cafe: doc?.notificationConsent?.cafe ?? false,
+      gather: doc?.notificationConsent?.gather ?? false,
+    };
+
     return new User(
       doc?._id?.toString(),
       doc?.uid,
@@ -552,6 +570,7 @@ export class UserRepository implements IUserRepository {
       doc?.membership,
       doc?.randomTicket,
       parseStudyIntroduce(doc?.studyIntroduce),
+      notificationConsent,
     );
   }
 
@@ -607,6 +626,8 @@ export class UserRepository implements IUserRepository {
     if (p.randomTicket !== null) result.randomTicket = p.randomTicket;
     if (p.studyIntroduce !== null)
       result.studyIntroduce = parseStudyIntroduce(p.studyIntroduce);
+    if (p.notificationConsent !== null)
+      result.notificationConsent = p.notificationConsent;
     return result;
   }
 }

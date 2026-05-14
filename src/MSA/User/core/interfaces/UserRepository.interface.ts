@@ -8,6 +8,7 @@ export interface IUserRepository {
   findAll(queryString?: string): Promise<User[]>;
   findAllForTicket();
   findAllForStudyEngage();
+  findAllForGatherNotification();
   updateUser(uid: string, updateInfo: any): Promise<null>;
   findByIsActiveUid(
     uid: string,

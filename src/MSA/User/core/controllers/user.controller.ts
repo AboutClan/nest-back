@@ -24,6 +24,7 @@ import {
   PatchIsLocationSharingDeniedDto,
   PatchIsPrivateDto,
   PatchLocationDetailDto,
+  PostNotificationConsentDto,
   PatchRestDto,
   PatchRoleDto,
   PatchStudyIntroduceDto,
@@ -45,7 +46,7 @@ import { UserService } from '../services/user.service';
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get('active')
   async getActive() {
@@ -86,6 +87,11 @@ export class UserController {
     return this.userService.getUserInfo(['studyIntroduce']);
   }
 
+  @Get('notificationConsent')
+  async getNotificationConsent() {
+    return this.userService.getNotificationConsent();
+  }
+
   @Patch('studyIntroduce')
   @UsePipes(new ValidationPipe({ transform: true }))
   async patchStudyIntroduce(@Body() body: PatchStudyIntroduceDto) {
@@ -95,6 +101,16 @@ export class UserController {
     return {
       message: 'Study introduce updated successfully',
       studyIntroduce,
+    };
+  }
+
+  @Post('notificationConsent')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async postNotificationConsent(@Body() body: PostNotificationConsentDto) {
+    const result = await this.userService.updateNotificationConsent(body);
+    return {
+      message: 'Notification consent updated successfully',
+      ...result,
     };
   }
 
