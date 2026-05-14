@@ -37,6 +37,7 @@ export const PlaceZodSchema = z.object({
   ratings: z.array(ratingZodSchema).optional(),
   registrant: z.union([z.string(), z.custom<IUser>()]),
   _id: z.string().optional(),
+  name: z.string().optional(),
 });
 
 export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
@@ -102,7 +103,9 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     enum: ENTITY.PLACE.ENUM_STATUS,
     default: ENTITY.PLACE.DEFAULT_STATUS,
   },
-
+  name: {
+    type: String,
+  },
   image: {
     type: String,
   },

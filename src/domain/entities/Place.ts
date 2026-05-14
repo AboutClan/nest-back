@@ -16,6 +16,7 @@ export interface PlaceProps {
   image?: string;
   coverImage?: string;
   registrant?: string;
+  name?: string;
 }
 
 /**
@@ -29,6 +30,7 @@ export class Place {
   private image?: string;
   private coverImage?: string;
   private registrant?: string;
+  private name?: string;
 
   constructor(props: PlaceProps) {
     this.status = props.status ?? 'sub';
@@ -38,6 +40,7 @@ export class Place {
     this.image = props.image;
     this.coverImage = props.coverImage;
     this.registrant = props.registrant;
+    this.name = props.name;
   }
 
   // getters
@@ -111,6 +114,7 @@ export class Place {
       image: this.image,
       coverImage: this.coverImage,
       registrant: this.registrant,
+      name: this.name,
     };
   }
 }
