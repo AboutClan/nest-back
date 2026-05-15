@@ -30,4 +30,11 @@ export class MongoRegisterRepository implements RegisterRepository {
   async findAll(): Promise<IRegistered[]> {
     return await this.Registered.find({});
   }
+
+
+  async test(): Promise<any> {
+    return await this.Registered.deleteMany({
+      createdAt: { $lt: new Date('2026-03-01') },
+    });
+  }
 }

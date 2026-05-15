@@ -161,9 +161,11 @@ export class User {
   ): void {
     this.rest.setRest(type, startDate, endDate, content, dayDiff);
   }
-
   increasePoint(point: number): void {
     this.point += point;
+    if (this.point < 0) {
+      this.point = 0;
+    }
   }
   increaseScore(score: number): void {
     this.score += score;

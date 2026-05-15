@@ -20,7 +20,7 @@ export default class RegisterService {
     private readonly registerRepository: RegisterRepository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     @InjectModel(DB_SCHEMA.ACCOUNT) private Account: Model<IAccount>,
-  ) {}
+  ) { }
 
   async encodeByAES56(tel: string) {
     const key = process.env.cryptoKey;
@@ -110,10 +110,10 @@ export default class RegisterService {
     };
 
     try {
-       await this.User.findOneAndUpdate({ uid }, userForm, {
-         upsert: true,
-         new: true,
-       });
+      await this.User.findOneAndUpdate({ uid }, userForm, {
+        upsert: true,
+        new: true,
+      });
       await this.removeUnnecessaryUserField();
 
       await this.deleteRegisterUser(uid, true);
@@ -162,5 +162,9 @@ export default class RegisterService {
     // console.log(a);
 
     return users;
+  }
+
+  async test() {
+    await this.registerRepository.test();
   }
 }

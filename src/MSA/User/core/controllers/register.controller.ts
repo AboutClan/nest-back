@@ -58,4 +58,13 @@ export class RegisterController {
       );
     }
   }
+
+  @Get('test')
+  async test() {
+    try {
+      return await this.registerService.test();
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
