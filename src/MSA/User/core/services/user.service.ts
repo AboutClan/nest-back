@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  Scope,
+} from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
@@ -19,7 +25,11 @@ import {
 } from 'src/utils/di.tokens';
 import { getProfile } from 'src/utils/oAuthUtils';
 import { ILogTemperature } from '../../entity/logTemperature.entity';
-import { IUser, restType } from '../../entity/user.entity';
+import {
+  IUser,
+  notificationConsentType,
+  restType,
+} from '../../entity/user.entity';
 import { ILogMembershipRepository } from '../interfaces/LogMembership.interface';
 import { ILogTemperatureRepository } from '../interfaces/LogTemperature.interface';
 import { IUserRepository } from '../interfaces/UserRepository.interface';
@@ -172,6 +182,39 @@ export class UserService {
     };
     await this.UserRepository.updateUser(token.uid, { studyIntroduce: merged });
     return merged;
+  }
+
+  async getNotificationConsent() {
+    const result = await this.getUserInfo(['notificationConsent']);
+    return {
+      notificationConsent: result.notificationConsent ?? {
+        cafe: false,
+        gather: false,
+      },
+    };
+  }
+
+  async updateNotificationConsent(partial: Partial<notificationConsentType>) {
+    if (partial.cafe === undefined && partial.gather === undefined) {
+      throw new BadRequestException(
+        'At least one notification consent field is required',
+      );
+    }
+
+    const token = RequestContext.getDecodedToken();
+    const user = await this.UserRepository.findByUid(token.uid);
+    if (!user) {
+      throw new NotFoundException(`User not found: ${token.uid}`);
+    }
+
+    const notificationConsent = {
+      cafe: partial.cafe ?? user.notificationConsent?.cafe ?? false,
+      gather: partial.gather ?? user.notificationConsent?.gather ?? false,
+    };
+
+    await this.UserRepository.updateUser(token.uid, { notificationConsent });
+
+    return { notificationConsent };
   }
 
   async patchProfile() {
@@ -1010,6 +1053,9 @@ export class UserService {
     const users = await this.UserRepository.findAllForStudyEngage();
 
     const userIds = users.map((user) => user._id.toString());
+    if (!userIds.length) {
+      return;
+    }
 
     const random = Math.floor(Math.random() * 2);
     const title =
@@ -1033,9 +1079,12 @@ export class UserService {
   }
 
   async recommendNoticeAllUser() {
-    const users = await this.UserRepository.findAll();
+    const users = await this.UserRepository.findAllForGatherNotification();
 
     const userIds = users.map((user) => user._id.toString());
+    if (!userIds.length) {
+      return;
+    }
 
     const random = Math.floor(Math.random() * 2);
     const title =

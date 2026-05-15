@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDefined,
   IsNotEmpty,
   IsNumber,
@@ -48,6 +49,16 @@ export class PatchStudyIntroduceDto {
   @ValidateNested()
   @Type(() => StudyIntroduceBodyDto)
   studyIntroduce: StudyIntroduceBodyDto;
+}
+
+export class PostNotificationConsentDto {
+  @IsOptional()
+  @IsBoolean()
+  cafe?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  gather?: boolean;
 }
 
 export class PatchRoleDto {

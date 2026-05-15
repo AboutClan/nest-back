@@ -15,6 +15,7 @@ interface NaverMapInfo {
     rating?: number;
     reviewCount?: number;
     imageUrl?: string;
+    operatingHours?: string[][];
     crawledAt: Date;
 }
 
@@ -42,7 +43,7 @@ class NaverMapCrawler {
     // Get data from the Place collection
     async getPlacesFromDB(): Promise<IPlace[]> {
         try {
-            const places = await Place.find({ image: null }).exec();
+            const places = await Place.find({ "operatingHours.0": { "$exists": false } }).exec();
             console.log(`Fetched ${places.length} active places from DB.`);
             return places;
         } catch (error) {
@@ -99,7 +100,7 @@ class NaverMapCrawler {
 
                 await page.goto(naverMapUrl, {
                     waitUntil: 'networkidle2',
-                    timeout: 10000,
+                    timeout: 5000,
                 });
 
                 console.log('extractPlaceInfoWithPuppeteer');
@@ -109,15 +110,35 @@ class NaverMapCrawler {
                     place._id?.toString() || '',
                 );
 
-                if (placeInfo && placeInfo.imageUrl) {
-                    await Place.findByIdAndUpdate(place._id, {
-                        image: placeInfo.imageUrl,
-                    });
-                    console.log(`✅ Success: ${placeName} - DB updated.`);
-                    naverMapInfos.push(placeInfo);
-                    successCount++;
+                if (placeInfo) {
+                    const updateData: {
+                        image?: string;
+                        operatingHours: string[][];
+                    } = {
+                        operatingHours: placeInfo.operatingHours ?? [],
+                    };
+
+                    // if (placeInfo.imageUrl) {
+                    //     updateData.image = placeInfo.imageUrl;
+                    // }
+
+                    await Place.findByIdAndUpdate(place._id, updateData);
+
+                    if (
+                        placeInfo.imageUrl ||
+                        (placeInfo.operatingHours?.length ?? 0) > 0
+                    ) {
+                        console.log(`✅ Success: ${placeName} - DB updated.`);
+                        naverMapInfos.push(placeInfo);
+                        successCount++;
+                    } else {
+                        logger.warning(
+                            `⚠️ Failed to find image and operating hours for ${placeName}.`,
+                        );
+                        errorCount++;
+                    }
                 } else {
-                    logger.warn(`⚠️ Failed to find image for ${placeName}.`);
+                    logger.warning(`⚠️ Failed to crawl place info for ${placeName}.`);
                     errorCount++;
                 }
             } catch (placeError) {
@@ -165,24 +186,33 @@ class NaverMapCrawler {
                 },
             );
 
-            // searchIframe이 존재하는지 확인 (검색 결과가 목록으로 표시되는 경우)
-            const searchFrameHandle = await page.$(searchIframeSelector);
-            if (searchFrameHandle) {
-                console.log(
-                    `[${placeName}] Search list detected. Clicking the first item...`,
-                );
-                const searchFrame = await searchFrameHandle.contentFrame();
-                if (searchFrame) {
-                    // 첫 번째 검색 결과의 selector (네이버 지도 구조 변경 시 업데이트 필요)
-                    const firstResultSelector = 'li[data-laim-exp-id] a';
-                    await searchFrame.waitForSelector(firstResultSelector, {
-                        timeout: 6000,
-                    });
-                    await searchFrame.click(firstResultSelector);
+            // searchIframe이 없거나 처리에 실패해도 entryIframe 로직은 계속 진행한다.
+            try {
+                const searchFrameHandle = await page.$(searchIframeSelector);
+                if (searchFrameHandle) {
+                    console.log(
+                        `[${placeName}] Search list detected. Clicking the first item...`,
+                    );
+                    const searchFrame = await searchFrameHandle.contentFrame();
+                    if (searchFrame) {
+                        // 첫 번째 검색 결과의 selector (네이버 지도 구조 변경 시 업데이트 필요)
+                        const firstResultSelector = 'li[data-laim-exp-id] a';
+                        await searchFrame.waitForSelector(firstResultSelector, {
+                            timeout: 5000,
+                        });
+                        await searchFrame.click(firstResultSelector);
 
-                    // 첫 번째 항목 클릭 후 entryIframe이 로드될 때까지 대기
-                    await page.waitForSelector(entryIframeSelector, { timeout: 30000 });
+                        // 첫 번째 항목 클릭 후 entryIframe이 로드될 때까지 대기
+                        await page.waitForSelector(entryIframeSelector, {
+                            timeout: 5000,
+                        });
+                    }
                 }
+            } catch (error) {
+                console.warn(
+                    `[${placeName}] searchIframe handling skipped: ${error instanceof Error ? error.message : String(error)
+                    }`,
+                );
             }
 
             // 이제 entryIframe이 확실히 존재하므로, 내부 정보 추출
@@ -199,35 +229,50 @@ class NaverMapCrawler {
                 return null;
             }
 
-            // 대표 이미지 selector (id="business_1")
-            const imageSelector = 'img#business_1';
-            await frame.waitForSelector(imageSelector, {
-                visible: true,
-                timeout: 10000,
-            });
+            // 대표 이미지 selector 우선순위: business_1 -> visitor_1
+            const imageSelectors = ['img#business_1', 'img#visitor_1'];
+            await frame
+                .waitForSelector(imageSelectors.join(', '), {
+                    visible: true,
+                    timeout: 5000,
+                })
+                .catch(() => null);
 
-            const imageUrl = await frame.evaluate((selector) => {
-                const imgElement = document.querySelector(selector) as HTMLImageElement;
-                // 'src' 속성이 "data:image"로 시작하는 경우 로딩 중인 플레이스홀더일 수 있으므로 제외
-                if (
-                    imgElement &&
-                    imgElement.src &&
-                    !imgElement.src.startsWith('data:image')
-                ) {
-                    return imgElement.src;
+            const imageUrl = await frame.evaluate((selectors) => {
+                for (const selector of selectors) {
+                    const imgElement = document.querySelector(
+                        selector,
+                    ) as HTMLImageElement | null;
+
+                    // 'src' 속성이 "data:image"로 시작하는 경우 로딩 중인 플레이스홀더일 수 있으므로 제외
+                    if (
+                        imgElement &&
+                        imgElement.src &&
+                        !imgElement.src.startsWith('data:image')
+                    ) {
+                        return imgElement.src;
+                    }
                 }
+
                 return undefined;
-            }, imageSelector);
+            }, imageSelectors);
+
+            const operatingHours = await this.extractOperatingHours(frame, placeName);
 
             if (!imageUrl) {
-                logger.warn(`Image URL not found for ${placeName} even after waiting.`);
+                logger.warning(
+                    `Image URL not found for ${placeName} even after waiting.`,
+                );
             }
+
+            console.log(`[${placeName}] Operating hours:`, operatingHours);
 
             return {
                 placeName,
                 placeId,
                 address: null, // 필요 시 이 부분도 파싱 로직 추가
                 imageUrl: imageUrl || undefined,
+                operatingHours,
                 crawledAt: new Date(),
             };
         } catch (error) {
@@ -241,8 +286,91 @@ class NaverMapCrawler {
                 address: null,
                 crawledAt: new Date(),
                 imageUrl: undefined,
+                operatingHours: [],
             };
         }
+    }
+
+    private async extractOperatingHours(
+        frame: Frame,
+        placeName: string,
+    ): Promise<string[][]> {
+        console.log(`[${placeName}] Extracting operating hours...`);
+        const hoursToggleSelector = 'a.gKP9i.RMgN0[role="button"]';
+        const expandedHoursRowSelector =
+            'a.gKP9i.RMgN0[role="button"][aria-expanded="true"] div.H3ua4';
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                await frame.waitForSelector(hoursToggleSelector, {
+                    visible: true,
+                    timeout: 5000,
+                });
+
+                const isExpanded = await frame.$eval(hoursToggleSelector, (element) => {
+                    return element.getAttribute('aria-expanded') === 'true';
+                });
+
+
+                if (!isExpanded) {
+                    await frame.click(hoursToggleSelector);
+
+                    await frame.waitForFunction(
+                        (selector) => {
+                            const button = document.querySelector(selector);
+                            return button?.getAttribute('aria-expanded') === 'true';
+                        },
+                        { timeout: 4000 },
+                        hoursToggleSelector,
+                    );
+                }
+
+                await this.delay(300);
+
+                await frame.waitForSelector(expandedHoursRowSelector, {
+                    visible: true,
+                    timeout: 4000,
+                });
+
+                const operatingHours = await frame.evaluate((selector) => {
+                    const expandedButton = document.querySelector(
+                        `${selector}[aria-expanded="true"]`,
+                    );
+
+                    if (!expandedButton) {
+                        return [];
+                    }
+
+                    return Array.from(expandedButton.querySelectorAll('span.A_cdD'))
+                        .map((item) => {
+                            return Array.from(item.children)
+                                .filter((child) => {
+                                    return (
+                                        child.tagName === 'SPAN' ||
+                                        child.tagName === 'DIV'
+                                    );
+                                })
+                                .map((child) => child.textContent?.trim() ?? '')
+                                .filter(Boolean);
+                        })
+                        .filter((texts) => texts.length >= 2);
+                }, hoursToggleSelector);
+
+                if (operatingHours.length > 0) {
+                    return operatingHours;
+                }
+            } catch (error) {
+                console.log(
+                    `[${placeName}] Failed to extract operating hours on attempt ${attempt}.`,
+                    error,
+                );
+            }
+
+            await this.delay(700 * attempt);
+        }
+
+        logger.warning(`[${placeName}] Operating hours could not be extracted.`);
+        return [];
     }
 
     private delay(ms: number): Promise<void> {

@@ -30,6 +30,7 @@ export const PlaceZodSchema = z.object({
   location: LocationZodSchema,
   image: z.string().optional(),
   coverImage: z.string().optional(),
+  operatingHours: z.array(z.array(z.string())).optional().default([]),
   registerDate: z.string(),
   prefCnt: z.number().optional().default(0),
   rating: z.number().optional(),
@@ -110,6 +111,10 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   },
   coverImage: {
     type: String,
+  },
+  operatingHours: {
+    type: [[String]],
+    default: [],
   },
   location: {
     type: locationSchema,

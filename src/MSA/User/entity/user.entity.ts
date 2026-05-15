@@ -73,8 +73,16 @@ const studyIntroduceZodSchema = z.object({
   studyTool: z.string().default(''),
 });
 
+const notificationConsentZodSchema = z.object({
+  cafe: z.boolean().default(false),
+  gather: z.boolean().default(false),
+});
+
 export type restType = z.infer<typeof restZodSchema>;
 export type studyIntroduceType = z.infer<typeof studyIntroduceZodSchema>;
+export type notificationConsentType = z.infer<
+  typeof notificationConsentZodSchema
+>;
 
 export function parseStudyIntroduce(raw: unknown): studyIntroduceType {
   if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
@@ -159,6 +167,10 @@ export const userZodSchema = z.object({
     studyStyle: '',
     studyTool: '',
   }),
+  notificationConsent: notificationConsentZodSchema.default({
+    cafe: false,
+    gather: false,
+  }),
 });
 
 export interface IUser extends Document, IRegistered {
@@ -191,6 +203,7 @@ export interface IUser extends Document, IRegistered {
   rankPosition: number;
   membership: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
   randomTicket: number;
+  notificationConsent: notificationConsentType;
 }
 
 export const restSchema: Schema<restType> = new Schema(
@@ -325,6 +338,15 @@ export const studyIntroduceSchema: Schema<studyIntroduceType> = new Schema(
   },
   { _id: false, timestamps: false },
 );
+
+export const notificationConsentSchema: Schema<notificationConsentType> =
+  new Schema(
+    {
+      cafe: { type: Boolean, default: false },
+      gather: { type: Boolean, default: false },
+    },
+    { _id: false, timestamps: false },
+  );
 
 export const rankSchema: Schema<badgeType> = new Schema(
   {
@@ -482,6 +504,13 @@ export const UserSchema: Schema<IUser> = new Schema({
       subject: '',
       studyStyle: '',
       studyTool: '',
+    }),
+  },
+  notificationConsent: {
+    type: notificationConsentSchema,
+    default: () => ({
+      cafe: false,
+      gather: false,
     }),
   },
   membership: {
