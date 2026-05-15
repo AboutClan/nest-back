@@ -1008,7 +1008,7 @@ export default class GroupStudyService {
             await this.userServiceInstance.updateReduceTicket(
               'group',
               par?.user,
-              requiredTicket,
+              -requiredTicket,
             );
 
           if (updatedTicket < 0) {
