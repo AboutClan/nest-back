@@ -21,7 +21,7 @@ export class RealtimeRepository implements IRealtimeRepository {
     if (isPopulate) {
       query = query.populate({
         path: 'userList.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
+        select: ENTITY.USER.C_SIMPLE_USER+`studyIntroduce`,
       });
     }
 
