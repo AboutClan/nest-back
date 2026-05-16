@@ -130,7 +130,7 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   },
   rating: {
     type: Number,
-    default: null,
+    default: 3.5,
   },
   registrant: {
     type: Schema.Types.ObjectId,
