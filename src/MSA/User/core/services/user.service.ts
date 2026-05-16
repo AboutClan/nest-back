@@ -47,7 +47,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) {}
+  ) { }
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -1105,7 +1105,7 @@ export class UserService {
   }
 
   async test() {
-    return await this.processTemperature2();
+    await this.UserRepository.test();
   }
 
   async processTemperatureReset() {

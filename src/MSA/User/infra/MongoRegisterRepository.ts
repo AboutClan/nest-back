@@ -6,4 +6,5 @@ export interface RegisterRepository {
   deleteByUidWithSession(uid: string, session: any): Promise<null>;
   deleteByUid(uid: string): Promise<null>;
   findAll(): Promise<IRegistered[]>;
+  test(): Promise<any>;
 }

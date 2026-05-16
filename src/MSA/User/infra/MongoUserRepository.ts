@@ -22,7 +22,7 @@ import {
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(DB_SCHEMA.USER) private readonly UserModel: Model<IUser>,
-  ) {}
+  ) { }
 
   async findById(userId: string): Promise<User> {
     const user = await this.UserModel.findById(userId);
@@ -214,7 +214,7 @@ export class UserRepository implements IUserRepository {
 
     await this.UserModel.updateMany(
       {
-        monthScore: { $lt: 10 },
+        monthScore: { $lt: 5 },
         role: { $ne: 'resting' },
         registerDate: { $lt: maxDate },
       },
@@ -296,19 +296,10 @@ export class UserRepository implements IUserRepository {
   }
 
   async test(): Promise<any> {
-    //registerDate가 11월 1일 이후인 경우 membership을 newbie로 변경
-    // await this.UserModel.updateMany(
-    //   {},
-    //   {
-    //     $set: { membership: 'normal' },
-    //   },
-    // );
 
     await this.UserModel.updateMany(
-      {},
-      {
-        $inc: { point: 1000 },
-      },
+      { point: { $lte: 0 } },
+      { $set: { point: 0 } },
     );
   }
 
@@ -496,11 +487,11 @@ export class UserRepository implements IUserRepository {
     );
     const preference = doc.studyPreference
       ? new Preference(
-          doc?.studyPreference?.place?.toString(),
-          ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
-            o.toString(),
-          ),
-        )
+        doc?.studyPreference?.place?.toString(),
+        ((doc?.studyPreference?.subPlace || []) as any[]).map((o) =>
+          o.toString(),
+        ),
+      )
       : null;
     const ticket = new Ticket(
       doc?.ticket?.gatherTicket,
@@ -511,11 +502,11 @@ export class UserRepository implements IUserRepository {
       : undefined;
     const studyRecord = doc.studyRecord
       ? new StudyRecord(
-          doc?.studyRecord?.accumulationMinutes,
-          doc?.studyRecord?.accumulationCnt,
-          doc?.studyRecord?.monthCnt,
-          doc?.studyRecord?.monthMinutes,
-        )
+        doc?.studyRecord?.accumulationMinutes,
+        doc?.studyRecord?.accumulationCnt,
+        doc?.studyRecord?.monthCnt,
+        doc?.studyRecord?.monthMinutes,
+      )
       : undefined;
     const temperature = new Temperature(
       doc?.temperature?.temperature,
