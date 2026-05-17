@@ -111,7 +111,7 @@ export class User {
     this.belong = belong || '';
     this.profileImage = profileImage || '';
     this.registerDate = registerDate || '';
-    this.isActive = isActive || true;
+    this.isActive = isActive || false;
     this.birth = birth || '';
     this.isPrivate = isPrivate || false;
     this.monthStudyTarget = monthStudyTarget || 0;

@@ -47,7 +47,7 @@ export class UserService {
     private readonly imageServiceInstance: ImageService,
     private readonly fcmServiceInstance: FcmService,
     private readonly prizeService: PrizeService,
-  ) { }
+  ) {}
 
   async decodeByAES256(encodedTel: string) {
     const token = RequestContext.getDecodedToken();
@@ -115,6 +115,7 @@ export class UserService {
 
     // 1) UID로 도메인 User 객체 조회
     const user = await this.UserRepository.findByUid(token.uid);
+    console.log('user', user);
     if (!user) {
       throw new NotFoundException(`User not found: ${token.uid}`);
     }
