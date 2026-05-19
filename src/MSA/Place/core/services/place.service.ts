@@ -81,6 +81,7 @@ export default class PlaceService {
     space: number,
     etc: number,
     comment: string,
+    name: string,
   ) {
     try {
       const token = RequestContext.getDecodedToken();
@@ -93,6 +94,7 @@ export default class PlaceService {
         space: space,
         etc: etc,
         comment: comment,
+        name: name,
       };
 
       await this.placeRepository.addRating(placeId, ratings);
@@ -101,6 +103,16 @@ export default class PlaceService {
     } catch (err: any) {
       throw new Error(err);
     }
+  }
+
+  async getPlacesWithCursor(cursor: number) {
+    const gap = 5;
+    return await this.placeRepository.findWithCursor(cursor, gap);
+  }
+
+  async getAllRatingsSorted(cursor: number) {
+    const gap = 10;
+    return await this.placeRepository.findAllRatingsSorted(cursor, gap);
   }
 
   async getAllPlace() {
@@ -118,7 +130,7 @@ export default class PlaceService {
       const token = RequestContext.getDecodedToken();
       const { location, status } = placeData;
 
-      placeData.registerDate = new Date().toString();
+      placeData.registerDate = new Date().toISOString();
       placeData.status = status || 'sub';
       placeData.registrant = token.id as string;
 

@@ -16,5 +16,7 @@ export interface PlaceRepository {
     lowerLng: number,
     upperLng: number,
   );
+  findAllRatingsSorted(cursor: number, gap: number): Promise<any[]>;
+  findWithCursor(cursor: number, gap: number): Promise<IPlace[]>;
   test();
 }

@@ -30,6 +30,22 @@ export class PlaceController {
     return places;
   }
 
+  @Get('cursor')
+  async getPlacesWithCursor(@Query('cursor') cursor: string = '0') {
+    return await this.placeService.getPlacesWithCursor(parseInt(cursor));
+  }
+
+  @Get('ratings')
+  async getAllRatingsSorted(
+    @Query('cursor') cursor: string = '0',
+ 
+  ) {
+    return await this.placeService.getAllRatingsSorted(
+      parseInt(cursor),
+   
+    );
+  }
+
   @Get('all')
   async getAllPlace() {
     const places = await this.placeService.getAllPlace();
@@ -83,6 +99,7 @@ export class PlaceController {
     @Body('space') space: number,
     @Body('etc') etc: number,
     @Body('comment') comment: string,
+    @Body('name') name: string,
   ) {
     try {
       const places = await this.placeService.addRating(
@@ -92,6 +109,7 @@ export class PlaceController {
         space,
         etc,
         comment,
+        name,
       );
       return places;
     } catch (err) {

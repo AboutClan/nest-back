@@ -162,6 +162,62 @@ export class MongoPlaceReposotory implements PlaceRepository {
     return null;
   }
 
+  async findWithCursor(cursor: number, gap: number): Promise<IPlace[]> {
+    const all = await this.Place.find({}).lean();
+    all.sort((a, b) => {
+      const dateA = new Date(a.registerDate || 0).getTime();
+      const dateB = new Date(b.registerDate || 0).getTime();
+      return dateB - dateA;
+    });
+    return all.slice(gap * cursor, gap * cursor + gap);
+  }
+
+  async findAllRatingsSorted(cursor: number, gap: number): Promise<any[]> {
+    return await this.Place.aggregate([
+      { $unwind: '$ratings' },
+      {
+        $sort: {
+          'ratings.createdAt': -1,
+        },
+      },
+      { $skip: gap * cursor },
+      { $limit: gap },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'ratings.user',
+          foreignField: '_id',
+          as: 'ratings.userInfo',
+          pipeline: [{ $project: { name: 1, profileImage: 1 } }],
+        },
+      },
+      {
+        $unwind: {
+          path: '$ratings.userInfo',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          placeInfo: {
+            _id: '$_id',
+            name: '$name',
+            image: '$image',
+            coverImage: '$coverImage',
+            location: '$location',
+            status: '$status',
+            rating: '$rating',
+            prefCnt: '$prefCnt',
+            pick: '$pick',
+            operatingHours: '$operatingHours',
+          },
+          rating: '$ratings',
+        },
+      },
+    ]);
+  }
+
   async test() {
     // await this.Place.updateMany(
     //   { $or: [{ status: 'inactive' }, { status: { $exists: false } }] },

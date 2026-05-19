@@ -22,6 +22,7 @@ export const ratingZodSchema = z.object({
   space: z.number().optional().default(0),
   etc: z.number().optional().default(0),
   comment: z.string().optional().default(''),
+  name: z.string().optional().default(''),
   user: z.union([z.string(), z.custom<IUser>()]),
 });
 
@@ -38,6 +39,7 @@ export const PlaceZodSchema = z.object({
   registrant: z.union([z.string(), z.custom<IUser>()]),
   _id: z.string().optional(),
   name: z.string().optional(),
+  pick: z.string().optional(),
 });
 
 export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
@@ -93,6 +95,10 @@ export const ratingSchema: Schema<ratingType> = new Schema(
       type: String,
       default: '',
     },
+    name: {
+      type: String,
+      default: '',
+    },
   },
   { _id: false, timestamps: true },
 );
@@ -104,6 +110,9 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
     default: ENTITY.PLACE.DEFAULT_STATUS,
   },
   name: {
+    type: String,
+  },
+  pick: {
     type: String,
   },
   image: {
