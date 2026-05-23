@@ -147,6 +147,20 @@ export default class RealtimeService {
 
     await this.realtimeRepository.save(realtime);
 
+    if (validatedUserData?.status === 'pending') {
+      const openUser = realtime.userList.find(
+        (u) => u.status === 'open' && u.user.toString() !== user,
+      );
+
+      if (openUser) {
+        await this.fcmServiceInstance.sendNotificationToXWithId(
+          openUser.user.toString(),
+          WEBPUSH_MSG.BASE.TITLE,
+          '스터디 참여 신청이 들어왔어요!',
+          '/studyPage',
+        );
+      }
+    }
     if (validatedUserData?.status === 'open') {
       await this.userServiceInstance.updatePoint(
         CONST.POINT.REALTIME_OPEN,

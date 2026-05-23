@@ -152,8 +152,9 @@ export const ENTITY = {
       'enthusiastic',
       'block',
       'secede',
+      'newUser',
     ] as const,
-    DEFAULT_ROLE: 'member' as const,
+    DEFAULT_ROLE: 'newUser' as const,
 
     RANK_BRONZE: 'bronze' as const,
     RANK_SILVER: 'silver' as const,
