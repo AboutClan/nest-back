@@ -46,6 +46,7 @@ export default class PlaceService {
       // const ratings = places.map((place) =>
       //   this.calculateRating(place?.ratings),
       // );
+      console.log(25, places[0]);
       return places;
       // console.log(places[0]);
       // return places.map((place, index) => ({

@@ -43,7 +43,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async findByStatus(
-    status: 'main' | 'best' | 'good' | 'all',
+    status: 'main' | 'best' | 'good' | 'bad' | 'all',
   ): Promise<IPlace[]> {
     let query: any = {};
     if (status === 'all') {
@@ -52,23 +52,35 @@ export class MongoPlaceReposotory implements PlaceRepository {
       query = { rating: { $gte: 4.5 } };
     } else if (status === 'good') {
       query = { rating: { $gte: 4.0 } };
+    } else if (status === 'bad') {
+      query = { rating: { $gte: 3.5 } };
     } else if (status === 'main') {
       query = { status: 'main' };
     }
     console.log(52525, query);
+    const defaultMeta = {
+      is24Hours: false,
+      hasParking: false,
+      hasGroupSeats: false,
+      hasComfortableSeats: false,
+      hasCleanRestroom: false,
+      hasGoodWifi: false,
+      hasGoodValueDrinks: false,
+      hasTimeLimit: false,
+    };
+
     //임시로 status 제거
-    return await this.Place.find(query)
+    const places = await this.Place.find(query)
       .populate({
         path: 'registrant',
         select: ENTITY.USER.C_SIMPLE_USER,
       })
-      // .populate([
-      //   {
-      //     path: 'reviews.user',
-      //     select: ENTITY.USER.C_SIMPLE_USER,
-      //   },
-      // ])
       .lean();
+
+    return places.map((place) => ({
+      ...place,
+      studyCafeMeta: place.studyCafeMeta ?? defaultMeta,
+    }));
   }
   async findClosePlace(placeId: string): Promise<IPlace[]> {
     const result = await this.Place.find({}).lean();
@@ -211,6 +223,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
             prefCnt: '$prefCnt',
             pick: '$pick',
             operatingHours: '$operatingHours',
+            studyCafeMeta: '$studyCafeMeta',
           },
           rating: '$ratings',
         },
@@ -219,15 +232,22 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async test() {
-    // await this.Place.updateMany(
-    //   { $or: [{ status: 'inactive' }, { status: { $exists: false } }] },
-    //   { $set: { status: 'sub' } },
-    // );
-    // await this.Place.updateMany(
-    //   {},
-    //   {
-    //     $set: { rating: null },
-    //   },
-    // );
+    await this.Place.updateMany(
+      { studyCafeMeta: { $exists: false } },
+      {
+        $set: {
+          studyCafeMeta: {
+            is24Hours: false,
+            hasParking: false,
+            hasGroupSeats: false,
+            hasComfortableSeats: false,
+            hasCleanRestroom: false,
+            hasGoodWifi: false,
+            hasGoodValueDrinks: false,
+            hasTimeLimit: false,
+          },
+        },
+      },
+    );
   }
 }

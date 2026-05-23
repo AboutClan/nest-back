@@ -26,6 +26,17 @@ export const ratingZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
 });
 
+export const studyCafeMetaZodSchema = z.object({
+  is24Hours: z.boolean().default(false),
+  hasParking: z.boolean().default(false),
+  hasGroupSeats: z.boolean().default(false),
+  hasComfortableSeats: z.boolean().default(false),
+  hasCleanRestroom: z.boolean().default(false),
+  hasGoodWifi: z.boolean().default(false),
+  hasGoodValueDrinks: z.boolean().default(false),
+  hasTimeLimit: z.boolean().default(false),
+});
+
 export const PlaceZodSchema = z.object({
   status: z.enum(ENTITY.PLACE.ENUM_STATUS),
   location: LocationZodSchema,
@@ -40,6 +51,7 @@ export const PlaceZodSchema = z.object({
   _id: z.string().optional(),
   name: z.string().optional(),
   pick: z.string().optional(),
+  studyCafeMeta: studyCafeMetaZodSchema.optional(),
 });
 
 export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
@@ -148,6 +160,22 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   ratings: {
     type: [ratingSchema],
     default: [],
+  },
+  studyCafeMeta: {
+    type: new Schema(
+      {
+        is24Hours: { type: Boolean, default: false },
+        hasParking: { type: Boolean, default: false },
+        hasGroupSeats: { type: Boolean, default: false },
+        hasComfortableSeats: { type: Boolean, default: false },
+        hasCleanRestroom: { type: Boolean, default: false },
+        hasGoodWifi: { type: Boolean, default: false },
+        hasGoodValueDrinks: { type: Boolean, default: false },
+        hasTimeLimit: { type: Boolean, default: false },
+      },
+      { _id: false },
+    ),
+    default: () => ({}),
   },
 });
 
