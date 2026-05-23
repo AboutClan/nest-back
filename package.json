@@ -22,7 +22,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "crawl:naver": "ts-node -r tsconfig-paths/register src/crawler/cafeImg.ts"
+    "crawl:naver": "ts-node -r tsconfig-paths/register src/crawler/cafe.ts",
+    "crawl:restaurant": "ts-node -r tsconfig-paths/register src/crawler/naverMapRestaurant.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.1",
