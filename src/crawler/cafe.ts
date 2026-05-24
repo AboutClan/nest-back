@@ -1,10 +1,14 @@
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import { Browser, HTTPRequest, HTTPResponse, Page } from 'puppeteer';
+import { Browser, HTTPRequest, Page } from 'puppeteer';
 import * as path from 'path';
 import dbConnect from '../Database/conn';
 import { logger } from '../logger';
 import { IPlace, Place } from 'src/MSA/Place/entity/place.entity';
+import {
+    StudyCafeMeta,
+    StudyCafeMetaGptAnalyzer,
+} from './studyCafeMeta/studyCafeMetaGpt';
 
 puppeteer.use(StealthPlugin());
 
@@ -12,7 +16,7 @@ const GRAPHQL_URL = 'https://pcmap-api.place.naver.com/graphql';
 
 const CRAWL_CONFIG = {
     headless: process.env.CRAWL_HEADLESS === 'true',
-    batchSize: Number(process.env.CRAWL_BATCH_SIZE) || 100,
+    batchSize: Number(process.env.CRAWL_BATCH_SIZE) || 1000,
     /** 장소 간 대기 (ms). 크롤링 본문에는 딜레이 없음 */
     betweenPlacesMs: Number(process.env.CRAWL_BETWEEN_PLACES_MS) || 0,
     userDataDir:
@@ -54,7 +58,9 @@ interface NaverMapInfo {
     businessType?: string;
     imageUrl?: string;
     operatingHours?: string[][];
+    graphqlBatch?: unknown;
     graphqlResponses?: unknown[];
+    studyCafeMeta?: StudyCafeMeta;
     crawledAt: Date;
 }
 
@@ -71,6 +77,19 @@ function parseBusinessFromUrl(url: string): {
         return { businessId: null, businessType: 'restaurant' };
     }
     return { businessType: match[1], businessId: match[2] };
+}
+
+function parseGraphqlPostData(postData: string | undefined): string[] {
+    if (!postData) return [];
+    try {
+        const parsed = JSON.parse(postData);
+        const items = Array.isArray(parsed) ? parsed : [parsed];
+        return items
+            .map((item: { operationName?: string }) => item.operationName)
+            .filter((name): name is string => Boolean(name));
+    } catch {
+        return [];
+    }
 }
 
 function buildWtmGraphqlHeader(businessId: string, businessType: string): string {
@@ -310,7 +329,48 @@ function parseHoursArray(val: unknown[]): string[][] {
 class NaverMapCrawler {
     private db: unknown = null;
     private browser: Browser | null = null;
-    private capturedGraphqlResponses: unknown[] = [];
+    private studyCafeMetaAnalyzer: StudyCafeMetaGptAnalyzer | null = null;
+
+    private getStudyCafeMetaAnalyzer(): StudyCafeMetaGptAnalyzer | null {
+        if (process.env.CRAWL_SKIP_GPT === 'true') {
+            return null;
+        }
+        if (!process.env.OPENAI_API_KEY) {
+            return null;
+        }
+        if (!this.studyCafeMetaAnalyzer) {
+            this.studyCafeMetaAnalyzer = new StudyCafeMetaGptAnalyzer();
+        }
+        return this.studyCafeMetaAnalyzer;
+    }
+
+    private async inferStudyCafeMeta(
+        placeName: string,
+        graphqlBatch: unknown,
+    ): Promise<StudyCafeMeta | undefined> {
+        const analyzer = this.getStudyCafeMetaAnalyzer();
+        if (!analyzer) {
+            console.log(
+                `[${placeName}] GPT 스킵 (OPENAI_API_KEY 없음 또는 CRAWL_SKIP_GPT=true)`,
+            );
+            return undefined;
+        }
+
+        if (!graphqlBatch) {
+            console.warn(`[${placeName}] GraphQL 배치 없음 — studyCafeMeta 스킵`);
+            return undefined;
+        }
+
+        try {
+            return await analyzer.analyze(graphqlBatch);
+        } catch (error) {
+            logger.error(
+                `[${placeName}] studyCafeMeta GPT 분석 실패:`,
+                error,
+            );
+            return undefined;
+        }
+    }
 
     private delay(ms: number): Promise<void> {
         if (ms <= 0) return Promise.resolve();
@@ -352,8 +412,8 @@ class NaverMapCrawler {
         const responses = Array.isArray(wrapper?.body)
             ? wrapper.body
             : Array.isArray(result)
-              ? result
-              : [result];
+                ? result
+                : [result];
 
         console.log(
             `\n[${placeName}] ═══ GraphQL 배치 응답 (${responses.length}건) ═══`,
@@ -371,40 +431,39 @@ class NaverMapCrawler {
         });
     }
 
+    /**
+     * ncaptcha 토큰만 수집 (response body 읽기 금지 — res.text() 시 Puppeteer 교착 가능)
+     */
     private attachGraphqlListeners(page: Page, placeName: string): {
         getNcaptchaToken: () => string;
     } {
         let ncaptchaToken = '';
-        this.capturedGraphqlResponses = [];
+        let ncaptchaLogged = false;
 
         const onRequest = (req: HTTPRequest) => {
-            const token = req.headers()['x-wtm-ncaptcha-token'];
-            if (token && req.url().includes('graphql')) {
-                ncaptchaToken = token;
-                console.log(
-                    `[${placeName}] ncaptcha 토큰 수집 (요청): ${token.slice(0, 40)}...`,
-                );
-            }
-        };
+            if (!req.url().includes('graphql')) return;
 
-        const onResponse = async (res: HTTPResponse) => {
-            if (!res.url().includes('graphql')) return;
-            try {
-                const text = await res.text();
-                const parsed = JSON.parse(text);
-                this.capturedGraphqlResponses.push(parsed);
-                this.logGraphqlResponse(
-                    placeName,
-                    `자동 캡처 ${this.capturedGraphqlResponses.length}`,
-                    parsed,
+            const token = req.headers()['x-wtm-ncaptcha-token'];
+            if (token) {
+                ncaptchaToken = token;
+                if (!ncaptchaLogged) {
+                    ncaptchaLogged = true;
+                    console.log(
+                        `[${placeName}] ncaptcha 토큰 수집: ${token.slice(0, 40)}...`,
+                    );
+                }
+            }
+
+            // pcmap 페이지 자체 GraphQL (참고용, body는 읽지 않음)
+            const ops = parseGraphqlPostData(req.postData());
+            if (ops.length >= 3) {
+                console.log(
+                    `[${placeName}] (페이지) GraphQL: ${ops.join(', ')}`,
                 );
-            } catch {
-                // non-json
             }
         };
 
         page.on('request', onRequest);
-        page.on('response', onResponse);
 
         return { getNcaptchaToken: () => ncaptchaToken };
     }
@@ -473,12 +532,13 @@ class NaverMapCrawler {
         getNcaptchaToken: () => string,
     ): Promise<SessionContext | null> {
         const naverMapUrl = generateNaverMapUrl(placeName);
-        console.log(`[${placeName}] 접속: ${naverMapUrl}`);
+        console.log(`[${placeName}] ① map 접속: ${naverMapUrl}`);
 
         await page.goto(naverMapUrl, {
             waitUntil: 'domcontentloaded',
             timeout: 30000,
         });
+        console.log(`[${placeName}] ② map 로드 완료`);
 
         if (await this.isRateLimited(page)) {
             throw new Error('RATE_LIMITED');
@@ -487,24 +547,28 @@ class NaverMapCrawler {
         const entryIframeSelector = '#entryIframe';
         const searchIframeSelector = '#searchIframe';
 
+        console.log(`[${placeName}] ③ iframe 대기...`);
         await page.waitForSelector(
             `${entryIframeSelector}, ${searchIframeSelector}`,
             { timeout: 30000 },
         );
+        console.log(`[${placeName}] ④ iframe 감지됨`);
 
         try {
             const searchFrameHandle = await page.$(searchIframeSelector);
             if (searchFrameHandle) {
                 const searchFrame = await searchFrameHandle.contentFrame();
                 if (searchFrame) {
+                    console.log(`[${placeName}] ⑤ searchIframe 첫 결과 클릭...`);
                     const firstResultSelector = 'li[data-laim-exp-id] a';
                     await searchFrame.waitForSelector(firstResultSelector, {
-                        timeout: 5000,
+                        timeout: 15000,
                     });
                     await searchFrame.click(firstResultSelector);
                     await page.waitForSelector(entryIframeSelector, {
-                        timeout: 10000,
+                        timeout: 15000,
                     });
+                    console.log(`[${placeName}] ⑥ entryIframe 로드됨`);
                 }
             }
         } catch (error) {
@@ -521,7 +585,8 @@ class NaverMapCrawler {
         let businessType = 'restaurant';
 
         if (frame) {
-            await frame.waitForSelector('.place_on_pcmap', { timeout: 10000 }).catch(() => null);
+            console.log(`[${placeName}] ⑦ businessId 추출 중...`);
+            await frame.waitForSelector('.place_on_pcmap', { timeout: 15000 }).catch(() => null);
             const parsed = parseBusinessFromUrl(frame.url());
             businessId = parsed.businessId;
             businessType = parsed.businessType;
@@ -529,6 +594,7 @@ class NaverMapCrawler {
         }
 
         if (!businessId) {
+            console.log(`[${placeName}] ⑧ API fallback businessId 조회...`);
             businessId = await this.getBusinessIdFromApi(placeName);
             console.log(`[${placeName}] API fallback businessId: ${businessId}`);
         }
@@ -538,12 +604,13 @@ class NaverMapCrawler {
         }
 
         const pcmapUrl = `https://pcmap.place.naver.com/${businessType}/${businessId}/home`;
-        console.log(`[${placeName}] pcmap 즉시 이동: ${pcmapUrl}`);
+        console.log(`[${placeName}] ⑨ pcmap 이동: ${pcmapUrl}`);
 
         await page.goto(pcmapUrl, {
             waitUntil: 'domcontentloaded',
             timeout: 30000,
         });
+        console.log(`[${placeName}] ⑩ pcmap 로드 완료`);
 
         const cookies = await page.cookies(
             'https://pcmap.place.naver.com',
@@ -566,63 +633,13 @@ class NaverMapCrawler {
         return ctx;
     }
 
-    /** 브라우저 컨텍스트에서 GraphQL POST (test.ts page.evaluate 방식) */
-    private async fetchGraphqlInBrowser(
-        page: Page,
-        placeName: string,
-        ctx: SessionContext,
-        bodyData: GraphqlBatchItem[],
-    ): Promise<unknown> {
-        this.logGraphqlPayload(placeName, '배치 fetch (5 operations)', bodyData);
-
-        const result = await page.evaluate(
-            async (url, body, businessId, businessType, ncaptchaToken) => {
-                const wtmPayload = JSON.stringify({
-                    arg: businessId,
-                    type: businessType,
-                    source: 'place',
-                });
-                const dynamicWtmGraphql = btoa(wtmPayload);
-
-                const headers: Record<string, string> = {
-                    'content-type': 'application/json',
-                    'x-wtm-graphql': dynamicWtmGraphql,
-                };
-                if (ncaptchaToken) {
-                    headers['x-wtm-ncaptcha-token'] = ncaptchaToken;
-                }
-
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(body),
-                });
-
-                const text = await response.text();
-                return {
-                    status: response.status,
-                    ok: response.ok,
-                    body: JSON.parse(text),
-                };
-            },
-            GRAPHQL_URL,
-            bodyData,
-            ctx.businessId,
-            ctx.businessType,
-            ctx.ncaptchaToken,
-        );
-
-        this.logGraphqlResponse(placeName, '배치 fetch 원본', result);
-        return result;
-    }
-
-    /** Node fetch (test.ts crawlNaverPlaceBatch) — 쿠키·토큰 로그 후 호출 */
+    /** Node fetch — Puppeteer page.evaluate fetch는 응답 대기에서 멈추는 경우가 많아 기본 경로로 사용 */
     private async fetchGraphqlBatch(
         placeName: string,
         ctx: SessionContext,
         bodyData: GraphqlBatchItem[],
     ): Promise<unknown> {
-        this.logGraphqlPayload(placeName, 'Node fetch', bodyData);
+        this.logGraphqlPayload(placeName, 'Node 배치 fetch', bodyData);
 
         const headers: Record<string, string> = {
             accept: '*/*',
@@ -640,6 +657,7 @@ class NaverMapCrawler {
             method: 'POST',
             headers,
             body: JSON.stringify(bodyData),
+            signal: AbortSignal.timeout(20_000),
         });
 
         const rawText = await response.text();
@@ -669,7 +687,7 @@ class NaverMapCrawler {
     async getPlacesFromDB(): Promise<IPlace[]> {
         try {
             const places = await Place.find({
-                'operatingHours.0': { $exists: false },
+                'studyCafeMeta': { $exists: false },
             }).exec();
             console.log(`Fetched ${places.length} places from DB.`);
             return places;
@@ -699,47 +717,23 @@ class NaverMapCrawler {
             );
 
             console.log(
-                `[${placeName}] GraphQL 배치 요청 (${bodyData.length} operations):`,
+                `[${placeName}] ⑪ GraphQL Node 배치 요청 (${bodyData.length} operations):`,
                 bodyData.map((q) => q.operationName).join(', '),
             );
 
-            // pcmap 세션 확보 직후 배치 전체 요청 (딜레이 없음)
-            const browserGraphql = await this.fetchGraphqlInBrowser(
-                page,
+            const nodeGraphql = await this.fetchGraphqlBatch(
                 placeName,
                 session,
                 bodyData,
             );
-            this.logGraphqlBatchByOperation(placeName, browserGraphql);
+            console.log(`[${placeName}] ⑫ GraphQL Node 배치 완료`);
+            this.logGraphqlBatchByOperation(placeName, nodeGraphql);
 
-            let nodeGraphql: unknown;
-            try {
-                nodeGraphql = await this.fetchGraphqlBatch(
-                    placeName,
-                    session,
-                    bodyData,
-                );
-                this.logGraphqlBatchByOperation(placeName, nodeGraphql);
-            } catch (error) {
-                console.warn(
-                    `[${placeName}] Node GraphQL 배치 실패 (브라우저 결과 사용):`,
-                    error instanceof Error ? error.message : error,
-                );
-            }
+            const batchBody = nodeGraphql;
 
-            const batchBody =
-                (browserGraphql as { body?: unknown })?.body ?? browserGraphql;
-
-            const allResponses = [
-                ...this.capturedGraphqlResponses,
-                ...(Array.isArray(batchBody) ? batchBody : [batchBody]),
-                ...(nodeGraphql
-                    ? [
-                          (nodeGraphql as { body?: unknown })?.body ??
-                              nodeGraphql,
-                      ]
-                    : []),
-            ];
+            const allResponses = Array.isArray(batchBody)
+                ? batchBody
+                : [batchBody];
 
             let operatingHours: string[][] = [];
             for (const res of allResponses) {
@@ -762,6 +756,8 @@ class NaverMapCrawler {
                 businessId: session.businessId,
                 businessType: session.businessType,
                 operatingHours,
+                /** 브라우저 배치 fetch body — 5개 GraphQL operation 응답 배열 */
+                graphqlBatch: batchBody,
                 graphqlResponses: allResponses,
                 crawledAt: new Date(),
             };
@@ -798,20 +794,34 @@ class NaverMapCrawler {
                 );
 
                 if (placeInfo?.businessId) {
-                    const updateData = {
+                    const studyCafeMeta = await this.inferStudyCafeMeta(
+                        placeName,
+                        placeInfo.graphqlBatch,
+                    );
+                    if (studyCafeMeta) {
+                        placeInfo.studyCafeMeta = studyCafeMeta;
+                    }
+
+                    const updateData: {
+                        operatingHours: string[][];
+                        studyCafeMeta?: StudyCafeMeta;
+                    } = {
                         operatingHours: placeInfo.operatingHours ?? [],
                     };
+                    if (studyCafeMeta) {
+                        updateData.studyCafeMeta = studyCafeMeta;
+                    }
+
                     await Place.findByIdAndUpdate(place._id, updateData);
 
-                    if ((placeInfo.operatingHours?.length ?? 0) > 0) {
-                        console.log(`✅ ${placeName} - DB updated`);
-                        naverMapInfos.push(placeInfo);
-                        successCount++;
-                    } else {
-                        logger.warning(`⚠️ ${placeName} - GraphQL에 영업시간 없음`);
-                        naverMapInfos.push(placeInfo);
-                        successCount++;
-                    }
+                    console.log(
+                        `✅ ${placeName} - DB updated` +
+                        (studyCafeMeta
+                            ? ` (studyCafeMeta: ${JSON.stringify(studyCafeMeta)})`
+                            : ''),
+                    );
+                    naverMapInfos.push(placeInfo);
+                    successCount++;
                 } else {
                     logger.warning(`⚠️ ${placeName} - 크롤 실패`);
                     errorCount++;
