@@ -139,16 +139,11 @@ export class CollectionService {
     ) {
       ENTITY.COLLECTION.ENUM_ALPHABET.forEach((item) => {
         collection.removeAlphabet(item);
-        // const idx = myAlphabets?.indexOf(item);
-        // if (idx !== -1) myAlphabets?.splice(idx as number, 1);
       });
 
-      await this.collectionRepository.save(collection);
-      //    point: number,
-      // message: string,
-      // sub?: string,
-      // userId?: string,
       const count = collection.collectCnt;
+      collection.incrementCollectCnt();
+      await this.collectionRepository.save(collection);
 
       const COUNT_MAPPING = {
         0: 2000,
@@ -187,8 +182,17 @@ export class CollectionService {
     return result === null ? null : result.toPrimitives();
   }
 
+  async resetAllCollectCnt() {
+    await this.collectionRepository.resetAllCollectCnt();
+  }
+
   async getCollectionAll() {
     const result = await this.collectionRepository.findAll();
+    return result;
+  }
+  async getCollectionFriend() {
+    const token = RequestContext.getDecodedToken();
+    const result = await this.collectionRepository.findFriend(token.uid);
     return result;
   }
 }

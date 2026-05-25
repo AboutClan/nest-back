@@ -37,13 +37,15 @@ export class Collection {
     const idx = this.collects.indexOf(alphabet);
     if (idx !== -1) {
       this.collects.splice(idx, 1);
-      this.collectCnt = this.collects.length;
     }
   }
 
   addAlphabet(alphabet: string) {
     this.collects.push(alphabet);
-    this.collectCnt = this.collects.length;
+  }
+
+  incrementCollectCnt() {
+    this.collectCnt += 1;
   }
 
   increaseStamp() {

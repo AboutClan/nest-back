@@ -4,9 +4,9 @@ import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { Collection } from 'src/domain/entities/Collection';
+import { IUser } from 'src/MSA/User/entity/user.entity';
 import { ICollectionRepository } from '../core/interfaces/CollectionRepository.interface';
 import { ICollection } from '../entity/collection.entity';
-
 export class CollectionRepository implements ICollectionRepository {
   constructor(
     @InjectModel(DB_SCHEMA.COLLECTION)
@@ -51,6 +51,25 @@ export class CollectionRepository implements ICollectionRepository {
 
     return docs.map((item) => this.mapToDomain(item));
   }
+  async findFriend(uid: string): Promise<Collection[]> {
+    const now = new Date();
+    const threeMonthsAgo = new Date(now);
+    threeMonthsAgo.setUTCMonth(threeMonthsAgo.getUTCMonth() - 1); // UTC 기준 3개월 전
+
+    const docs = await this.Collection.find({
+      $or: [
+        { $expr: { $gte: [{ $size: '$collects' }, 2] } }, // collect 길이 ≥ 2
+        { updatedAt: { $gte: threeMonthsAgo } }, // 최근 3개월 이내
+      ],
+    }).populate({
+      path: 'user',
+      select: ENTITY.USER.C_SIMPLE_USER + `friend`,
+    });
+    console.log(docs?.[0]);
+    return docs
+      .filter((u) => ((u?.user as IUser)?.friend || []).includes(uid))
+      .map((item) => this.mapToDomain(item));
+  }
 
   async create(collection: Collection): Promise<Collection> {
     const docToSave = this.mapToDB(collection);
@@ -60,14 +79,11 @@ export class CollectionRepository implements ICollectionRepository {
 
   async save(collection: Collection): Promise<Collection> {
     const docToSave = this.mapToDB(collection);
-    const { id, collectCnt, ...toUpdate } = docToSave;
+    const { id, ...toUpdate } = docToSave;
 
     const updatedDoc = await this.Collection.findByIdAndUpdate(
       id,
-      {
-        $set: toUpdate, // collects, stamps 등
-        $inc: { collectCnt: 1 }, // ✅ 1 증가
-      },
+      { $set: toUpdate },
       { new: true, runValidators: true },
     );
 
@@ -76,6 +92,10 @@ export class CollectionRepository implements ICollectionRepository {
     }
 
     return this.mapToDomain(updatedDoc);
+  }
+
+  async resetAllCollectCnt(): Promise<void> {
+    await this.Collection.updateMany({}, { $set: { collectCnt: 0 } });
   }
 
   private mapToDomain(doc: ICollection): Collection {

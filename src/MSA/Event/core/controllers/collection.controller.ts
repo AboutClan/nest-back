@@ -40,4 +40,9 @@ export class CollectionController {
     const users = await this.collectionService.getCollectionAll();
     return users;
   }
+  @Get('alphabet/friend')
+  async getCollectionFriend() {
+    const users = await this.collectionService.getCollectionFriend();
+    return users;
+  }
 }

@@ -55,6 +55,10 @@ export class DailyCheckService {
     return result.toPrimitives();
   }
 
+  async resetAllCollectCnt() {
+    await this.collectionServiceInstance.resetAllCollectCnt();
+  }
+
   async getAllLog() {
     return (await this.dailyCheckRepository.findAll()).map((data) =>
       data.toPrimitives(),
