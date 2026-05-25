@@ -68,9 +68,7 @@ export class AuthService {
         return { user, expires };
     }
 
-    private async encodeToken(
-        payload: Record<string, unknown>,
-    ): Promise<string> {
+    private async encodeToken(payload: JWT): Promise<string> {
         const token = await encode({
             token: payload,
             secret: this.getJwtSecret(),
@@ -83,7 +81,7 @@ export class AuthService {
     }
 
     private async buildLoginResponse(
-        jwtPayload: Record<string, unknown>,
+        jwtPayload: JWT,
         sessionUser: AuthUserPayload,
     ): Promise<AuthLoginResponseDto> {
         const accessToken = await this.encodeToken(jwtPayload);
@@ -94,12 +92,14 @@ export class AuthService {
     }
 
     async loginGuest(): Promise<AuthLoginResponseDto> {
-        return this.buildLoginResponse({ ...GUEST_USER }, GUEST_USER);
+        const jwtPayload: JWT = { ...GUEST_USER };
+        return this.buildLoginResponse(jwtPayload, GUEST_USER);
     }
 
     async loginCredentials(username: string): Promise<AuthLoginResponseDto> {
         void username;
-        return this.buildLoginResponse({ ...MEMBER_GUEST_USER }, MEMBER_GUEST_USER);
+        const jwtPayload: JWT = { ...MEMBER_GUEST_USER };
+        return this.buildLoginResponse(jwtPayload, MEMBER_GUEST_USER);
     }
 
     getKakaoAuthorizeUrl(redirectUri: string): { url: string } {
@@ -218,7 +218,7 @@ export class AuthService {
         user: AuthUserPayload,
         tokens: OAuthTokenSet,
         provider: string,
-    ): Record<string, unknown> {
+    ): JWT {
         return {
             accessToken: tokens.access_token,
             refreshToken: tokens.refresh_token ?? '',
@@ -328,14 +328,14 @@ export class AuthService {
                 isActive: Boolean(token.isActive),
                 profileImage: String(token.profileImage ?? ''),
             };
-            return this.buildLoginResponse(token as Record<string, unknown>, sessionUser);
+            return this.buildLoginResponse(token, sessionUser);
         }
 
         try {
             token = await this.oauthAuthService.refreshAccessToken(token, provider);
         } catch {
             return this.buildLoginResponse(
-                { ...token, error: 'RefreshAccessTokenError' },
+                { ...token, error: 'RefreshAccessTokenError' } as JWT,
                 {
                     id: String(token.id ?? ''),
                     uid: String(token.uid ?? ''),
@@ -356,6 +356,6 @@ export class AuthService {
             profileImage: String(token.profileImage ?? ''),
         };
 
-        return this.buildLoginResponse(token as Record<string, unknown>, sessionUser);
+        return this.buildLoginResponse(token, sessionUser);
     }
 }

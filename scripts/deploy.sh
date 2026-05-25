@@ -39,6 +39,16 @@ FCM_INFO=$(echo "$SECRETS" | jq -r '.FCM_INFO')
 OPENAI_API_KEY=$(echo "$SECRETS" | jq -r '.OPENAI_API_KEY')
 NICE_CLIENT_ID=$(echo "$SECRETS" | jq -r '.NICE_CLIENT_ID')
 NICE_CLIENT_SECRET=$(echo "$SECRETS" | jq -r '.NICE_CLIENT_SECRET')
+
+JWT_TOKEN=$(echo "$SECRETS" | jq -r '.JWT_TOKEN')
+KAKAO_CLIENT_ID=$(echo "$SECRETS" | jq -r '.KAKAO_CLIENT_ID')
+KAKAO_CLIENT_SECRET=$(echo "$SECRETS" | jq -r '.KAKAO_CLIENT_SECRET')
+KAKAO_REDIRECT_URI=$(echo "$SECRETS" | jq -r '.KAKAO_REDIRECT_URI')
+APPLE_ID=$(echo "$SECRETS" | jq -r '.APPLE_ID')
+APPLE_TEAM_ID=$(echo "$SECRETS" | jq -r '.APPLE_TEAM_ID')
+APPLE_KEY_ID=$(echo "$SECRETS" | jq -r '.APPLE_KEY_ID')
+APPLE_PRIVATE_KEY=$(echo "$SECRETS" | jq -r '.APPLE_PRIVATE_KEY')
+APPLE_REDIRECT_URI=$(echo "$SECRETS" | jq -r '.APPLE_REDIRECT_URI')
 EOF
 
 echo ".env file created successfully."
