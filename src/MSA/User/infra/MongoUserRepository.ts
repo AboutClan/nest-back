@@ -206,7 +206,7 @@ export class UserRepository implements IUserRepository {
   async resetPointByMonthScore(maxDate: string) {
     const uids = await this.UserModel.find(
       {
-        monthScore: { $lt: 10 },
+        monthScore: { $lt: 2 },
         role: { $ne: 'resting' },
         registerDate: { $lt: maxDate },
       },
