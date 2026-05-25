@@ -20,12 +20,13 @@ import { AuthService } from '../services/auth.service';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) { }
 
     @Public()
     @Post('guest')
     @ApiOperation({ summary: '게스트 로그인 (NextAuth Credentials guest)' })
     loginGuest(): Promise<AuthLoginResponseDto> {
+        console.log('loginGuest');
         return this.authService.loginGuest();
     }
 
