@@ -10,6 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { GeneratePostDraftDto } from 'src/utils/gpt/content-draft.dto';
 import {
   CommentDto,
   CreateGroupStudyDto,
@@ -95,6 +96,11 @@ export class GroupStudyController {
     const cursorNum = cursor ? parseInt(cursor) : 0;
 
     return await this.groupStudyService.getStatusGroupStudy(cursorNum, status);
+  }
+
+  @Post('ai/draft')
+  async generatePostDraft(@Body() body: GeneratePostDraftDto) {
+    return await this.groupStudyService.generatePostDraft(body.text);
   }
 
   //todo: groupStudy 조정 필요

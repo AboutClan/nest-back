@@ -8,6 +8,7 @@ import {
   IGATHERCOMMENT_REPOSITORY,
   IGATHER_REPOSITORY,
 } from 'src/utils/di.tokens';
+import { OpenAIModule } from 'src/utils/gpt/gpt.module';
 import { RequestModule } from '../Notice/request.module';
 import { FcmAModule } from '../Notification/fcm.module';
 import { GatherController } from './core/controllers/gather.controller';
@@ -38,6 +39,7 @@ const gatherCommentRepositoryProvider: ClassProvider = {
     FcmAModule,
     ImageModule,
     RequestModule,
+    OpenAIModule,
   ],
   controllers: [GatherController],
   providers: [

@@ -12,6 +12,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
+import { GeneratePostDraftDto } from 'src/utils/gpt/content-draft.dto';
 import {
   CreateGatherDto,
   DeleteGatherDto,
@@ -74,6 +75,11 @@ export class GatherController {
   @Get('review')
   async getReviewGather() {
     return await this.gatherService.getReviewGather();
+  }
+
+  @Post('ai/draft')
+  async generatePostDraft(@Body() body: GeneratePostDraftDto) {
+    return await this.gatherService.generatePostDraft(body.text);
   }
 
   @Post()

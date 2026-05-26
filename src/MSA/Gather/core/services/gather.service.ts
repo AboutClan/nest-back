@@ -18,6 +18,8 @@ import { CounterService } from 'src/routes/counter/counter.service';
 import ImageService from 'src/routes/imagez/image.service';
 import { DateUtils } from 'src/utils/Date';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
+import { ContentDraftService } from 'src/utils/gpt/content-draft.service';
+import { PostDraftResult } from 'src/utils/gpt/content-draft.dto';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IUser } from '../../../User/entity/user.entity';
 import {
@@ -42,7 +44,12 @@ export class GatherService {
     private readonly imageServiceInstance: ImageService,
     private readonly commentService: GatherCommentService,
     private readonly requestService: RequestService,
+    private readonly contentDraftService: ContentDraftService,
   ) {}
+
+  async generatePostDraft(text: string): Promise<PostDraftResult> {
+    return this.contentDraftService.generateGatherDraft(text);
+  }
   async getEnthMembers() {
     return await this.gatherRepository.getEnthMembers();
   }

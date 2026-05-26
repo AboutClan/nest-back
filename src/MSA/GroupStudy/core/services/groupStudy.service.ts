@@ -23,6 +23,8 @@ import {
   IGROUPSTUDY_REPOSITORY,
   ILOG_TEMPERATURE_REPOSITORY,
 } from 'src/utils/di.tokens';
+import { PostDraftResult } from 'src/utils/gpt/content-draft.dto';
+import { ContentDraftService } from 'src/utils/gpt/content-draft.service';
 import { OpenAIService } from 'src/utils/gpt/gpt.service';
 import { promisify } from 'util';
 import * as zlib from 'zlib';
@@ -48,7 +50,12 @@ export default class GroupStudyService {
     private readonly fcmServiceInstance: FcmService,
     private readonly commentService: GroupCommentService,
     private readonly openaiService: OpenAIService,
+    private readonly contentDraftService: ContentDraftService,
   ) {}
+
+  async generatePostDraft(text: string): Promise<PostDraftResult> {
+    return this.contentDraftService.generateGroupStudyDraft(text);
+  }
 
   async getStatusGroupStudy(cursor: number, status: string) {
     switch (status) {
