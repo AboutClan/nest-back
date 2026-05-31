@@ -6,6 +6,7 @@ import { IPLACE_REPOSITORY, IPLACE_SERVICE } from 'src/utils/di.tokens';
 import { MongoPlaceReposotory } from './infra/MongoPlaceRepository';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { PlaceController } from './core/controllers/place.controller';
+import { OpenAIModule } from 'src/utils/gpt/gpt.module';
 
 const placeRepositoryProvider: ClassProvider = {
   provide: IPLACE_REPOSITORY,
@@ -15,6 +16,7 @@ const placeRepositoryProvider: ClassProvider = {
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: DB_SCHEMA.PLACE, schema: PlaceSchema }]),
+    OpenAIModule,
   ],
   controllers: [PlaceController],
   providers: [PlaceService, placeRepositoryProvider],

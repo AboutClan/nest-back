@@ -17,7 +17,7 @@ export const STUDY_CAFE_META_SYSTEM_PROMPT = `
 - hasComfortableSeats: 좌석이 편함
 - hasCleanRestroom: 화장실이 깨끗함
 - hasGoodWifi: 와이파이/인터넷 좋음
-- hasGoodValueDrinks: 음료 가성비 좋음
+- hasGoodValueDrinks: 가격이 저렴하거나, 양이 많거나, 리필 등 가성비가 좋다는 언급이 있음
 - hasTimeLimit: 이용 시간 제한 있음 (예: 3시간 제한, 시간제한 언급)
 
 반드시 아래 JSON 키만 포함한 객체 하나만 출력하세요. 다른 텍스트는 금지합니다.
@@ -35,5 +35,5 @@ export const STUDY_CAFE_META_SYSTEM_PROMPT = `
 
 /** GPT user 메시지 — GraphQL 배치 응답만 전달 */
 export function buildStudyCafeMetaUserPrompt(graphqlBatch: unknown): string {
-    return JSON.stringify(graphqlBatch, null, 2);
+  return JSON.stringify(graphqlBatch, null, 2);
 }

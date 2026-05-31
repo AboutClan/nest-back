@@ -18,5 +18,6 @@ export interface PlaceRepository {
   );
   findAllRatingsSorted(cursor: number, gap: number): Promise<any[]>;
   findWithCursor(cursor: number, gap: number): Promise<IPlace[]>;
+  updateStudyCafeMetaAndRating(placeId: string, studyCafeMeta: object, rating: number): Promise<void>;
   test();
 }

@@ -174,6 +174,17 @@ export class MongoPlaceReposotory implements PlaceRepository {
     return null;
   }
 
+  async updateStudyCafeMetaAndRating(
+    placeId: string,
+    studyCafeMeta: object,
+    rating: number,
+  ): Promise<void> {
+    await this.Place.updateOne(
+      { _id: placeId },
+      { $set: { studyCafeMeta, rating } },
+    );
+  }
+
   async findWithCursor(cursor: number, gap: number): Promise<IPlace[]> {
     const all = await this.Place.find({}).lean();
     all.sort((a, b) => {

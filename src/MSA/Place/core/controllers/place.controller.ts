@@ -14,7 +14,7 @@ import PlaceService from '../services/place.service';
 @ApiTags('place')
 @Controller('place')
 export class PlaceController {
-  constructor(private readonly placeService: PlaceService) { }
+  constructor(private readonly placeService: PlaceService) {}
 
   @Get()
   async getActivePlace(
@@ -30,20 +30,25 @@ export class PlaceController {
     return places;
   }
 
+  @Post('gpt-rating')
+  async evaluatePlaceWithGpt(
+    @Body('placeId') placeId: string,
+    @Body('externalReviews') externalReviews: string[] = [],
+  ) {
+    return await this.placeService.evaluatePlaceWithGpt(
+      placeId,
+      externalReviews,
+    );
+  }
+
   @Get('cursor')
   async getPlacesWithCursor(@Query('cursor') cursor: string = '0') {
     return await this.placeService.getPlacesWithCursor(parseInt(cursor));
   }
 
   @Get('ratings')
-  async getAllRatingsSorted(
-    @Query('cursor') cursor: string = '0',
- 
-  ) {
-    return await this.placeService.getAllRatingsSorted(
-      parseInt(cursor),
-   
-    );
+  async getAllRatingsSorted(@Query('cursor') cursor: string = '0') {
+    return await this.placeService.getAllRatingsSorted(parseInt(cursor));
   }
 
   @Get('all')
@@ -56,7 +61,9 @@ export class PlaceController {
   @Post()
   async addPlace(@Body() placeInfo: any) {
     try {
-      const places = await this.placeService.addPlace(placeInfo);
+      const { review: initialRating, ...placeData } = placeInfo;
+      console.log(placeInfo, initialRating);
+      const places = await this.placeService.addPlace(placeData, initialRating);
       return places;
     } catch (err) {
       throw new HttpException(
