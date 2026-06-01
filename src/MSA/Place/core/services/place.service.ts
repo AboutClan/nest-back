@@ -210,12 +210,11 @@ export default class PlaceService {
 
   async getActivePlace(status: 'main' | 'best' | 'good' | 'all') {
     try {
-      console.log(1234);
       const places = await this.placeRepository.findByStatus(status);
       // const ratings = places.map((place) =>
       //   this.calculateRating(place?.ratings),
       // );
-      console.log(25, places[0]);
+
       return places;
       // console.log(places[0]);
       // return places.map((place, index) => ({

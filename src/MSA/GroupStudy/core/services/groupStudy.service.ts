@@ -389,7 +389,6 @@ export default class GroupStudyService {
       $expr: { $gt: [{ $size: '$participants' }, 1] },
     };
 
-    console.log(category, filterQuery);
     if (filter === 'pending') {
       filterQuery.status = { $in: ['pending', 'resting'] };
     } else {

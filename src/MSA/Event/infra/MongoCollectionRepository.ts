@@ -65,7 +65,7 @@ export class CollectionRepository implements ICollectionRepository {
       path: 'user',
       select: ENTITY.USER.C_SIMPLE_USER + `friend`,
     });
-    console.log(docs?.[0]);
+
     return docs
       .filter((u) => ((u?.user as IUser)?.friend || []).includes(uid))
       .map((item) => this.mapToDomain(item));

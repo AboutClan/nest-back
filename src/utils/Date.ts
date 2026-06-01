@@ -97,7 +97,7 @@ export class DateUtils {
   }
 
   static getWeekDate() {
-    const dates = Array.from({ length: 7 }, (_, i) =>
+    const dates = Array.from({ length: 8 }, (_, i) =>
       dayjs().add(i, 'day').format('YYYY-MM-DD'),
     );
     return dates;

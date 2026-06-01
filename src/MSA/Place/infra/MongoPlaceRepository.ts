@@ -57,7 +57,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
     } else if (status === 'main') {
       query = { status: 'main' };
     }
-    console.log(52525, query);
+
     const defaultMeta = {
       is24Hours: false,
       hasParking: false,

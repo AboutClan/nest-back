@@ -18,8 +18,8 @@ import { CounterService } from 'src/routes/counter/counter.service';
 import ImageService from 'src/routes/imagez/image.service';
 import { DateUtils } from 'src/utils/Date';
 import { IGATHER_REPOSITORY } from 'src/utils/di.tokens';
-import { ContentDraftService } from 'src/utils/gpt/content-draft.service';
 import { PostDraftResult } from 'src/utils/gpt/content-draft.dto';
+import { ContentDraftService } from 'src/utils/gpt/content-draft.service';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IUser } from '../../../User/entity/user.entity';
 import {
@@ -582,7 +582,7 @@ export class GatherService {
         const targetInfo = participants.find(
           (data) => data.user.toString() == targetId.toString(),
         );
-        console.log(participants, targetId, targetInfo);
+
         if (targetInfo?.invited === false) {
           await this.userServiceInstance.updateAddTicket(
             'gather',

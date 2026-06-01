@@ -451,6 +451,17 @@ export class UserRepository implements IUserRepository {
     return null;
   }
 
+  async resetNegativePoint(): Promise<void> {
+   
+  }
+
+  async findUsersWithNegativeGroupStudyTicket(): Promise<User[]> {
+    const users = await this.UserModel.find({
+      'ticket.groupStudyTicket': { $lt: 0 },
+    });
+    return users.map((user) => this.mapToDomain(user));
+  }
+
   async findAllForPrize() {
     return await this.UserModel.find({
       rank: { $nin: ['previliged', 'manager', 'admin', 'resting'] },
@@ -519,7 +530,7 @@ export class UserRepository implements IUserRepository {
       cafe: doc?.notificationConsent?.cafe ?? false,
       gather: doc?.notificationConsent?.gather ?? false,
     };
-    console.log('doc', doc);
+
     return new User(
       doc?._id?.toString(),
       doc?.uid,

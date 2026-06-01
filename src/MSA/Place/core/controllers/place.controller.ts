@@ -62,7 +62,7 @@ export class PlaceController {
   async addPlace(@Body() placeInfo: any) {
     try {
       const { review: initialRating, ...placeData } = placeInfo;
-      console.log(placeInfo, initialRating);
+
       const places = await this.placeService.addPlace(placeData, initialRating);
       return places;
     } catch (err) {

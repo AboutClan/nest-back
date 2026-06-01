@@ -24,10 +24,10 @@ import {
   PatchIsLocationSharingDeniedDto,
   PatchIsPrivateDto,
   PatchLocationDetailDto,
-  PostNotificationConsentDto,
   PatchRestDto,
   PatchRoleDto,
   PatchStudyIntroduceDto,
+  PostNotificationConsentDto,
   SelectBadgeDto,
   SetFriendDto,
   SetMonthStudyTargetDto,
@@ -46,7 +46,7 @@ import { UserService } from '../services/user.service';
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get('active')
   async getActive() {

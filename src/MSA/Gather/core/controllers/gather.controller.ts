@@ -38,8 +38,6 @@ export class GatherController {
     const cursorNum = cursor ? parseInt(cursor) : null;
     const gatherIdNum = gatherId ? parseInt(gatherId) : null;
 
-
-    
     if (gatherIdNum) {
       return await this.gatherService.getGatherById(gatherIdNum);
     } else if (cursorNum === -1) {
@@ -139,7 +137,6 @@ export class GatherController {
     @Body('infos') infos: { toUid: string; type: 'good' | 'bad' }[],
     @Body('gatherId') gatherId: string,
   ) {
-    console.log(infos);
     await this.gatherService.voteOpenGatherMember(infos, gatherId);
     return { status: 'success' };
   }

@@ -242,7 +242,7 @@ export class Vote2Service {
     if (end !== null) voteData.end = end;
     if (locationDetail !== null) voteData.locationDetail = locationDetail;
     if (eps !== null) voteData.eps = eps;
-    console.log(51);
+  
     vote2.setOrUpdateParticipation(voteData);
 
     await this.Vote2Repository.save(vote2);

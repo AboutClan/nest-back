@@ -105,27 +105,27 @@ export class NotificationScheduler {
     }
   }
 
-  //매주 groupStudy 초기화
-  @Cron('0 0 0 * * 1', {
-    // 매주 월요일 0시 0분
-    timeZone: 'Asia/Seoul',
-  })
-  async initGroupstudyAttend() {
-    const name = SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE;
-    //flag는 년-월-주차
-    const flag = DateUtils.getYearMonthWeek();
-    const log = await this.findLogByFlagAndName(flag, name);
-    if (log) {
-      return;
-    }
-    try {
-      await this.groupstudyRepository.initWeekAttendance();
-      await this.logSchedule(name, 'success', flag);
-    } catch (err: any) {
-      await this.logSchedule(name, 'failure', flag, err);
-      throw new Error(err);
-    }
-  }
+  // //매주 groupStudy 초기화
+  // @Cron('0 0 0 * * 1', {
+  //   // 매주 월요일 0시 0분
+  //   timeZone: 'Asia/Seoul',
+  // })
+  // async initGroupstudyAttend() {
+  //   const name = SCHEDULE_CONST.INIT_GROUP_STUDY_ATTENDANCE;
+  //   //flag는 년-월-주차
+  //   const flag = DateUtils.getYearMonthWeek();
+  //   const log = await this.findLogByFlagAndName(flag, name);
+  //   if (log) {
+  //     return;
+  //   }
+  //   try {
+  //     await this.groupstudyRepository.initWeekAttendance();
+  //     await this.logSchedule(name, 'success', flag);
+  //   } catch (err: any) {
+  //     await this.logSchedule(name, 'failure', flag, err);
+  //     throw new Error(err);
+  //   }
+  // }
 
   //매시간 groupStudy 상태 변경
   @Cron(CronExpression.EVERY_6_HOURS, {

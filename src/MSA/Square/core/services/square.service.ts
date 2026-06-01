@@ -78,7 +78,7 @@ export default class SquareService {
 
   async createSquare(square: Partial<Square> & { buffers: Buffer[] }) {
     const token = RequestContext.getDecodedToken();
-    console.log(5, square);
+
     const {
       category,
       title,
@@ -96,7 +96,7 @@ export default class SquareService {
         buffers,
       );
     }
-    console.log(token.id, token.name);
+
     const author = token.id;
 
     const parsedAvatar =
@@ -114,7 +114,7 @@ export default class SquareService {
       viewers: [],
       like: [],
     });
-    console.log(124, parsedAvatar);
+
     const createdSquare = await this.squareRepository.create(squareEntity);
     return { squareId: createdSquare._id };
   }

@@ -74,8 +74,8 @@ const studyIntroduceZodSchema = z.object({
 });
 
 const notificationConsentZodSchema = z.object({
-  cafe: z.boolean().default(false),
-  gather: z.boolean().default(false),
+  cafe: z.boolean().default(true),
+  gather: z.boolean().default(true),
 });
 
 export type restType = z.infer<typeof restZodSchema>;

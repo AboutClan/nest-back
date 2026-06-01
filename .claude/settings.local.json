@@ -3,7 +3,10 @@
     "allow": [
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Desktop\\\\당근\\\\개발\\\\nest-back\" -Force)",
       "Bash(Select-Object Name, Mode)",
-      "Bash(Format-Table)"
+      "Bash(Format-Table)",
+      "Bash(xargs grep -l \"date.*valid\\\\|date.*check\\\\|invite\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Desktop\\\\당근\\\\개발\\\\nest-back\\\\src\\\\MSA\\\\Gather\" -Recurse -Filter \"*.repository.ts\")",
+      "Bash(Select-Object FullName)"
     ]
   }
 }

@@ -115,7 +115,7 @@ export class UserService {
 
     // 1) UID로 도메인 User 객체 조회
     const user = await this.UserRepository.findByUid(token.uid);
-    console.log('user', user);
+
     if (!user) {
       throw new NotFoundException(`User not found: ${token.uid}`);
     }
@@ -1080,8 +1080,10 @@ export class UserService {
   }
 
   async recommendNoticeAllUser() {
+    
     const users = await this.UserRepository.findAllForGatherNotification();
 
+   
     const userIds = users.map((user) => user._id.toString());
     if (!userIds.length) {
       return;
@@ -1110,14 +1112,14 @@ export class UserService {
   }
 
   async processTemperatureReset() {
+    console.log('SUC');
     const d = dayjs().tz('Asia/Seoul');
     const logs = await this.LogTemperatureRepository.findTemperatureByPeriod(
       d.subtract(2, 'year').startOf('month').toDate(),
-      d.subtract(1, 'month').startOf('month').toDate(),
+      d.subtract(0, 'month').startOf('month').toDate(),
     );
 
     const mapping = await this.aggregateLogTemperatureDeltasByToReset(logs);
-    console.log('length2', [...mapping].length);
 
     const uids = new Set([...mapping.keys()]);
 
@@ -1127,6 +1129,7 @@ export class UserService {
 
       const userTemp = mapping.get(uid);
       const addTemp = this.calculateScore(userTemp.score, userTemp.cnt);
+
       // 초기 값에 더함
       user.setTemperature(
         Math.ceil(addTemp * 10) / 10,
@@ -1135,6 +1138,33 @@ export class UserService {
         userTemp.blockCnt,
       );
       await this.UserRepository.save(user);
+    }
+    console.log('COMPLETED');
+  }
+
+  async resetNegativePoint() {
+    await this.UserRepository.resetNegativePoint();
+  }
+
+  async penalizeNegativeGroupStudyTicket() {
+    const users =
+      await this.UserRepository.findUsersWithNegativeGroupStudyTicket();
+
+    for (const user of users) {
+      const deficit = Math.abs(user.ticket.groupStudyTicket);
+      const penalty = deficit * 1000;
+
+      user.increasePoint(-penalty);
+      user.ticket.groupStudyTicket = 0;
+
+      await this.UserRepository.save(user);
+
+      logger?.info('월간 소모임 참여권 정산 (포인트 대체)', {
+        type: 'point',
+        sub: '소모임 티켓 정산',
+        uid: user.uid,
+        value: -penalty,
+      });
     }
   }
 
@@ -1170,8 +1200,6 @@ export class UserService {
     const uids2 = new Set([...subMap.keys(), ...addMap.keys()]);
     const uids = [...uids2].filter((u) => u === '3968103670');
 
-    console.log('U', uids, subMap.get(uids[0]), addMap.get(uids[0]));
-
     // 각 유저마다 정산 진행
     for (const uid of uids) {
       const user = await this.UserRepository.findByUid(uid);
@@ -1187,7 +1215,6 @@ export class UserService {
       let sum = temp.sum ?? 0;
       let cnt = temp.cnt ?? 0;
       let blockCnt = temp.blockCnt ?? 0;
-      console.log(sum, cnt, blockCnt);
 
       ({ sum, cnt, blockCnt } = this.undoTemperatureBatch(
         sum,
@@ -1195,7 +1222,7 @@ export class UserService {
         blockCnt,
         sub,
       ));
-      console.log(2, sum, cnt, blockCnt);
+
       ({ sum, cnt, blockCnt } = this.applyTemperatureBatch(
         sum,
         cnt,
