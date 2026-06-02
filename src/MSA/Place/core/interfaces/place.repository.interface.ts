@@ -19,5 +19,15 @@ export interface PlaceRepository {
   findAllRatingsSorted(cursor: number, gap: number): Promise<any[]>;
   findWithCursor(cursor: number, gap: number): Promise<IPlace[]>;
   updateStudyCafeMetaAndRating(placeId: string, studyCafeMeta: object, rating: number): Promise<void>;
+  updateOperatingHoursAndStudyCafeMeta(
+    placeId: string,
+    operatingHours: string[][],
+    studyCafeMeta?: object,
+  ): Promise<void>;
+  updateAIRating(
+    placeId: string,
+    scores: { mood: number; power: number; space: number; etc: number },
+  ): Promise<void>;
+  migrateRatingTableToPower(): Promise<void>;
   test();
 }

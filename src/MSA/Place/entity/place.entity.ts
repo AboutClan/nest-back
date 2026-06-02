@@ -18,7 +18,7 @@ export const ratingDetailZodSchema = z.object({
 
 export const ratingZodSchema = z.object({
   mood: z.number().optional().default(0),
-  table: z.number().optional().default(0),
+  power: z.number().optional().default(0),
   space: z.number().optional().default(0),
   etc: z.number().optional().default(0),
   comment: z.string().optional().default(''),
@@ -91,7 +91,7 @@ export const ratingSchema: Schema<ratingType> = new Schema(
       type: Number,
       default: 0,
     },
-    table: {
+    power: {
       type: Number,
       default: 0,
     },

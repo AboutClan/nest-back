@@ -43,7 +43,9 @@ export class PlaceController {
 
   @Get('cursor')
   async getPlacesWithCursor(@Query('cursor') cursor: string = '0') {
-    return await this.placeService.getPlacesWithCursor(parseInt(cursor));
+  
+    await this.placeService.processAllPlacesStudyCafe();
+    // return await this.placeService.getPlacesWithCursor(parseInt(cursor));
   }
 
   @Get('ratings')
@@ -102,7 +104,7 @@ export class PlaceController {
   async updateRating(
     @Body('placeId') placeId: string,
     @Body('mood') mood: number,
-    @Body('table') table: number,
+    @Body('power') power: number,
     @Body('space') space: number,
     @Body('etc') etc: number,
     @Body('comment') comment: string,
@@ -112,7 +114,7 @@ export class PlaceController {
       const places = await this.placeService.addRating(
         placeId,
         mood,
-        table,
+        power,
         space,
         etc,
         comment,
@@ -125,6 +127,12 @@ export class PlaceController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Post('migrate-power')
+  async migrateRatingTableToPower() {
+    await this.placeService.migrateRatingTableToPower();
+    return { message: 'migration completed' };
   }
 
   @Post('test')

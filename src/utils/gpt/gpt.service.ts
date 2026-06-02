@@ -60,17 +60,21 @@ export class OpenAIService {
     system: string,
     user: string,
     schema: object,
+    opts?: { timeoutMs?: number },
   ) {
-    const res = await this.openai.chat.completions.create({
-      model: this.defaultModel,
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-      // JSON 모드: 모델이 유효한 JSON만 내도록 강제
-      response_format: { type: 'json_object' },
-      // 추가로 schema를 설명에 포함하거나, 함수 툴로 strict하게도 가능
-    });
+    const timeoutMs = opts?.timeoutMs ?? 60_000;
+
+    const res = await this.openai.chat.completions.create(
+      {
+        model: this.defaultModel,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+        response_format: { type: 'json_object' },
+      },
+      { signal: AbortSignal.timeout(timeoutMs) },
+    );
 
     const text = res.choices[0]?.message?.content ?? '{}';
     return JSON.parse(text) as T;

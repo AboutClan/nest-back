@@ -185,6 +185,71 @@ export class MongoPlaceReposotory implements PlaceRepository {
     );
   }
 
+  async updateAIRating(
+    placeId: string,
+    scores: { mood: number; power: number; space: number; etc: number },
+  ): Promise<void> {
+    await this.Place.updateOne(
+      { _id: placeId, 'ratings.name': '어바웃 AI' },
+      {
+        $set: {
+          'ratings.$.mood': scores.mood,
+          'ratings.$.power': scores.power,
+          'ratings.$.space': scores.space,
+          'ratings.$.etc': scores.etc,
+        },
+      },
+    );
+  }
+
+  async migrateRatingTableToPower(): Promise<void> {
+    await this.Place.collection.updateMany(
+      { 'ratings.table': { $exists: true } },
+      [
+        {
+          $set: {
+            ratings: {
+              $map: {
+                input: { $ifNull: ['$ratings', []] },
+                as: 'r',
+                in: {
+                  $arrayToObject: {
+                    $map: {
+                      input: { $objectToArray: '$$r' },
+                      as: 'field',
+                      in: {
+                        k: {
+                          $cond: {
+                            if: { $eq: ['$$field.k', 'table'] },
+                            then: 'power',
+                            else: '$$field.k',
+                          },
+                        },
+                        v: '$$field.v',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ],
+    );
+  }
+
+  async updateOperatingHoursAndStudyCafeMeta(
+    placeId: string,
+    operatingHours: string[][],
+    studyCafeMeta?: object,
+  ): Promise<void> {
+    const update: Record<string, unknown> = { operatingHours };
+    if (studyCafeMeta !== undefined) {
+      update.studyCafeMeta = studyCafeMeta;
+    }
+    await this.Place.findByIdAndUpdate(placeId, { $set: update });
+  }
+
   async findWithCursor(cursor: number, gap: number): Promise<IPlace[]> {
     const all = await this.Place.find({}).lean();
     all.sort((a, b) => {

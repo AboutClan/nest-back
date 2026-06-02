@@ -37,8 +37,7 @@ export class StudyCafeMetaGptAnalyzer {
             'announcements',
             'aiBriefing',
             'visitorReviews',
-            'visitorReviewStats_item0',
-            'visitorReviewStats_total',
+            'visitorReviewStats',
         ];
 
         const packed: Record<string, unknown> = {};
