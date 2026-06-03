@@ -43,9 +43,7 @@ export class PlaceController {
 
   @Get('cursor')
   async getPlacesWithCursor(@Query('cursor') cursor: string = '0') {
-  
-    await this.placeService.processAllPlacesStudyCafe();
-    // return await this.placeService.getPlacesWithCursor(parseInt(cursor));
+    return await this.placeService.getPlacesWithCursor(parseInt(cursor));
   }
 
   @Get('ratings')
