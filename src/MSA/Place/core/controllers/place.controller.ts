@@ -61,6 +61,7 @@ export class PlaceController {
   @Post()
   async addPlace(@Body() placeInfo: any) {
     try {
+
       const { review: initialRating, ...placeData } = placeInfo;
 
       const places = await this.placeService.addPlace(placeData, initialRating);

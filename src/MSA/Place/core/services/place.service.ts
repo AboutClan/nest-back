@@ -378,20 +378,23 @@ export default class PlaceService {
    * 2. AI 댓글(어바웃 AI)이 없는 place에 한해 GPT 평가 추가
    */
   async processAllPlacesStudyCafe(): Promise<void> {
-    const SKIP_AFTER = new Date('2026-06-02T07:40:47.540+00:00');
+    const DEFAULT_AI = { mood: 3, power: 3.5, space: 3.5, etc: 3 };
 
-    const isAlreadyUpdated = (place: any): boolean => {
+    const needsProcessing = (place: any): boolean => {
       const aiRating = (place.ratings ?? []).find(
         (r: any) => r.name === '어바웃 AI',
       );
-      if (!aiRating) return false;
-      const updatedAt = aiRating.updatedAt ?? aiRating.createdAt;
-      if (!updatedAt) return false;
-      return new Date(updatedAt) > SKIP_AFTER;
+      if (!aiRating) return true;
+      return (
+        aiRating.mood === DEFAULT_AI.mood &&
+        aiRating.power === DEFAULT_AI.power &&
+        aiRating.space === DEFAULT_AI.space &&
+        aiRating.etc === DEFAULT_AI.etc
+      );
     };
 
     const places = await this.placeRepository.findAll();
-    const targetPlaces = places.filter((p) => !isAlreadyUpdated(p));
+    const targetPlaces = places.filter(needsProcessing);
 
     console.log(
       `전체 ${places.length}개 중 ${targetPlaces.length}개 처리 (${places.length - targetPlaces.length}개 스킵)`,
@@ -419,7 +422,10 @@ export default class PlaceService {
         );
 
         try {
-          await this.evaluatePlaceWithGpt(result.placeId, result.visitorReviews);
+          await this.evaluatePlaceWithGpt(
+            result.placeId,
+            result.visitorReviews,
+          );
           await sleep(1_500);
         } catch (err) {
           console.error(`[GPT 평가 실패] ${result.placeId}:`, err);
@@ -433,7 +439,7 @@ export default class PlaceService {
     for (const place of remainingPlaces) {
       const placeId = (place._id as any).toString();
       if (crawledIds.has(placeId)) continue;
-      if (isAlreadyUpdated(place)) continue;
+      if (!needsProcessing(place)) continue;
 
       try {
         await this.evaluatePlaceWithGpt(placeId, []);
@@ -501,8 +507,40 @@ export default class PlaceService {
       const externalReviews = initialRating?.comment
         ? [initialRating.comment]
         : [];
-      this.evaluatePlaceWithGpt(placeId, externalReviews).catch((err) => {
-        console.error('[evaluatePlaceWithGpt] 실패:', err?.message ?? err);
+
+      // Fire-and-forget: 크롤 → 운영시간/메타 업데이트 → GPT 평가
+      (async () => {
+        const crawler = new NaverMapCrawler();
+        let visitorReviews: string[] = [];
+        let crawlSuccess = false;
+
+        try {
+          await crawler.crawlPlacesList(
+            [{ _id: placeId, location: validatedPlace.location }],
+            async (result) => {
+              crawlSuccess = true;
+              visitorReviews = result.visitorReviews;
+              await this.placeRepository.updateOperatingHoursAndStudyCafeMeta(
+                result.placeId,
+                result.operatingHours,
+                result.studyCafeMeta,
+              );
+            },
+          );
+        } catch (err: any) {
+          console.error('[addPlace] 크롤링 실패:', err?.message ?? err);
+        }
+
+        try {
+          await this.evaluatePlaceWithGpt(placeId, [
+            ...visitorReviews,
+            ...externalReviews,
+          ]);
+        } catch (err: any) {
+          console.error('[addPlace] GPT 평가 실패:', err?.message ?? err);
+        }
+      })().catch((err: any) => {
+        console.error('[addPlace 백그라운드] 실패:', err?.message ?? err);
       });
 
       return;
