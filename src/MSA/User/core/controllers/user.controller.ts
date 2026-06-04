@@ -360,4 +360,24 @@ export class UserController {
       throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Post('temperature/inactivity-penalty')
+  async processInactivityPenalty() {
+    try {
+      await this.userService.processInactivityPenalty();
+      return { message: 'ok' };
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('temperature/reset-uid')
+  async processTemperatureForUid(@Body('uid') uid: string) {
+    try {
+      await this.userService.processTemperatureForUid(uid ?? '2542567004');
+      return { message: 'ok' };
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

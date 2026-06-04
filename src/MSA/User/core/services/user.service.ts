@@ -939,7 +939,7 @@ export class UserService {
 
         byTo.set(to, {
           score: prev.score + score,
-          cnt: prev.cnt + w2,
+          cnt: prev.cnt + w * w2,
           blockCnt: degree === 'block' ? prev.blockCnt + 1 : prev.blockCnt,
         });
       }
@@ -1080,10 +1080,8 @@ export class UserService {
   }
 
   async recommendNoticeAllUser() {
-    
     const users = await this.UserRepository.findAllForGatherNotification();
 
-   
     const userIds = users.map((user) => user._id.toString());
     if (!userIds.length) {
       return;
@@ -1140,6 +1138,108 @@ export class UserService {
       await this.UserRepository.save(user);
     }
     console.log('COMPLETED');
+  }
+
+  async processTemperatureForUid(uid: string): Promise<void> {
+    const d = dayjs().tz('Asia/Seoul');
+    const logs = await this.LogTemperatureRepository.findTemperatureByPeriod(
+      d.subtract(2, 'year').startOf('month').toDate(),
+      d.subtract(0, 'month').startOf('month').toDate(),
+    );
+
+    const filteredLogs = logs.filter((log) => log.to === uid);
+    const mapping =
+      await this.aggregateLogTemperatureDeltasByToReset(filteredLogs);
+
+    const user = await this.UserRepository.findByUid(uid);
+    if (!user) return;
+
+    const userTemp = mapping.get(uid);
+    if (!userTemp) {
+      console.log(`[${uid}] 평가 기록 없음`);
+      return;
+    }
+
+    console.log('TT', userTemp.score, userTemp.cnt);
+    const addTemp = this.calculateScore(userTemp.score, userTemp.cnt);
+
+    console.log('add', addTemp);
+    console.log(
+      `[${uid}] score=${userTemp.score} cnt=${userTemp.cnt} addTemp=${addTemp}`,
+    );
+
+    user.setTemperature(
+      Math.ceil(addTemp * 10) / 10,
+      userTemp.score,
+      userTemp.cnt,
+      userTemp.blockCnt,
+    );
+    console.log('t', user.temperature);
+    return;
+    await this.UserRepository.save(user);
+    console.log(`[${uid}] 온도 업데이트 완료`);
+  }
+
+  async processInactivityPenalty(): Promise<void> {
+    const TEMP_PENALTY_PER_MONTH = 0.2;
+
+    const TARGET_MONTHS = [
+      { start: new Date('2026-02-01T00:00:00+09:00'), end: new Date('2026-03-01T00:00:00+09:00') },
+      { start: new Date('2026-03-01T00:00:00+09:00'), end: new Date('2026-04-01T00:00:00+09:00') },
+      { start: new Date('2026-04-01T00:00:00+09:00'), end: new Date('2026-05-01T00:00:00+09:00') },
+      { start: new Date('2026-05-01T00:00:00+09:00'), end: new Date('2026-06-01T00:00:00+09:00') },
+    ];
+
+    const allLogs = await this.LogTemperatureRepository.findTemperatureByPeriod(
+      TARGET_MONTHS[0].start,
+      TARGET_MONTHS[TARGET_MONTHS.length - 1].end,
+    );
+
+    const activeByMonth: Set<string>[] = TARGET_MONTHS.map(({ start, end }) => {
+      const s = start.getTime();
+      const e = end.getTime();
+      const active = new Set<string>();
+      for (const log of allLogs) {
+        const ts = new Date(log.timestamp).getTime();
+        if (ts >= s && ts < e) active.add(log.to);
+      }
+      return active;
+    });
+
+    const allUsers = await this.UserRepository.findAll();
+
+    for (const user of allUsers) {
+      const currentTemp = user.temperature?.temperature ?? 36.5;
+      if (currentTemp <= 36.5) continue;
+
+      const inactiveCount = TARGET_MONTHS.filter(
+        (_, i) => !activeByMonth[i].has(user.uid),
+      ).length;
+      if (inactiveCount === 0) continue;
+
+      const temp = user.temperature;
+      const sum = temp?.sum ?? 0;
+      const cnt = temp?.cnt ?? 0;
+      const blockCnt = temp?.blockCnt ?? 0;
+
+      const factor = Math.pow(1 - Math.exp(-0.07 * cnt), 1.3);
+      const sumPenaltyPerMonth =
+        cnt > 0 && factor > 0 ? (TEMP_PENALTY_PER_MONTH * cnt) / (2.2 * factor) : 0;
+      const newSum = sum - inactiveCount * sumPenaltyPerMonth;
+
+      let newDelta = 0;
+      if (cnt > 0) {
+        newDelta = this.calculateScore(newSum, cnt);
+        newDelta = Math.ceil(newDelta * 10) / 10;
+        newDelta = Math.max(0, newDelta);
+      }
+
+      user.setTemperature(newDelta, newSum, cnt, blockCnt);
+      await this.UserRepository.save(user);
+      console.log(
+        `[${user.uid}] 미활동 ${inactiveCount}개월 → sum ${sum} → ${newSum} → ${36.5 + newDelta}°`,
+      );
+    }
   }
 
   async resetNegativePoint() {
