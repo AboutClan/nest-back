@@ -138,7 +138,7 @@ export class Vote2Service {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
-    const { voteResults } = await this.doAlgorithm(participations, 4);
+    const { voteResults } = await this.doAlgorithm(participations, 5);
 
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
@@ -483,9 +483,9 @@ export class Vote2Service {
       const aIsMain = (a as any).status === 'main' ? 1 : 0;
       const bIsMain = (b as any).status === 'main' ? 1 : 0;
       return (
-        bIsMain - aIsMain ||                             // 1. status = 'main' 우선
-        bCands.length - aCands.length ||                 // 2. 참여 인원 많은 곳
-        getPlaceTotalScore(b) - getPlaceTotalScore(a)    // 3. totalScore
+        bIsMain - aIsMain || // 1. status = 'main' 우선
+        bCands.length - aCands.length || // 2. 참여 인원 많은 곳
+        getPlaceTotalScore(b) - getPlaceTotalScore(a) // 3. totalScore
       );
     });
 
@@ -604,7 +604,12 @@ export class Vote2Service {
           result.members.length + bundle.length <= INITIAL_MAX_GROUP_SIZE ||
           bundle.length === 1
         ) {
-          if (canJoinByTime(result.members as any, { start: bundle[0].start, end: bundle[0].end })) {
+          if (
+            canJoinByTime(result.members as any, {
+              start: bundle[0].start,
+              end: bundle[0].end,
+            })
+          ) {
             for (const p of bundle) {
               (result.members as any[]).push({
                 userId: p.user,
