@@ -29,5 +29,6 @@ export interface PlaceRepository {
     scores: { mood: number; power: number; space: number; etc: number },
   ): Promise<void>;
   migrateRatingTableToPower(): Promise<void>;
+  findForVote2(): Promise<IPlace[]>;
   test();
 }

@@ -242,7 +242,7 @@ export class Vote2Service {
     if (end !== null) voteData.end = end;
     if (locationDetail !== null) voteData.locationDetail = locationDetail;
     if (eps !== null) voteData.eps = eps;
-  
+
     vote2.setOrUpdateParticipation(voteData);
 
     await this.Vote2Repository.save(vote2);
@@ -389,23 +389,110 @@ export class Vote2Service {
       userId: (par.userId as unknown as IUser)._id.toString(),
       lat: par.latitude,
       lon: par.longitude,
-      eps: par?.eps + 0.2 || 3.2,
+      eps: par?.eps + 0.1 || 3.1,
       start: par.start,
       end: par.end,
       isBeforeResult: par.isBeforeResult,
       order: idx,
     }));
 
-    const places = await this.PlaceRepository.findByStatus('main');
+    const places = await this.PlaceRepository.findForVote2();
 
     const voteResults: IResult[] = [];
-    const clusteredParticipantIds = new Set<string>(); // 이미 클러스터에 속한 참여자 ID 관리
+    const clusteredParticipantIds = new Set<string>();
     const usedPlaceIds = new Set<string>();
-    // ---------- 1) 기본 패스: 4인 우선 → 3인 이상 ----------
-    for (const place of places) {
-      const placeId = place._id.toString();
-      if (usedPlaceIds.has(placeId)) continue;
-      const candidates = [] as Array<{
+
+    // ---------- 사전 계산: 각 참여자가 도달 가능한 장소 수 ----------
+    const reachableCount = new Map<string, number>();
+    for (const coord of coords) {
+      const cnt = places.filter(
+        (pl) =>
+          ClusterUtils.haversineDistance(
+            pl.location.latitude,
+            pl.location.longitude,
+            coord.lat,
+            coord.lon,
+          ) <= coord.eps,
+      ).length;
+      reachableCount.set(coord.userId, Math.max(cnt, 1));
+    }
+
+    // ---------- 사전 계산: 완전히 동일한 좌표 번들 ----------
+    // 같은 (lat, lon) 참여자는 반드시 같은 그룹에 배정
+    const userToCoordKey = new Map<string, string>();
+    for (const coord of coords) {
+      userToCoordKey.set(coord.userId, `${coord.lat},${coord.lon}`);
+    }
+
+    type CandItem = {
+      user: IUser;
+      userId: string;
+      dist: number;
+      start: string;
+      end: string;
+      isBeforeResult: boolean;
+      lat: number;
+      lon: number;
+      order: number;
+    };
+
+    /** pool에서 좌표 번들 순서로 반환 (같은 좌표는 묶어서 처리) */
+    const toBundles = (pool: CandItem[]): CandItem[][] => {
+      const seen = new Set<string>();
+      const bundles: CandItem[][] = [];
+      for (const cand of pool) {
+        const key = userToCoordKey.get(cand.userId)!;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        bundles.push(pool.filter((p) => userToCoordKey.get(p.userId) === key));
+      }
+      return bundles;
+    };
+
+    // ---------- 장소 정렬: 독점 참여자(갈 곳이 1개뿐) 많은 곳 우선 ----------
+    const getCandidatesForPlace = (pl: (typeof places)[0]) =>
+      coords.filter(
+        (coord) =>
+          ClusterUtils.haversineDistance(
+            pl.location.latitude,
+            pl.location.longitude,
+            coord.lat,
+            coord.lon,
+          ) <= coord.eps,
+      );
+
+    const getPlaceTotalScore = (place: (typeof places)[0]): number => {
+      const ratings: any[] = Array.isArray(place.ratings) ? place.ratings : [];
+      const total = ratings.reduce(
+        (acc, cur) =>
+          acc +
+          (cur.mood ?? 0) +
+          (cur.table ?? cur.power ?? 0) +
+          (cur.space ?? 0) +
+          (cur.etc ?? 0),
+        0,
+      );
+      return ratings.length > 3
+        ? total / (ratings.length * 4)
+        : ((place as any).rating ?? 0);
+    };
+
+    const sortedPlaces = [...places].sort((a, b) => {
+      const aCands = getCandidatesForPlace(a);
+      const bCands = getCandidatesForPlace(b);
+      const aIsMain = (a as any).status === 'main' ? 1 : 0;
+      const bIsMain = (b as any).status === 'main' ? 1 : 0;
+      return (
+        bIsMain - aIsMain ||                             // 1. status = 'main' 우선
+        bCands.length - aCands.length ||                 // 2. 참여 인원 많은 곳
+        getPlaceTotalScore(b) - getPlaceTotalScore(a)    // 3. totalScore
+      );
+    });
+
+    // 후보 목록 캐싱 (장소별 재사용)
+    const candidateCache = new Map<
+      string,
+      Array<{
         user: IUser;
         userId: string;
         dist: number;
@@ -415,111 +502,121 @@ export class Vote2Service {
         lat: number;
         lon: number;
         order: number;
-      }>;
-
-      for (const participant of coords) {
-        if (clusteredParticipantIds.has(participant.userId)) continue;
-
-        const distance = ClusterUtils.haversineDistance(
-          place.location.latitude,
-          place.location.longitude,
-          participant.lat,
-          participant.lon,
-        );
-
-        if (distance <= participant.eps) {
-          candidates.push({
-            user: participant.user as IUser,
-            userId: participant.userId,
-            dist: distance,
-            start: participant.start,
-            end: participant.end,
-            isBeforeResult: participant.isBeforeResult,
-            lat: participant.lat,
-            lon: participant.lon,
-            order: participant.order,
+      }>
+    >();
+    const getSortedCandidates = (place: (typeof places)[0]) => {
+      const placeId = place._id.toString();
+      if (!candidateCache.has(placeId)) {
+        const candidates = coords
+          .filter((coord) => {
+            const dist = ClusterUtils.haversineDistance(
+              place.location.latitude,
+              place.location.longitude,
+              coord.lat,
+              coord.lon,
+            );
+            return dist <= coord.eps;
+          })
+          .map((coord) => ({
+            user: coord.user as IUser,
+            userId: coord.userId,
+            dist: ClusterUtils.haversineDistance(
+              place.location.latitude,
+              place.location.longitude,
+              coord.lat,
+              coord.lon,
+            ),
+            start: coord.start,
+            end: coord.end,
+            isBeforeResult: coord.isBeforeResult,
+            lat: coord.lat,
+            lon: coord.lon,
+            order: coord.order,
+          }))
+          .sort((a, b) => {
+            const aR = reachableCount.get(a.userId) ?? 1;
+            const bR = reachableCount.get(b.userId) ?? 1;
+            if (aR !== bR) return aR - bR; // 선택지 적은 사람 우선
+            return a.dist - b.dist || a.order - b.order;
           });
-        }
+        candidateCache.set(placeId, candidates);
       }
+      return candidateCache.get(placeId)!;
+    };
 
-      // 결정성 보장: 거리↑ → userId↑
-      candidates.sort((a, b) => a.dist - b.dist || a.order - b.order);
+    // ---------- 1a) 형성 패스: 번들 단위로 최소 인원 확보 → 그룹 수 최대화 ----------
+    for (const place of sortedPlaces) {
+      const placeId = place._id.toString();
+      if (usedPlaceIds.has(placeId)) continue;
 
-      const makeGroupsAtPlace = (targetMinSize: number) => {
+      const formMinimalGroup = (targetSize: number) => {
         if (usedPlaceIds.has(placeId)) return;
-        // 남아있는 후보(배정 안 된 사람)만
-        let pool = candidates.filter(
+        const pool = getSortedCandidates(place).filter(
           (c) => !clusteredParticipantIds.has(c.userId),
         );
+        if (pool.length < targetSize) return;
 
-        // while: 이 장소에서 targetMinSize 이상 뽑을 수 있을 때 계속 만든다
-        if (pool.length >= targetMinSize) {
-          const groupMembers: typeof pool = [];
+        const groupMembers: CandItem[] = [];
 
-          // 1) 첫 멤버는 제약 없이 추가
-          const first = pool[0];
-          groupMembers.push(first);
-
-          // 2) 이후 멤버는 "그룹 내 누군가와 120분 이상 겹침"을 만족해야 추가
-          for (
-            let i = 1;
-            i < pool.length && groupMembers.length < targetMinSize;
-            i++
-          ) {
-            const cand = pool[i];
-            // 4인 우선 채우기
-            groupMembers.push(cand);
-            // if (canJoinByTime(groupMembers, cand)) {
-            //   groupMembers.push(cand);
-            // }
-          }
-
-          // targetMinSize(4 또는 3)를 못 채웠다면 종료
-          if (groupMembers.length < targetMinSize) return;
-
-          // 3) "3인 이상" 규칙: 4명이 채워졌다면(또는 3명이 채워졌다면),
-          //    남은 pool에서 시간 겹침을 만족하는 멤버를 MAX_GROUP_SIZE까지 추가 허용
-          for (
-            let i = 1;
-            i < pool.length && groupMembers.length < INITIAL_MAX_GROUP_SIZE;
-            i++
-          ) {
-            const cand = pool[i];
-            if (groupMembers.find((m) => m.userId === cand.userId)) continue;
-            if (clusteredParticipantIds.has(cand.userId)) continue;
-            if (canJoinByTime(groupMembers, cand)) {
-              groupMembers.push(cand);
-            }
-          }
-
-          // 그룹 확정
-          voteResults.push({
-            placeId: place._id.toString(),
-            members: groupMembers.map((g) => ({
-              userId: g.user,
-              start: g.start,
-              end: g.end,
-              isBeforeResult: g.isBeforeResult,
-            })),
-            // 장소 기반 center로 고정(결정성/안전)
-            center: {
-              lat: place.location.latitude,
-              lon: place.location.longitude,
-            },
-          });
-          usedPlaceIds.add(placeId);
-          // 배정 처리
-          groupMembers.forEach((g) => clusteredParticipantIds.add(g.userId));
-          // 풀에서 제거
-          const assignedSet = new Set(groupMembers.map((g) => g.userId));
-          pool = pool.filter((x) => !assignedSet.has(x.userId));
+        // 번들 단위로 추가: 같은 좌표 참여자는 반드시 함께
+        for (const bundle of toBundles(pool)) {
+          if (groupMembers.length >= targetSize) break;
+          for (const p of bundle) groupMembers.push(p);
         }
+
+        if (groupMembers.length < targetSize) return;
+
+        voteResults.push({
+          placeId,
+          members: groupMembers.map((g) => ({
+            userId: g.user,
+            start: g.start,
+            end: g.end,
+            isBeforeResult: g.isBeforeResult,
+          })) as any,
+          center: {
+            lat: place.location.latitude,
+            lon: place.location.longitude,
+          },
+        });
+        usedPlaceIds.add(placeId);
+        groupMembers.forEach((g) => clusteredParticipantIds.add(g.userId));
       };
 
-      // 5인 우선
-      makeGroupsAtPlace(standardCnt);
-      // 5인으로 못 채운 게 남아있으면 4인 이상(최소 4)으로 보조
-      makeGroupsAtPlace(4);
+      formMinimalGroup(standardCnt);
+      formMinimalGroup(4);
+    }
+
+    // ---------- 1b) 채우기 패스: 모든 그룹 확보 후 번들 단위로 6명까지 보충 ----------
+    for (const result of voteResults) {
+      if (result.members.length >= INITIAL_MAX_GROUP_SIZE) continue;
+      const place = places.find((p) => p._id.toString() === result.placeId);
+      if (!place) continue;
+
+      const pool = getSortedCandidates(place).filter(
+        (c) => !clusteredParticipantIds.has(c.userId),
+      );
+
+      for (const bundle of toBundles(pool)) {
+        if (result.members.length >= INITIAL_MAX_GROUP_SIZE) break;
+        // 번들 전체를 추가해도 cap을 넘지 않는 경우, 또는 번들이 1명인 경우만 추가
+        if (
+          result.members.length + bundle.length <= INITIAL_MAX_GROUP_SIZE ||
+          bundle.length === 1
+        ) {
+          if (canJoinByTime(result.members as any, { start: bundle[0].start, end: bundle[0].end })) {
+            for (const p of bundle) {
+              (result.members as any[]).push({
+                userId: p.user,
+                start: p.start,
+                end: p.end,
+                isBeforeResult: p.isBeforeResult,
+              });
+              clusteredParticipantIds.add(p.userId);
+            }
+          }
+        }
+      }
     }
 
     // ---------- 2) 확장 패스: eps × 1.5 ----------
@@ -649,10 +746,10 @@ export class Vote2Service {
           }
           if (group.length < targetMinSize) return;
 
-          // 3인 이상 확장 허용
+          // 3인 이상 확장 허용 (권장 최대 6명)
           for (
             let i = 1;
-            i < pool.length && group.length < FINAL_MAX_GROUP_SIZE;
+            i < pool.length && group.length < INITIAL_MAX_GROUP_SIZE;
             i++
           ) {
             const cand = pool[i];
@@ -668,7 +765,7 @@ export class Vote2Service {
               start: g.start,
               end: g.end,
               isBeforeResult: g.isBeforeResult,
-            })),
+            })) as any,
             center: {
               lat: place.location.latitude,
               lon: place.location.longitude,

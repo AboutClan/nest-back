@@ -307,6 +307,31 @@ export class MongoPlaceReposotory implements PlaceRepository {
     ]);
   }
 
+  async findForVote2(): Promise<IPlace[]> {
+    const places = await this.Place.find({
+      status: 'main',
+      'studyCafeMeta.hasGroupSeats': true,
+    }).lean();
+
+    return places.filter((place) => {
+      const ratings: any[] = Array.isArray(place.ratings) ? place.ratings : [];
+      const total = ratings.reduce(
+        (acc, cur) =>
+          acc +
+          (cur.mood ?? 0) +
+          (cur.table ?? cur.power ?? 0) +
+          (cur.space ?? 0) +
+          (cur.etc ?? 0),
+        0,
+      );
+      const totalScore =
+        ratings.length > 3
+          ? total / (ratings.length * 4)
+          : (place.rating ?? 0);
+      return totalScore >= 3.8;
+    });
+  }
+
   async test() {
     await this.Place.updateMany(
       { studyCafeMeta: { $exists: false } },
