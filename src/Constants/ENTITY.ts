@@ -153,6 +153,7 @@ export const ENTITY = {
       'block',
       'secede',
       'newUser',
+      'cafe_user',
     ] as const,
     DEFAULT_ROLE: 'newUser' as const,
 

@@ -36,6 +36,12 @@ export class RegisterController {
     return { status: 'success' };
   }
 
+  @Post('cafe')
+  async cafeRegister(@Body() registerUserDto: any) {
+    await this.registerService.registerCafe(registerUserDto);
+    return { status: 'success' };
+  }
+
   @Post('direct')
   async directRegister(@Body() registerUserDto: any) {
     await this.registerService.directRegister(registerUserDto);

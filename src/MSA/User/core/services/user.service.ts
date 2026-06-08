@@ -432,6 +432,7 @@ export class UserService {
         'resting',
         'enthusiastic',
         'secede',
+        'cafe_user',
       ].includes(role)
     )
       throw new Error();

@@ -69,6 +69,33 @@ export default class RegisterService {
     }
   }
 
+  async registerCafe(subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>) {
+    try {
+      const token = RequestContext.getDecodedToken();
+      const { telephone } = subRegisterForm;
+
+      const telephoneRegex = /^010-\d{4}-\d{4}$/;
+      if (!telephoneRegex.test(telephone)) {
+        throw new Error('Invalid telephone number');
+      }
+
+      const encodedTel = await this.encodeByAES56(telephone);
+      if (encodedTel === telephone) throw new Error('Key not exist');
+      if (encodedTel.length == 0) throw new Error('Key not exist');
+
+      await this.registerRepository.updateByUid(token.uid, {
+        ...subRegisterForm,
+        role: 'cafe_user',
+        telephone: encodedTel,
+      });
+
+      return;
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err, 500);
+    }
+  }
+
   async removeUnnecessaryUserField() {
     await this.User.updateMany(
       {},
