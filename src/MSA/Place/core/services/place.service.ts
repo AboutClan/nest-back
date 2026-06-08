@@ -248,9 +248,9 @@ export default class PlaceService {
     };
   }
 
-  async getActivePlace(status: 'main' | 'best' | 'good' | 'all') {
+  async getActivePlace() {
     try {
-      const places = await this.placeRepository.findByStatus(status);
+      const places = await this.placeRepository.findByStatus();
       // const ratings = places.map((place) =>
       //   this.calculateRating(place?.ratings),
       // );

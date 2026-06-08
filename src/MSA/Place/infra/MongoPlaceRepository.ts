@@ -42,21 +42,10 @@ export class MongoPlaceReposotory implements PlaceRepository {
     return null;
   }
 
-  async findByStatus(
-    status: 'main' | 'best' | 'good' | 'bad' | 'all',
-  ): Promise<IPlace[]> {
-    let query: any = {};
-    if (status === 'all') {
-      query = { $or: [{ status: 'main' }, { status: 'sub' }] };
-    } else if (status === 'best') {
-      query = { rating: { $gte: 4.5 } };
-    } else if (status === 'good') {
-      query = { rating: { $gte: 4.0 } };
-    } else if (status === 'bad') {
-      query = { rating: { $gte: 3.5 } };
-    } else if (status === 'main') {
-      query = { status: 'main' };
-    }
+  async findByStatus(): Promise<IPlace[]> {
+    const query = {
+      status: { $ne: 'inactive' },
+    };
 
     const defaultMeta = {
       is24Hours: false,
@@ -68,15 +57,11 @@ export class MongoPlaceReposotory implements PlaceRepository {
       hasGoodValueDrinks: false,
       hasTimeLimit: false,
     };
-
+    console.log('start', performance.now() / 1000);
     //임시로 status 제거
-    const places = await this.Place.find(query)
-      .populate({
-        path: 'registrant',
-        select: ENTITY.USER.C_SIMPLE_USER,
-      })
-      .lean();
-
+    const places = await this.Place.find(query).lean();
+    console.log('finish');
+    console.log(performance.now() / 1000);
     return places.map((place) => ({
       ...place,
       studyCafeMeta: place.studyCafeMeta ?? defaultMeta,
@@ -325,9 +310,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
         0,
       );
       const totalScore =
-        ratings.length > 3
-          ? total / (ratings.length * 4)
-          : (place.rating ?? 0);
+        ratings.length > 3 ? total / (ratings.length * 4) : (place.rating ?? 0);
       return totalScore >= 3.8;
     });
   }

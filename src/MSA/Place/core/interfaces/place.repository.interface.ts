@@ -1,7 +1,7 @@
 import { IPlace } from '../../entity/place.entity';
 
 export interface PlaceRepository {
-  findByStatus(status: string): Promise<IPlace[]>;
+  findByStatus(): Promise<IPlace[]>;
   findClosePlace(placeId: string): Promise<IPlace[]>;
   findAll(): Promise<IPlace[]>;
   createPlace(placeData: Partial<IPlace>): Promise<IPlace>;
@@ -18,7 +18,11 @@ export interface PlaceRepository {
   );
   findAllRatingsSorted(cursor: number, gap: number): Promise<any[]>;
   findWithCursor(cursor: number, gap: number): Promise<IPlace[]>;
-  updateStudyCafeMetaAndRating(placeId: string, studyCafeMeta: object, rating: number): Promise<void>;
+  updateStudyCafeMetaAndRating(
+    placeId: string,
+    studyCafeMeta: object,
+    rating: number,
+  ): Promise<void>;
   updateOperatingHoursAndStudyCafeMeta(
     placeId: string,
     operatingHours: string[][],

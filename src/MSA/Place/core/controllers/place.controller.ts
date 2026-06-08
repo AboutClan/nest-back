@@ -17,10 +17,8 @@ export class PlaceController {
   constructor(private readonly placeService: PlaceService) {}
 
   @Get()
-  async getActivePlace(
-    @Query('status') status: 'main' | 'best' | 'good' | 'all' = 'all',
-  ) {
-    const places = await this.placeService.getActivePlace(status);
+  async getActivePlace() {
+    const places = await this.placeService.getActivePlace();
     return places;
   }
 
@@ -61,7 +59,6 @@ export class PlaceController {
   @Post()
   async addPlace(@Body() placeInfo: any) {
     try {
-
       const { review: initialRating, ...placeData } = placeInfo;
 
       const places = await this.placeService.addPlace(placeData, initialRating);
