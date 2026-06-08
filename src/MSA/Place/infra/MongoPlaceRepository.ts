@@ -57,11 +57,10 @@ export class MongoPlaceReposotory implements PlaceRepository {
       hasGoodValueDrinks: false,
       hasTimeLimit: false,
     };
-    console.log('start', performance.now() / 1000);
+
     //임시로 status 제거
-    const places = await this.Place.find(query).lean();
-    console.log('finish');
-    console.log(performance.now() / 1000);
+    const places = await this.Place.find({}).lean();
+
     return places.map((place) => ({
       ...place,
       studyCafeMeta: place.studyCafeMeta ?? defaultMeta,
