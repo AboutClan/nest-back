@@ -59,7 +59,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
     };
 
     //임시로 status 제거
-    const places = await this.Place.find({}).lean();
+    const places = await this.Place.find(query).lean();
 
     return places.map((place) => ({
       ...place,
