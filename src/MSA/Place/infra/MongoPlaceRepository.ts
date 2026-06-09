@@ -314,6 +314,33 @@ export class MongoPlaceReposotory implements PlaceRepository {
     });
   }
 
+  async findByUserId(userId: string) {
+    const places = await this.Place.find({
+      $or: [{ registrant: userId }, { 'ratings.user': userId }],
+    }).lean();
+
+    const registeredPlaces = places.filter(
+      (place) => place.registrant?.toString() === userId,
+    );
+
+    const myRatings = places.flatMap((place) => {
+      const matched = (place.ratings as any[]).filter(
+        (r) => r.user?.toString() === userId,
+      );
+      return matched.map((rating) => ({
+        place: {
+          _id: place._id,
+          name: place.name,
+          image: place.image,
+          location: place.location,
+        },
+        rating,
+      }));
+    });
+
+    return { registeredPlaces, myRatings };
+  }
+
   async test() {
     await this.Place.updateMany(
       { studyCafeMeta: { $exists: false } },

@@ -54,6 +54,7 @@ export interface IUser {
   rankPosition?: Number;
   membership?: (typeof ENTITY.USER.ENUM_MEMBERSHIP)[number];
   randomTicket?: number;
+  nickname?: string;
   studyIntroduce?: studyIntroduceType;
   notificationConsent?: notificationConsentType;
 }
@@ -101,6 +102,7 @@ export class User {
     public randomTicket?: number,
     public studyIntroduce?: studyIntroduceType,
     public notificationConsent?: notificationConsentType,
+    public nickname?: string,
   ) {
     this._id = _id || '';
     this.uid = uid || '';
@@ -139,6 +141,7 @@ export class User {
     this.introduceText = introduceText || '';
     this.rank = rank || 'bronze';
     this.rankPosition = rankPosition || 0;
+    this.nickname = nickname || '';
     this.membership = membership || 'normal';
     this.randomTicket = randomTicket || 0;
     this.studyIntroduce = studyIntroduce ?? {
@@ -307,6 +310,7 @@ export class User {
       membership: this.membership,
       randomTicket: this.randomTicket,
       studyIntroduce: this.studyIntroduce,
+      nickname: this.nickname,
       notificationConsent: this.notificationConsent,
     };
   }

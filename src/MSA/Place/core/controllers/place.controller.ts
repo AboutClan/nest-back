@@ -49,6 +49,11 @@ export class PlaceController {
     return await this.placeService.getAllRatingsSorted(parseInt(cursor));
   }
 
+  @Get('my')
+  async getMyPlaceInfo() {
+    return await this.placeService.getMyPlaceInfo();
+  }
+
   @Get('all')
   async getAllPlace() {
     const places = await this.placeService.getAllPlace();

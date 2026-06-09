@@ -119,7 +119,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`User not found: ${token.uid}`);
     }
-
+    console.log(51, user);
     // 2) 도메인 → 순수 JS 객체
     const data = user.toPrimitives();
 
@@ -139,6 +139,10 @@ export class UserService {
     }
 
     return picked;
+  }
+
+  async getAllNicknames() {
+    return await this.UserRepository.findAllNicknames();
   }
 
   async getSimpleUserInfo() {
@@ -1185,10 +1189,22 @@ export class UserService {
     const TEMP_PENALTY_PER_MONTH = 0.2;
 
     const TARGET_MONTHS = [
-      { start: new Date('2026-02-01T00:00:00+09:00'), end: new Date('2026-03-01T00:00:00+09:00') },
-      { start: new Date('2026-03-01T00:00:00+09:00'), end: new Date('2026-04-01T00:00:00+09:00') },
-      { start: new Date('2026-04-01T00:00:00+09:00'), end: new Date('2026-05-01T00:00:00+09:00') },
-      { start: new Date('2026-05-01T00:00:00+09:00'), end: new Date('2026-06-01T00:00:00+09:00') },
+      {
+        start: new Date('2026-02-01T00:00:00+09:00'),
+        end: new Date('2026-03-01T00:00:00+09:00'),
+      },
+      {
+        start: new Date('2026-03-01T00:00:00+09:00'),
+        end: new Date('2026-04-01T00:00:00+09:00'),
+      },
+      {
+        start: new Date('2026-04-01T00:00:00+09:00'),
+        end: new Date('2026-05-01T00:00:00+09:00'),
+      },
+      {
+        start: new Date('2026-05-01T00:00:00+09:00'),
+        end: new Date('2026-06-01T00:00:00+09:00'),
+      },
     ];
 
     const allLogs = await this.LogTemperatureRepository.findTemperatureByPeriod(
@@ -1225,7 +1241,9 @@ export class UserService {
 
       const factor = Math.pow(1 - Math.exp(-0.07 * cnt), 1.3);
       const sumPenaltyPerMonth =
-        cnt > 0 && factor > 0 ? (TEMP_PENALTY_PER_MONTH * cnt) / (2.2 * factor) : 0;
+        cnt > 0 && factor > 0
+          ? (TEMP_PENALTY_PER_MONTH * cnt) / (2.2 * factor)
+          : 0;
       const newSum = sum - inactiveCount * sumPenaltyPerMonth;
 
       let newDelta = 0;

@@ -31,6 +31,7 @@ export const RegisteredZodSchema = z.object({
   telephone: z.string(),
   locationDetail: locationDetailZodSchema.optional(),
   introduceText: z.string(),
+  nickname: z.string().optional(),
 });
 
 export type IMajor = z.infer<typeof MajorZodSchema>;

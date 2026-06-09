@@ -54,6 +54,11 @@ export class UserController {
     return isActive;
   }
 
+  @Get('nicknames')
+  async getAllNicknames() {
+    return await this.userService.getAllNicknames();
+  }
+
   @Get('simple')
   async getSimple() {
     const simpleUserInfo = await this.userService.getSimpleUserInfo();

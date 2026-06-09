@@ -559,6 +559,11 @@ export default class PlaceService {
     return;
   }
 
+  async getMyPlaceInfo() {
+    const token = RequestContext.getDecodedToken();
+    return await this.placeRepository.findByUserId(token.id as string);
+  }
+
   async updatePrefCnt(placeId: string, num: number) {
     await this.placeRepository.updatePrefCnt(placeId, num);
     return;

@@ -34,5 +34,6 @@ export interface PlaceRepository {
   ): Promise<void>;
   migrateRatingTableToPower(): Promise<void>;
   findForVote2(): Promise<IPlace[]>;
+  findByUserId(userId: string): Promise<{ registeredPlaces: IPlace[]; myRatings: { place: Partial<IPlace>; rating: any }[] }>;
   test();
 }

@@ -175,6 +175,7 @@ export const userZodSchema = z.object({
 
 export interface IUser extends Document, IRegistered {
   _id: string;
+  nickname?: string;
   registerDate: string;
   isActive?: boolean;
   point: number;
@@ -521,6 +522,9 @@ export const UserSchema: Schema<IUser> = new Schema({
   randomTicket: {
     type: Number,
     default: 0,
+  },
+  nickname: {
+    type: String,
   },
 });
 

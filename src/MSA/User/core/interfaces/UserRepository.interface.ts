@@ -40,4 +40,5 @@ export interface IUserRepository {
   initMembership(): Promise<null>;
   findUsersWithNegativeGroupStudyTicket(): Promise<import('../domain/User/User').User[]>;
   resetNegativePoint(): Promise<void>;
+  findAllNicknames(): Promise<string[]>;
 }

@@ -69,7 +69,9 @@ export default class RegisterService {
     }
   }
 
-  async registerCafe(subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>) {
+  async registerCafe(
+    subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>,
+  ) {
     try {
       const token = RequestContext.getDecodedToken();
       const { telephone } = subRegisterForm;
@@ -87,6 +89,10 @@ export default class RegisterService {
         ...subRegisterForm,
         role: 'cafe_user',
         telephone: encodedTel,
+        avatar: {
+          type: 0,
+          bg: 0,
+        },
       });
 
       return;
@@ -112,7 +118,9 @@ export default class RegisterService {
     );
   }
 
-  async directRegister(subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>) {
+  async directRegister(
+    subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>,
+  ) {
     const token = RequestContext.getDecodedToken();
     const uid = token.uid;
     const { telephone } = subRegisterForm;
@@ -142,7 +150,10 @@ export default class RegisterService {
       membership: 'newbie',
     };
 
-    await this.User.findOneAndUpdate({ uid }, userForm, { upsert: true, new: true });
+    await this.User.findOneAndUpdate({ uid }, userForm, {
+      upsert: true,
+      new: true,
+    });
     await this.removeUnnecessaryUserField();
   }
 

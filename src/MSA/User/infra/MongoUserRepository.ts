@@ -51,6 +51,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async updateUser(uid: string, updateInfo: any): Promise<null> {
+    console.log(14, updateInfo);
     await this.UserModel.findOneAndUpdate(
       { uid },
       { $set: updateInfo },
@@ -451,15 +452,19 @@ export class UserRepository implements IUserRepository {
     return null;
   }
 
-  async resetNegativePoint(): Promise<void> {
-   
-  }
+  async resetNegativePoint(): Promise<void> {}
 
   async findUsersWithNegativeGroupStudyTicket(): Promise<User[]> {
     const users = await this.UserModel.find({
       'ticket.groupStudyTicket': { $lt: 0 },
     });
     return users.map((user) => this.mapToDomain(user));
+  }
+
+  async findAllNicknames(): Promise<string[]> {
+    return this.UserModel.distinct('nickname', {
+      nickname: { $exists: true, $nin: [null, ''] },
+    });
   }
 
   async findAllForPrize() {
@@ -573,6 +578,7 @@ export class UserRepository implements IUserRepository {
       doc?.randomTicket,
       parseStudyIntroduce(doc?.studyIntroduce),
       notificationConsent,
+      doc?.nickname,
     );
   }
 
@@ -621,6 +627,7 @@ export class UserRepository implements IUserRepository {
     if (p.introduceText !== null) result.introduceText = p.introduceText || '';
     if (p.rank !== null) result.rank = p.rank;
     if (p.rankPosition !== null) result.rankPosition = p.rankPosition;
+    if (p.nickname !== null) result.nickname = p.nickname;
 
     if (result.studyPreference?.place?.length === 0)
       result.studyPreference.place = null;
