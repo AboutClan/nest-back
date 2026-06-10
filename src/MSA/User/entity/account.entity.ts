@@ -52,6 +52,8 @@ export const AccountSchema: Schema<IAccount> = new Schema({
   },
 });
 
+AccountSchema.index({ provider: 1, providerAccountId: 1 }, { unique: true });
+
 export const Account =
   (mongoose.models.Account as Model<IAccount, {}, {}, {}>) ||
   model<IAccount>(DB_SCHEMA.ACCOUNT, AccountSchema);

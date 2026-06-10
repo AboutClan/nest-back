@@ -166,50 +166,30 @@ export class AuthService {
                     DEFAULT_PROFILE_IMAGE,
                 location: findUser.location ?? DEFAULT_LOCATION,
             };
-
-            const existingAccount = await Account.findOne({
-                provider,
-                providerAccountId: profile.uid,
-            });
-
-            if (!existingAccount) {
-                await Account.findOneAndUpdate(
-                    { provider, providerAccountId: profile.uid },
-                    {
-                        $setOnInsert: {
-                            userId: findUser._id,
-                            provider,
-                            providerAccountId: profile.uid,
-                            type: 'oauth',
-                            access_token: tokens.access_token,
-                            refresh_token: tokens.refresh_token ?? '',
-                            expires_at: tokens.expires_at,
-                            token_type: tokens.token_type ?? 'bearer',
-                            scope: tokens.scope ?? '',
-                            refresh_token_expires_in:
-                                tokens.refresh_token_expires_in ?? 0,
-                        },
-                        $set: {
-                            access_token: tokens.access_token,
-                            refresh_token: tokens.refresh_token,
-                            expires_at: tokens.expires_at,
-                        },
-                    },
-                    { upsert: true, new: true },
-                );
-            } else {
-                await Account.updateOne(
-                    { provider, providerAccountId: profile.uid },
-                    {
-                        $set: {
-                            access_token: tokens.access_token,
-                            refresh_token: tokens.refresh_token,
-                            expires_at: tokens.expires_at,
-                        },
-                    },
-                );
-            }
         }
+
+        // findOne 확인 후 upsert 분리 제거 → 단일 원자적 upsert
+        await Account.findOneAndUpdate(
+            { provider, providerAccountId: profile.uid },
+            {
+                $setOnInsert: {
+                    userId: findUser?._id ?? null,
+                    provider,
+                    providerAccountId: profile.uid,
+                    type: 'oauth',
+                    token_type: tokens.token_type ?? 'bearer',
+                    scope: tokens.scope ?? '',
+                    refresh_token_expires_in:
+                        tokens.refresh_token_expires_in ?? 0,
+                },
+                $set: {
+                    access_token: tokens.access_token,
+                    refresh_token: tokens.refresh_token ?? '',
+                    expires_at: tokens.expires_at,
+                },
+            },
+            { upsert: true, new: true },
+        );
 
         return result;
     }
