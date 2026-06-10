@@ -74,6 +74,7 @@ export default class RegisterService {
   ) {
     try {
       const token = RequestContext.getDecodedToken();
+      const uid = token.uid;
       const { telephone } = subRegisterForm;
 
       const telephoneRegex = /^010-\d{4}-\d{4}$/;
@@ -85,15 +86,22 @@ export default class RegisterService {
       if (encodedTel === telephone) throw new Error('Key not exist');
       if (encodedTel.length == 0) throw new Error('Key not exist');
 
-      await this.registerRepository.updateByUid(token.uid, {
+      const userForm = {
         ...subRegisterForm,
-        role: 'cafe_user',
+        uid,
         telephone: encodedTel,
-        avatar: {
-          type: 0,
-          bg: 0,
-        },
+        role: 'cafe_user',
+        registerDate: DateUtils.getTodayYYYYMMDD(),
+        isActive: true,
+        point: 0,
+        avatar: { type: 0, bg: 0 },
+      };
+
+      await this.User.findOneAndUpdate({ uid }, userForm, {
+        upsert: true,
+        new: true,
       });
+      await this.removeUnnecessaryUserField();
 
       return;
     } catch (err) {
