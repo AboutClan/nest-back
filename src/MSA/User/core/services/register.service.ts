@@ -96,7 +96,7 @@ export default class RegisterService {
         point: 0,
         avatar: { type: 0, bg: 0 },
       };
-
+      console.log(35, userForm);
       await this.User.findOneAndUpdate({ uid }, userForm, {
         upsert: true,
         new: true,
