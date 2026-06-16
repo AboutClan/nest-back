@@ -564,6 +564,10 @@ export default class PlaceService {
     return await this.placeRepository.findByUserId(token.id as string);
   }
 
+  async getTopRankedPlaces() {
+    return await this.placeRepository.findTopRanked(100);
+  }
+
   async updatePrefCnt(placeId: string, num: number) {
     await this.placeRepository.updatePrefCnt(placeId, num);
     return;

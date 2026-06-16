@@ -298,6 +298,51 @@ export class MongoPlaceReposotory implements PlaceRepository {
     return places;
   }
 
+  async findTopRanked(
+    limit: number,
+  ): Promise<{ place: IPlace; totalScore: number }[]> {
+    const results = await this.Place.aggregate([
+      {
+        $match: {
+          $expr: { $gte: [{ $size: { $ifNull: ['$ratings', []] } }, 2] },
+        },
+      },
+      {
+        $addFields: {
+          totalScore: {
+            $divide: [
+              {
+                $reduce: {
+                  input: '$ratings',
+                  initialValue: 0,
+                  in: {
+                    $add: [
+                      '$$value',
+                      {
+                        $add: [
+                          { $ifNull: ['$$this.mood', 0] },
+                          { $ifNull: ['$$this.power', 0] },
+                          { $ifNull: ['$$this.space', 0] },
+                          { $ifNull: ['$$this.etc', 0] },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+              { $multiply: [{ $size: '$ratings' }, 4] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalScore: -1 } },
+      { $limit: limit },
+      { $project: { place: '$$ROOT', totalScore: 1 } },
+    ]);
+
+    return results.map((r) => ({ place: r.place, totalScore: r.totalScore }));
+  }
+
   async findByUserId(userId: string) {
     const places = await this.Place.find({
       $or: [{ registrant: userId }, { 'ratings.user': userId }],

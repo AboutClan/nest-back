@@ -22,6 +22,11 @@ export class PlaceController {
     return places;
   }
 
+  @Get('ranking')
+  async getTopRankedPlaces() {
+    return await this.placeService.getTopRankedPlaces();
+  }
+
   @Get('one')
   async getNeatStudyPlace(@Query('placeId') placeId: string) {
     const places = await this.placeService.getNearPlace(placeId);
