@@ -124,11 +124,13 @@ export class GatherRepository implements IGatherRepository {
   }
 
   async findThree(): Promise<Gather[] | null> {
+    const temp = await this.Gather.findOne({ id: 5019 });
+
     const gatherData1 = await this.Gather.find({
       status: { $nin: ['close', 'end'] },
     })
       .sort({ createdAt: -1 })
-      .limit(6)
+      .limit(5)
       .populate({
         path: 'user',
         select: ENTITY.USER.C_MINI_USER,
@@ -177,7 +179,7 @@ export class GatherRepository implements IGatherRepository {
       });
 
     return [
-      ...gatherData1
+      ...[temp, ...gatherData1]
         .slice(0, 6)
         .concat(Array(Math.max(0, 6 - gatherData1.length)).fill(null)),
       ...gatherData2
