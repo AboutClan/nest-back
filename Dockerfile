@@ -1,5 +1,5 @@
 # 1. Use the specific Node.js version as the base image
-FROM node:20.9.0 AS builder
+FROM public.ecr.aws/docker/library/node:20.9.0 AS builder
 
 # 2. Set working directory inside the container
 WORKDIR /app
@@ -18,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # 7. Production image
-FROM node:20.11.0 AS production
+FROM public.ecr.aws/docker/library/node:20.11.0 AS production
 
 USER root
 
