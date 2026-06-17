@@ -6,7 +6,13 @@
       "Bash(Format-Table)",
       "Bash(xargs grep -l \"date.*valid\\\\|date.*check\\\\|invite\")",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Desktop\\\\당근\\\\개발\\\\nest-back\\\\src\\\\MSA\\\\Gather\" -Recurse -Filter \"*.repository.ts\")",
-      "Bash(Select-Object FullName)"
+      "Bash(Select-Object FullName)",
+      "Bash(git log *)",
+      "Bash(xargs grep -l \"isActive.*false\")",
+      "Bash(grep -r \"Redirect\\\\|Response\\\\|res\\\\\\\\.redirect\" src/MSA/Auth/ --include=\"*.ts\")",
+      "Bash(npx tsc *)",
+      "Bash(xargs grep -n \"isNewUser\\\\|newUser\")",
+      "Bash(xargs cat)"
     ]
   }
 }

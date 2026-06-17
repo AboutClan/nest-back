@@ -75,21 +75,21 @@ export default class RegisterService {
     try {
       const token = RequestContext.getDecodedToken();
       const uid = token.uid;
-      const { telephone } = subRegisterForm;
+      // const { telephone } = subRegisterForm;
 
-      const telephoneRegex = /^010-\d{4}-\d{4}$/;
-      if (!telephoneRegex.test(telephone)) {
-        throw new Error('Invalid telephone number');
-      }
+      // const telephoneRegex = /^010-\d{4}-\d{4}$/;
+      // if (!telephoneRegex.test(telephone)) {
+      //   throw new Error('Invalid telephone number');
+      // }
 
-      const encodedTel = await this.encodeByAES56(telephone);
-      if (encodedTel === telephone) throw new Error('Key not exist');
-      if (encodedTel.length == 0) throw new Error('Key not exist');
+      // const encodedTel = await this.encodeByAES56(telephone);
+      // if (encodedTel === telephone) throw new Error('Key not exist');
+      // if (encodedTel.length == 0) throw new Error('Key not exist');
 
       const userForm = {
         ...subRegisterForm,
         uid,
-        telephone: encodedTel,
+        // telephone: encodedTel,
         role: 'cafe_user',
         registerDate: DateUtils.getTodayYYYYMMDD(),
         isActive: true,
