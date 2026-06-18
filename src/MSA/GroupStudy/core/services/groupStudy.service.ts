@@ -654,15 +654,16 @@ export default class GroupStudyService {
 
     //ticket 차감 로직
     const ticketInfo = await this.userServiceInstance.getTicketInfo(user._id);
-    if (ticketInfo.groupStudyTicket <= 0) throw new Error('no ticket');
+    if (ticketInfo.groupStudyTicket > 0) {
+      await this.userServiceInstance.updateReduceTicket(
+        'group',
+        user._id,
+        -groupStudy.requiredTicket,
+      );
+    }
 
     groupStudy.participateGroupStudy(user._id, 'member');
 
-    await this.userServiceInstance.updateReduceTicket(
-      'group',
-      user._id,
-      -groupStudy.requiredTicket,
-    );
     await this.groupStudyRepository.save(groupStudy);
 
     return;

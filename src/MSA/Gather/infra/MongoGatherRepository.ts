@@ -148,7 +148,7 @@ export class GatherRepository implements IGatherRepository {
       $expr: {
         $gte: [
           { $divide: [{ $size: '$participants' }, '$memberCnt.max'] },
-          0.6,
+          0.5,
         ],
       },
     })
@@ -162,7 +162,7 @@ export class GatherRepository implements IGatherRepository {
         path: 'participants.user',
         select: ENTITY.USER.C_MINI_USER,
       });
-
+    console.log(gatherData2, gatherData2.length);
     const gatherData3 = await this.Gather.find({
       'participants.11': { $exists: true },
       _id: { $nin: excludeIds },
@@ -178,10 +178,9 @@ export class GatherRepository implements IGatherRepository {
         select: ENTITY.USER.C_MINI_USER,
       });
 
+    const group1 = [temp, ...gatherData1].slice(0, 6);
     return [
-      ...[temp, ...gatherData1]
-        .slice(0, 6)
-        .concat(Array(Math.max(0, 6 - gatherData1.length)).fill(null)),
+      ...group1.concat(Array(Math.max(0, 6 - group1.length)).fill(null)),
       ...gatherData2
         .slice(0, 6)
         .concat(Array(Math.max(0, 6 - gatherData2.length)).fill(null)),
