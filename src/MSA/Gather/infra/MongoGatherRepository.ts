@@ -124,7 +124,15 @@ export class GatherRepository implements IGatherRepository {
   }
 
   async findThree(): Promise<Gather[] | null> {
-    const temp = await this.Gather.findOne({ id: 5019 });
+    const temp = await this.Gather.findOne({ id: 5019 })
+      .populate({
+        path: 'user',
+        select: ENTITY.USER.C_MINI_USER,
+      })
+      .populate({
+        path: 'participants.user',
+        select: ENTITY.USER.C_MINI_USER,
+      });
 
     const gatherData1 = await this.Gather.find({
       status: { $nin: ['close', 'end'] },
