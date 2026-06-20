@@ -36,5 +36,7 @@ export interface PlaceRepository {
   findForVote2(): Promise<IPlace[]>;
   findByUserId(userId: string): Promise<{ registeredPlaces: IPlace[]; myRatings: { place: Partial<IPlace>; rating: any }[] }>;
   findTopRanked(limit: number): Promise<{ place: IPlace; totalScore: number }[]>;
+  toggleLike(placeId: string, userId: string): Promise<{ liked: boolean }>;
+  findLikesAndPicks(userId: string, userName: string): Promise<{ likes: IPlace[]; picks: IPlace[] }>;
   test();
 }

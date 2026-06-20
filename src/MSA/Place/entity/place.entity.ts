@@ -51,6 +51,7 @@ export const PlaceZodSchema = z.object({
   _id: z.string().optional(),
   name: z.string().optional(),
   pick: z.string().optional(),
+  likes: z.array(z.union([z.string(), z.custom<mongoose.Types.ObjectId>()])).optional().default([]),
   studyCafeMeta: studyCafeMetaZodSchema.optional(),
 });
 
@@ -159,6 +160,11 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
   },
   ratings: {
     type: [ratingSchema],
+    default: [],
+  },
+  likes: {
+    type: [Schema.Types.ObjectId],
+    ref: DB_SCHEMA.USER,
     default: [],
   },
   studyCafeMeta: {

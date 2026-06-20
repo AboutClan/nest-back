@@ -59,6 +59,16 @@ export class PlaceController {
     return await this.placeService.getMyPlaceInfo();
   }
 
+  @Get('my-favorites')
+  async getMyLikesAndPicks() {
+    return await this.placeService.getMyLikesAndPicks();
+  }
+
+  @Post('like')
+  async toggleLike(@Body('placeId') placeId: string) {
+    return await this.placeService.toggleLike(placeId);
+  }
+
   @Get('all')
   async getAllPlace() {
     const places = await this.placeService.getAllPlace();

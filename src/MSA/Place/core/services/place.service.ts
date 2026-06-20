@@ -621,6 +621,19 @@ export default class PlaceService {
     return { mood, power, space, etc, userList };
   }
 
+  async toggleLike(placeId: string) {
+    const token = RequestContext.getDecodedToken();
+    return await this.placeRepository.toggleLike(placeId, token.id as string);
+  }
+
+  async getMyLikesAndPicks() {
+    const token = RequestContext.getDecodedToken();
+    return await this.placeRepository.findLikesAndPicks(
+      token.id as string,
+      token.name as string,
+    );
+  }
+
   async migrateRatingTableToPower() {
     await this.placeRepository.migrateRatingTableToPower();
   }

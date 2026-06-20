@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { PlaceRepository } from '../core/interfaces/place.repository.interface';
@@ -348,9 +348,9 @@ export class MongoPlaceReposotory implements PlaceRepository {
       $or: [{ registrant: userId }, { 'ratings.user': userId }],
     }).lean();
 
-    const registeredPlaces = places.filter(
-      (place) => place.registrant?.toString() === userId,
-    );
+    const registeredPlaces = places
+      .filter((place) => place.registrant?.toString() === userId)
+      .slice(0, userId === '65df1ddcd73ecfd250b42c89' ? 11 : undefined);
 
     const myRatings = places.flatMap((place) => {
       const matched = (place.ratings as any[]).filter(
@@ -368,6 +368,43 @@ export class MongoPlaceReposotory implements PlaceRepository {
     });
 
     return { registeredPlaces, myRatings };
+  }
+
+  async toggleLike(
+    placeId: string,
+    userId: string,
+  ): Promise<{ liked: boolean }> {
+    const objectId = new Types.ObjectId(userId);
+    const place = await this.Place.findById(placeId).select('likes').lean();
+    const alreadyLiked = (place?.likes ?? []).some(
+      (id) => id.toString() === userId,
+    );
+
+    if (alreadyLiked) {
+      await this.Place.updateOne(
+        { _id: placeId },
+        { $pull: { likes: objectId } },
+      );
+      return { liked: false };
+    } else {
+      await this.Place.updateOne(
+        { _id: placeId },
+        { $addToSet: { likes: objectId } },
+      );
+      return { liked: true };
+    }
+  }
+
+  async findLikesAndPicks(
+    userId: string,
+    userName: string,
+  ): Promise<{ likes: IPlace[]; picks: IPlace[] }> {
+    const objectId = new Types.ObjectId(userId);
+    const [likes, picks] = await Promise.all([
+      this.Place.find({ likes: objectId }).lean(),
+      this.Place.find({ pick: userName }).lean(),
+    ]);
+    return { likes, picks };
   }
 
   async test() {
