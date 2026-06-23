@@ -86,11 +86,11 @@ export class GatherService {
 
     return gatherData;
   }
-
   async getGather(
     cursor: number | null,
     category: '모집중' | '마감 임박' | '인기 모임' | null,
     sortBy: 'createdAt' | 'date' | 'basic',
+    mode?: 'future' | 'past',
   ) {
     const query =
       category === '모집중'
@@ -100,8 +100,8 @@ export class GatherService {
               status: 'pending',
               $expr: {
                 $gt: [
-                  { $size: '$participants' }, // participants 배열 길이
-                  { $subtract: ['$memberCnt.max', 4] }, // memberCnt.max - 3
+                  { $size: '$participants' },
+                  { $subtract: ['$memberCnt.max', 4] },
                 ],
               },
             }
@@ -110,53 +110,29 @@ export class GatherService {
                 'participants.8': { $exists: true },
               }
             : {};
-    console.log(query, sortBy, cursor);
+
     if (sortBy === 'basic') {
       const todayMidnightKST = dayjs().startOf('day').toISOString();
-      const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
 
-      if (cursor <= 1 && category !== '인기 모임') {
-        const futureResult = await this.gatherRepository.findWithQueryPop(
+      if (mode !== 'past' && category !== '인기 모임') {
+        const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
+        return await this.gatherRepository.findWithQueryPop(
           futureQuery,
           cursor,
           { date: 1 },
           true,
         );
-
-        return futureResult;
-
-        // const futureCount = futureResult.length;
-
-        // if (futureCount === 15) return futureResult;
-
-        // const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
-        // const pastResult = (
-        //   await this.gatherRepository.findWithQueryPop(pastQuery, cursor, {
-        //     date: -1,
-        //   })
-        // ).slice(0, 15 - futureCount);
-
-        // return [...futureResult, ...pastResult];
       } else {
         const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
-        const pastResult = await this.gatherRepository.findWithQueryPop(
+        return await this.gatherRepository.findWithQueryPop(
           pastQuery,
-          cursor - (category !== '인기 모임' ? 1 : 0),
+          cursor,
           { date: -1 },
         );
-
-        return [...pastResult];
       }
     } else {
       const sortOption: { [key: string]: any } = { [sortBy]: -1 };
-
-      const gatherData = await this.gatherRepository.findWithQueryPop(
-        query,
-        cursor,
-        sortOption,
-      );
-
-      return gatherData;
+      return await this.gatherRepository.findWithQueryPop(query, cursor, sortOption);
     }
   }
 

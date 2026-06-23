@@ -344,6 +344,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async findByUserId(userId: string) {
+ 
     const places = await this.Place.find({
       $or: [{ registrant: userId }, { 'ratings.user': userId }],
     }).lean();

@@ -561,6 +561,7 @@ export default class PlaceService {
 
   async getMyPlaceInfo() {
     const token = RequestContext.getDecodedToken();
+    
     return await this.placeRepository.findByUserId(token.id as string);
   }
 

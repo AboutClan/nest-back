@@ -33,7 +33,8 @@ export class GatherController {
     @Query('cursor') cursor?: string,
     @Query('gatherId') gatherId?: string,
     @Query('category') category?: '모집중' | '마감 임박' | '인기 모임' | null,
-    @Query('sortBy') sortBy?: 'createdAt' | 'date',
+    @Query('sortBy') sortBy?: 'createdAt' | 'date' | 'basic',
+    @Query('mode') mode?: 'future' | 'past',
   ) {
     const cursorNum = cursor ? parseInt(cursor) : null;
     const gatherIdNum = gatherId ? parseInt(gatherId) : null;
@@ -42,7 +43,7 @@ export class GatherController {
     } else if (cursorNum === -1) {
       return await this.gatherService.getThreeGather();
     } else {
-      return await this.gatherService.getGather(cursorNum, category, sortBy);
+      return await this.gatherService.getGather(cursorNum, category, sortBy, mode);
     }
   }
 

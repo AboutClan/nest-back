@@ -12,7 +12,8 @@
       "Bash(grep -r \"Redirect\\\\|Response\\\\|res\\\\\\\\.redirect\" src/MSA/Auth/ --include=\"*.ts\")",
       "Bash(npx tsc *)",
       "Bash(xargs grep -n \"isNewUser\\\\|newUser\")",
-      "Bash(xargs cat)"
+      "Bash(xargs cat)",
+      "Bash(git restore *)"
     ]
   }
 }

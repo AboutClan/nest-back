@@ -119,7 +119,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`User not found: ${token.uid}`);
     }
-    console.log(51, user);
+  
     // 2) 도메인 → 순수 JS 객체
     const data = user.toPrimitives();
 
@@ -1115,7 +1115,7 @@ export class UserService {
   }
 
   async processTemperatureReset() {
-    console.log('SUC');
+  
     const d = dayjs().tz('Asia/Seoul');
     const logs = await this.LogTemperatureRepository.findTemperatureByPeriod(
       d.subtract(2, 'year').startOf('month').toDate(),
@@ -1142,7 +1142,7 @@ export class UserService {
       );
       await this.UserRepository.save(user);
     }
-    console.log('COMPLETED');
+  
   }
 
   async processTemperatureForUid(uid: string): Promise<void> {
@@ -1165,13 +1165,10 @@ export class UserService {
       return;
     }
 
-    console.log('TT', userTemp.score, userTemp.cnt);
+  
     const addTemp = this.calculateScore(userTemp.score, userTemp.cnt);
 
-    console.log('add', addTemp);
-    console.log(
-      `[${uid}] score=${userTemp.score} cnt=${userTemp.cnt} addTemp=${addTemp}`,
-    );
+   
 
     user.setTemperature(
       Math.ceil(addTemp * 10) / 10,
