@@ -110,12 +110,12 @@ export class GatherService {
                 'participants.8': { $exists: true },
               }
             : {};
-
+    console.log(query, sortBy, cursor);
     if (sortBy === 'basic') {
       const todayMidnightKST = dayjs().startOf('day').toISOString();
       const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
 
-      if (cursor === 0 && category !== '인기 모임') {
+      if (cursor <= 1 && category !== '인기 모임') {
         const futureResult = await this.gatherRepository.findWithQueryPop(
           futureQuery,
           cursor,
@@ -506,12 +506,12 @@ export class GatherService {
     );
 
     if (userId) {
-      await this.fcmServiceInstance.sendNotificationToXWithId(
-        userId,
-        WEBPUSH_MSG.GATHER.TITLE,
-        WEBPUSH_MSG.GATHER.INVITE(gather.title),
-        `/gather/${gather.id}`,
-      );
+      // await this.fcmServiceInstance.sendNotificationToXWithId(
+      //   userId,
+      //   WEBPUSH_MSG.GATHER.TITLE,
+      //   WEBPUSH_MSG.GATHER.INVITE(gather.title),
+      //   `/gather/${gather.id}`,
+      // );
     }
 
     return;
