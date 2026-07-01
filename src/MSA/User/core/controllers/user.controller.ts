@@ -167,6 +167,7 @@ export class UserController {
   @Get('profile/:userId')
   async getUserByUserId(@Param('userId') userId: string) {
     const isActive = await this.userService.getUserWithUserId(userId);
+
     return isActive;
   }
   @Get('profile/uid/:uid')

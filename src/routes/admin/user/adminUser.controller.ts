@@ -116,9 +116,33 @@ export class AdminUserController {
     }
   }
 
-  // @Get('/test')
-  // async resetAllUserRoles(@Res() res: Response) {
-  //   await this.adminUserService.resetAllUserRoles('human');
-  //   return res.status(200).end();
-  // }
+  @Post('/run/monthly-ticket-attend')
+  async runMonthlyTicketAndAttend(@Res() res: Response) {
+    const result = await this.adminUserService.runMonthlyTicketAndAttend();
+    return res.status(200).json(result);
+  }
+
+  @Post('/recover/groupstudy-ticket-points')
+  async recoverGroupStudyTicketPoints(@Res() res: Response) {
+    const result =
+      await this.adminUserService.recoverGroupStudyTicketPoints();
+    return res.status(200).json(result);
+  }
+
+  @Post('/rollback/groupstudy-ticket-points')
+  async rollbackGroupStudyTicketPoints(@Res() res: Response) {
+    const result =
+      await this.adminUserService.rollbackGroupStudyTicketPoints();
+    return res.status(200).json(result);
+  }
+
+  @Get('/test/schedule/:userId')
+  async testSchedule(
+    @Param('userId') userId: string,
+    @Res() res: Response,
+  ) {
+    const result =
+      await this.adminUserService.testProcessScheduleForUser(userId);
+    return res.status(200).json(result);
+  }
 }

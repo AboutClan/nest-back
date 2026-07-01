@@ -1006,25 +1006,59 @@ export default class GroupStudyService {
       }
 
       const reduceTicketJobs = groupStudies.flatMap((group) => {
-        if (group.status === 'end') return [];
+        if (group.status !== 'pending') return [];
 
         return group.participants.map(async (par) => {
-          const requiredTicket =
-            group?.requiredTicket - (par.role === 'member' ? 0 : 1);
+          if (!par?.user) return;
 
-          const updatedTicket =
-            await this.userServiceInstance.updateReduceTicket(
-              'group',
-              par?.user,
-              -requiredTicket,
+          try {
+            const isMember =
+              (par.role as string) === 'regularMember' || par.role === 'admin';
+            const requiredTicket = isMember
+              ? group.requiredTicket - 1
+              : group.requiredTicket;
+
+            const ticketInfo = await this.userServiceInstance.getTicketInfo(
+              par?.user?.toString(),
             );
+            const currentTicket = ticketInfo?.groupStudyTicket ?? 0;
+            const actualDeduct = Math.min(
+              requiredTicket,
+              Math.max(0, currentTicket),
+            );
+            const deficit = requiredTicket - actualDeduct;
 
-          if (updatedTicket < 0) {
-            await this.userServiceInstance.updatePoint(
-              -requiredTicket * 1000,
-              '소모임 참여 차감',
-              'groupStudy',
-              par?.user,
+            if (actualDeduct > 0) {
+              await this.userServiceInstance.updateReduceTicket(
+                'group',
+                par?.user,
+                -actualDeduct,
+              );
+            }
+
+            if (deficit > 0) {
+              const userInfo =
+                await this.userServiceInstance.getUserWithUserId(
+                  par?.user?.toString(),
+                );
+              const currentPoint = userInfo?.point ?? 0;
+              const deductAmount = Math.min(
+                deficit * 1000,
+                Math.max(0, currentPoint),
+              );
+
+              if (deductAmount > 0) {
+                await this.userServiceInstance.updatePointById(
+                  -deductAmount,
+                  '소모임 참여 차감',
+                  'groupStudy',
+                  par?.user?.toString(),
+                );
+              }
+            }
+          } catch (err) {
+            console.error(
+              `processGroupStudyAttend skip: group=${group.id} user=${par?.user} err=${err?.message}`,
             );
           }
         });
