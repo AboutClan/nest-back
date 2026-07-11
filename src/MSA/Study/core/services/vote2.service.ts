@@ -865,18 +865,23 @@ export class Vote2Service {
     const yesterday = DateUtils.getYesterdayYYYYMMDD();
     const vote = await this.Vote2Repository.findByDate(yesterday, false);
     if (!vote) return;
-    const results = vote.results;
 
-    const members = results.flatMap((result) => result.members);
+    for (const result of vote.results) {
+      const members = result.members;
+      const arrivedCount = members.filter((m) => m.arrived).length;
 
-    for (const member of members) {
-      if (!member.arrived && !member.absence) {
-        await this.userServiceInstance.updatePointById(
-          CONST.POINT.ABSENCE_FEE,
-          '스터디 무단 불참 벌금',
-          '',
-          member.userId.toString(),
-        );
+      // 절반 미만 참석 = 합의 취소, 벌금 없음
+      if (arrivedCount * 2 < members.length) continue;
+
+      for (const member of members) {
+        if (!member.arrived && !member.absence) {
+          await this.userServiceInstance.updatePointById(
+            CONST.POINT.ABSENCE_FEE,
+            '스터디 무단 불참 벌금',
+            '',
+            member.userId.toString(),
+          );
+        }
       }
     }
   }

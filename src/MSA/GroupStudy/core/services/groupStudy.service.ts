@@ -9,7 +9,7 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 import {
   GroupStudy,
-  GroupStudyProps,
+  GroupStudyProps
 } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 import { ILogTemperatureRepository } from 'src/MSA/User/core/interfaces/LogTemperature.interface';
 import { UserService } from 'src/MSA/User/core/services/user.service';
@@ -21,7 +21,7 @@ import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
-  ILOG_TEMPERATURE_REPOSITORY,
+  ILOG_TEMPERATURE_REPOSITORY
 } from 'src/utils/di.tokens';
 import { PostDraftResult } from 'src/utils/gpt/content-draft.dto';
 import { ContentDraftService } from 'src/utils/gpt/content-draft.service';
@@ -994,77 +994,99 @@ export default class GroupStudyService {
     return;
   }
 
-  async processGroupStudyAttend() {
+  async processGroupStudyAttend(targetUserId?: string) {
     const groupStudies = await this.groupStudyRepository.findAll();
     if (!groupStudies) throw new Error('No group studies found');
 
     try {
-      for (const group of groupStudies) {
-        group.processMonthAttendance();
+      // 유저별로 그룹핑: { userId -> [{group, par, requiredTicket}] }
+      const userGroupMap = new Map<
+        string,
+        { group: (typeof groupStudies)[0]; par: any; requiredTicket: number }[]
+      >();
 
-        await this.groupStudyRepository.save(group);
+      for (const group of groupStudies) {
+        if (group.status !== 'pending') continue;
+
+        for (const par of group.participants) {
+          if (!par?.user) continue;
+
+          const userId = par.user.toString();
+          const isMember =
+            (par.role as string) === 'regularMember' || par.role === 'admin';
+          const requiredTicket = isMember
+            ? group.requiredTicket - 1
+            : group.requiredTicket;
+
+          if (!userGroupMap.has(userId)) userGroupMap.set(userId, []);
+          userGroupMap.get(userId).push({ group, par, requiredTicket });
+        }
       }
 
-      const reduceTicketJobs = groupStudies.flatMap((group) => {
-        if (group.status !== 'pending') return [];
+      // 유저별 순차 처리, 유저 간 병렬
+      const userJobs = [...userGroupMap.entries()].map(
+        async ([userId, items]) => {
+          const isTarget = targetUserId && userId === targetUserId;
 
-        return group.participants.map(async (par) => {
-          if (!par?.user) return;
-
-          try {
-            const isMember =
-              (par.role as string) === 'regularMember' || par.role === 'admin';
-            const requiredTicket = isMember
-              ? group.requiredTicket - 1
-              : group.requiredTicket;
-
-            const ticketInfo = await this.userServiceInstance.getTicketInfo(
-              par?.user?.toString(),
-            );
-            const currentTicket = ticketInfo?.groupStudyTicket ?? 0;
-            const actualDeduct = Math.min(
-              requiredTicket,
-              Math.max(0, currentTicket),
-            );
-            const deficit = requiredTicket - actualDeduct;
-
-            if (actualDeduct > 0) {
-              await this.userServiceInstance.updateReduceTicket(
-                'group',
-                par?.user,
-                -actualDeduct,
+          for (const { group, par, requiredTicket } of items) {
+            try {
+              const ticketInfo =
+                await this.userServiceInstance.getTicketInfo(userId);
+              const currentTicket = ticketInfo?.groupStudyTicket ?? 0;
+              const actualDeduct = Math.min(
+                requiredTicket,
+                Math.max(0, currentTicket),
               );
-            }
+              const deficit = requiredTicket - actualDeduct;
 
-            if (deficit > 0) {
-              const userInfo =
-                await this.userServiceInstance.getUserWithUserId(
-                  par?.user?.toString(),
-                );
-              const currentPoint = userInfo?.point ?? 0;
-              const deductAmount = Math.min(
-                deficit * 1000,
-                Math.max(0, currentPoint),
-              );
-
-              if (deductAmount > 0) {
-                await this.userServiceInstance.updatePointById(
-                  -deductAmount,
-                  '소모임 참여 차감',
-                  'groupStudy',
-                  par?.user?.toString(),
+              if (isTarget) {
+                console.log(
+                  `[target] group=${group.id} "${group.title}" | role=${par.role} isMember=${par.role === 'regularMember' || par.role === 'admin'} | requiredTicket=${requiredTicket} currentTicket=${currentTicket} actualDeduct=${actualDeduct} deficit=${deficit}`,
                 );
               }
-            }
-          } catch (err) {
-            console.error(
-              `processGroupStudyAttend skip: group=${group.id} user=${par?.user} err=${err?.message}`,
-            );
-          }
-        });
-      });
 
-      await Promise.all(reduceTicketJobs);
+              if (actualDeduct > 0) {
+                await this.userServiceInstance.updateReduceTicket(
+                  'group',
+                  par?.user,
+                  -actualDeduct,
+                );
+              }
+
+              if (deficit > 0) {
+                const userInfo =
+                  await this.userServiceInstance.getUserWithUserId(userId);
+                const currentPoint = userInfo?.point ?? 0;
+                const deductAmount = Math.min(
+                  deficit * 1000,
+                  Math.max(0, currentPoint),
+                );
+
+                if (isTarget) {
+                  console.log(
+                    `[target] 포인트 차감 | deficit=${deficit} currentPoint=${currentPoint} deductAmount=${deductAmount}`,
+                  );
+                }
+
+                if (deductAmount > 0) {
+                  await this.userServiceInstance.updatePointById(
+                    -deductAmount,
+                    '소모임 참여 차감',
+                    'groupStudy',
+                    userId,
+                  );
+                }
+              }
+            } catch (err) {
+              console.error(
+                `processGroupStudyAttend skip: group=${group.id} user=${userId} err=${err?.message}`,
+              );
+            }
+          }
+        },
+      );
+
+      await Promise.all(userJobs);
     } catch (err) {
       throw new AppError(
         err?.message ?? 'Failed to process group study attendance',

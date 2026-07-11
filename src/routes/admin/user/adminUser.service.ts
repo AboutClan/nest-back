@@ -149,9 +149,125 @@ export default class AdminUserService {
   }
 
   async runMonthlyTicketAndAttend() {
+    const TARGET_ID = '69a51fb72eba443907472d77';
+
     await this.userService.processTicket();
-    await this.groupStudyService.processGroupStudyAttend();
+
+    const afterTicket = await this.User.findById(TARGET_ID).select(
+      'ticket point uid',
+    );
+    console.log('[monthly] processTicket 완료 -', {
+      uid: afterTicket?.uid,
+      groupStudyTicket: afterTicket?.ticket?.groupStudyTicket,
+      gatherTicket: afterTicket?.ticket?.gatherTicket,
+      point: afterTicket?.point,
+    });
+
+    await this.groupStudyService.processGroupStudyAttend(TARGET_ID);
+
+    const afterAttend = await this.User.findById(TARGET_ID).select(
+      'ticket point',
+    );
+    console.log('[monthly] processGroupStudyAttend 완료 -', {
+      groupStudyTicket: afterAttend?.ticket?.groupStudyTicket,
+      point: afterAttend?.point,
+    });
+
     return { success: true };
+  }
+
+  async reconcileUserPoints() {
+    const users = await this.User.find({}, '_id uid point').lean();
+
+    let updated = 0;
+    let skipped = 0;
+    const diffs: { uid: string; before: number; after: number }[] = [];
+
+    for (const user of users) {
+      const userIdStr = user._id.toString();
+      const uid = String(user.uid ?? '');
+
+      // _id 기준과 uid 기준 로그를 모두 조회 후 _id로 중복 제거
+      const orConditions: any[] = [{ 'meta.uid': userIdStr }];
+      if (uid && uid !== userIdStr) orConditions.push({ 'meta.uid': uid });
+
+      const logs = await this.Log.find(
+        { 'meta.type': 'point', $or: orConditions },
+        'meta timestamp',
+      )
+        .sort({ timestamp: 1 })
+        .lean();
+
+      // _id 기준 중복 제거
+      const seen = new Set<string>();
+      const uniqueLogs = logs.filter((log) => {
+        const id = log._id.toString();
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+
+      // 순차 적용, 중간에 0 미만 방지
+      let balance = 0;
+      for (const log of uniqueLogs) {
+        const value = (log.meta?.value as number) ?? 0;
+        balance = Math.max(0, balance + value);
+      }
+
+      if (balance === user.point) {
+        skipped++;
+        continue;
+      }
+
+      await this.User.updateOne(
+        { _id: user._id },
+        { $set: { point: balance } },
+      );
+
+      diffs.push({ uid, before: user.point, after: balance });
+      updated++;
+    }
+
+    return { total: users.length, updated, skipped, diffs };
+  }
+
+  async deleteGroupStudyAttendLogs() {
+    const result = await this.Log.deleteMany({
+      message: '소모임 참여 차감',
+    });
+    return { deleted: result.deletedCount };
+  }
+
+  async rollbackGroupStudyAttendDeduction() {
+    const logs = await this.Log.find({
+      message: '소모임 참여 차감',
+    }).lean();
+
+    if (!logs.length) return { rolledBack: 0, details: [] };
+
+    const details: { userId: string; recovered: number }[] = [];
+
+    for (const log of logs) {
+      const userId = String(log.meta?.uid);
+      const value = log.meta?.value as number;
+      if (!userId || !value || value >= 0) continue;
+
+      const recoverAmount = Math.abs(value);
+
+      const user = await this.User.findByIdAndUpdate(
+        userId,
+        { $inc: { point: recoverAmount } },
+        { new: true },
+      );
+
+      if (!user) continue;
+
+      details.push({ userId, recovered: recoverAmount });
+    }
+
+    await this.Log.deleteMany({ message: '소모임 참여 차감' });
+
+    return { rolledBack: details.length, details };
   }
 
   async rollbackGroupStudyTicketPoints() {

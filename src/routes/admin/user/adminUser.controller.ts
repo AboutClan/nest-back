@@ -129,6 +129,25 @@ export class AdminUserController {
     return res.status(200).json(result);
   }
 
+  @Post('/reconcile/points')
+  async reconcileUserPoints(@Res() res: Response) {
+    const result = await this.adminUserService.reconcileUserPoints();
+    return res.status(200).json(result);
+  }
+
+  @Post('/delete/groupstudy-attend-logs')
+  async deleteGroupStudyAttendLogs(@Res() res: Response) {
+    const result = await this.adminUserService.deleteGroupStudyAttendLogs();
+    return res.status(200).json(result);
+  }
+
+  @Post('/rollback/groupstudy-attend-deduction')
+  async rollbackGroupStudyAttendDeduction(@Res() res: Response) {
+    const result =
+      await this.adminUserService.rollbackGroupStudyAttendDeduction();
+    return res.status(200).json(result);
+  }
+
   @Post('/rollback/groupstudy-ticket-points')
   async rollbackGroupStudyTicketPoints(@Res() res: Response) {
     const result =
