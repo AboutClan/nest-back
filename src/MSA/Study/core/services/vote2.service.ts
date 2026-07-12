@@ -138,7 +138,7 @@ export class Vote2Service {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
-    const { voteResults } = await this.doAlgorithm(participations, 5);
+    const { voteResults } = await this.doAlgorithm(participations, 3);
 
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
@@ -345,7 +345,7 @@ export class Vote2Service {
     const MIN_OVERLAP_MINUTES = 60;
     const INITIAL_MAX_GROUP_SIZE = 6; // ✅ 처음 그룹 만들 때 cap
     const FINAL_MAX_GROUP_SIZE = 8; // ✅ 남은 인원 채울 때 cap
-    const standardCnt = defaultStandardCnt || 5;
+    const standardCnt = defaultStandardCnt || 4;
 
     const participations = participations2?.filter((p) => p?.userId);
 
