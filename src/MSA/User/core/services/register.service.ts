@@ -6,6 +6,7 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
 import * as logger from 'src/logger';
+import { BLOCKED_UIDS } from 'src/MSA/Auth/constants/auth-users.constant';
 import { IAccount } from 'src/MSA/User/entity/account.entity';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
@@ -41,6 +42,9 @@ export default class RegisterService {
   async register(subRegisterForm: Omit<IRegistered, 'uid' | 'profileImage'>) {
     try {
       const token = RequestContext.getDecodedToken();
+      if (BLOCKED_UIDS.has(token.uid)) {
+        throw new Error('게스트 계정은 가입 신청을 할 수 없습니다');
+      }
       const { telephone } = subRegisterForm;
 
       // 전화번호 검증: 010으로 시작하고 11자리 숫자인지 확인
@@ -75,6 +79,9 @@ export default class RegisterService {
     try {
       const token = RequestContext.getDecodedToken();
       const uid = token.uid;
+      if (BLOCKED_UIDS.has(uid)) {
+        throw new Error('게스트 계정은 가입 신청을 할 수 없습니다');
+      }
       // const { telephone } = subRegisterForm;
 
       // const telephoneRegex = /^010-\d{4}-\d{4}$/;
@@ -97,10 +104,11 @@ export default class RegisterService {
         avatar: { type: 0, bg: 0 },
       };
     
-      await this.User.findOneAndUpdate({ uid }, userForm, {
-        upsert: true,
-        new: true,
-      });
+      await this.User.findOneAndUpdate(
+        { uid },
+        { $set: userForm },
+        { upsert: true, new: true },
+      );
       await this.removeUnnecessaryUserField();
 
       return;
@@ -131,6 +139,9 @@ export default class RegisterService {
   ) {
     const token = RequestContext.getDecodedToken();
     const uid = token.uid;
+    if (BLOCKED_UIDS.has(uid)) {
+      throw new Error('게스트 계정은 가입 신청을 할 수 없습니다');
+    }
     const { telephone } = subRegisterForm;
 
     const telephoneRegex = /^010-\d{4}-\d{4}$/;
@@ -158,22 +169,29 @@ export default class RegisterService {
       membership: 'newbie',
     };
 
-    await this.User.findOneAndUpdate({ uid }, userForm, {
-      upsert: true,
-      new: true,
-    });
+    await this.User.findOneAndUpdate(
+      { uid },
+      { $set: userForm },
+      { upsert: true, new: true },
+    );
     await this.removeUnnecessaryUserField();
   }
 
   async approve(uid: string) {
+    if (BLOCKED_UIDS.has(uid)) {
+      throw new ValidationError('wrong uid');
+    }
+
     let userForm;
 
     const user = await this.registerRepository.findByUid(uid);
 
     if (!user) throw new ValidationError('wrong uid');
 
+    const { _id, __v, ...registeredFields } = user.toObject();
+
     userForm = {
-      ...user.toObject(),
+      ...registeredFields,
       role: 'member',
       registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
@@ -190,10 +208,11 @@ export default class RegisterService {
     };
 
     try {
-      await this.User.findOneAndUpdate({ uid }, userForm, {
-        upsert: true,
-        new: true,
-      });
+      await this.User.findOneAndUpdate(
+        { uid },
+        { $set: userForm },
+        { upsert: true, new: true },
+      );
       await this.removeUnnecessaryUserField();
 
       await this.deleteRegisterUser(uid, true);

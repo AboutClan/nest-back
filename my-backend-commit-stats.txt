@@ -1,0 +1,2167 @@
+COMMIT: 5ad278167313e10cd840126d75a034c15f8b5c66 | DATE: 2026-07-12 | MESSAGE: .
+2	2	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: bdfe0bcc031f4c156119e29f70857af2f1e92d93 | DATE: 2026-07-12 | MESSAGE: .
+77	55	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+15	10	src/MSA/Study/core/services/vote2.service.ts
+19	0	src/routes/admin/user/adminUser.controller.ts
+117	1	src/routes/admin/user/adminUser.service.ts
+
+COMMIT: 6947c48d2e276092740a9d1b25783a6cc5f6685f | DATE: 2026-07-01 | MESSAGE: 오류수정
+48	14	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+1	0	src/MSA/User/core/controllers/user.controller.ts
+29	5	src/routes/admin/user/adminUser.controller.ts
+13	1	src/routes/admin/user/adminUser.module.ts
+226	3	src/routes/admin/user/adminUser.service.ts
+
+COMMIT: 9b18921b6accfcde343249dd0e7564acc9790b67 | DATE: 2026-06-28 | MESSAGE: .
+4	13	src/MSA/Gather/infra/MongoGatherRepository.ts
+
+COMMIT: a35f48f5f123b5936fe65222c28d3cee43f062fd | DATE: 2026-06-23 | MESSAGE: .
+2	1	.claude/settings.local.json
+3	2	src/MSA/Gather/core/controllers/gather.controller.ts
+10	34	src/MSA/Gather/core/services/gather.service.ts
+1	0	src/MSA/Place/core/services/place.service.ts
+1	0	src/MSA/Place/infra/MongoPlaceRepository.ts
+1	1	src/MSA/User/core/services/register.service.ts
+5	8	src/MSA/User/core/services/user.service.ts
+0	1	src/MSA/User/infra/MongoUserRepository.ts
+
+COMMIT: f77f4692bab81cb257b0f8bc1ae12c5c6ae51b7c | DATE: 2026-06-23 | MESSAGE: 오류수정
+8	8	src/MSA/Gather/core/services/gather.service.ts
+
+COMMIT: 20041a50324c70fb3a5f01ac4fe1b62220f3ae1f | DATE: 2026-06-20 | MESSAGE: .
+0	1	src/MSA/Gather/core/controllers/gather.controller.ts
+10	0	src/MSA/Place/core/controllers/place.controller.ts
+2	0	src/MSA/Place/core/interfaces/place.repository.interface.ts
+13	0	src/MSA/Place/core/services/place.service.ts
+6	0	src/MSA/Place/entity/place.entity.ts
+41	4	src/MSA/Place/infra/MongoPlaceRepository.ts
+
+COMMIT: 6e93707ae47db3becdf172b8dc54eafc07428994 | DATE: 2026-06-20 | MESSAGE: .
+9	1	src/MSA/Gather/infra/MongoGatherRepository.ts
+
+COMMIT: f1d1e7ba9be962167bb77bad2a0c848d37dd6160 | DATE: 2026-06-19 | MESSAGE: .
+2	1	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: d7eae5c38b76cd5ad6a7d57aa4e9c1b0ac4715f7 | DATE: 2026-06-18 | MESSAGE: 오류 수정
+4	5	src/MSA/Gather/infra/MongoGatherRepository.ts
+7	6	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 0d229a9c58917cc8506d2130baf8f568c7722414 | DATE: 2026-06-17 | MESSAGE: .
+7	1	.claude/settings.local.json
+9	9	src/MSA/User/core/services/register.service.ts
+
+COMMIT: 1ec8b25d2406abfff980752b877036a7a178f5bf | DATE: 2026-06-17 | MESSAGE: .
+5	0	src/MSA/Place/core/controllers/place.controller.ts
+1	0	src/MSA/Place/core/interfaces/place.repository.interface.ts
+4	0	src/MSA/Place/core/services/place.service.ts
+45	0	src/MSA/Place/infra/MongoPlaceRepository.ts
+
+COMMIT: c1a37f121bf6d77dff84a151dea696b79879251f | DATE: 2026-06-16 | MESSAGE: .
+2	2	Dockerfile
+
+COMMIT: 4343edadbf1289764dcff6d5f06936f8f5f8ed60 | DATE: 2026-06-16 | MESSAGE: .
+4	2	src/MSA/Gather/infra/MongoGatherRepository.ts
+
+COMMIT: 4cd0d8325f1c31371772435f150cb71d7656a520 | DATE: 2026-06-16 | MESSAGE: .
+1	17	src/MSA/Place/infra/MongoPlaceRepository.ts
+
+COMMIT: 52c43a0944e27d3b9b113f95681c7b07d5ff4959 | DATE: 2026-06-12 | MESSAGE: ,
+1	1	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 20d6c39a54f9f0269d59ba464b6d687f757d490f | DATE: 2026-06-10 | MESSAGE: .
+23	43	src/MSA/Auth/core/services/auth.service.ts
+2	0	src/MSA/User/entity/account.entity.ts
+1	0	src/MSA/User/entity/user.entity.ts
+
+COMMIT: 7b89d96504f4f69e1fdedcf109a9155abf244455 | DATE: 2026-06-10 | MESSAGE: .
+1	1	src/MSA/User/core/services/register.service.ts
+
+COMMIT: a419b9121c4f5de1245aa6079bd91127a3b3a7d6 | DATE: 2026-06-10 | MESSAGE: .
+14	6	src/MSA/User/core/services/register.service.ts
+
+COMMIT: abf7bc08dbdf037ba4961fb7785134b129b0b462 | DATE: 2026-06-09 | MESSAGE: .
+5	0	src/MSA/Place/core/controllers/place.controller.ts
+1	0	src/MSA/Place/core/interfaces/place.repository.interface.ts
+5	0	src/MSA/Place/core/services/place.service.ts
+27	0	src/MSA/Place/infra/MongoPlaceRepository.ts
+5	0	src/MSA/User/core/controllers/user.controller.ts
+4	0	src/MSA/User/core/domain/User/User.ts
+1	0	src/MSA/User/core/interfaces/UserRepository.interface.ts
+14	3	src/MSA/User/core/services/register.service.ts
+24	6	src/MSA/User/core/services/user.service.ts
+1	0	src/MSA/User/entity/register.entity.ts
+4	0	src/MSA/User/entity/user.entity.ts
+10	3	src/MSA/User/infra/MongoUserRepository.ts
+
+COMMIT: aa3298fbc8c8cbaf13361a03d16f211a85da3e49 | DATE: 2026-06-09 | MESSAGE: .
+1	1	src/MSA/Place/infra/MongoPlaceRepository.ts
+
+COMMIT: ecc7ab6597446271ae97b2a9c1e2668d3977c7fc | DATE: 2026-06-09 | MESSAGE: 카고ㅇ지도멤버버
+1	0	src/Constants/ENTITY.ts
+6	0	src/MSA/User/core/controllers/register.controller.ts
+27	0	src/MSA/User/core/services/register.service.ts
+1	0	src/MSA/User/core/services/user.service.ts
+
+COMMIT: fe8f19fca5f8556f1a8a15644ef4e85b3781db6c | DATE: 2026-06-09 | MESSAGE: .
+3	4	src/MSA/Place/infra/MongoPlaceRepository.ts
+6	0	src/MSA/User/core/controllers/register.controller.ts
+34	0	src/MSA/User/core/services/register.service.ts
+
+COMMIT: f3a982fc455b9c4bdb5798eb1036237374cba348 | DATE: 2026-06-08 | MESSAGE: .
+2	5	src/MSA/Place/core/controllers/place.controller.ts
+6	2	src/MSA/Place/core/interfaces/place.repository.interface.ts
+2	2	src/MSA/Place/core/services/place.service.ts
+9	26	src/MSA/Place/infra/MongoPlaceRepository.ts
+
+COMMIT: 161af24a72936c1850474a937eb80e968fc8de33 | DATE: 2026-06-05 | MESSAGE: .
+10	5	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: f8ba8b54cadae612d2a71a5e2c65c3dddb4c79c4 | DATE: 2026-06-05 | MESSAGE: 스터디 알고리즘 수정
+1	0	src/MSA/Place/core/interfaces/place.repository.interface.ts
+25	0	src/MSA/Place/infra/MongoPlaceRepository.ts
+199	102	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: 9d565d131a3a4357c315c35cdec5ed82ac1d61ad | DATE: 2026-06-04 | MESSAGE: .
+20	0	src/MSA/User/core/controllers/user.controller.ts
+103	3	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 8892e2a6c80da7c55dfaebe1d94ee4c5fb17e1a3 | DATE: 2026-06-04 | MESSAGE: .
+1	0	src/MSA/Place/core/controllers/place.controller.ts
+49	11	src/MSA/Place/core/services/place.service.ts
+
+COMMIT: b477508cfc503337756799f5b4296b9068d1a7bb | DATE: 2026-06-03 | MESSAGE: .
+1	3	src/MSA/Place/core/controllers/place.controller.ts
+
+COMMIT: e11b03aec89c04ef58669a84a45d33cbf13c2750 | DATE: 2026-06-03 | MESSAGE: 알고리즘 업데이트트
+11	3	src/MSA/Place/core/controllers/place.controller.ts
+10	0	src/MSA/Place/core/interfaces/place.repository.interface.ts
+214	84	src/MSA/Place/core/services/place.service.ts
+2	2	src/MSA/Place/entity/place.entity.ts
+65	0	src/MSA/Place/infra/MongoPlaceRepository.ts
+850	662	src/crawler/cafe.ts
+1	2	src/crawler/studyCafeMeta/studyCafeMetaGpt.ts
+14	10	src/utils/gpt/gpt.service.ts
+
+COMMIT: 5270c7b619d2ac38a8c830734829d50c79608a7f | DATE: 2026-06-01 | MESSAGE: 오류 수정 + 콘솔 제거
+4	1	.claude/settings.local.json
+1	1	src/MSA/Event/infra/MongoCollectionRepository.ts
+0	3	src/MSA/Gather/core/controllers/gather.controller.ts
+2	2	src/MSA/Gather/core/services/gather.service.ts
+0	1	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+1	2	src/MSA/Notice/infra/MongoRequestRepository.ts
+1	1	src/MSA/Place/core/controllers/place.controller.ts
+1	2	src/MSA/Place/core/services/place.service.ts
+1	1	src/MSA/Place/infra/MongoPlaceRepository.ts
+1	1	src/MSA/Square/core/controllers/square.controller.ts
+3	3	src/MSA/Square/core/services/square.service.ts
+1	1	src/MSA/Study/core/services/vote2.service.ts
+2	2	src/MSA/User/core/controllers/user.controller.ts
+2	0	src/MSA/User/core/interfaces/UserRepository.interface.ts
+34	7	src/MSA/User/core/services/user.service.ts
+2	2	src/MSA/User/entity/user.entity.ts
+12	1	src/MSA/User/infra/MongoUserRepository.ts
+21	21	src/schedule/schedule.ts
+1	1	src/utils/Date.ts
+
+COMMIT: 049c0446eb90a1e33264d68a6d912ce3226abddb | DATE: 2026-05-31 | MESSAGE: 카공 장소 GPT 알고리즘 추가
+17	10	src/MSA/Place/core/controllers/place.controller.ts
+1	0	src/MSA/Place/core/interfaces/place.repository.interface.ts
+242	2	src/MSA/Place/core/services/place.service.ts
+11	0	src/MSA/Place/infra/MongoPlaceRepository.ts
+2	0	src/MSA/Place/place.module.ts
+2	2	src/crawler/studyCafeMeta/studyCafeMeta.prompt.ts
+
+COMMIT: f0396a09cb04e2bd826266b7e655bfcc7c649bad | DATE: 2026-05-26 | MESSAGE: fix error
+5	0	src/MSA/Event/core/controllers/collection.controller.ts
+2	0	src/MSA/Event/core/interfaces/CollectionRepository.interface.ts
+11	7	src/MSA/Event/core/services/collection.service.ts
+4	0	src/MSA/Event/core/services/dailyCheck.service.ts
+26	6	src/MSA/Event/infra/MongoCollectionRepository.ts
+4	2	src/domain/entities/Collection.ts
+
+COMMIT: 80f36ea9abad7418925cec90c4e2171eec829bc0 | DATE: 2026-05-25 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 7cbd067257696013150cb4560e819e7faa07531f | DATE: 2026-05-25 | MESSAGE: update score
+1	1	src/MSA/User/infra/MongoUserRepository.ts
+
+COMMIT: 992f23b8d822a3eface3a57c9acbe06b022ff575 | DATE: 2026-05-23 | MESSAGE: place 필드 추가
+1	0	src/MSA/Place/core/services/place.service.ts
+28	0	src/MSA/Place/entity/place.entity.ts
+38	18	src/MSA/Place/infra/MongoPlaceRepository.ts
+
+COMMIT: 98fe8656404a6fb6a769c67e0fa9e65519e371a2 | DATE: 2026-05-19 | MESSAGE: place 기능 개발
+9	0	.claude/settings.local.json
+18	0	src/MSA/Place/core/controllers/place.controller.ts
+2	0	src/MSA/Place/core/interfaces/place.repository.interface.ts
+13	1	src/MSA/Place/core/services/place.service.ts
+9	0	src/MSA/Place/entity/place.entity.ts
+56	0	src/MSA/Place/infra/MongoPlaceRepository.ts
+14	0	src/MSA/Study/core/services/realtime.service.ts
+
+COMMIT: eaa1d36951c11be24716bfc949394d8dea4e3538 | DATE: 2026-05-18 | MESSAGE: isActive 기본값
+1	1	src/MSA/User/core/domain/User/User.ts
+2	2	src/MSA/User/core/services/register.service.ts
+2	1	src/MSA/User/core/services/user.service.ts
+15	15	src/MSA/User/infra/MongoUserRepository.ts
+
+COMMIT: cf57dabd8d3268953f0c4935b6d7f7dba8f0794b | DATE: 2026-05-16 | MESSAGE: rating default 3.5
+1	1	src/MSA/Place/entity/place.entity.ts
+
+COMMIT: 649876408d487370fe7a09dc14227dfa6d2ad849 | DATE: 2026-05-16 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 48d8a3d65a29f0fc6c9d69c597a054268a70019e | DATE: 2026-05-16 | MESSAGE: default user = newUser
+2	1	src/Constants/ENTITY.ts
+
+COMMIT: 165476ff6b4294803dd381f24768de9e8b40f22a | DATE: 2026-05-15 | MESSAGE: .
+1	1	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 115484cb6f2e8e137f9ce4276f6a7ba85331ae8d | DATE: 2026-05-15 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: a354b59b88f03b284707907c41e417e948634057 | DATE: 2026-05-15 | MESSAGE: .
+1	1	src/MSA/Study/infra/MongoRealtimeRepository.ts
+
+COMMIT: 8ca73b17f31f0693a90d9a8165937ced3ac442b7 | DATE: 2026-05-14 | MESSAGE: .
+4	1	src/MSA/Place/entity/place.entity.ts
+4	0	src/domain/entities/Place.ts
+
+COMMIT: ca02f32fa4de4cff7d7e664fb6c02919eb8f5e10 | DATE: 2026-05-13 | MESSAGE: 도메인 추가
+10	9	src/main.ts
+
+COMMIT: 63fd14f311b506f5cd439ee4c8d0bd3524d92292 | DATE: 2026-05-13 | MESSAGE: .
+15	11	src/MSA/Place/core/services/place.service.ts
+1	1	src/MSA/Place/infra/MongoPlaceRepository.ts
+
+COMMIT: 807195556601021e9fd718b5496665afbc73d8aa | DATE: 2026-05-12 | MESSAGE: .
+13	11	src/MSA/Place/core/services/place.service.ts
+
+COMMIT: d34ab290098cbddb23724ad58aba686a582d32bf | DATE: 2026-05-11 | MESSAGE: .
+8	5	src/MSA/User/core/services/user.service.ts
+2	2	src/schedule/schedule.ts
+
+COMMIT: 5dcc2d36e13be4201dda6311c58467299e8328db | DATE: 2026-05-11 | MESSAGE: .
+11	6	src/MSA/Study/infra/MongoVote2Repository.ts
+
+COMMIT: 78b4b1fe3e1b9cb2e9996cfb5ec38334d82865c8 | DATE: 2026-05-11 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: a4324b18e92f9eb10e1c55e1e96699878b09a39e | DATE: 2026-05-11 | MESSAGE: 스터디 기능 보완
+1	1	src/Constants/ENTITY.ts
+4	0	src/Constants/WEBPUSH_MSG.ts
+15	5	src/MSA/Study/core/controllers/realtime.controller.ts
+1	1	src/MSA/Study/core/domain/Realtime/RealtimeUser.ts
+16	4	src/MSA/Study/core/services/realtime.service.ts
+2	0	src/MSA/Study/realtime.module.ts
+
+COMMIT: ce22d7268c2c0ba19784d4c5ec8af879777594ba | DATE: 2026-05-06 | MESSAGE: 소셜링온도 오류 수정
+2	0	src/MSA/Notice/core/services/notice.service.ts
+120	4	src/MSA/User/core/services/user.service.ts
+1	1	src/schedule/schedule.ts
+
+COMMIT: 965e7c0feea18ad108369d944a70bf2c52b94a3d | DATE: 2026-05-06 | MESSAGE: console 제거
+1	3	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 3fcb09f43927173cb2af68c3f7c3dba9e233e4a0 | DATE: 2026-05-06 | MESSAGE: 스케줄링 오류 수정
+8	1	src/Constants/ENTITY.ts
+5	4	src/MSA/User/core/services/user.service.ts
+3	2	src/MSA/User/infra/MongoLogTemperatureRepository.ts
+1	1	src/schedule/schedule.ts
+
+COMMIT: 4ed54080876257c21da34768bb2583e48797d01e | DATE: 2026-05-05 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: c2e602dbff015a2e2f8a17999c6cb59d654670f9 | DATE: 2026-05-05 | MESSAGE: 오류 수정 및 일부 코드
+9	0	src/MSA/Study/core/controllers/vote2.controller.ts
+29	8	src/MSA/Study/core/services/vote2.service.ts
+1	0	src/routes/logz/log.service.ts
+4	5	src/schedule/schedule.ts
+9	2	src/utils/Date.ts
+
+COMMIT: 07ce9d1d2d4825aec00d55ef329b0de36fc32dc7 | DATE: 2026-05-01 | MESSAGE: 오류 수정
+2	0	src/MSA/Gather/core/controllers/gather.controller.ts
+26	24	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+16	9	src/MSA/GroupStudy/groupStudy.module.ts
+3	0	src/MSA/User/core/domain/User/User.ts
+6	0	src/MSA/User/entity/user.entity.ts
+2	6	src/MSA/User/infra/MongoLogTemperatureRepository.ts
+1	1	src/MSA/User/infra/MongoUserRepository.ts
+
+COMMIT: e2ba65f51bf32784197cc1a0ea9d7a03352c33db | DATE: 2026-04-30 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 2aaefb10f59f527ddcc53128ecd070bf9f8d936d | DATE: 2026-04-30 | MESSAGE: chore
+8	1	src/Constants/ENTITY.ts
+36	28	src/MSA/Gather/core/services/gather.service.ts
+2	1	src/MSA/Gather/infra/MongoGatherRepository.ts
+12	12	src/MSA/User/infra/MongoUserRepository.ts
+
+COMMIT: eb04c8aac6b2fe5f99a64fcf281b375a5b8ac376 | DATE: 2026-04-28 | MESSAGE: .
+1	1	src/Constants/CONSTANTS.ts
+
+COMMIT: 109ff56b11358522272e9edf2a13c1e9756721f7 | DATE: 2026-04-27 | MESSAGE: uid query
+12	3	src/MSA/User/core/controllers/user.controller.ts
+3	1	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 80eeabb6c30d4e61c277250acb4b5b35bddb4044 | DATE: 2026-04-26 | MESSAGE: 스터디 혜택 업데이트
+4	4	src/Constants/CONSTANTS.ts
+7	7	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: d37315c82b04642a9a9c7bb616348031c94b3b5c | DATE: 2026-04-23 | MESSAGE: filter openGather
+9	6	src/MSA/Gather/core/services/gather.service.ts
+
+COMMIT: 9104031a43908892457ba49ff7616f661c346ffe | DATE: 2026-04-21 | MESSAGE: 오픈 개더
+1	1	src/MSA/Gather/core/services/gather.service.ts
+
+COMMIT: a2974fa4771d1b6d54bed1f8c9bfe5790b590274 | DATE: 2026-04-15 | MESSAGE: .
+5	3	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 758588f5c271dad77dd29581c999ca94bf782e8b | DATE: 2026-04-15 | MESSAGE: 일부 업데이트
+6	4	src/Constants/WEBPUSH_MSG.ts
+1	1	src/MSA/Place/entity/place.entity.ts
+8	8	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: 37c7868d6923bac578d1bb27ca3a0619778e7834 | DATE: 2026-04-14 | MESSAGE: 오류 수정
+97	85	src/MSA/User/infra/MongoLogTemperatureRepository.ts
+
+COMMIT: ffd30d035a7b2b8232b22e2a8e0c50eb64a6ef01 | DATE: 2026-04-14 | MESSAGE: 소셜링 온도 수치 변경
+2	61	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 2ee19654a83f116fb473f738a4ee8e63a44f191c | DATE: 2026-04-14 | MESSAGE: .
+11	31	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 5978d4f225708de6bd1a0c19054dc3d4ec064080 | DATE: 2026-04-13 | MESSAGE: 스터디 알림 추가
+9	0	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: 8926d346504ed61b347b45c08962677bac32e0d1 | DATE: 2026-04-13 | MESSAGE: 테스트 코드
+101	19	src/MSA/User/core/services/user.service.ts
+
+COMMIT: b8b5e97c1c20147bd550388c6ed19d133dd48cf9 | DATE: 2026-04-12 | MESSAGE: .
+1	1	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 145be98e4863d2c84cf716aad3bc1be365649934 | DATE: 2026-04-12 | MESSAGE: 크루 업데이트
+2	0	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+6	6	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: c98fafa86f50a34b13f8503cf194523de19a5ea3 | DATE: 2026-04-08 | MESSAGE: fix error
+27	7	src/MSA/Gather/core/services/gather.service.ts
+2	2	src/MSA/GroupStudy/core/domain/GroupStudy.ts
+0	1	src/MSA/Notice/core/controllers/request.controller.ts
+1	1	src/MSA/Notice/core/services/notice.service.ts
+2	2	src/MSA/Notice/core/services/request.service.ts
+15	13	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: b081b554f457927b59b0f1a10320f7335bc7dbab | DATE: 2026-04-04 | MESSAGE: 알림 오류 수정
+4	2	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 5d473f0addddb9b7a39558b4578ab809f5574727 | DATE: 2026-04-03 | MESSAGE: .
+4	1	src/MSA/GroupStudy/core/interfaces/GroupStudyRepository.interface.ts
+16	7	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+11	2	src/MSA/GroupStudy/infra/MongoGroupStudyRepository.ts
+
+COMMIT: 4da9ce4859d281dc247592c9e06a35ea070d0527 | DATE: 2026-04-02 | MESSAGE: .
+0	1	src/MSA/User/core/services/user.service.ts
+
+COMMIT: f94104ecda43886a6448c79eba51b0f1456c7e23 | DATE: 2026-04-02 | MESSAGE: chore
+1	1	src/Constants/ENTITY.ts
+1	1	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+1	0	src/MSA/Notice/core/services/notice.service.ts
+1	1	src/MSA/Notice/infra/MongoNoticeRepository.ts
+12	1	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 9d69b3017f79d2da54f1ce8cbd31786e97aa7c09 | DATE: 2026-03-31 | MESSAGE: .
+16	8	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+1	1	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 564f06517be266a1ac29e15311b4aeec92e8e135 | DATE: 2026-03-31 | MESSAGE: .
+6	6	src/MSA/Gather/core/services/gather.service.ts
+
+COMMIT: 8d606ff0b2ce402724a8980334e369ba7a82933a | DATE: 2026-03-31 | MESSAGE: .
+6	6	src/MSA/Gather/core/services/gather.service.ts
+1	1	src/routes/admin/user/adminUser.service.ts
+
+COMMIT: 124ae34d21664e18159c169b8bc0a2c814f0c694 | DATE: 2026-03-31 | MESSAGE: 오픈 번개 작업
+1	0	src/Constants/ENTITY.ts
+10	0	src/MSA/Gather/core/controllers/gather.controller.ts
+2	1	src/MSA/Gather/core/interfaces/GatherRepository.interface.ts
+31	0	src/MSA/Gather/core/services/gather.service.ts
+10	8	src/MSA/Gather/gather.module.ts
+8	7	src/MSA/Gather/infra/MongoGatherRepository.ts
+
+COMMIT: dd41b9dc917b0c3a73fdf918715c18a5c8b07e13 | DATE: 2026-03-30 | MESSAGE: .
+1	0	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 46d983bfa6a77780815fcbcb76f36686b1410448 | DATE: 2026-03-30 | MESSAGE: .
+4	3	src/MSA/GroupStudy/core/domain/GroupStudy.ts
+57	33	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+4	3	src/routes/admin/user/adminUser.service.ts
+
+COMMIT: 9f9347846809dd3a36a8a3fad9b2a2c3a5ce2786 | DATE: 2026-03-27 | MESSAGE: fix error
+3	0	src/MSA/GroupStudy/infra/MongoGroupStudyRepository.ts
+5	1	src/MSA/Study/infra/MongoVote2Repository.ts
+
+COMMIT: cf9b407c560750e45b15193e8b343df65c9f0879 | DATE: 2026-03-27 | MESSAGE: .
+8	1	src/Constants/ENTITY.ts
+1	1	src/MSA/Square/core/services/square.service.ts
+1	5	src/MSA/Square/infra/MongoSquareRepository.ts
+
+COMMIT: 6499942e04cd4d3ccd91ffe1737ee248281032a9 | DATE: 2026-03-25 | MESSAGE: .
+3	19	src/MSA/Square/infra/MongoSquareRepository.ts
+
+COMMIT: 97017f0580e012886dbbbf0a1cec4c7da280d7c5 | DATE: 2026-03-25 | MESSAGE: .
+2	2	src/MSA/Square/core/services/square.service.ts
+
+COMMIT: a67ae1cdb05fb47196ea7b31eb74fb4ee65ffd39 | DATE: 2026-03-25 | MESSAGE: 커뮤니티 개발
+9	11	src/MSA/Chat/core/services/chat.service.ts
+16	5	src/MSA/Chat/infra/MongoChatRepository.ts
+3	3	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+1	0	src/MSA/Notice/core/controllers/request.controller.ts
+2	1	src/MSA/Notice/core/services/request.service.ts
+6	4	src/MSA/Notice/infra/MongoRequestRepository.ts
+1	1	src/MSA/Square/core/controllers/square.controller.ts
+7	2	src/MSA/Square/core/services/square.service.ts
+4	0	src/MSA/Square/dtos/createSquareDto.ts
+27	1	src/MSA/Square/entity/square.entity.ts
+2	0	src/MSA/Square/infra/MongoSquareRepository.ts
+9	3	src/MSA/User/core/services/user.service.ts
+5	2	src/domain/entities/Square/Square.ts
+
+COMMIT: 6a1d36858a38cbf7daece55625976318019cb399 | DATE: 2026-03-24 | MESSAGE: reviews.user 오류 임시 수정
+20	20	src/MSA/Place/infra/MongoPlaceRepository.ts
+1	1	src/MSA/Study/core/controllers/vote2.controller.ts
+
+COMMIT: 0ad5b96a627f52eba40692124bd5421403e993e3 | DATE: 2026-03-24 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: a8ca094dea14367908abfa71a8834e0f8eab9ff0 | DATE: 2026-03-24 | MESSAGE: .
+1	8	src/Constants/ENTITY.ts
+1	1	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+15	10	src/MSA/Square/core/services/square.service.ts
+4	5	src/MSA/Square/infra/MongoSquareRepository.ts
+2	3	src/MSA/Study/core/controllers/vote2.controller.ts
+3	5	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: 91d395a87f21a94b9b4739ce589452f1a1181249 | DATE: 2026-03-23 | MESSAGE: .
+2	5	src/Constants/ENTITY.ts
+20	10	src/MSA/Chat/infra/MongoChatRepository.ts
+4	7	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+2	3	src/MSA/Notice/core/controllers/notice.controller.ts
+1	1	src/MSA/Notice/core/interfaces/notice.repository.interface.ts
+9	5	src/MSA/Notice/core/services/notice.service.ts
+10	2	src/MSA/Notice/infra/MongoNoticeRepository.ts
+3	3	src/MSA/Square/core/controllers/square.controller.ts
+9	9	src/MSA/Square/core/services/square.service.ts
+
+COMMIT: 98c50e88a3f054c28e4df7e68c24d8d348d8819b | DATE: 2026-03-20 | MESSAGE: 실수 복구
+4	0	src/MSA/User/core/services/register.service.ts
+
+COMMIT: ccbe224bb526e94ccaa5cfad71dfbb4d1979434f | DATE: 2026-03-20 | MESSAGE: 로그 오류 수정
+2	2	src/MSA/User/core/services/user.service.ts
+4	2	src/routes/logz/log.repository.ts
+4	1	src/routes/logz/log.service.ts
+
+COMMIT: 0cb16f37dca1ac2ee454af181f353a09b46b35a6 | DATE: 2026-03-20 | MESSAGE: console.log 제거
+0	3	src/MSA/Event/core/services/collection.service.ts
+14	14	src/MSA/Gather/core/services/gather.service.ts
+2	3	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+1	1	src/MSA/GroupStudy/infra/MongoGroupStudyRepository.ts
+2	2	src/MSA/Place/core/controllers/place.controller.ts
+7	6	src/MSA/Place/core/services/place.service.ts
+1	1	src/MSA/Place/infra/MongoPlaceRepository.ts
+2	0	src/MSA/Study/core/controllers/vote2.controller.ts
+0	2	src/MSA/Study/core/domain/Realtime/Realtime.ts
+0	1	src/MSA/Study/core/domain/Vote2/Vote2.ts
+9	9	src/MSA/Study/core/services/realtime.service.ts
+0	1	src/MSA/User/core/domain/User/User.ts
+3	9	src/MSA/User/core/services/register.service.ts
+3	3	src/MSA/User/core/services/user.service.ts
+11	12	src/MSA/User/infra/MongoUserRepository.ts
+3	0	src/utils/Date.ts
+
+COMMIT: 4a628a5c7f461dbaa460277c546699ea3976e4da | DATE: 2026-03-20 | MESSAGE: 스터디 스케쥴 하루 전으로 오류 수정
+2	2	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: c4445411ef41fe0f892c919ec6ecf8880e7d0030 | DATE: 2026-03-18 | MESSAGE: 기능 업데이트
+11	0	src/MSA/Study/core/controllers/vote2.controller.ts
+8	0	src/MSA/Study/core/domain/Vote2/Vote2.ts
+9	0	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: 31a97c9066b69e24e4d93c1aeb682ecf81b1547c | DATE: 2026-03-18 | MESSAGE: 오류 수정
+1	1	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: b5df2a257e231160ce3fb955e582b8ae90f8effc | DATE: 2026-03-18 | MESSAGE: 스터디, 소모임 기능 업데이트
+45	5	src/MSA/GroupStudy/infra/MongoGroupStudyRepository.ts
+25	10	src/MSA/Study/core/controllers/vote2.controller.ts
+19	0	src/MSA/Study/core/domain/Vote2/Vote2.ts
+27	3	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: b8af1566836da14ca51267126dc1c028a20e7daa | DATE: 2026-03-13 | MESSAGE: 오류 방지 코드
+5	2	src/MSA/Study/core/domain/Vote2/Vote2.ts
+5	4	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: 4c8126c0efd639e1e54a5b3401b10e26263c2819 | DATE: 2026-03-13 | MESSAGE: 오류 방지 코드
+1	1	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: c0ccd3cd0b3f54adc74151d20edd7e934761121d | DATE: 2026-03-12 | MESSAGE: 크루
+16	5	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 7bab123d90ac546597f99756b110ea9bed68d711 | DATE: 2026-03-09 | MESSAGE: 오류 수정
+7	3	src/MSA/Study/core/services/vote2.service.ts
+2	2	src/MSA/Study/infra/MongoVote2Repository.ts
+
+COMMIT: 29222b2034106369ada312176fe77fc1d500090e | DATE: 2026-03-06 | MESSAGE: .
+1	1	src/Constants/ENTITY.ts
+
+COMMIT: 66a42dba3976e3930813a40c6c28b20cb56068fe | DATE: 2026-03-04 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 973721ac3dae7afad8d11acb2ac00fd4234f58f9 | DATE: 2026-03-04 | MESSAGE: 오류 수정
+1	1	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 8016015a53125bba4f0355e94eff99b054c3e7e0 | DATE: 2026-03-04 | MESSAGE: 오류 수정
+3	4	src/MSA/GroupStudy/core/domain/GroupStudy.ts
+
+COMMIT: 6e7fd475c98671bba15a714b182993408614654b | DATE: 2026-03-01 | MESSAGE: 가입 포인트 5000원으로 변경
+4	4	src/MSA/User/core/services/register.service.ts
+
+COMMIT: d6db8d0fb4eab1776defde217134de66fe5e7196 | DATE: 2026-02-28 | MESSAGE: .
+1	1	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: 672569db231cfce43ea5dbae36cc3b4c2c0eb979 | DATE: 2026-02-22 | MESSAGE: .
+2	3	src/MSA/Auth/core/services/Nice.service.ts
+
+COMMIT: 990f00575fcd622063a84345894c989316e9aa5e | DATE: 2026-02-22 | MESSAGE: default url
+218	187	src/MSA/Auth/core/services/Nice.service.ts
+
+COMMIT: a48f76ad6d2defb2862aa1dafd61dbfe609b22c8 | DATE: 2026-02-18 | MESSAGE: 알고리즘 수정
+17	16	src/MSA/Study/core/services/vote2.service.ts
+
+COMMIT: f2ab6405c30e4be12b3c2a5b49b6922d0fc51a3d | DATE: 2026-02-18 | MESSAGE: .
+8	6	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 612e8ac2aa585f3fb129f826941053567efe5674 | DATE: 2026-02-18 | MESSAGE: fix alphabet
+36	9	src/MSA/Event/core/services/collection.service.ts
+10	8	src/MSA/Event/infra/MongoCollectionRepository.ts
+
+COMMIT: 8ea094561c2a5dd51ecaf5df611a32b357d40145 | DATE: 2026-02-18 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 1ab24858f51b3b57a9273e600c26649ddfd406be | DATE: 2026-02-18 | MESSAGE: update fcm
+10	1	src/MSA/User/core/services/user.service.ts
+
+COMMIT: b79b03797c5aedf0ed21becfa68a9eedc3f1e7fc | DATE: 2026-02-17 | MESSAGE: fix error
+5	5	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+3	7	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: cfad3b91967dfccfa723cc0065fb9899fce4f8ad | DATE: 2026-02-07 | MESSAGE: fix populate error
+1	1	src/MSA/Study/core/interfaces/RealtimeRepository.interface.ts
+3	2	src/MSA/Study/core/services/realtime.service.ts
+4	1	src/MSA/Study/infra/RealtimeRepository.ts
+10	7	src/MSA/User/core/services/user.service.ts
+15	24	src/domain/entities/Realtime/Realtime.ts
+1	0	src/domain/entities/User/User.ts
+
+COMMIT: c515002127291dfe91becce16bae12bfeb6870f9 | DATE: 2026-02-04 | MESSAGE: 스터디 출석 시스템 업데이트
+17	10	src/MSA/Study/core/services/vote2.service.ts
+2	0	src/domain/entities/Vote2/Vote2.ts
+
+COMMIT: c454cc589653c0cb50c5d376342253c8c17fd29a | DATE: 2026-02-04 | MESSAGE: 스터디 알고리즘 유지보수
+23	11	src/MSA/Study/core/services/vote2.service.ts
+6	4	src/routes/register/register.service.ts
+
+COMMIT: 2c26b43c01198787337fb95929336cfdccb8f636 | DATE: 2026-02-02 | MESSAGE: .
+3	1	src/MSA/Study/core/controllers/vote2.controller.ts
+6	2	src/MSA/Study/core/services/vote2.service.ts
+4	0	src/MSA/Study/dtos/vote2.dto.ts
+
+COMMIT: aef004eb1412fa608893ec8b66d845410deb50b9 | DATE: 2026-02-02 | MESSAGE: 스케쥴링 유지보수
+1	1	src/MSA/Study/core/interfaces/RealtimeRepository.interface.ts
+2	3	src/MSA/Study/core/services/realtime.service.ts
+16	0	src/MSA/Study/core/services/vote2.service.ts
+11	7	src/MSA/Study/infra/RealtimeRepository.ts
+
+COMMIT: f1eb6f97202e13d5836ea53328225f118b9e4dca | DATE: 2026-02-02 | MESSAGE: populate 업데이트
+1	1	src/MSA/Study/core/interfaces/Vote2Repository.interface.ts
+3	3	src/MSA/Study/core/services/vote2.service.ts
+26	16	src/MSA/Study/infra/Vote2Repository.ts
+
+COMMIT: d6557e4d54c36885557f127559fc9fc1c72669b6 | DATE: 2026-02-02 | MESSAGE: update
+1	1	src/Constants/ENTITY.ts
+1	1	src/MSA/Study/infra/RealtimeRepository.ts
+1	0	src/domain/entities/User/User.ts
+
+COMMIT: 6dfb3d47b65902f1e9191d29497e8c1e9279420f | DATE: 2026-02-01 | MESSAGE: update
+1	0	src/MSA/Gather/core/interfaces/GatherRepository.interface.ts
+8	2	src/MSA/Gather/infra/GatherRepository.ts
+6	2	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+3	2	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 4fb71cdb0e2502e44747917384eeab1343c4bd4d | DATE: 2026-01-29 | MESSAGE: group gather count
+14	1	src/MSA/Gather/core/interfaces/GatherRepository.interface.ts
+63	0	src/MSA/Gather/infra/GatherRepository.ts
+7	1	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+39	2	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+
+COMMIT: 88d12e68311a3fca89e65ea44de55c03e991b118 | DATE: 2026-01-28 | MESSAGE: fix error
+17	14	src/MSA/User/entity/logMembership.entity.ts
+
+COMMIT: e8a5b8170c9ee9e5df9da67d07fe87a52d215aaa | DATE: 2026-01-25 | MESSAGE: fix gather imaage error
+2	0	src/MSA/Gather/core/services/gather.service.ts
+
+COMMIT: 6044b786f31cb32473a933360c1f7bd9ec3c4954 | DATE: 2026-01-24 | MESSAGE: chore
+1	1	src/MSA/Gather/infra/GatherRepository.ts
+1	1	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+1	1	src/MSA/Notice/core/controllers/notice.controller.ts
+1	1	src/MSA/Notice/core/services/notice.service.ts
+5	5	src/MSA/Study/core/controllers/vote2.controller.ts
+1	1	src/MSA/Study/core/services/realtime.service.ts
+13	6	src/MSA/Study/core/services/vote2.service.ts
+4	0	src/MSA/Study/dtos/vote2.dto.ts
+
+COMMIT: 134e04808758961f6d406ed65e5d64c8cd2ce4af | DATE: 2026-01-19 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: be7a0b2da34b4e76710413aca14f608e3bd6f6da | DATE: 2026-01-19 | MESSAGE: update manner
+5	3	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+25	2	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+1	1	src/MSA/Notice/infra/notice.repository.ts
+
+COMMIT: eb66e8677166e172aa5dca06862240fd0c03a975 | DATE: 2026-01-17 | MESSAGE: .
+1	1	src/domain/entities/User/Avatar.ts
+
+COMMIT: b44dc9f4767187fce85bdf22b50fa45f2c91eba2 | DATE: 2026-01-16 | MESSAGE: .
+1	1	src/MSA/Gather/core/services/gather.service.ts
+4	1	src/domain/entities/User/Avatar.ts
+
+COMMIT: a4f0db39a9d414c051b54e5c6496f54d60edc1b4 | DATE: 2026-01-15 | MESSAGE: update
+1	1	src/Constants/CONSTANTS.ts
+1	1	src/Constants/ENTITY.ts
+4	3	src/MSA/Study/core/services/realtime.service.ts
+7	6	src/domain/entities/Realtime/Realtime.ts
+
+COMMIT: 48a39cc94d3fb4b6a778e696253a44f6e4bc792f | DATE: 2026-01-14 | MESSAGE: update text
+8	8	src/Constants/WEBPUSH_MSG.ts
+6	18	src/MSA/Gather/core/services/gather.service.ts
+5	5	src/MSA/User/core/services/user.service.ts
+5	5	src/schedule/schedule.ts
+
+COMMIT: cc9dd20de1fd0ca8152771fcd57e93dbbd650c60 | DATE: 2026-01-11 | MESSAGE: fix error
+2	2	src/MSA/Place/infra/place.repository.ts
+
+COMMIT: 701249fc4fa084d0d832ae2d53519845008f26c0 | DATE: 2026-01-09 | MESSAGE: 앱 개발
+14	6	src/MSA/Notification/core/services/fcm.service.ts
+
+COMMIT: 90087bf86f33f98023f5d52eb969e13b1ed59614 | DATE: 2026-01-09 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 8299f4f2c50b0368e436617bb15d076216391f78 | DATE: 2026-01-09 | MESSAGE: 앱개발
+16	21	src/MSA/Notification/core/services/fcm.service.ts
+
+COMMIT: 594059f178e2ef729aefca2e074027cec9da26d9 | DATE: 2025-12-30 | MESSAGE: 모임 데이터 get 수정
+2	2	src/MSA/Gather/core/controllers/gather.controller.ts
+20	18	src/MSA/Gather/core/services/gather.service.ts
+24	22	src/MSA/Gather/infra/GatherRepository.ts
+
+COMMIT: 0510d2af1506fd42d65d954e131aa024e4eeed1f | DATE: 2025-12-23 | MESSAGE: chore
+10	11	src/MSA/Notice/infra/notice.repository.ts
+
+COMMIT: e043eef2e875a47e985134a586495af05bc90c52 | DATE: 2025-12-22 | MESSAGE: 번개 보증금 관련
+21	23	src/MSA/Gather/core/services/gather.service.ts
+
+COMMIT: 597359f0909c1101e1b06b936043181f6d53b159 | DATE: 2025-12-20 | MESSAGE: fix error
+1	1	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+2	2	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+1	2	src/MSA/GroupStudy/groupStudy.module.ts
+14	14	src/MSA/Notification/core/services/fcm.service.ts
+5	4	src/utils/gpt/gpt.module.ts
+
+COMMIT: 092ba76ff9afc94a9e17f97bb73d0a7892fc10c6 | DATE: 2025-12-19 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 7595be19498e248563093e9143c3ca749f66051a | DATE: 2025-12-19 | MESSAGE: chore
+38	9	src/MSA/GroupStudy/infra/GroupStudyRepository.ts
+2	1	src/MSA/Notice/notice.module.ts
+
+COMMIT: e5d490a06f06ea678b5f54e6ee9f382058eada3b | DATE: 2025-12-19 | MESSAGE: groupStudy - 멤버 관계도
+1	1	src/MSA/Gather/infra/GatherRepository.ts
+7	0	src/MSA/GroupStudy/core/controllers/groupStudy.controller.ts
+62	5	src/MSA/GroupStudy/core/services/groupStudy.service.ts
+24	6	src/MSA/GroupStudy/groupStudy.module.ts
+1	0	src/MSA/Notice/core/interfaces/notice.repository.interface.ts
+2	0	src/MSA/Notice/core/services/notice.service.ts
+11	1	src/MSA/Notice/infra/notice.repository.ts
+13	3	src/MSA/Notice/notice.module.ts
+
+COMMIT: f960985e7d8eba8945ba22a18cfa547d20d62681 | DATE: 2025-12-16 | MESSAGE: .
+6	5	src/MSA/User/core/services/user.service.ts
+
+COMMIT: 9d641e79598c3046f2828793ab658d1ae747bca6 | DATE: 2025-12-16 | MESSAGE: add role
+1	0	src/Constants/ENTITY.ts
+
+COMMIT: 253884630880544d3a465de84915234469aca565 | DATE: 2025-12-15 | MESSAGE: error fix
+5	4	src/MSA/Notification/core/services/fcm.service.ts
+
+COMMIT: 09983ad9030861a971b716b52e0aa7b242bb8eb0 | DATE: 2025-12-15 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 515e08955acdfdd10bdf55d77b4109178277f2b8 | DATE: 2025-12-04 | MESSAGE: .
+38	14	src/routes/notice/notice.repository.ts
+
+COMMIT: 6493f18fb82d8975161a1ccd5312bae752da804a | DATE: 2025-12-04 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: b14a724df73d7cc3b87edb10aa36b4fa9f6616e8 | DATE: 2025-12-04 | MESSAGE: chore
+1	0	src/Constants/WEBPUSH_MSG.ts
+5	2	src/routes/admin/user/adminUser.service.ts
+11	1	src/routes/gather/gather.service.ts
+1	1	src/routes/user/user.service.ts
+2	17	src/schedule/schedule.ts
+
+COMMIT: efea81a45d5d8ca19331c63564195840ecb3d80b | DATE: 2025-12-03 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 507f7477c707e0fc16a70aed80fe75824f308044 | DATE: 2025-12-03 | MESSAGE: fix error
+13	12	src/routes/user/UserRepository.ts
+
+COMMIT: 2d83b5d50e32daeccd41fe0794cb682109b955bd | DATE: 2025-12-01 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 305da3bf4afbf3ca2fb2a30fb16a3d18b7305727 | DATE: 2025-12-01 | MESSAGE: monthscore 스케줄링
+1	1	src/routes/user/UserRepository.ts
+1	1	src/routes/user/user.service.ts
+
+COMMIT: db2f5129b268c8001a273f911f5780dd2e823972 | DATE: 2025-11-28 | MESSAGE: 티켓 로직
+22	11	src/routes/groupStudy/groupStudy.service.ts
+4	1	src/routes/user/user.service.ts
+
+COMMIT: a6afa786dc791daba89f3bc82d22d558b40838a3 | DATE: 2025-11-28 | MESSAGE: 스케줄러 시간 임시 변경
+1	1	src/routes/user/UserRepository.interface.ts
+10	7	src/routes/user/UserRepository.ts
+1	4	src/routes/user/user.controller.ts
+2	5	src/routes/user/user.service.ts
+
+COMMIT: 2ba0c401616942a87b6ac5d2c0203d7bf2ef60cb | DATE: 2025-11-27 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 5c5dcb23465edd4644bc0da767dcb873d2eef428 | DATE: 2025-11-27 | MESSAGE: 스터디 멤버 평가 및 기록 가져오기
+8	2	src/domain/entities/Vote2/Vote2.ts
+4	4	src/domain/entities/Vote2/Vote2Participation.ts
+4	0	src/domain/entities/Vote2/Vote2Result.ts
+12	4	src/routes/notice/notice.controller.ts
+18	7	src/routes/notice/notice.module.ts
+34	1	src/routes/notice/notice.service.ts
+7	7	src/routes/user/UserRepository.ts
+1	0	src/routes/vote2/Vote2Repository.interface.ts
+23	0	src/routes/vote2/Vote2Repository.ts
+5	0	src/routes/vote2/vote2.controller.ts
+6	4	src/routes/vote2/vote2.entity.ts
+8	4	src/routes/vote2/vote2.service.ts
+2	2	src/utils/ClusterUtils.ts
+
+COMMIT: c2ea050fa5aefcae4aafc218a1be9720fcf79067 | DATE: 2025-11-26 | MESSAGE: 로그
+2	2	src/routes/logz/log.service.ts
+
+COMMIT: 7bfe6762aacbb0c3d676fe2ba47bded25a489406 | DATE: 2025-11-26 | MESSAGE: log의 meta.uid 오류 수정
+35	27	src/routes/gather/gather.service.ts
+1	3	src/routes/logz/log.repository.ts
+2	2	src/routes/logz/log.service.ts
+
+COMMIT: 0d48ed7c148b63d81b507c5cc3c31f32abd1f7ba | DATE: 2025-11-26 | MESSAGE: membership 혜택
+20	4	src/routes/user/user.service.ts
+2	0	src/routes/vote2/vote2.service.ts
+
+COMMIT: a113b8d69bca3ae662a061e4636c5bbde90a3e65 | DATE: 2025-11-25 | MESSAGE: .
+0	1	src/Constants/ENTITY.ts
+
+COMMIT: fac22fb5576649d15ee3389fa95c226575c058f3 | DATE: 2025-11-24 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 2062e5e3938cb04e1e5b6f2e1fd3cbe092af981d | DATE: 2025-11-24 | MESSAGE: .
+1	1	src/routes/notice/notice.repository.ts
+
+COMMIT: e476662bbfe1bfb8e60065ae8f661e588ac94559 | DATE: 2025-11-22 | MESSAGE: .
+3	1	src/routes/gather/GatherRepository.ts
+
+COMMIT: 94e22ed61ea9cfd0982516613fb8abea98f3c2b3 | DATE: 2025-11-22 | MESSAGE: img -> imageUrl
+3	2	src/routes/vote2/vote2.service.ts
+
+COMMIT: c5e512a364dd9bda75ca51edb4879dfa4721891b | DATE: 2025-11-18 | MESSAGE: 개인 스터디 - 좋아요 구현
+13	0	src/domain/entities/Realtime/Realtime.ts
+4	0	src/domain/entities/Realtime/RealtimeUser.ts
+2	0	src/routes/realtime/RealtimeRepository.ts
+13	0	src/routes/realtime/realtime.controller.ts
+2	0	src/routes/realtime/realtime.entity.ts
+11	0	src/routes/realtime/realtime.service.ts
+
+COMMIT: ef8d466955053e60f4a9521596e6c20db196c35b | DATE: 2025-11-18 | MESSAGE: .
+1	1	src/Constants/CONSTANTS.ts
+
+COMMIT: 7f0f89591a16dfd9185829d0700ace6988e2ac37 | DATE: 2025-11-17 | MESSAGE: studyRecord
+9	3	src/domain/entities/User/User.ts
+16	2	src/routes/realtime/realtime.service.ts
+3	2	src/routes/user/user.service.ts
+12	1	src/routes/vote2/vote2.service.ts
+
+COMMIT: 350e5a287396684d75bdb312805a8179cc139167 | DATE: 2025-11-16 | MESSAGE: .
+0	2	src/routes/feed/feed.controller.ts
+0	1	src/routes/gather/GatherRepository.ts
+0	1	src/routes/groupStudy/groupStudy.service.ts
+0	1	src/routes/logz/log.controller.ts
+0	1	src/routes/place/place.repository.ts
+0	1	src/routes/prize/prize.controller.ts
+0	1	src/routes/realtime/realtime.controller.ts
+0	1	src/routes/realtime/realtime.service.ts
+0	1	src/routes/user/UserRepository.ts
+
+COMMIT: 5e596087bad7c40a972996833ec28a4a8c06c686 | DATE: 2025-11-16 | MESSAGE: .
+23	22	src/routes/gather/GatherRepository.ts
+
+COMMIT: dcc29de7707ba1c957c91f11f1af934aeae2f81d | DATE: 2025-11-16 | MESSAGE: chore / realtime and feed
+3	1	src/domain/entities/Realtime/Realtime.ts
+1	1	src/routes/feed/feed.controller.ts
+1	3	src/routes/feed/feed.service.ts
+1	0	src/routes/realtime/realtime.controller.ts
+1	0	src/routes/realtime/realtime.service.ts
+
+COMMIT: 92c262a882574b79453e3b48a1a93045e3bea748 | DATE: 2025-11-15 | MESSAGE: .
+2	1	src/routes/gather/gather.service.ts
+
+COMMIT: c1a628f7cb10fe2cde38278cb601a2e142aee172 | DATE: 2025-11-14 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: e6a5a748dba4c93bfdcc37783529bbc62abb3927 | DATE: 2025-11-14 | MESSAGE: 로그 작업
+1	1	src/routes/gather/gather.service.ts
+2	8	src/routes/logz/log.controller.ts
+1	1	src/routes/logz/log.repository.interface.ts
+7	2	src/routes/logz/log.repository.ts
+10	2	src/routes/logz/log.service.ts
+
+COMMIT: 605b8a8589b23ebd4cfef4dd173d94617c3508e6 | DATE: 2025-11-14 | MESSAGE: update ticket process count
+10	19	src/routes/user/UserRepository.ts
+
+COMMIT: ca080265ad583e67af2e08882f29c4c258481640 | DATE: 2025-11-14 | MESSAGE: update point system
+14	20	src/Constants/CONSTANTS.ts
+5	0	src/routes/dailycheck/dailyCheck.service.ts
+0	9	src/routes/groupStudy/groupStudy.service.ts
+
+COMMIT: 99a247f9f3a1e466e5c236cf8d6f2a0c9559aa40 | DATE: 2025-11-13 | MESSAGE: fix error
+1	0	src/Constants/PRIZE.ts
+
+COMMIT: 9f487fadbfab7d96b17183e3298e57734e964a7e | DATE: 2025-11-13 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: f69e4b645f714600c3a3fe5ce0c794e0ecb95b95 | DATE: 2025-11-13 | MESSAGE: .
+0	3	src/routes/groupStudy/groupStudy.controller.ts
+12	3	src/routes/groupStudy/groupStudy.service.ts
+
+COMMIT: 867cfe092948d4b40e0d92b2dbbe543a144df122 | DATE: 2025-11-08 | MESSAGE: .
+5	3	src/Constants/WEBPUSH_MSG.ts
+1	1	src/routes/gather/GatherRepository.ts
+16	3	src/routes/gather/gather.service.ts
+25	5	src/routes/notice/notice.repository.ts
+1	1	src/routes/user/user.controller.ts
+6	2	src/routes/user/user.service.ts
+
+COMMIT: b0b8b416cbf7986ea9fd9e5236e2aecd3123e956 | DATE: 2025-11-08 | MESSAGE: .
+1	1	src/routes/gather/GatherRepository.interface.ts
+15	9	src/routes/gather/GatherRepository.ts
+10	2	src/routes/gather/gather.controller.ts
+11	2	src/routes/gather/gather.service.ts
+
+COMMIT: f35ea0fec4a86b32ecc317bbec17c3f42ac4c7fe | DATE: 2025-11-07 | MESSAGE: .
+4	4	src/routes/gather/gather.service.ts
+
+COMMIT: 7b3ce4e6d31941875940974a4a5ee377f13d5615 | DATE: 2025-11-07 | MESSAGE: .
+1	1	src/Constants/PRIZE.ts
+
+COMMIT: cee798283eb0361b2f3083717fa1b157bd1956cf | DATE: 2025-11-07 | MESSAGE: .
+1	0	src/domain/entities/Gather/Gather.ts
+17	17	src/routes/feed/feed.service.ts
+1	1	src/routes/gather/GatherRepository.ts
+4	0	src/routes/gather/gather.entity.ts
+
+COMMIT: a0d843cd02a767142a0d2b0c7e78e846b5010ca9 | DATE: 2025-11-07 | MESSAGE: .
+6	7	src/routes/fcm/fcm.service.ts
+6	6	src/routes/webpush/webpush.service.ts
+
+COMMIT: 25a0d69dcea7948ae36cea2830871f1d04bc406b | DATE: 2025-11-07 | MESSAGE: .
+1	1	src/routes/vote2/vote2.service.ts
+
+COMMIT: 852430981dfd7c66df217a2add9119ef9516936a | DATE: 2025-11-07 | MESSAGE: .
+26	13	src/routes/vote2/vote2.service.ts
+
+COMMIT: 117c80c32b8d0332f5490d1a5e7060466af502a8 | DATE: 2025-11-06 | MESSAGE: fix: comment
+22	16	src/routes/comment/comment.service.ts
+
+COMMIT: 0b6d0e06a64594591634d186549d0350f8bb66d0 | DATE: 2025-11-06 | MESSAGE: 출석체크 / 알파벳 / 모임 후기
+1	1	src/domain/entities/Store/Store.ts
+1	1	src/routes/admin/user/adminUser.service.ts
+12	3	src/routes/collection/CollectionRepository.ts
+15	28	src/routes/collection/collection.service.ts
+4	4	src/routes/dailycheck/dailyCheck.controller.ts
+5	3	src/routes/dailycheck/dailyCheck.module.ts
+9	3	src/routes/dailycheck/dailyCheck.service.ts
+2	2	src/routes/feed/FeedRepository.interface.ts
+21	7	src/routes/feed/FeedRepository.ts
+8	7	src/routes/feed/feed.controller.ts
+23	20	src/routes/feed/feed.service.ts
+1	1	src/routes/gather/gather.service.ts
+2	2	src/routes/place/place.repository.ts
+1	1	src/routes/place/place.service.ts
+1	1	src/routes/store/store.controller.ts
+1	1	src/routes/user/user.service.ts
+3	5	src/routes/vote2/vote2.service.ts
+
+COMMIT: cba4c4b87c43d09a2d530e1477ac2525d602f669 | DATE: 2025-11-06 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 2f4da084c5ed40c5e95c3cc3a0e2b24d18517a68 | DATE: 2025-11-06 | MESSAGE: chore
+2	5	src/routes/gather/gather.controller.ts
+15	12	src/routes/gather/gather.service.ts
+
+COMMIT: 715945e2c6dc633e540fede2a9f4f52afd39676d | DATE: 2025-11-02 | MESSAGE: fix&refactor: ticket logic
+2	2	src/routes/gather/gather.service.ts
+22	10	src/routes/groupStudy/groupStudy.service.ts
+1	0	src/routes/user/UserRepository.interface.ts
+12	0	src/routes/user/UserRepository.ts
+6	20	src/routes/user/user.service.ts
+
+COMMIT: 98ce5e874dbb72852ac9155d1da249d7d72c6fa2 | DATE: 2025-10-31 | MESSAGE: update date
+4	0	src/domain/entities/Feed/Feed.ts
+2	0	src/routes/feed/FeedRepository.ts
+2	1	src/routes/feed/feed.controller.ts
+4	0	src/routes/feed/feed.entity.ts
+2	0	src/routes/feed/feed.service.ts
+
+COMMIT: 3e18c988315678f8cd17ddd75cfc1162d6481c7c | DATE: 2025-10-29 | MESSAGE: expand gather cnt
+1	0	src/routes/gather/GatherRepository.interface.ts
+2	1	src/routes/gather/GatherRepository.ts
+2	1	src/routes/gather/gather.service.ts
+
+COMMIT: 68b555d6d002d6636a2ce5c2e17579ddb3de50df | DATE: 2025-10-28 | MESSAGE: .
+12	2	src/routes/gather/gather.service.ts
+
+COMMIT: d21d392d724f3c6bb4b24da709c81fa55c323934 | DATE: 2025-10-28 | MESSAGE: 크롤링 주석
+273	273	src/crawler/cafeImg.ts
+12	12	src/crawler/test-crawl.ts
+
+COMMIT: 92c3b4c7490e30a85b954f1ff29f6bec4554c1b6 | DATE: 2025-10-28 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: c24a7f4c2432c3bd6aa851700ae59285319905fd | DATE: 2025-10-28 | MESSAGE: chore: gather
+19	25	src/routes/gather/GatherRepository.ts
+
+COMMIT: 0dcdfc87ba5513ef0db0dd3cb537064cb17d191e | DATE: 2025-10-25 | MESSAGE: temp
+14	2	src/routes/gather/GatherRepository.ts
+
+COMMIT: 5c2be8f5fc2f750b5eac2d26543337e4754774a3 | DATE: 2025-10-25 | MESSAGE: change webpush text
+4	3	src/Constants/WEBPUSH_MSG.ts
+
+COMMIT: df0eaf0ebc3140a08ab031150645dcc196c0e438 | DATE: 2025-10-22 | MESSAGE: fix error
+0	10	src/routes/user/user.service.ts
+1	1	src/routes/vote2/vote2.service.ts
+
+COMMIT: 404c7f7177ba8d60e3325832c3e87cf0b24e5c56 | DATE: 2025-10-22 | MESSAGE: 1
+28	10	src/routes/place/place.repository.ts
+
+COMMIT: de5d6f74f8e07a77f25bbb0c0fab2ce5099ab09f | DATE: 2025-10-21 | MESSAGE: add gather locaiton
+8	0	src/domain/entities/Gather/Location.ts
+4	0	src/routes/gather/GatherRepository.ts
+4	0	src/routes/gather/gather.entity.ts
+0	1	src/routes/gather/gather.service.ts
+
+COMMIT: c12a74c10739002a6796e8e85ce698f5ad245009 | DATE: 2025-10-18 | MESSAGE: study algorithm
+40	6	src/routes/vote2/vote2.controller.ts
+8	0	src/routes/vote2/vote2.dto.ts
+4	3	src/routes/vote2/vote2.entity.ts
+291	62	src/routes/vote2/vote2.service.ts
+
+COMMIT: 32d41150e4eeee1b2d992f58b7aee7560f1bb162 | DATE: 2025-10-17 | MESSAGE: Merge branch 'main' into algo
+COMMIT: f67b2b8c0732d57bf1d6591a4d57bd5d839e70f1 | DATE: 2025-10-17 | MESSAGE: feat: place
+2	2	src/routes/place/place.controller.ts
+25	11	src/routes/place/place.repository.ts
+1	1	src/routes/place/place.service.ts
+
+COMMIT: 658d47fec552dd57afbbeeb4859954204df3c31d | DATE: 2025-10-13 | MESSAGE: .
+1	1	src/routes/vote2/vote2.service.ts
+
+COMMIT: 3868f84a8eb881404c55c71617c0dec241fcd93e | DATE: 2025-10-13 | MESSAGE: .
+1	1	src/utils/ClusterUtils.ts
+
+COMMIT: cfa6b7760874536145b351cf3c3fe514d3d2ed74 | DATE: 2025-10-13 | MESSAGE: .
+1	1	src/routes/vote2/vote2.service.ts
+
+COMMIT: dd67a0c5d2f1b6e4c3a3fcdffc139f07c2a30ad7 | DATE: 2025-10-13 | MESSAGE: eps 0.05 to 0.04
+1	1	src/routes/vote2/vote2.service.ts
+
+COMMIT: 0e9e6da34ada0c0932ced725f218a473f33c0362 | DATE: 2025-10-12 | MESSAGE: update cluster to 4
+1	1	src/utils/ClusterUtils.ts
+
+COMMIT: 9c36538c37cb1e14790e040424be16fd9c337fba | DATE: 2025-10-10 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: bf97a28bbc4fcd66667ff1e44a692fdd791a3618 | DATE: 2025-10-10 | MESSAGE: .
+5	0	src/domain/entities/User/User.ts
+6	2	src/routes/admin/user/adminUser.service.ts
+6	0	src/routes/place/place.controller.ts
+1	0	src/routes/place/place.repository.interface.ts
+32	0	src/routes/place/place.repository.ts
+8	0	src/routes/place/place.service.ts
+3	1	src/routes/realtime/realtime.service.ts
+9	4	src/routes/user/UserRepository.ts
+6	6	src/routes/user/user.controller.ts
+8	0	src/routes/user/user.service.ts
+1	0	src/routes/vote2/vote2.service.ts
+
+COMMIT: 52277d95949e13bd2b4211bc48c1d4264b099106 | DATE: 2025-10-08 | MESSAGE: .
+18	11	src/routes/notice/notice.repository.ts
+
+COMMIT: 04f2a1c57f9431028c15de542a39a295c2114bc6 | DATE: 2025-10-08 | MESSAGE: fix unfined error
+1	1	src/domain/entities/User/Avatar.ts
+
+COMMIT: fbcb143801bacddb9f8dbc202348b0dea67fc1ac | DATE: 2025-09-28 | MESSAGE: fix avatar error
+2	2	src/domain/entities/User/Avatar.ts
+
+COMMIT: b6bb0ac55958b0968a879d6785c3c89e57cdc71c | DATE: 2025-09-22 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 8208abd6b6bb7688515065d07c01e32aa2eb879d | DATE: 2025-09-22 | MESSAGE: feat gather sort
+12	10	src/routes/gather/gather.service.ts
+
+COMMIT: 4814320b1a7413e225d7c68692d36389f5d00957 | DATE: 2025-09-19 | MESSAGE: .
+1	1	src/routes/store/store.service.ts
+
+COMMIT: ca2a823fe421def9f2a421f2110d62ee7e9797c4 | DATE: 2025-09-18 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: e81f44ecb89a64ac9925f07932cae3703fb745d4 | DATE: 2025-09-18 | MESSAGE: .
+1	1	src/domain/entities/Store/Store.ts
+2	1	src/routes/store/store.controller.ts
+
+COMMIT: 6dcdd387890b12c6dd501c1619d3b16f3b100edb | DATE: 2025-09-18 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: df5747e81bcc0d5c130c6d1d641fe396e5e8c6d4 | DATE: 2025-09-18 | MESSAGE: chore store
+7	5	src/routes/store/StoreRepository.ts
+4	4	src/routes/store/store.service.ts
+
+COMMIT: 66ddf3436e89467b3adfe4606617299a2e931845 | DATE: 2025-09-16 | MESSAGE: .
+1	1	src/routes/gather/GatherRepository.ts
+
+COMMIT: 41bb5ea948b8e2659b2dcb62e6669130e11a1fed | DATE: 2025-09-14 | MESSAGE: cursor
+1	1	src/routes/prize/PrizeRepository.ts
+
+COMMIT: 0c07a37fb74f7927eefd78254705ae0ab98b8483 | DATE: 2025-09-14 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 4dc6b4029723e501804eb97cdb93245dcf3b5063 | DATE: 2025-09-14 | MESSAGE: find prizes
+8	5	src/routes/prize/PrizeRepository.ts
+1	0	src/routes/prize/prize.controller.ts
+
+COMMIT: 705038b17acd663c6464c46e76d98f36fed2f199 | DATE: 2025-09-09 | MESSAGE: .
+21	23	src/routes/gather/GatherRepository.ts
+11	4	src/routes/groupStudy/groupStudy.service.ts
+
+COMMIT: e52a08ad53f0306e15959ddb4ab927ca04ec86f5 | DATE: 2025-09-09 | MESSAGE: .
+1	1	src/routes/admin/user/adminUser.service.ts
+3	3	src/routes/realtime/realtime.service.ts
+
+COMMIT: af69d0659cd9db260121951f966db40ff342d023 | DATE: 2025-09-04 | MESSAGE: user location update
+23	14	src/domain/entities/User/Location.ts
+7	2	src/domain/entities/User/User.ts
+3	3	src/routes/admin/user/adminUser.service.ts
+8	6	src/routes/register/register.entity.ts
+1	1	src/routes/user/UserRepository.interface.ts
+8	7	src/routes/user/UserRepository.ts
+7	3	src/routes/user/dto.ts
+28	28	src/routes/user/user.controller.ts
+4	3	src/routes/user/user.entity.ts
+10	8	src/routes/user/user.service.ts
+
+COMMIT: 5dfc20ab594d0942f8d622e1a912da18e8404662 | DATE: 2025-09-03 | MESSAGE: .
+2	2	src/routes/register/register.service.ts
+
+COMMIT: d05b4bf059a0d3b78c18c90b5d1d3f47d1bd0066 | DATE: 2025-09-03 | MESSAGE: .
+2	3	src/routes/realtime/realtime.service.ts
+
+COMMIT: b9017c3a5b1cfff0d69436fe77c09f88ff70bc9d | DATE: 2025-09-03 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 8460ff78d5ec8b1dbeaceac8ea5367ac0b4ee3a4 | DATE: 2025-09-03 | MESSAGE: .
+1	5	src/domain/entities/Place.ts
+7	7	src/routes/gather/gather.service.ts
+18	22	src/routes/groupStudy/groupStudy.service.ts
+6	5	src/routes/place/place.entity.ts
+3	4	src/routes/place/place.service.ts
+1	0	src/routes/user/user.service.ts
+
+COMMIT: 953c556287ca0e9055c007c021aa749b638ecfa3 | DATE: 2025-08-28 | MESSAGE: .
+2	3	src/routes/gather/gather.service.ts
+
+COMMIT: ca70a3a3adbed9c0e393ff19f8b4e18ebb35c2b3 | DATE: 2025-08-27 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: fdd1c19f738f3feb6ad547fb3d84f7b06f619d5b | DATE: 2025-08-27 | MESSAGE: .
+3	3	src/Constants/WEBPUSH_MSG.ts
+
+COMMIT: 6a4d3d08be29cce2271d62c8ac97a034c174f745 | DATE: 2025-08-26 | MESSAGE: fix error
+1	1	src/domain/entities/Realtime/Realtime.ts
+
+COMMIT: 701551dc8169fa3a176687be79e75bececc4f9f9 | DATE: 2025-08-26 | MESSAGE: final
+9	16	src/domain/entities/Realtime/Realtime.ts
+1	0	src/routes/realtime/realtime.controller.ts
+27	29	src/routes/realtime/realtime.service.ts
+
+COMMIT: c5eef1adf888755af47c765e39f91fb8c60017b1 | DATE: 2025-08-25 | MESSAGE: fix error
+7	2	src/domain/entities/Realtime/Realtime.ts
+13	11	src/domain/entities/Vote2/Vote2.ts
+1	1	src/routes/logz/log.service.ts
+1	0	src/routes/realtime/RealtimeRepository.ts
+20	16	src/routes/realtime/realtime.service.ts
+3	6	src/routes/user/user.service.ts
+9	3	src/routes/vote2/Vote2Repository.ts
+1	2	src/routes/vote2/vote2.controller.ts
+22	12	src/routes/vote2/vote2.service.ts
+
+COMMIT: 45662dd8adb54a0904929e6540bee7c616c4b49b | DATE: 2025-08-24 | MESSAGE: 스터디 출석체크
+25	20	src/domain/entities/Vote2/Vote2.ts
+
+COMMIT: 74aaf4b5a1a0497bd088c77274b83d86e62ed86b | DATE: 2025-08-24 | MESSAGE: fix error
+5	3	src/domain/entities/Realtime/Realtime.ts
+0	1	src/domain/entities/Realtime/RealtimeUser.ts
+4	4	src/routes/realtime/realtime.controller.ts
+21	18	src/routes/realtime/realtime.service.ts
+
+COMMIT: a2456375dd845a77490ea33fb384831e4f4987ca | DATE: 2025-08-24 | MESSAGE: fix error
+13	13	src/routes/gather/gather.service.ts
+
+COMMIT: 892c1f9ecf3e3592043fcfbb46050038d852bae9 | DATE: 2025-08-23 | MESSAGE: chore
+3	3	src/Constants/CONSTANTS.ts
+1	1	src/domain/entities/Realtime/Realtime.ts
+12	15	src/routes/feed/feed.service.ts
+1	1	src/routes/logz/log.service.ts
+9	10	src/routes/promotion/promotion.service.ts
+
+COMMIT: c91f785c39af09f3282e63bcf338801e4ccd1c23 | DATE: 2025-08-23 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: d8382477b7d881cd04d4144f3948846be4ec08e7 | DATE: 2025-08-23 | MESSAGE: update point logic
+2	2	src/routes/realtime/realtime.service.ts
+1	24	src/routes/vote2/vote2.service.ts
+
+COMMIT: 926a610cd28478757ce34b55be859e218608a910 | DATE: 2025-08-23 | MESSAGE: chore
+2	3	src/routes/gather/GatherRepository.ts
+
+COMMIT: c19936eed483e306f04015628cda3907e2ac37b5 | DATE: 2025-08-22 | MESSAGE: .
+4	3	src/routes/vote2/vote2.service.ts
+
+COMMIT: 1b283f0031b48ef119c523c715b3693672b60de7 | DATE: 2025-08-21 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 60c66146edfca07e847477c72135ce68350d4a21 | DATE: 2025-08-21 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: cbff2bebdeb034877277fbb0220df4558591c2c6 | DATE: 2025-08-21 | MESSAGE: .
+1	1	src/Constants/ENTITY.ts
+3	1	src/domain/entities/Realtime/Realtime.ts
+1	6	src/domain/entities/Realtime/RealtimeUser.ts
+3	3	src/routes/realtime/realtime.controller.ts
+4	4	src/routes/realtime/realtime.service.ts
+
+COMMIT: 5603ebc6f30ad149ed408dd176632a0a0e974163 | DATE: 2025-08-19 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 2ebd0ea633fac0dbdfb769615bf6a6c080105c36 | DATE: 2025-08-19 | MESSAGE: .
+0	1	src/domain/entities/Realtime/Realtime.ts
+1	1	src/domain/entities/Vote2/Vote2Participation.ts
+1	1	src/routes/gather/gather.service.ts
+6	1	src/routes/place/place.repository.ts
+1	1	src/routes/place/place.service.ts
+1	1	src/routes/realtime/realtime.service.ts
+1	1	src/routes/vote2/vote2.controller.ts
+2	2	src/routes/vote2/vote2.service.ts
+2	3	src/utils/ClusterUtils.ts
+
+COMMIT: 809b43ca2f9ab2e94e6242358c23c5554b289aa9 | DATE: 2025-08-19 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 74ad0614cd24defa2c23b06f322c47c6c7f2d297 | DATE: 2025-08-19 | MESSAGE: place
+2	2	src/Constants/ENTITY.ts
+77	120	src/domain/entities/Place.ts
+1	1	src/routes/place/place.controller.ts
+48	45	src/routes/place/place.entity.ts
+11	35	src/routes/place/place.service.ts
+2	2	src/utils/ClusterUtils.ts
+2	2	src/vote/vote.service.ts
+
+COMMIT: 28fc7d9db2b3e8ae6f18bf88faf1390907a1d9ed | DATE: 2025-08-19 | MESSAGE: error fix
+5	5	src/routes/user/dto.ts
+
+COMMIT: e1e898395c6c53ab895c32a5b565c7ee25bccf83 | DATE: 2025-08-17 | MESSAGE: .
+5	1	src/domain/entities/Realtime/Realtime.ts
+5	1	src/domain/entities/Vote2/Vote2.ts
+5	1	src/domain/entities/Vote2/Vote2Participation.ts
+2	3	src/routes/logz/log.service.ts
+2	2	src/routes/realtime/realtime.controller.ts
+7	7	src/routes/realtime/realtime.service.ts
+6	5	src/routes/vote2/Vote2Repository.ts
+8	4	src/routes/vote2/vote2.controller.ts
+8	0	src/routes/vote2/vote2.dto.ts
+1	0	src/routes/vote2/vote2.entity.ts
+17	3	src/routes/vote2/vote2.service.ts
+
+COMMIT: aad5bc2eb58fb69931c60c050ec2a7988b1765d0 | DATE: 2025-08-17 | MESSAGE: .
+COMMIT: 38e962bc3202755c3cee5cddbd9007ac8141de67 | DATE: 2025-08-16 | MESSAGE: chore
+5	0	src/domain/entities/Realtime/Place.ts
+2	1	src/domain/entities/Realtime/RealtimeUser.ts
+24	24	src/routes/gather/gather.service.ts
+1	0	src/routes/logz/log.controller.ts
+5	4	src/routes/realtime/RealtimeRepository.ts
+24	3	src/routes/vote2/vote2.controller.ts
+22	1	src/routes/vote2/vote2.dto.ts
+11	2	src/routes/vote2/vote2.service.ts
+5	4	src/routes/webpush/webpush.service.ts
+1	1	src/utils/Date.ts
+
+COMMIT: 261979594c104a5c82e0acfaacb8048b633ed373 | DATE: 2025-08-10 | MESSAGE: 알파벳 오타
+9	11	src/routes/vote2/vote2.service.ts
+
+COMMIT: b377f6d8f6f03d1c08dd8884b98d75fbeb695305 | DATE: 2025-08-10 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 04ec31e5f3a54df9448092a975c85040b0afd9fc | DATE: 2025-08-10 | MESSAGE: 매칭 인원 2 -> 3
+1	1	src/utils/ClusterUtils.ts
+
+COMMIT: 8fedd53532e167ddb53ff0e5297b4bd1026ddcbf | DATE: 2025-08-07 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: c7422a1446fdd1862c329d94a603b36daa484c06 | DATE: 2025-08-07 | MESSAGE: .
+1	1	src/admin/user/adminUser.controller.ts
+15	8	src/admin/user/adminUser.service.ts
+3	5	src/routes/gather/GatherRepository.ts
+2	3	src/routes/gather/gather.controller.ts
+
+COMMIT: e352c55982150a233b5099d6eecdcaa22ed8f44e | DATE: 2025-08-02 | MESSAGE: .
+14	14	src/routes/gather/gather.service.ts
+
+COMMIT: 97eca97870142212cfa4ca7a2574644464372172 | DATE: 2025-08-02 | MESSAGE: .
+1	1	src/admin/user/adminUser.service.ts
+
+COMMIT: fa40f2f61e810cbf14ca7ee333cb706b835c0056 | DATE: 2025-08-02 | MESSAGE: chore
+1	1	src/admin/user/adminUser.service.ts
+4	4	src/routes/gather/GatherRepository.ts
+1	1	src/routes/gather/gather.service.ts
+1	1	src/routes/gatherRequest/GatherRequestRepository.ts
+1	1	src/routes/gatherRequest/gatherRequest.controller.ts
+2	2	src/routes/square/square.service.ts
+8	8	src/routes/user/user.service.ts
+
+COMMIT: a65b5f00f3c8d1cd330066333b5adc5365ad1c04 | DATE: 2025-08-02 | MESSAGE: .
+3	5	src/admin/user/adminUser.service.ts
+10	5	src/routes/gather/GatherRepository.ts
+14	14	src/routes/gather/gather.service.ts
+
+COMMIT: 0a1b636c3d287481d84dff9422f85aa76e1c080c | DATE: 2025-08-02 | MESSAGE: ranking update
+1	1	src/admin/user/adminUser.controller.ts
+15	2	src/admin/user/adminUser.service.ts
+4	0	src/domain/entities/User/User.ts
+13	10	src/routes/user/UserRepository.ts
+
+COMMIT: acd3b4aa3127f3948401eeff2e9987db87dc61af | DATE: 2025-07-31 | MESSAGE: .
+10	10	src/schedule/schedule.ts
+
+COMMIT: 31abaa6f99d3f7797c42029474bcf28eb900ad41 | DATE: 2025-07-31 | MESSAGE: 주석
+18	1	src/routes/user/user.entity.ts
+10	10	src/schedule/schedule.ts
+
+COMMIT: f800627b5e55d03a0df84117fa8116aa4aa69b7e | DATE: 2025-07-31 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 1a5410ae23491200c346a89e839b409703b1a9a6 | DATE: 2025-07-31 | MESSAGE: 주석
+12	3	src/admin/user/adminUser.service.ts
+14	15	src/schedule/schedule.ts
+
+COMMIT: 09ed1459e74602b23ab835de5f10f6837f4b4888 | DATE: 2025-07-26 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: e609e57a479b90a3454058ce453b11e647a4ff01 | DATE: 2025-07-26 | MESSAGE: .
+2	2	src/routes/square/square.repository.ts
+1	1	src/routes/square/square.service.ts
+
+COMMIT: e7efd2f76c017cc2c0df46f15b1376e2b96afe69 | DATE: 2025-07-26 | MESSAGE: .
+12	2	src/Constants/ENTITY.ts
+10	1	src/domain/entities/GatherRequest/GatherRequest.ts
+8	1	src/routes/gatherRequest/GatherRequestRepository.ts
+2	1	src/routes/gatherRequest/gatherRequest.controller.ts
+2	1	src/routes/gatherRequest/gatherRequest.entity.ts
+3	2	src/routes/gatherRequest/gatherRequest.service.ts
+13	13	src/routes/square/square.controller.ts
+33	26	src/routes/square/square.repository.ts
+3	2	src/routes/square/square.service.ts
+
+COMMIT: 9b20d5c53124f83c5c0d9e77d30c6c8f3ed59cc0 | DATE: 2025-07-24 | MESSAGE: update month attend toggle
+3	0	src/domain/entities/GroupStudy.ts
+
+COMMIT: 2c830b48c6ed17982edf0f4a733109b450d52c55 | DATE: 2025-07-24 | MESSAGE: change default group attendance
+2	2	src/routes/groupStudy/groupStudy.entity.ts
+
+COMMIT: 1c15cc4955c78c602fa59b8e2c4f0ce07e15858f | DATE: 2025-07-24 | MESSAGE: send
+1	1	src/routes/notice/notice.controller.ts
+
+COMMIT: 4cec40fb27eb73621292022d70a450da875984b0 | DATE: 2025-07-23 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 19321691867edbe48b254ba29da00668e77f549b | DATE: 2025-07-23 | MESSAGE: fix error
+8	8	src/routes/notice/notice.controller.ts
+
+COMMIT: 460a8930b12937f93d71311a95b38b62f8e57be3 | DATE: 2025-07-22 | MESSAGE: adjust value
+3	1	src/routes/groupStudy/groupStudy.service.ts
+16	14	src/routes/user/user.repository.ts
+
+COMMIT: 3ec4af99278587c476de3bd0d98acdff24df0944 | DATE: 2025-07-21 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 89d6ef5eae1517569a7ed4f385a5a4c87954a255 | DATE: 2025-07-21 | MESSAGE: fix error
+1	1	src/domain/entities/GroupStudy.ts
+
+COMMIT: d682c206a421877b14460d4d2da6087bee15a061 | DATE: 2025-07-14 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 66f0435f97129c210012983a6db87d7e0bec5713 | DATE: 2025-07-14 | MESSAGE: fix groupStudy error
+3	3	src/domain/entities/GroupStudy.ts
+
+COMMIT: 0bb8f171bf9f71aa73bc6edc73959cdef883ce88 | DATE: 2025-07-08 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 827848a49450bc191f733f135f0c3ba49c591239 | DATE: 2025-07-08 | MESSAGE: chore
+1	1	src/domain/entities/GroupStudy.ts
+4	13	src/routes/gather/GatherRepository.ts
+4	1	src/routes/register/register.entity.ts
+3	3	src/routes/register/register.service.ts
+
+COMMIT: 341e886b200fea8a66685e4f8d42cc441a7944cc | DATE: 2025-06-27 | MESSAGE: fix error
+5	4	src/routes/collection/collection.service.ts
+
+COMMIT: 6344f454ccac33d2b4d080d24043f9255afb8ffb | DATE: 2025-06-26 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 976b0c9b3f9422766bd4ae215b8df1d7b251586a | DATE: 2025-06-26 | MESSAGE: fix error
+1	1	src/routes/collection/collection.service.ts
+
+COMMIT: 62fa11a72dbe0ad02bac44659ff2be08afaac972 | DATE: 2025-06-26 | MESSAGE: perf
+1	0	src/Constants/ENTITY.ts
+10	3	src/routes/collection/CollectionRepository.ts
+10	2	src/routes/collection/collection.controller.ts
+7	5	src/routes/collection/collection.service.ts
+4	0	src/routes/collection/dto.ts
+6	1	src/routes/gather/GatherRepository.ts
+3	7	src/routes/realtime/realtime.service.ts
+7	16	src/vote/vote.service.ts
+
+COMMIT: 7fb32af72e8f8b5b8ee10a0bd86304851485ffee | DATE: 2025-06-25 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 0014d48ec0a4bde6cafa854ad6e0bbeb34d6c2ed | DATE: 2025-06-25 | MESSAGE: refactor
+1	1	src/Constants/ENTITY.ts
+1	1	src/domain/entities/Feed/Feed.ts
+5	6	src/domain/entities/GroupStudy.ts
+3	3	src/routes/logz/log.controller.ts
+1	1	src/routes/logz/log.repository.interface.ts
+9	5	src/routes/logz/log.repository.ts
+15	10	src/routes/logz/log.service.ts
+3	1	src/routes/request/request.repository.ts
+1	0	src/routes/request/request.service.ts
+
+COMMIT: d3fb44abc505cdd256a29f58bda27d40dee53c3c | DATE: 2025-06-23 | MESSAGE: fix error
+7	4	src/domain/entities/GroupStudy.ts
+8	2	src/routes/groupStudy/groupStudy.service.ts
+
+COMMIT: 61233656852cb0e341722898ecfc460827125972 | DATE: 2025-06-23 | MESSAGE: add domain
+1	0	src/routes/gather/GatherRepository.ts
+
+COMMIT: 015e9cd0c028a55674ffbeed5b6551339248abbf | DATE: 2025-06-23 | MESSAGE: adjust find three function
+6	2	src/routes/gather/GatherRepository.ts
+
+COMMIT: 9a6e4a03f9681cb31849ce1507df2a0bb299f101 | DATE: 2025-06-23 | MESSAGE: gather field
+3	0	src/domain/entities/Gather/Gather.ts
+1	0	src/routes/gather/GatherRepository.ts
+
+COMMIT: d32246306b5f342cdb5c112d6ef9b3b6b9e2cd04 | DATE: 2025-06-23 | MESSAGE: add post image field
+4	0	src/routes/gather/gather.entity.ts
+
+COMMIT: ec8d713842c2ccae86b0641027cfe1f5d6ac1494 | DATE: 2025-06-23 | MESSAGE: fix gather error
+2	0	src/domain/entities/Gather/Gather.ts
+
+COMMIT: a23889a21d328d70e27520096b712320b7dd74cd | DATE: 2025-06-22 | MESSAGE: add id
+1	1	src/Constants/ENTITY.ts
+
+COMMIT: 27ccb8b09400a2a151b11e85e3432c638fd7883c | DATE: 2025-06-21 | MESSAGE: perf: user populate
+1	1	src/Constants/ENTITY.ts
+5	23	src/routes/gather/GatherRepository.ts
+5	21	src/routes/groupStudy/GroupStudyRepository.ts
+
+COMMIT: 429427a6017f42a5e4196d9cd978ccad82d3df22 | DATE: 2025-06-21 | MESSAGE: gahter to gather and add field
+2	2	src/Constants/CONSTANTS.ts
+2	1	src/Constants/ENTITY.ts
+11	6	src/routes/gather/gather.entity.ts
+3	3	src/routes/gather/gather.service.ts
+
+COMMIT: 1413104248927abe9b9e9e92e2a592f0b3b22307 | DATE: 2025-06-21 | MESSAGE: update gather shanshot refactor
+2	1	src/routes/groupStudy/groupStudy.controller.ts
+32	30	src/routes/groupStudy/groupStudy.service.ts
+1	1	src/routes/logz/log.repository.ts
+1	1	src/routes/logz/log.service.ts
+
+COMMIT: 4104e3808a23890703c849a05ae4af7270a01872 | DATE: 2025-06-21 | MESSAGE: GATHER to GATHER
+1	0	src/Constants/ENTITY.ts
+1	0	src/routes/gather/gather.entity.ts
+
+COMMIT: 7c48374250b072284430204d56762c8c313a0b3b | DATE: 2025-06-20 | MESSAGE: add gather field
+3	0	src/domain/entities/GroupStudy.ts
+5	4	src/routes/groupStudy/GroupStudyRepository.ts
+4	0	src/routes/groupStudy/groupStudy.entity.ts
+
+COMMIT: cb45fe5793040d1f27a6b4ee4e82e0fb14a9bae8 | DATE: 2025-06-20 | MESSAGE: fix square error
+23	22	src/routes/square/square.service.ts
+
+COMMIT: 0f8614803de59bc89f74e3b930f80eb5aaa0f653 | DATE: 2025-06-20 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: fb15790ac9348584eba3bfce94d6f2f767d843a3 | DATE: 2025-06-20 | MESSAGE: fix user objectId error
+21	8	src/domain/entities/GroupStudy.ts
+8	7	src/routes/groupStudy/groupStudy.service.ts
+
+COMMIT: bf4a3634337d6958d5b9fe1a85679942c99ffb39 | DATE: 2025-06-16 | MESSAGE: gather sorted change
+78	28	src/routes/gather/GatherRepository.ts
+1	1	src/routes/gather/gather.service.ts
+
+COMMIT: e15c76a940decc24a1a307e80a04ed183a12a990 | DATE: 2025-06-15 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: d91e279bebed6fb64c84468cb4315d96780a5858 | DATE: 2025-06-15 | MESSAGE: fix error
+3	2	src/routes/user/user.repository.ts
+
+COMMIT: 698fd128552750cc1d53d444e8ec852b1a35db79 | DATE: 2025-06-15 | MESSAGE: log month
+3	2	src/routes/logz/log.controller.ts
+1	1	src/routes/logz/log.repository.interface.ts
+21	5	src/routes/logz/log.repository.ts
+2	2	src/routes/logz/log.service.ts
+1	1	src/routes/request/request.service.ts
+
+COMMIT: 637b822a5ecf9816b4a735758f4ad489a0f046f8 | DATE: 2025-06-15 | MESSAGE: Merge branch 'feat/gather'
+COMMIT: 812d43cf422f006b84d60a23ef6ddd0cd9a231f4 | DATE: 2025-06-14 | MESSAGE: Merge branch 'main' into feat/gather
+COMMIT: 8f150b1c752e4a1c22992df3a57dbb276bcfd4db | DATE: 2025-06-12 | MESSAGE: add request isChecked field
+5	0	src/routes/request/request.entity.ts
+
+COMMIT: 7cee31abbc49e19022c0729cf753dfc26321610f | DATE: 2025-06-12 | MESSAGE: edit default point
+7	7	src/routes/register/register.service.ts
+4	4	src/routes/request/request.repository.ts
+
+COMMIT: 5928b1dc6e919345b946185a0d257d875fa92f1a | DATE: 2025-06-12 | MESSAGE: add user role - block
+1	0	src/Constants/ENTITY.ts
+
+COMMIT: b5fd4e75203bcc7ad4fb7af64deb82cf377d118f | DATE: 2025-06-11 | MESSAGE: .
+1	1	src/routes/chatz/chat.service.ts
+
+COMMIT: 346318c8f03ddd387554e7362ba0e0298276fdc0 | DATE: 2025-06-11 | MESSAGE: hotfix: chat error
+4	1	src/routes/chatz/chat.service.ts
+
+COMMIT: e1c62b5d95c315666d64a5388c67df2e6da4a3c7 | DATE: 2025-06-11 | MESSAGE: fix chat error
+2	5	src/routes/chatz/chat.service.ts
+
+COMMIT: e3af99d327aec2bebe547391c879bffff58f37bb | DATE: 2025-06-11 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: e6146e5f5c86b869fedffdb9208953b1a1d699b4 | DATE: 2025-06-11 | MESSAGE: hotfix- chat error
+8	5	src/routes/chatz/chat.service.ts
+
+COMMIT: 065eb06a92163ced712ade450a998812d6131497 | DATE: 2025-06-09 | MESSAGE: user populate mini
+2	1	src/Constants/ENTITY.ts
+6	6	src/routes/gather/GatherRepository.ts
+
+COMMIT: 2659f34eaa0bc1c5a07fb326e7480589c8a909d6 | DATE: 2025-06-09 | MESSAGE: chore
+1	1	src/routes/gather/GatherRepository.ts
+
+COMMIT: be1046cc752e9628528e194d2582e2f29097b923 | DATE: 2025-06-09 | MESSAGE: revert populate select
+6	6	src/routes/gather/GatherRepository.ts
+
+COMMIT: afd27e9adbd5b19fac36016f2c502c83b5b21c3c | DATE: 2025-06-09 | MESSAGE: edit gather find Three
+1	1	src/Constants/ENTITY.ts
+28	21	src/routes/gather/GatherRepository.ts
+
+COMMIT: b5c9af140d12efc19b3417a4a10756def4a21004 | DATE: 2025-06-09 | MESSAGE: edit limit number
+1	0	src/routes/gather/GatherRepository.ts
+
+COMMIT: 5873d3ec06d9cebd14a69884db13a53d138a9f5d | DATE: 2025-06-07 | MESSAGE: change date condition
+1	1	src/routes/gather/gather.service.ts
+
+COMMIT: 2179000b2f06039df2e1ed7af1ac695fa8f2c453 | DATE: 2025-06-06 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: d0b33f97206159a7521c4a6ee397eddf458db248 | DATE: 2025-06-06 | MESSAGE: chore
+1	1	src/routes/fcm/fcm.service.ts
+19	17	src/routes/gather/gather.service.ts
+
+COMMIT: 6f32ab2cae2cb631782a5432cee481b5106ebfca | DATE: 2025-06-06 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 3c38769d160e154ee5f92f49c9df38a0b06c09b1 | DATE: 2025-06-06 | MESSAGE: change badge -> 0
+1	1	src/routes/fcm/fcm.service.ts
+
+COMMIT: 04274d07a21779ee1ebb2438364dcbbb55fd97c1 | DATE: 2025-06-05 | MESSAGE: refactor: three gather
+11	25	src/routes/gather/GatherRepository.ts
+5	5	src/routes/groupStudy/groupStudy.service.ts
+
+COMMIT: 580bd02a27fda617b04f5cf6950d991ad70a7de6 | DATE: 2025-06-05 | MESSAGE: add entity
+1	1	src/Constants/ENTITY.ts
+5	0	src/routes/user/user.entity.ts
+
+COMMIT: 96944806efba4f26d39512598f8c5acc3931910a | DATE: 2025-06-05 | MESSAGE: revert
+1	2	src/routes/fcm/fcm.service.ts
+
+COMMIT: 4f81084356776fee2c1cbee72954d8620ae34d1c | DATE: 2025-06-04 | MESSAGE: test
+0	7	src/routes/fcm/fcm.service.ts
+
+COMMIT: 703119a959a06856a7d080cd5d991df6c6398e39 | DATE: 2025-06-04 | MESSAGE: fcm test
+8	0	src/routes/fcm/fcm.service.ts
+
+COMMIT: 11d323e1afa9d0793ed04a9a9a6f9baf8bcf7148 | DATE: 2025-06-04 | MESSAGE: adjust fcm badge cnt
+1	1	src/routes/fcm/fcm.service.ts
+
+COMMIT: 04a585bd3f54bce7feaf2da6f34dd216ffc91ee5 | DATE: 2025-06-04 | MESSAGE: refactor: fcm
+30	16	src/routes/fcm/fcm.service.ts
+
+COMMIT: 81b453d3f2424cbdefc5ab92a580ae281a9f0480 | DATE: 2025-06-04 | MESSAGE: chore
+1	1	src/routes/logz/log.repository.ts
+2	1	src/routes/logz/log.service.ts
+7	16	src/routes/notice/notice.service.ts
+1	1	src/routes/user/user.entity.ts
+
+COMMIT: 2c7f1395f79641da8e25d0a25896056d0ef4f854 | DATE: 2025-06-04 | MESSAGE: edit date locale ko
+3	1	src/utils/Date.ts
+
+COMMIT: dee354d6d51d572702dad40934bd269c0e752923 | DATE: 2025-06-04 | MESSAGE: edit push message
+15	18	src/Constants/WEBPUSH_MSG.ts
+
+COMMIT: f425f1bacaa442b2d5fa46164d9ec3e5488a6b35 | DATE: 2025-06-04 | MESSAGE: fcm featrue
+49	19	src/routes/fcm/fcm.service.ts
+
+COMMIT: 1652f5362743d6279173be4b660100ddfedd558f | DATE: 2025-06-04 | MESSAGE: check fcm apple
+13	8	src/routes/fcm/fcm.service.ts
+
+COMMIT: f891d3792c565f10ebadfce6dc5c89520e781522 | DATE: 2025-06-02 | MESSAGE: fix field name error
+1	1	src/routes/user/user.controller.ts
+
+COMMIT: eec08169ba73d697a9390a4c733c8d7b8ce234b5 | DATE: 2025-06-01 | MESSAGE: adjust gather review date
+5	5	src/routes/gather/gather.service.ts
+
+COMMIT: 26414e953f2764ec8e97d5edbccf99777b54cd47 | DATE: 2025-05-26 | MESSAGE: add notionUrl field to gather
+4	0	src/routes/gather/gather.entity.ts
+
+COMMIT: fd650afa685708d1d6df0f5670adca3ce82f3ecc | DATE: 2025-05-29 | MESSAGE: remove console
+3	4	src/routes/fcm/fcm.service.ts
+2	2	src/routes/feed/feed.service.ts
+1	1	src/routes/gather/gather.service.ts
+2	2	src/routes/groupStudy/groupStudy.service.ts
+1	1	src/routes/logz/log.repository.ts
+
+COMMIT: 73f73cca8ab338d10e29058e831b982b5b0d3747 | DATE: 2025-05-29 | MESSAGE: add fcm payload by apple
+5	4	src/routes/fcm/fcm.controller.ts
+20	5	src/routes/fcm/fcm.service.ts
+
+COMMIT: 58e25c33273c20803eef70bc41e86b2b3242b6dd | DATE: 2025-05-28 | MESSAGE: change web push payload image
+5	6	src/routes/webpush/webpush.service.ts
+
+COMMIT: 885e8e31c5f9f4390ef6411da610aa3202e59e5f | DATE: 2025-05-28 | MESSAGE: edit push message
+1	1	src/Constants/WEBPUSH_MSG.ts
+
+COMMIT: 4c700438508774e81cdb70862dec75a67ce59f39 | DATE: 2025-05-28 | MESSAGE: edit push message
+1	1	src/Constants/WEBPUSH_MSG.ts
+
+COMMIT: c56878d1bc8487a1d2139a5db54f33b5bd1851bd | DATE: 2025-05-28 | MESSAGE: edit push message
+2	2	src/Constants/WEBPUSH_MSG.ts
+
+COMMIT: a0474804b2b9da7f463877dd7984520f302c5163 | DATE: 2025-05-27 | MESSAGE: filter pending includes resting
+18	8	src/routes/groupStudy/groupStudy.service.ts
+
+COMMIT: f6e0e9339ab301df81ee8344a19ff442084a8dde | DATE: 2025-05-27 | MESSAGE: add ENUM in groupStudy status
+1	0	src/Constants/ENTITY.ts
+
+COMMIT: 6ab54a8f5e1fdfffddb06822ba71b350e0f6c5c5 | DATE: 2025-05-23 | MESSAGE: feature
+10	2	src/routes/gather/GatherRepository.ts
+13	1	src/routes/logz/log.controller.ts
+1	0	src/routes/logz/log.repository.interface.ts
+17	2	src/routes/logz/log.repository.ts
+12	5	src/routes/logz/log.service.ts
+2	13	src/routes/user/user.repository.ts
+
+COMMIT: 3e1a4862c6ea8ac503a0f9ca3f0d434a58672e5a | DATE: 2025-05-20 | MESSAGE: hotfix gather
+3	2	src/routes/gather/GatherRepository.ts
+9	5	src/routes/gather/gather.service.ts
+
+COMMIT: b166f4598f29d9eee88423a9b6978a82d424140e | DATE: 2025-05-17 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 13b99bb1c327b75911385c9cfbaf270b76270a23 | DATE: 2025-05-17 | MESSAGE: update date filter
+9	7	src/routes/gather/gather.service.ts
+
+COMMIT: fee51d4e4806a0bff954e5e071eb8aec5762afc3 | DATE: 2025-05-14 | MESSAGE: 최대 2개로
+2	2	src/routes/gather/gather.service.ts
+
+COMMIT: c76b9a50c2f5edf31ab5fda6ae7de19cf67da2d6 | DATE: 2025-05-13 | MESSAGE: temp remove status
+4	3	src/routes/place/place.repository.ts
+
+COMMIT: 0d32239fb7db67a2d42fc5d0055fb5c64bb783c4 | DATE: 2025-05-13 | MESSAGE: fix error
+2	3	src/routes/place/place.service.ts
+
+COMMIT: 0531a3b6afcc386519432646d62a6f29cdc47d0e | DATE: 2025-05-13 | MESSAGE: error fix
+3	3	src/routes/feed/FeedRepository.ts
+2	2	src/routes/feed/feed.controller.ts
+5	1	src/routes/feed/feed.repository.interface.ts
+4	4	src/routes/feed/feed.repository.ts
+10	7	src/routes/feed/feed.service.ts
+7	5	src/routes/gather/GatherRepository.ts
+1	2	src/routes/gather/gather.service.ts
+
+COMMIT: 993b84cc50db2288fa8c486399dc5bfae6121f13 | DATE: 2025-05-13 | MESSAGE: add await
+6	6	src/routes/feed/feed.service.ts
+
+COMMIT: 357780ae77793feadc44f53bba141a4d69bf4436 | DATE: 2025-05-13 | MESSAGE: .
+1	1	src/routes/dailycheck/dailyCheck.service.ts
+
+COMMIT: b45fd0c4483b7a6cee0e1b63d8a39840420a831e | DATE: 2025-05-06 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 56e57776f3b8e586648b1d1a0b30ed6972453f57 | DATE: 2025-05-06 | MESSAGE: fix error
+7	4	src/routes/gather/gather.service.ts
+
+COMMIT: 28c06ffad6a458d8d1c0ffe4378bfac581efd056 | DATE: 2025-05-03 | MESSAGE: feed populate
+8	1	src/feed/FeedRepository.ts
+
+COMMIT: c4e061cfdf574c39224de917e7393ec645340b0c | DATE: 2025-05-03 | MESSAGE: feed
+3	0	src/feed/FeedRepository.ts
+
+COMMIT: d35537643a1f98cbc5ef905a31005e20b5deb20f | DATE: 2025-05-03 | MESSAGE: fix: Boolean error: Boolean씌우면 string이라 무조건 true됨
+3	3	src/feed/feed.service.ts
+
+COMMIT: 6fe9edb645723d5a2e9fe6b2d1a1614fbdb0ceb8 | DATE: 2025-05-03 | MESSAGE: .
+2	2	src/gather/GatherRepository.ts
+
+COMMIT: 131253b957015e837fa0f7aa2ae456757b31bf89 | DATE: 2025-05-03 | MESSAGE: add coverImage field
+4	1	src/domain/entities/Gather/Gather.ts
+8	4	src/gather/GatherRepository.ts
+2	0	src/gather/gather.controller.ts
+1	0	src/gather/gather.repository.ts
+1	0	src/gather/gather.service.ts
+
+COMMIT: c327f06c63df7b64d1565441ae7ac7d37e7a7ccf | DATE: 2025-05-02 | MESSAGE: return gather id
+1	1	src/gather/gather.service.ts
+
+COMMIT: 975d1bd0d4a66ac5e226f6552ce3d0556d33cead | DATE: 2025-05-02 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: db7b60efbe2283afc1ded6eb1251c8048fa1c777 | DATE: 2025-05-02 | MESSAGE: hotfix: create gather error
+10	6	src/domain/entities/Gather/Gather.ts
+7	7	src/gather/gather.service.ts
+
+COMMIT: f1fde69b04ed7b1a51b360f53d36362697aec17e | DATE: 2025-05-01 | MESSAGE: fix error
+5	3	src/webpush/webpush.service.ts
+
+COMMIT: 3276419d0677bcf265a8399252ed5ae3db812aba | DATE: 2025-05-01 | MESSAGE: error fix
+1	1	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 488b22f55a8487feea09bb90ecb1397c7875d655 | DATE: 2025-05-01 | MESSAGE: update push message
+3	2	src/groupStudy/groupStudy.service.ts
+
+COMMIT: e4de6c0ef8f0641e1901af9b4e33258c5188b1f7 | DATE: 2025-05-01 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 1868e2de68e1de3247b2a1e6214e5d4e8c71db1a | DATE: 2025-05-01 | MESSAGE: fix error
+7	4	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 4d67f89fb135f03429cdb800a3be5e6f56d68ef4 | DATE: 2025-05-01 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: aec075e89c24f767868b4fe7d7062f8a1e4448f2 | DATE: 2025-05-01 | MESSAGE: update push message template
+0	1	src/admin/user/adminUser.service.ts
+2	2	src/chatz/chat.service.ts
+0	1	src/feed/FeedRepository.ts
+15	21	src/groupStudy/groupStudy.service.ts
+1	1	src/webpush/webpush.controller.ts
+7	7	src/webpush/webpush.service.ts
+
+COMMIT: b00eda8be9cc4b6b52c1c2c1fbd452426eca3e22 | DATE: 2025-05-01 | MESSAGE: locale ko
+7	6	src/gather/gather.service.ts
+5	0	src/utils/dateUtils.ts
+
+COMMIT: 1d31714a34821ad31c0c70121fbdb34a567da584 | DATE: 2025-05-01 | MESSAGE: gather notification text
+17	17	src/gather/gather.service.ts
+3	0	src/utils/Date.ts
+1	0	src/webpush/webpush.controller.ts
+11	8	src/webpush/webpush.service.ts
+
+COMMIT: 476b6f48e653a8f06c68d9ee8346209cf8cfdc8d | DATE: 2025-04-30 | MESSAGE: fix invite error
+0	5	src/gather/gather.service.ts
+3	1	src/request/request.entity.ts
+
+COMMIT: 2c7758a93346b4437cdf29a62cc9aaaec943a155 | DATE: 2025-04-30 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: b9be12729435e1cd33f3fdea83878e6fa44bc465 | DATE: 2025-04-30 | MESSAGE: .
+1	1	src/user/user.controller.ts
+
+COMMIT: 958dc627bc7e26322b2116a52089fdd36a85d20b | DATE: 2025-04-29 | MESSAGE: chat
+4	5	src/chatz/ChatRepository.ts
+15	8	src/chatz/chat.service.ts
+6	0	src/domain/entities/chat/Content.ts
+
+COMMIT: b8aa42033dec72b51f3c4cd51b267e6ab7f3776a | DATE: 2025-04-29 | MESSAGE: .
+2	2	src/user/user.service.ts
+
+COMMIT: e66fe6ee3f6cfb56f7cf4d8ae245c5ad91d44890 | DATE: 2025-04-29 | MESSAGE: chat
+4	3	src/chatz/ChatRepository.ts
+26	13	src/chatz/chat.service.ts
+7	0	src/domain/entities/chat/Content.ts
+
+COMMIT: 40f488299e668fef8b658c25f02c7a3c2b405dd1 | DATE: 2025-04-29 | MESSAGE: user
+1	1	src/Constants/constants.ts
+3	1	src/feed/FeedRepository.ts
+3	3	src/user/user.controller.ts
+3	3	src/user/user.entity.ts
+1	1	src/user/user.repository.interface.ts
+2	2	src/user/user.repository.ts
+
+COMMIT: b79c9e7f10f0710de441362df281377af650951d | DATE: 2025-04-26 | MESSAGE: update point
+3	2	src/place/place.service.ts
+2	1	src/vote2/vote2.controller.ts
+10	0	src/vote2/vote2.repository.ts
+
+COMMIT: 971484eeca6974f0e42963c99c9d12664b47068e | DATE: 2025-04-25 | MESSAGE: feed: _id to typeId
+3	2	src/feed/FeedRepository.ts
+3	4	src/feed/feed.controller.ts
+14	14	src/feed/feed.repository.ts
+1	5	src/feed/feed.service.ts
+
+COMMIT: b0d8f276c63db959de53ba827114cf08050bd2bb | DATE: 2025-04-25 | MESSAGE: fix feeds sort
+2	1	src/feed/FeedRepository.ts
+1	1	src/feed/feed.controller.ts
+
+COMMIT: 2e9d06d7555e90a94a563c50db0438232d9701a6 | DATE: 2025-04-25 | MESSAGE: fix feed error
+2	2	src/feed/FeedRepository.ts
+8	11	src/feed/feed.controller.ts
+1	1	src/feed/feed.service.ts
+
+COMMIT: 85423de404b69522e7a327b8570091147fc1a873 | DATE: 2025-04-25 | MESSAGE: place review and admin request
+0	1	src/admin/user/adminUser.controller.ts
+1	0	src/feed/feed.service.ts
+0	1	src/place/place.controller.ts
+5	0	src/place/place.entity.ts
+0	1	src/place/place.repository.ts
+3	7	src/request/request.controller.ts
+5	2	src/request/request.entity.ts
+8	4	src/request/request.service.ts
+1	1	src/schedule/schedule.ts
+0	1	src/vote2/vote2.repository.ts
+1	1	src/vote2/vote2.service.ts
+
+COMMIT: 85d3021945147a25cb9371d5002a34f3deddef2a | DATE: 2025-04-24 | MESSAGE: 출석체크 핫픽스: populate 문제
+1	1	src/place/place.controller.ts
+1	1	src/place/place.repository.ts
+0	1	src/user/user.controller.ts
+1	1	src/vote2/vote2.repository.ts
+3	3	src/vote2/vote2.service.ts
+
+COMMIT: b81084dea376267431f894cbf71500809f9ce2c3 | DATE: 2025-04-24 | MESSAGE: place
+12	4	src/place/place.controller.ts
+15	5	src/place/place.entity.ts
+7	1	src/place/place.repository.interface.ts
+13	3	src/place/place.repository.ts
+13	2	src/place/place.service.ts
+14	2	src/vote2/vote2.repository.ts
+3	3	src/vote2/vote2.service.ts
+3	2	src/webpush/webpush.controller.ts
+20	11	src/webpush/webpush.repository.ts
+
+COMMIT: 0d04f1bc28002330584c41d7eaa681f34e2f45d6 | DATE: 2025-04-23 | MESSAGE: chore: point system logic
+1	5	src/realtime/realtime.service.ts
+1	1	src/vote2/vote2.repository.ts
+
+COMMIT: 5cef2aeab0a195d12ac9802bae16c6fc05cb64f1 | DATE: 2025-04-23 | MESSAGE: chore: adjust pointSystem
+6	18	src/Constants/point.ts
+6	2	src/Constants/score.ts
+2	2	src/feed/feed.service.ts
+0	11	src/gather/gather.service.ts
+5	7	src/groupStudy/groupStudy.service.ts
+4	7	src/promotion/promotion.service.ts
+4	4	src/realtime/realtime.service.ts
+1	1	src/user/user.repository.interface.ts
+2	2	src/user/user.repository.ts
+25	10	src/user/user.service.ts
+0	17	src/vote/vote.service.ts
+0	2	src/vote2/vote2.repository.ts
+
+COMMIT: 3e050f3842fa6364eb8eacdcc24047a335a200b0 | DATE: 2025-04-23 | MESSAGE: chore
+1	2	src/Constants/point.ts
+0	3	src/dailycheck/dailyCheck.service.ts
+4	0	src/gather/gather.entity.ts
+1	1	src/realtime/realtime.repository.ts
+6	0	src/user/user.controller.ts
+1	0	src/user/user.repository.interface.ts
+13	0	src/user/user.repository.ts
+7	3	src/user/user.service.ts
+
+COMMIT: ee0db827528f91881ec0be0758b905dc1276233d | DATE: 2025-04-21 | MESSAGE: get gather data
+2	10	src/gather/gather.repository.ts
+
+COMMIT: 06f2060640dce65274cd8928392106152efc4fbc | DATE: 2025-04-20 | MESSAGE: post -> patch
+1	1	src/user/user.controller.ts
+
+COMMIT: e8060a9e8e36d1c2afbdf8a1db0d1193ffb79136 | DATE: 2025-04-20 | MESSAGE: .
+1	1	src/user/user.entity.ts
+
+COMMIT: 95e0d896c49a6984c2a955f46da9fe894c9a9841 | DATE: 2025-04-20 | MESSAGE: hotfix
+1	3	src/vote2/vote2.controller.ts
+
+COMMIT: d9f7d85dedbcbec82ddbf436dc646b5efbe64903 | DATE: 2025-04-20 | MESSAGE: add user field: monthStudyTarget
+10	2	src/user/user.controller.ts
+4	0	src/user/user.entity.ts
+3	1	src/vote2/vote2.controller.ts
+
+COMMIT: bea8139c3bda67695885ee2a0a96b6bda2bb2916 | DATE: 2025-04-18 | MESSAGE: change result hour
+3	9	src/vote2/vote2.service.ts
+
+COMMIT: 4f5ebbdf9357fc9e927cfe2594198c8f10b91236 | DATE: 2025-04-18 | MESSAGE: hotfix
+1	1	src/vote2/vote2.service.ts
+
+COMMIT: 7f404d3a75f0f34d05f7c633b0d43a0e6330775f | DATE: 2025-04-17 | MESSAGE: hot fix
+1	3	src/vote2/vote2.controller.ts
+
+COMMIT: 647fe1467c9e8b3cdf206c951ef9a06af62d0c66 | DATE: 2025-04-17 | MESSAGE: admin user
+5	1	src/admin/user/adminUser.service.ts
+
+COMMIT: 6fa0f08673bb48e675def4953dddb514081d10ac | DATE: 2025-04-17 | MESSAGE: Merge branch 'feature/admin/user'
+COMMIT: db6ffb95dc296053a1322964da5ff44c9e864870 | DATE: 2025-04-17 | MESSAGE: .
+1	1	src/place/place.service.ts
+
+COMMIT: 8188bfe8f5f80ce4ed7f4c4c02c401e783fb73b7 | DATE: 2025-04-17 | MESSAGE: .
+1	1	src/realtime/realtime.service.ts
+
+COMMIT: 68c261a8aae03d6769edc18f9054b017c2e00bb4 | DATE: 2025-04-17 | MESSAGE: adjust date
+1	3	src/vote2/vote2.service.ts
+
+COMMIT: 4b6fbead266f715ab2899efa72d334ca77eced20 | DATE: 2025-04-17 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 9df639201f82cfd4fac37a88a378daf9e31da8b8 | DATE: 2025-04-17 | MESSAGE: 임시로 realTime 시간 조정
+3	1	src/vote2/vote2.service.ts
+
+COMMIT: d51642482e7131c457fa6ad093cfdd5987f31670 | DATE: 2025-04-17 | MESSAGE: .
+12	23	src/admin/user/adminUser.controller.ts
+5	30	src/admin/user/adminUser.service.ts
+3	1	src/realtime/realtime.repository.ts
+2	2	src/realtime/realtime.service.ts
+3	1	src/vote2/vote2.controller.ts
+3	1	src/vote2/vote2.service.ts
+
+COMMIT: 3d269aae5bc3093a5a1946c643ffa4aaab3ff898 | DATE: 2025-04-16 | MESSAGE: add populate: C_simpleUser
+6	5	src/vote2/vote2.repository.ts
+
+COMMIT: 4d8b0616b37b18f41d218e2edce241bd267ac3ad | DATE: 2025-04-16 | MESSAGE: 22 -> 23
+1	1	src/vote2/vote2.service.ts
+
+COMMIT: 8dcfd8318b4ea53c06bb29e1e326a16c83a6d192 | DATE: 2025-04-16 | MESSAGE: add absence date
+1	0	src/vote2/vote2.repository.ts
+
+COMMIT: 71f377a21e4c0f5f5be284706ab00fc7837a985e | DATE: 2025-04-16 | MESSAGE: fix date
+1	1	src/vote2/vote2.controller.ts
+
+COMMIT: 3f9af6ea148fcdbb41e1cd6df3978486f37c2399 | DATE: 2025-04-16 | MESSAGE: fix date
+1	3	src/vote2/vote2.controller.ts
+
+COMMIT: 5605ea7a3247924cebfd6184fb4201f8575631cf | DATE: 2025-04-16 | MESSAGE: .
+3	1	src/vote2/vote2.controller.ts
+2	2	src/vote2/vote2.repository.ts
+
+COMMIT: a58b891c7c9c69f890708816df45a704aef94b49 | DATE: 2025-04-16 | MESSAGE: fix vote2 comment
+1	1	src/vote2/vote2.repository.ts
+1	3	src/vote2/vote2.service.ts
+
+COMMIT: e5b7bfaafb82efa62f8ca4ab902e6b0185639557 | DATE: 2025-04-16 | MESSAGE: fix collection error
+7	3	src/collection/collection.service.ts
+
+COMMIT: 3f24102bfb0ab379944349f7a932e2452840882c | DATE: 2025-04-16 | MESSAGE: update comment
+6	1	src/vote2/vote2.repository.ts
+
+COMMIT: 0e8ea2a209dd90069d3df431badd62309c0db6d5 | DATE: 2025-04-16 | MESSAGE: .
+1	1	src/vote2/vote2.service.ts
+
+COMMIT: 76f1bc59fbda4171e8cc1ac3c0be68d1aa3fa1de | DATE: 2025-04-16 | MESSAGE: fix date
+1	3	src/vote2/vote2.controller.ts
+
+COMMIT: 38303935e3ca8c032e62ec436e58925f06a7c503 | DATE: 2025-04-16 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: c3751585427dc4df8cbce8f477249756f4a0d2d7 | DATE: 2025-04-16 | MESSAGE: get unmatchedusers
+3	1	src/vote2/vote2.controller.ts
+15	0	src/vote2/vote2.service.ts
+
+COMMIT: 8c12a39dd7eeeb1070db4488e2b077e7dd9ca9f9 | DATE: 2025-04-15 | MESSAGE: .
+1	3	src/vote2/vote2.controller.ts
+
+COMMIT: d39bce996ad03674a57c69d4e4a3c338dca24e21 | DATE: 2025-04-15 | MESSAGE: update eps
+3	1	src/vote2/vote2.controller.ts
+1	2	src/vote2/vote2.service.ts
+
+COMMIT: 3933a07fbd23a81eb0bf19e0a1e50269df5eb3c9 | DATE: 2025-04-15 | MESSAGE: place change
+4	11	src/place/place.entity.ts
+6	2	src/place/place.repository.ts
+5	11	src/place/place.service.ts
+
+COMMIT: adf93dcfc550af394524e3aa2465e6326e3d576d | DATE: 2025-04-14 | MESSAGE: 2025-04-14 스터디 리뉴얼
+1	2	src/collection/collection.service.ts
+1	1	src/groupStudy/groupStudy.service.ts
+10	12	src/realtime/realtime.controller.ts
+1	0	src/realtime/realtime.entity.ts
+14	10	src/realtime/realtime.service.ts
+2	2	src/user/user.controller.ts
+3	3	src/vote2/vote2.controller.ts
+1	1	src/vote2/vote2.repository.interface.ts
+6	5	src/vote2/vote2.repository.ts
+6	7	src/vote2/vote2.service.ts
+
+COMMIT: f61ad91410ee1dc69fbffda2343586dc5dc73f49 | DATE: 2025-04-13 | MESSAGE: .
+2	1	src/vote/vote.service.ts
+
+COMMIT: d4bba36497100f0fefeb32b17140fa9704565fd7 | DATE: 2025-04-13 | MESSAGE: .
+0	1	src/realtime/realtime.repository.ts
+9	0	src/user/user.controller.ts
+6	0	src/user/user.entity.ts
+2	2	src/vote2/vote2.repository.ts
+2	1	src/vote2/vote2.service.ts
+
+COMMIT: 6ac573273b0da1bdd78f56b927d02a814c9ea343 | DATE: 2025-04-13 | MESSAGE: .
+2	2	src/collection/collection.repository.ts
+9	13	src/collection/collection.service.ts
+33	4	src/user/user.entity.ts
+1	6	src/vote/vote.service.ts
+4	4	src/vote2/vote2.controller.ts
+3	0	src/vote2/vote2.dto.ts
+13	8	src/vote2/vote2.entity.ts
+10	6	src/vote2/vote2.module.ts
+56	6	src/vote2/vote2.repository.ts
+28	7	src/vote2/vote2.service.ts
+
+COMMIT: 33b0d483e4658e64ce95dc6ca1ef51f56e47e7f5 | DATE: 2025-04-12 | MESSAGE: .
+1	2	src/gather/gather.service.ts
+3	2	src/realtime/realtime.repository.ts
+0	1	src/user/user.controller.ts
+4	4	src/vote/vote.service.ts
+10	2	src/vote2/ClusterUtils.ts
+0	2	src/vote2/vote2.controller.ts
+1	0	src/vote2/vote2.entity.ts
+19	18	src/vote2/vote2.repository.ts
+32	23	src/vote2/vote2.service.ts
+0	1	src/webpush/webpush.controller.ts
+
+COMMIT: 7f1a7c428e35d845b22644367e479fab3af7bde6 | DATE: 2025-04-09 | MESSAGE: realTime Change
+2	2	src/realtime/realtime.entity.ts
+9	12	src/realtime/realtime.service.ts
+
+COMMIT: b25d306a66f9023459280b41881de9b2a357e449 | DATE: 2025-04-14 | MESSAGE: WIP on main: 6b3c75a .
+COMMIT: 1f685fb23f541eda346f75b0239958bdb23acbd7 | DATE: 2025-04-14 | MESSAGE: index on main: 6b3c75a .
+COMMIT: 6b3c75a19a3ba9293741683617d84fce04a45cb3 | DATE: 2025-04-13 | MESSAGE: .
+2	1	src/vote/vote.service.ts
+0	9	src/vote2/vote2.repository.ts
+
+COMMIT: d2a87380e64fa64eea0a48872c22977b6cd7ee0f | DATE: 2025-04-13 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 06347cb4b5d9e1ec9c07ed4bcce5007d58b7e52a | DATE: 2025-04-13 | MESSAGE: .
+0	1	src/realtime/realtime.repository.ts
+9	0	src/user/user.controller.ts
+6	0	src/user/user.entity.ts
+2	2	src/vote2/vote2.repository.ts
+2	2	src/vote2/vote2.service.ts
+
+COMMIT: ac8e740a7c88a1b11f2553d02d73e86131d1153e | DATE: 2025-04-13 | MESSAGE: .
+2	2	src/collection/collection.repository.ts
+9	13	src/collection/collection.service.ts
+33	4	src/user/user.entity.ts
+1	6	src/vote/vote.service.ts
+4	4	src/vote2/vote2.controller.ts
+3	0	src/vote2/vote2.dto.ts
+18	0	src/vote2/vote2.entity.ts
+10	6	src/vote2/vote2.module.ts
+56	6	src/vote2/vote2.repository.ts
+31	9	src/vote2/vote2.service.ts
+
+COMMIT: 023c4b7ed3735a1968d35a2ef4bbc99dcfb20b39 | DATE: 2025-04-12 | MESSAGE: .
+1	2	src/gather/gather.service.ts
+3	2	src/realtime/realtime.repository.ts
+0	1	src/user/user.controller.ts
+4	4	src/vote/vote.service.ts
+10	2	src/vote2/ClusterUtils.ts
+0	2	src/vote2/vote2.controller.ts
+1	0	src/vote2/vote2.entity.ts
+19	18	src/vote2/vote2.repository.ts
+45	31	src/vote2/vote2.service.ts
+0	1	src/webpush/webpush.controller.ts
+
+COMMIT: 7909131fd4fd260411275ec271f7a43aef8646b7 | DATE: 2025-04-10 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 6d77ca7679b9c5a10b52dea2974ef3c3be0cf55e | DATE: 2025-04-09 | MESSAGE: realTime Change
+2	2	src/realtime/realtime.entity.ts
+9	12	src/realtime/realtime.service.ts
+
+COMMIT: df9ccdfc922171cd2fcfa5f9906358c0755534d7 | DATE: 2025-04-09 | MESSAGE: fix: text error
+2	1	src/user/user.controller.ts
+
+COMMIT: 11e0ebd40acbf8fd384316f94e753ee80de26ccb | DATE: 2025-04-05 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 7b7b59884a967796ce5838661718d75b45b0b408 | DATE: 2025-04-05 | MESSAGE: error fix: ticket token id
+4	4	src/user/user.controller.ts
+
+COMMIT: 51d4aa402667c920cf2d7686427d09597ed7bb02 | DATE: 2025-04-04 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: c2f286c42a88c94414cbbf1fc0da3770c708aa88 | DATE: 2025-04-04 | MESSAGE: change deleteVote
+27	23	src/vote/vote.service.ts
+
+COMMIT: 205e78709c7f72281ccffb5ce832509b40223f0e | DATE: 2025-04-01 | MESSAGE: fix score error by token or uid
+1	1	src/gather/gather.service.ts
+7	8	src/user/user.service.ts
+
+COMMIT: 2539223488caea9c2219caed51e797d12883b0b7 | DATE: 2025-03-30 | MESSAGE: fix refuse waiting person
+13	10	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 5f226be9e48d5d5de1b7422b4bd161d9dcd9bea1 | DATE: 2025-03-30 | MESSAGE: edit invited option
+1	1	src/gather/gather.service.ts
+
+COMMIT: d6516c592ca3971fb779c7c6d3f8b26489631b9a | DATE: 2025-03-29 | MESSAGE: add gather "isFree" option
+2	0	src/gather/dto.ts
+1	0	src/gather/gather.controller.ts
+5	4	src/gather/gather.service.ts
+
+COMMIT: d4eb39fc4a883aff23c17357ad4ba5e2fdd293c7 | DATE: 2025-03-29 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 4e1bd68fd50b60cc4a612688e587cfacb1b00d8e | DATE: 2025-03-29 | MESSAGE: add location
+1	0	src/Constants/constants.ts
+
+COMMIT: 7184e1a6628f151237e3974d957f73b352cca6f4 | DATE: 2025-03-18 | MESSAGE: set gather method
+3	1	src/gather/gather.controller.ts
+6	1	src/gather/gather.repository.interface.ts
+9	4	src/gather/gather.repository.ts
+14	3	src/gather/gather.service.ts
+
+COMMIT: 62c39e9f903ee1fc4779c6a0c2e8970335c380c2 | DATE: 2025-03-06 | MESSAGE: to camelcase
+1	3	src/groupStudy/groupStudy.controller.ts
+2	3	src/schedule/schedule.ts
+
+COMMIT: 5379f7f18c71fc4a210290008258e214c79cb468 | DATE: 2025-03-03 | MESSAGE: groupstudy to groupStudy
+1	1	src/logz/log.service.ts
+
+COMMIT: a912bf13722daf50b289d9380582ff3890f0f4f1 | DATE: 2025-02-17 | MESSAGE: update get gather three
+14	3	src/gather/gather.repository.ts
+
+COMMIT: 1452c7977a6205e29527fc25602f6fe59f741305 | DATE: 2025-02-17 | MESSAGE: refresh
+5	5	src/gather/gather.service.ts
+
+COMMIT: 42919833fd7244036f1066a9b4379d043d3cf04d | DATE: 2025-02-16 | MESSAGE: refresh
+1	1	src/groupStudy/groupStudy.repository.ts
+
+COMMIT: 03cb94cd84536a5acf6d8b1678019b47dad183c4 | DATE: 2025-02-16 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: c2f59c2b5b24438d077d3d59b4ce1fda1bfec0b0 | DATE: 2025-02-16 | MESSAGE: refresh
+22	2	src/groupStudy/groupStudy.repository.ts
+
+COMMIT: 1834ca8bec65920f9797b4fc0d679657777acc6a | DATE: 2025-02-15 | MESSAGE: ticket 수정 및 간단한 수정정
+1	1	src/gather/gather.controller.ts
+26	7	src/gather/gather.repository.ts
+2	3	src/gather/gather.service.ts
+1	1	src/groupStudy/groupStudy.service.ts
+2	2	src/user/entity/user.entity.ts
+1	1	src/user/user.repository.ts
+6	7	src/user/user.service.spec.ts
+
+COMMIT: ad5b2ef475b5912781ec20727e2940bd746c8934 | DATE: 2025-02-13 | MESSAGE: error fix
+1	1	src/gather/gather.service.ts
+
+COMMIT: 65a86e4133eecf5ddfe7b4296bf2d1adb475b99a | DATE: 2025-02-09 | MESSAGE: 변수명 변경
+4	4	src/gather/gather.service.ts
+3	3	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 8b29f44813d898bbfc653153f7264f71108ab44e | DATE: 2025-01-28 | MESSAGE: groupStudy value name change
+2	2	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 051a7b8f5b122a3150b2f214ba93ef943ac2300a | DATE: 2025-01-27 | MESSAGE: constant가 정의된 파일 불러오기가 없음... 충돌나서 삭제
+COMMIT: f5b9bd0d9077b3d3e073dd9beb22862bb661a320 | DATE: 2025-01-27 | MESSAGE: revert in gather:  _id to id
+3	2	src/gather/gather.repository.ts
+14	17	src/gather/gather.service.ts
+2	2	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 713f09eccb01b80f66fcf9f056545f0101614c10 | DATE: 2025-01-17 | MESSAGE: revert
+2	2	src/gather/gather.repository.ts
+
+COMMIT: 22d929ada5812e02d14a99b04833fa9b88abd6ad | DATE: 2025-01-17 | MESSAGE: change group sort
+2	2	src/gather/gather.repository.ts
+
+COMMIT: 49e10cf61863b67ea7b6fff8040090e0ea7292f6 | DATE: 2025-01-17 | MESSAGE: change group sort
+2	2	src/gather/gather.repository.ts
+
+COMMIT: 64939287bdc5bd56766cbe956cf54c016bd8df12 | DATE: 2025-01-17 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: e0b53aaf0f57cd98b36e7c29335982c15fc0985a | DATE: 2025-01-17 | MESSAGE: remove gather sort
+2	2	src/gather/gather.repository.ts
+
+COMMIT: 8e7b4ddaac35bf8436e56ab05f11cb4b64415c1d | DATE: 2025-01-14 | MESSAGE: 갱신
+1	1	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 4bcee9fc3e388bffd207549f0c969f2dc666b422 | DATE: 2025-01-14 | MESSAGE: change groupStudy snapshot method
+3	14	src/groupStudy/groupStudy.service.ts
+0	1	src/groupStudy/groupStudyService.interface.ts
+
+COMMIT: 785b2870ab7253232a5351b4a031fbc4897d3745 | DATE: 2025-01-06 | MESSAGE: change gather sort
+1	1	src/gather/gather.repository.ts
+
+COMMIT: 24397360e90d3ac49a06b89ac92a5037b8418b93 | DATE: 2025-01-06 | MESSAGE: get gatherData three to six
+2	2	src/gather/gather.repository.ts
+
+COMMIT: 13b6551c100e31cf26078c9989d0961b9e324208 | DATE: 2025-01-05 | MESSAGE: remove console
+1	1	src/chatz/chat.controller.ts
+1	1	src/groupStudy/groupStudy.controller.ts
+
+COMMIT: dca543659765a876a669b7d5220bb71c5e938468 | DATE: 2025-01-04 | MESSAGE: groupStudy filter by pending and planned
+2	2	src/groupStudy/groupStudy.controller.ts
+35	4	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 8dff7f409160d63a742af0894b14c464eea7008b | DATE: 2024-12-27 | MESSAGE: add groupStudy method
+3	1	src/convert.ts
+1	1	src/gather/gather.controller.ts
+1	0	src/groupStudy/groupStudy.repository.ts
+11	11	src/groupStudy/groupStudy.service.ts
+4	2	src/groupStudy/groupStudyService.interface.ts
+14	14	src/vote/vote.service.ts
+
+COMMIT: d39fa092cef374d55fa21d580dd152987ee035a3 | DATE: 2024-12-12 | MESSAGE: .
+5	5	src/groupStudy/groupStudy.service.ts
+13	0	src/notice/notice.controller.ts
+11	7	src/notice/notice.service.ts
+1	0	src/notice/noticeService.interface.ts
+
+COMMIT: caab7c8fca5081be9757ab412f7d48c8a0616606 | DATE: 2024-12-09 | MESSAGE: change sort
+1	1	src/gather/gather.repository.ts
+
+COMMIT: 7f913a20c37e95175e87523c220ab1b250853ae8 | DATE: 2024-12-09 | MESSAGE: .
+1	1	src/gather/gather.repository.ts
+
+COMMIT: 8e345228643e11fe3289104740885fbdf87639fb | DATE: 2024-12-08 | MESSAGE: fix gather id issue
+1	1	src/gather/gather.controller.ts
+4	3	src/gather/gather.repository.ts
+
+COMMIT: fe5d9bcf0cd384965618f3118cd1a06be135dfd5 | DATE: 2024-12-03 | MESSAGE: add role - waiting
+1	0	src/register/register.service.ts
+
+COMMIT: a600a66a32035b253399a7eb3ddb75ae0a2d138b | DATE: 2024-12-02 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 3769cfe48c6102bbe4dbc66cf1dfaf59e142fdb9 | DATE: 2024-12-02 | MESSAGE: add locationDetail
+10	1	src/register/entity/register.entity.ts
+26	0	src/user/entity/user.entity.ts
+
+COMMIT: 548806fe93fccca51c40c26d6c78f054ea550582 | DATE: 2024-11-29 | MESSAGE: perf: groupStudy logic
+1	1	src/groupStudy/entity/groupStudy.entity.ts
+25	16	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 32760770c2feefbb0c3da103b3d3954660ce952a | DATE: 2024-11-28 | MESSAGE: fix - register
+13	12	src/register/register.service.ts
+
+COMMIT: 69c5d2308f07fc2e6eda77823f22ae2ab9e14745 | DATE: 2024-11-27 | MESSAGE: add groupstudy challenge
+2	2	src/groupStudy/entity/groupStudy.entity.ts
+5	0	src/groupStudy/groupStudy.controller.ts
+15	0	src/groupStudy/groupStudy.service.ts
+1	0	src/groupStudy/groupStudyService.interface.ts
+
+COMMIT: a55e164c21feced8c4aa9e46da2eb6bd60e03d65 | DATE: 2024-11-26 | MESSAGE: add location '기타'
+1	0	src/gather/entity/gather.entity.ts
+2	0	src/groupStudy/entity/groupStudy.entity.ts
+1	1	src/place/entity/place.entity.ts
+3	1	src/request/entity/request.entity.ts
+2	0	src/user/entity/user.entity.ts
+
+COMMIT: b0aefc8b42e55d8bec3449e428e6fd5580bc84c6 | DATE: 2024-11-24 | MESSAGE: change location enum
+12	3	src/gather/entity/gather.entity.ts
+24	6	src/groupStudy/entity/groupStudy.entity.ts
+31	2	src/request/entity/request.entity.ts
+38	2	src/user/entity/user.entity.ts
+
+COMMIT: 9fcb1f3fb3a3e95d1b7b50b8c8597d34b1657caf | DATE: 2024-11-21 | MESSAGE: add space
+6	7	src/admin/user/adminUser.service.ts
+1	1	src/constants.ts
+1	1	src/promotion/promotion.service.ts
+
+COMMIT: cc2f116dd11a4f1e7b35fd09a14f0236e186b261 | DATE: 2024-11-21 | MESSAGE: delete gather participant
+20	7	src/gather/gather.controller.ts
+1	1	src/gather/gather.repository.interface.ts
+3	4	src/gather/gather.repository.ts
+3	12	src/gather/gather.service.ts
+1	1	src/gather/gatherService.interface.ts
+
+COMMIT: 6b4f9a8869595aa1f07429008719957ea8930dc1 | DATE: 2024-11-20 | MESSAGE: perf: groupStudy snap query
+4	3	src/groupStudy/groupStudy.service.ts
+
+COMMIT: ca9d918a1b2f30bc0993561bd8e5db87e7912415 | DATE: 2024-11-20 | MESSAGE: add waiting field
+1	0	src/groupStudy/groupStudyService.interface.ts
+
+COMMIT: 78fe3c7e3de4c11ab11203a93d7c3b23ff56fa35 | DATE: 2024-11-20 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 903857e9189012aece6f32ce0e4f53869c670489 | DATE: 2024-11-20 | MESSAGE: add waiting field to groupstudy
+7	1	src/groupStudy/groupStudy.service.ts
+
+COMMIT: a1b2db41acfb0122734ec24e6198cf7e458b5ba5 | DATE: 2024-11-19 | MESSAGE: fix error
+2	2	src/groupStudy/groupStudy.repository.ts
+
+COMMIT: 36979b9e171f0a9bf297d467f2fddfcb59fa309e | DATE: 2024-11-18 | MESSAGE: Merge branch 'main' of https://github.com/AboutClan/nest-back
+COMMIT: 779c39bf16fa1c1ea8de75146d2c3f660c09b7a3 | DATE: 2024-11-18 | MESSAGE: add point method
+8	1	src/feed/feed.service.ts
+20	14	src/gather/gather.service.ts
+7	0	src/user/user.controller.ts
+
+COMMIT: e238e243d9c205bb395a86390c19b7d186894cc6 | DATE: 2024-11-18 | MESSAGE: add get Point query
+5	1	src/user/user.controller.ts
+
+COMMIT: 3a66a84fffd128c6a8203dc4beaaec33077e0f2c | DATE: 2024-11-18 | MESSAGE: docs: change user point value
+10	12	src/feed/feed.service.ts
+6	6	src/promotion/promotion.service.ts
+2	2	src/user/user.service.ts
+
+COMMIT: e31d55e4e46b142eb04cffa3f6c17fa4fe705462 | DATE: 2024-11-17 | MESSAGE: populate userInfo
+3	0	src/groupStudy/groupStudy.repository.ts
+
+COMMIT: df4b429d3ed22158cf0928d340dc6c7e7bada706 | DATE: 2024-11-17 | MESSAGE: chore
+1	1	src/groupStudy/groupStudy.service.ts
+
+COMMIT: f067c3b70e8f39f822480731872ead67a27aa60b | DATE: 2024-11-17 | MESSAGE: chore
+1	0	src/groupStudy/groupStudyService.interface.ts
+
+COMMIT: f55fefd1aacc166b550970bd125b50cb1cf0bb53 | DATE: 2024-11-17 | MESSAGE: add get three groups with new
+3	0	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 6269da48f7f5c416397f513b7f99e5c34ca91386 | DATE: 2024-11-17 | MESSAGE: fix: group-study-error
+1	3	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 116151f966540b2b3375df16058dc7c1ce38db0a | DATE: 2024-11-17 | MESSAGE: add category.sub field
+1	1	src/groupStudy/groupStudy.repository.ts
+
+COMMIT: b52df01c179f3c541dcce46cb12bfe7ae0ec26a0 | DATE: 2024-11-16 | MESSAGE: fix , error
+1	1	src/groupStudy/groupStudy.repository.ts
+
+COMMIT: 2c44cb575862346095e4bd111d3967d2d9cb1c6c | DATE: 2024-11-16 | MESSAGE: add meetingType field
+1	1	src/groupStudy/groupStudy.repository.ts
+
+COMMIT: 721427cdcf96cf8bde98ba37f1f07a42ca25f855 | DATE: 2024-11-16 | MESSAGE: Merge branch 'feature/group-study-get'
+COMMIT: 0b08194c159bdaa8205e4bf42f1b4544a6e2d77e | DATE: 2024-11-16 | MESSAGE: final
+1	0	src/groupStudy/groupStudy.repository.ts
+14	14	src/user/user.controller.ts
+1	0	src/user/user.repository.interface.ts
+3	0	src/user/user.repository.ts
+21	13	src/user/user.service.ts
+1	0	src/user/userService.interface.ts
+
+COMMIT: f02563bed4864cf86b5d7e87a6a2677ee9f3f52a | DATE: 2024-11-16 | MESSAGE: Merge pull request #22 from AboutClan/feature/group-study-get
+COMMIT: 0cfd793b5c2bea791db6dffed7949991d33c7a0b | DATE: 2024-11-16 | MESSAGE: feat: get groupStudy method - mine and title
+1	1	src/gather/gather.repository.ts
+7	5	src/groupStudy/groupStudy.controller.ts
+1	1	src/groupStudy/groupStudy.repository.interface.ts
+4	3	src/groupStudy/groupStudy.repository.ts
+11	23	src/groupStudy/groupStudy.service.ts
+2	1	src/groupStudy/groupStudyService.interface.ts
+7	9	src/square/square.service.ts
+
+COMMIT: 0853cbc1234c38b114d56ec9bd9f990ef2e0dccb | DATE: 2024-11-12 | MESSAGE: refactor: groupStudy snapshot func
+7	6	src/groupStudy/groupStudy.service.ts
+
+COMMIT: 9d912088ea5100d1d6e8da0eba09a759851915da | DATE: 2024-11-12 | MESSAGE: add get method: groupStudy - snapshot
+13	8	src/groupStudy/groupStudy.controller.ts
+2	2	src/groupStudy/groupStudy.repository.ts
+29	7	src/groupStudy/groupStudy.service.ts
+4	0	src/groupStudy/groupStudyService.interface.ts
+
+COMMIT: c3cb95900145f8f58ca2e9a1de2d1e681f38fb4b | DATE: 2024-11-12 | MESSAGE: add groupStudy meetingType field
+7	0	src/groupStudy/entity/groupStudy.entity.ts

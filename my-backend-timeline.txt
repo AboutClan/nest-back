@@ -1,0 +1,530 @@
+2026-07-12 | 5ad2781 | .
+2026-07-12 | bdfe0bc | .
+2026-07-01 | 6947c48 | 오류수정
+2026-06-28 | 9b18921 | .
+2026-06-23 | a35f48f | .
+2026-06-23 | f77f469 | 오류수정
+2026-06-20 | 20041a5 | .
+2026-06-20 | 6e93707 | .
+2026-06-19 | f1d1e7b | .
+2026-06-18 | d7eae5c | 오류 수정
+2026-06-17 | 0d229a9 | .
+2026-06-17 | 1ec8b25 | .
+2026-06-16 | c1a37f1 | .
+2026-06-16 | 4343eda | .
+2026-06-16 | 4cd0d83 | .
+2026-06-12 | 52c43a0 | ,
+2026-06-10 | 20d6c39 | .
+2026-06-10 | 7b89d96 | .
+2026-06-10 | a419b91 | .
+2026-06-09 | abf7bc0 | .
+2026-06-09 | aa3298f | .
+2026-06-09 | ecc7ab6 | 카고ㅇ지도멤버버
+2026-06-09 | fe8f19f | .
+2026-06-08 | f3a982f | .
+2026-06-05 | 161af24 | .
+2026-06-05 | f8ba8b5 | 스터디 알고리즘 수정
+2026-06-04 | 9d565d1 | .
+2026-06-04 | 8892e2a | .
+2026-06-03 | b477508 | .
+2026-06-03 | e11b03a | 알고리즘 업데이트트
+2026-06-01 | 5270c7b | 오류 수정 + 콘솔 제거
+2026-05-31 | 049c044 | 카공 장소 GPT 알고리즘 추가
+2026-05-26 | f0396a0 | fix error
+2026-05-25 | 80f36ea | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-05-25 | 7cbd067 | update score
+2026-05-23 | 992f23b | place 필드 추가
+2026-05-19 | 98fe865 | place 기능 개발
+2026-05-18 | eaa1d36 | isActive 기본값
+2026-05-16 | cf57dab | rating default 3.5
+2026-05-16 | 6498764 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-05-16 | 48d8a3d | default user = newUser
+2026-05-15 | 165476f | .
+2026-05-15 | 115484c | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-05-15 | a354b59 | .
+2026-05-14 | 8ca73b1 | .
+2026-05-13 | ca02f32 | 도메인 추가
+2026-05-13 | 63fd14f | .
+2026-05-12 | 8071955 | .
+2026-05-11 | d34ab29 | .
+2026-05-11 | 5dcc2d3 | .
+2026-05-11 | 78b4b1f | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-05-11 | a4324b1 | 스터디 기능 보완
+2026-05-06 | ce22d72 | 소셜링온도 오류 수정
+2026-05-06 | 965e7c0 | console 제거
+2026-05-06 | 3fcb09f | 스케줄링 오류 수정
+2026-05-05 | 4ed5408 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-05-05 | c2e602d | 오류 수정 및 일부 코드
+2026-05-01 | 07ce9d1 | 오류 수정
+2026-04-30 | e2ba65f | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-04-30 | 2aaefb1 | chore
+2026-04-28 | eb04c8a | .
+2026-04-27 | 109ff56 | uid query
+2026-04-26 | 80eeabb | 스터디 혜택 업데이트
+2026-04-23 | d37315c | filter openGather
+2026-04-21 | 9104031 | 오픈 개더
+2026-04-15 | a2974fa | .
+2026-04-15 | 758588f | 일부 업데이트
+2026-04-14 | 37c7868 | 오류 수정
+2026-04-14 | ffd30d0 | 소셜링 온도 수치 변경
+2026-04-14 | 2ee1965 | .
+2026-04-13 | 5978d4f | 스터디 알림 추가
+2026-04-13 | 8926d34 | 테스트 코드
+2026-04-12 | b8b5e97 | .
+2026-04-12 | 145be98 | 크루 업데이트
+2026-04-08 | c98fafa | fix error
+2026-04-04 | b081b55 | 알림 오류 수정
+2026-04-03 | 5d473f0 | .
+2026-04-02 | 4da9ce4 | .
+2026-04-02 | f94104e | chore
+2026-03-31 | 9d69b30 | .
+2026-03-31 | 564f065 | .
+2026-03-31 | 8d606ff | .
+2026-03-31 | 124ae34 | 오픈 번개 작업
+2026-03-30 | dd41b9d | .
+2026-03-30 | 46d983b | .
+2026-03-27 | 9f93478 | fix error
+2026-03-27 | cf9b407 | .
+2026-03-25 | 6499942 | .
+2026-03-25 | 97017f0 | .
+2026-03-25 | a67ae1c | 커뮤니티 개발
+2026-03-24 | 6a1d368 | reviews.user 오류 임시 수정
+2026-03-24 | 0ad5b96 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-03-24 | a8ca094 | .
+2026-03-23 | 91d395a | .
+2026-03-20 | 98c50e8 | 실수 복구
+2026-03-20 | ccbe224 | 로그 오류 수정
+2026-03-20 | 0cb16f3 | console.log 제거
+2026-03-20 | 4a628a5 | 스터디 스케쥴 하루 전으로 오류 수정
+2026-03-18 | c444541 | 기능 업데이트
+2026-03-18 | 31a97c9 | 오류 수정
+2026-03-18 | b5df2a2 | 스터디, 소모임 기능 업데이트
+2026-03-13 | b8af156 | 오류 방지 코드
+2026-03-13 | 4c8126c | 오류 방지 코드
+2026-03-12 | c0ccd3c | 크루
+2026-03-09 | 7bab123 | 오류 수정
+2026-03-06 | 29222b2 | .
+2026-03-04 | 66a42db | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-03-04 | 973721a | 오류 수정
+2026-03-04 | 8016015 | 오류 수정
+2026-03-01 | 6e7fd47 | 가입 포인트 5000원으로 변경
+2026-02-28 | d6db8d0 | .
+2026-02-22 | 672569d | .
+2026-02-22 | 990f005 | default url
+2026-02-18 | a48f76a | 알고리즘 수정
+2026-02-18 | f2ab640 | .
+2026-02-18 | 612e8ac | fix alphabet
+2026-02-18 | 8ea0945 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-02-18 | 1ab2485 | update fcm
+2026-02-17 | b79b037 | fix error
+2026-02-07 | cfad3b9 | fix populate error
+2026-02-04 | c515002 | 스터디 출석 시스템 업데이트
+2026-02-04 | c454cc5 | 스터디 알고리즘 유지보수
+2026-02-02 | 2c26b43 | .
+2026-02-02 | aef004e | 스케쥴링 유지보수
+2026-02-02 | f1eb6f9 | populate 업데이트
+2026-02-02 | d6557e4 | update
+2026-02-01 | 6dfb3d4 | update
+2026-01-29 | 4fb71cd | group gather count
+2026-01-28 | 88d12e6 | fix error
+2026-01-25 | e8a5b81 | fix gather imaage error
+2026-01-24 | 6044b78 | chore
+2026-01-19 | 134e048 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-01-19 | be7a0b2 | update manner
+2026-01-17 | eb66e86 | .
+2026-01-16 | b44dc9f | .
+2026-01-15 | a4f0db3 | update
+2026-01-14 | 48a39cc | update text
+2026-01-11 | cc9dd20 | fix error
+2026-01-09 | 701249f | 앱 개발
+2026-01-09 | 90087bf | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2026-01-09 | 8299f4f | 앱개발
+2025-12-30 | 594059f | 모임 데이터 get 수정
+2025-12-23 | 0510d2a | chore
+2025-12-22 | e043eef | 번개 보증금 관련
+2025-12-20 | 597359f | fix error
+2025-12-19 | 092ba76 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-12-19 | 7595be1 | chore
+2025-12-19 | e5d490a | groupStudy - 멤버 관계도
+2025-12-16 | f960985 | .
+2025-12-16 | 9d641e7 | add role
+2025-12-15 | 2538846 | error fix
+2025-12-15 | 09983ad | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-12-04 | 515e089 | .
+2025-12-04 | 6493f18 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-12-04 | b14a724 | chore
+2025-12-03 | efea81a | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-12-03 | 507f747 | fix error
+2025-12-01 | 2d83b5d | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-12-01 | 305da3b | monthscore 스케줄링
+2025-11-28 | db2f512 | 티켓 로직
+2025-11-28 | a6afa78 | 스케줄러 시간 임시 변경
+2025-11-27 | 2ba0c40 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-11-27 | 5c5dcb2 | 스터디 멤버 평가 및 기록 가져오기
+2025-11-26 | c2ea050 | 로그
+2025-11-26 | 7bfe676 | log의 meta.uid 오류 수정
+2025-11-26 | 0d48ed7 | membership 혜택
+2025-11-25 | a113b8d | .
+2025-11-24 | fac22fb | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-11-24 | 2062e5e | .
+2025-11-22 | e476662 | .
+2025-11-22 | 94e22ed | img -> imageUrl
+2025-11-18 | c5e512a | 개인 스터디 - 좋아요 구현
+2025-11-18 | ef8d466 | .
+2025-11-17 | 7f0f895 | studyRecord
+2025-11-16 | 350e5a2 | .
+2025-11-16 | 5e59608 | .
+2025-11-16 | dcc29de | chore / realtime and feed
+2025-11-15 | 92c262a | .
+2025-11-14 | c1a628f | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-11-14 | e6a5a74 | 로그 작업
+2025-11-14 | 605b8a8 | update ticket process count
+2025-11-14 | ca08026 | update point system
+2025-11-13 | 99a247f | fix error
+2025-11-13 | 9f487fa | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-11-13 | f69e4b6 | .
+2025-11-08 | 867cfe0 | .
+2025-11-08 | b0b8b41 | .
+2025-11-07 | f35ea0f | .
+2025-11-07 | 7b3ce4e | .
+2025-11-07 | cee7982 | .
+2025-11-07 | a0d843c | .
+2025-11-07 | 25a0d69 | .
+2025-11-07 | 8524309 | .
+2025-11-06 | 117c80c | fix: comment
+2025-11-06 | 0b6d0e0 | 출석체크 / 알파벳 / 모임 후기
+2025-11-06 | cba4c4b | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-11-06 | 2f4da08 | chore
+2025-11-02 | 715945e | fix&refactor: ticket logic
+2025-10-31 | 98ce5e8 | update date
+2025-10-29 | 3e18c98 | expand gather cnt
+2025-10-28 | 68b555d | .
+2025-10-28 | d21d392 | 크롤링 주석
+2025-10-28 | 92c3b4c | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-10-28 | c24a7f4 | chore: gather
+2025-10-25 | 0dcdfc8 | temp
+2025-10-25 | 5c2be8f | change webpush text
+2025-10-22 | df0eaf0 | fix error
+2025-10-22 | 404c7f7 | 1
+2025-10-21 | de5d6f7 | add gather locaiton
+2025-10-18 | c12a74c | study algorithm
+2025-10-17 | 32d4115 | Merge branch 'main' into algo
+2025-10-17 | f67b2b8 | feat: place
+2025-10-13 | 658d47f | .
+2025-10-13 | 3868f84 | .
+2025-10-13 | cfa6b77 | .
+2025-10-13 | dd67a0c | eps 0.05 to 0.04
+2025-10-12 | 0e9e6da | update cluster to 4
+2025-10-10 | 9c36538 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-10-10 | bf97a28 | .
+2025-10-08 | 52277d9 | .
+2025-10-08 | 04f2a1c | fix unfined error
+2025-09-28 | fbcb143 | fix avatar error
+2025-09-22 | b6bb0ac | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-09-22 | 8208abd | feat gather sort
+2025-09-19 | 4814320 | .
+2025-09-18 | ca2a823 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-09-18 | e81f44e | .
+2025-09-18 | 6dcdd38 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-09-18 | df5747e | chore store
+2025-09-16 | 66ddf34 | .
+2025-09-14 | 41bb5ea | cursor
+2025-09-14 | 0c07a37 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-09-14 | 4dc6b40 | find prizes
+2025-09-09 | 705038b | .
+2025-09-09 | e52a08a | .
+2025-09-04 | af69d06 | user location update
+2025-09-03 | 5dfc20a | .
+2025-09-03 | d05b4bf | .
+2025-09-03 | b9017c3 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-09-03 | 8460ff7 | .
+2025-08-28 | 953c556 | .
+2025-08-27 | ca70a3a | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-27 | fdd1c19 | .
+2025-08-26 | 6a4d3d0 | fix error
+2025-08-26 | 701551d | final
+2025-08-25 | c5eef1a | fix error
+2025-08-24 | 45662dd | 스터디 출석체크
+2025-08-24 | 74aaf4b | fix error
+2025-08-24 | a245637 | fix error
+2025-08-23 | 892c1f9 | chore
+2025-08-23 | c91f785 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-23 | d838247 | update point logic
+2025-08-23 | 926a610 | chore
+2025-08-22 | c19936e | .
+2025-08-21 | 1b283f0 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-21 | 60c6614 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-21 | cbff2be | .
+2025-08-19 | 5603ebc | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-19 | 2ebd0ea | .
+2025-08-19 | 809b43c | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-19 | 74ad061 | place
+2025-08-19 | 28fc7d9 | error fix
+2025-08-17 | e1e8983 | .
+2025-08-17 | aad5bc2 | .
+2025-08-16 | 38e962b | chore
+2025-08-10 | 2619795 | 알파벳 오타
+2025-08-10 | b377f6d | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-10 | 04ec31e | 매칭 인원 2 -> 3
+2025-08-07 | 8fedd53 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-08-07 | c7422a1 | .
+2025-08-02 | e352c55 | .
+2025-08-02 | 97eca97 | .
+2025-08-02 | fa40f2f | chore
+2025-08-02 | a65b5f0 | .
+2025-08-02 | 0a1b636 | ranking update
+2025-07-31 | acd3b4a | .
+2025-07-31 | 31abaa6 | 주석
+2025-07-31 | f800627 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-07-31 | 1a5410a | 주석
+2025-07-26 | 09ed145 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-07-26 | e609e57 | .
+2025-07-26 | e7efd2f | .
+2025-07-24 | 9b20d5c | update month attend toggle
+2025-07-24 | 2c830b4 | change default group attendance
+2025-07-24 | 1c15cc4 | send
+2025-07-23 | 4cec40f | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-07-23 | 1932169 | fix error
+2025-07-22 | 460a893 | adjust value
+2025-07-21 | 3ec4af9 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-07-21 | 89d6ef5 | fix error
+2025-07-14 | d682c20 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-07-14 | 66f0435 | fix groupStudy error
+2025-07-08 | 0bb8f17 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-07-08 | 827848a | chore
+2025-06-27 | 341e886 | fix error
+2025-06-26 | 6344f45 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-06-26 | 976b0c9 | fix error
+2025-06-26 | 62fa11a | perf
+2025-06-25 | 7fb32af | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-06-25 | 0014d48 | refactor
+2025-06-23 | d3fb44a | fix error
+2025-06-23 | 6123365 | add domain
+2025-06-23 | 015e9cd | adjust find three function
+2025-06-23 | 9a6e4a0 | gather field
+2025-06-23 | d322463 | add post image field
+2025-06-23 | ec8d713 | fix gather error
+2025-06-22 | a23889a | add id
+2025-06-21 | 27ccb8b | perf: user populate
+2025-06-21 | 429427a | gahter to gather and add field
+2025-06-21 | 1413104 | update gather shanshot refactor
+2025-06-21 | 4104e38 | GATHER to GATHER
+2025-06-20 | 7c48374 | add gather field
+2025-06-20 | cb45fe5 | fix square error
+2025-06-20 | 0f86148 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-06-20 | fb15790 | fix user objectId error
+2025-06-16 | bf4a363 | gather sorted change
+2025-06-15 | e15c76a | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-06-15 | d91e279 | fix error
+2025-06-15 | 698fd12 | log month
+2025-06-15 | 637b822 | Merge branch 'feat/gather'
+2025-06-14 | 812d43c | Merge branch 'main' into feat/gather
+2025-06-12 | 8f150b1 | add request isChecked field
+2025-06-12 | 7cee31a | edit default point
+2025-06-12 | 5928b1d | add user role - block
+2025-06-11 | b5fd4e7 | .
+2025-06-11 | 346318c | hotfix: chat error
+2025-06-11 | e1c62b5 | fix chat error
+2025-06-11 | e3af99d | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-06-11 | e6146e5 | hotfix- chat error
+2025-06-09 | 065eb06 | user populate mini
+2025-06-09 | 2659f34 | chore
+2025-06-09 | be1046c | revert populate select
+2025-06-09 | afd27e9 | edit gather find Three
+2025-06-09 | b5c9af1 | edit limit number
+2025-06-07 | 5873d3e | change date condition
+2025-06-06 | 2179000 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-06-06 | d0b33f9 | chore
+2025-06-06 | 6f32ab2 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-06-06 | 3c38769 | change badge -> 0
+2025-06-05 | 04274d0 | refactor: three gather
+2025-06-05 | 580bd02 | add entity
+2025-06-05 | 9694480 | revert
+2025-06-04 | 4f81084 | test
+2025-06-04 | 703119a | fcm test
+2025-06-04 | 11d323e | adjust fcm badge cnt
+2025-06-04 | 04a585b | refactor: fcm
+2025-06-04 | 81b453d | chore
+2025-06-04 | 2c7f139 | edit date locale ko
+2025-06-04 | dee354d | edit push message
+2025-06-04 | f425f1b | fcm featrue
+2025-06-04 | 1652f53 | check fcm apple
+2025-06-02 | f891d37 | fix field name error
+2025-06-01 | eec0816 | adjust gather review date
+2025-05-26 | 26414e9 | add notionUrl field to gather
+2025-05-29 | fd650af | remove console
+2025-05-29 | 73f73cc | add fcm payload by apple
+2025-05-28 | 58e25c3 | change web push payload image
+2025-05-28 | 885e8e3 | edit push message
+2025-05-28 | 4c70043 | edit push message
+2025-05-28 | c56878d | edit push message
+2025-05-27 | a047480 | filter pending includes resting
+2025-05-27 | f6e0e93 | add ENUM in groupStudy status
+2025-05-23 | 6ab54a8 | feature
+2025-05-20 | 3e1a486 | hotfix gather
+2025-05-17 | b166f45 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-05-17 | 13b99bb | update date filter
+2025-05-14 | fee51d4 | 최대 2개로
+2025-05-13 | c76b9a5 | temp remove status
+2025-05-13 | 0d32239 | fix error
+2025-05-13 | 0531a3b | error fix
+2025-05-13 | 993b84c | add await
+2025-05-13 | 357780a | .
+2025-05-06 | b45fd0c | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-05-06 | 56e5777 | fix error
+2025-05-03 | 28c06ff | feed populate
+2025-05-03 | c4e061c | feed
+2025-05-03 | d355376 | fix: Boolean error: Boolean씌우면 string이라 무조건 true됨
+2025-05-03 | 6fe9edb | .
+2025-05-03 | 131253b | add coverImage field
+2025-05-02 | c327f06 | return gather id
+2025-05-02 | 975d1bd | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-05-02 | db7b60e | hotfix: create gather error
+2025-05-01 | f1fde69 | fix error
+2025-05-01 | 3276419 | error fix
+2025-05-01 | 488b22f | update push message
+2025-05-01 | e4de6c0 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-05-01 | 1868e2d | fix error
+2025-05-01 | 4d67f89 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-05-01 | aec075e | update push message template
+2025-05-01 | b00eda8 | locale ko
+2025-05-01 | 1d31714 | gather notification text
+2025-04-30 | 476b6f4 | fix invite error
+2025-04-30 | 2c7758a | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-04-30 | b9be127 | .
+2025-04-29 | 958dc62 | chat
+2025-04-29 | b8aa420 | .
+2025-04-29 | e66fe6e | chat
+2025-04-29 | 40f4882 | user
+2025-04-26 | b79c9e7 | update point
+2025-04-25 | 971484e | feed: _id to typeId
+2025-04-25 | b0d8f27 | fix feeds sort
+2025-04-25 | 2e9d06d | fix feed error
+2025-04-25 | 85423de | place review and admin request
+2025-04-24 | 85d3021 | 출석체크 핫픽스: populate 문제
+2025-04-24 | b81084d | place
+2025-04-23 | 0d04f1b | chore: point system logic
+2025-04-23 | 5cef2ae | chore: adjust pointSystem
+2025-04-23 | 3e050f3 | chore
+2025-04-21 | ee0db82 | get gather data
+2025-04-20 | 06f2060 | post -> patch
+2025-04-20 | e8060a9 | .
+2025-04-20 | 95e0d89 | hotfix
+2025-04-20 | d9f7d85 | add user field: monthStudyTarget
+2025-04-18 | bea8139 | change result hour
+2025-04-18 | 4f5ebbd | hotfix
+2025-04-17 | 7f404d3 | hot fix
+2025-04-17 | 647fe14 | admin user
+2025-04-17 | 6fa0f08 | Merge branch 'feature/admin/user'
+2025-04-17 | db6ffb9 | .
+2025-04-17 | 8188bfe | .
+2025-04-17 | 68c261a | adjust date
+2025-04-17 | 4b6fbea | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-04-17 | 9df6392 | 임시로 realTime 시간 조정
+2025-04-17 | d516424 | .
+2025-04-16 | 3d269aa | add populate: C_simpleUser
+2025-04-16 | 4d8b061 | 22 -> 23
+2025-04-16 | 8dcfd83 | add absence date
+2025-04-16 | 71f377a | fix date
+2025-04-16 | 3f9af6e | fix date
+2025-04-16 | 5605ea7 | .
+2025-04-16 | a58b891 | fix vote2 comment
+2025-04-16 | e5b7bfa | fix collection error
+2025-04-16 | 3f24102 | update comment
+2025-04-16 | 0e8ea2a | .
+2025-04-16 | 76f1bc5 | fix date
+2025-04-16 | 3830393 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-04-16 | c375158 | get unmatchedusers
+2025-04-15 | 8c12a39 | .
+2025-04-15 | d39bce9 | update eps
+2025-04-15 | 3933a07 | place change
+2025-04-14 | adf93dc | 2025-04-14 스터디 리뉴얼
+2025-04-13 | f61ad91 | .
+2025-04-13 | d4bba36 | .
+2025-04-13 | 6ac5732 | .
+2025-04-12 | 33b0d48 | .
+2025-04-09 | 7f1a7c4 | realTime Change
+2025-04-14 | b25d306 | WIP on main: 6b3c75a .
+2025-04-14 | 1f685fb | index on main: 6b3c75a .
+2025-04-13 | 6b3c75a | .
+2025-04-13 | d2a8738 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-04-13 | 06347cb | .
+2025-04-13 | ac8e740 | .
+2025-04-12 | 023c4b7 | .
+2025-04-10 | 7909131 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-04-09 | 6d77ca7 | realTime Change
+2025-04-09 | df9ccdf | fix: text error
+2025-04-05 | 11e0ebd | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-04-05 | 7b7b598 | error fix: ticket token id
+2025-04-04 | 51d4aa4 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-04-04 | c2f286c | change deleteVote
+2025-04-01 | 205e787 | fix score error by token or uid
+2025-03-30 | 2539223 | fix refuse waiting person
+2025-03-30 | 5f226be | edit invited option
+2025-03-29 | d6516c5 | add gather "isFree" option
+2025-03-29 | d4eb39f | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-03-29 | 4e1bd68 | add location
+2025-03-18 | 7184e1a | set gather method
+2025-03-06 | 62c39e9 | to camelcase
+2025-03-03 | 5379f7f | groupstudy to groupStudy
+2025-02-17 | a912bf1 | update get gather three
+2025-02-17 | 1452c79 | refresh
+2025-02-16 | 4291983 | refresh
+2025-02-16 | 03cb94c | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-02-16 | c2f59c2 | refresh
+2025-02-15 | 1834ca8 | ticket 수정 및 간단한 수정정
+2025-02-13 | ad5b2ef | error fix
+2025-02-09 | 65a86e4 | 변수명 변경
+2025-01-28 | 8b29f44 | groupStudy value name change
+2025-01-27 | 051a7b8 | constant가 정의된 파일 불러오기가 없음... 충돌나서 삭제
+2025-01-27 | f5b9bd0 | revert in gather:  _id to id
+2025-01-17 | 713f09e | revert
+2025-01-17 | 22d929a | change group sort
+2025-01-17 | 49e10cf | change group sort
+2025-01-17 | 6493928 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2025-01-17 | e0b53aa | remove gather sort
+2025-01-14 | 8e7b4dd | 갱신
+2025-01-14 | 4bcee9f | change groupStudy snapshot method
+2025-01-06 | 785b287 | change gather sort
+2025-01-06 | 2439736 | get gatherData three to six
+2025-01-05 | 13b6551 | remove console
+2025-01-04 | dca5436 | groupStudy filter by pending and planned
+2024-12-27 | 8dff7f4 | add groupStudy method
+2024-12-12 | d39fa09 | .
+2024-12-09 | caab7c8 | change sort
+2024-12-09 | 7f913a2 | .
+2024-12-08 | 8e34522 | fix gather id issue
+2024-12-03 | fe5d9bc | add role - waiting
+2024-12-02 | a600a66 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2024-12-02 | 3769cfe | add locationDetail
+2024-11-29 | 548806f | perf: groupStudy logic
+2024-11-28 | 3276077 | fix - register
+2024-11-27 | 69c5d23 | add groupstudy challenge
+2024-11-26 | a55e164 | add location '기타'
+2024-11-24 | b0aefc8 | change location enum
+2024-11-21 | 9fcb1f3 | add space
+2024-11-21 | cc2f116 | delete gather participant
+2024-11-20 | 6b4f9a8 | perf: groupStudy snap query
+2024-11-20 | ca9d918 | add waiting field
+2024-11-20 | 78fe3c7 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2024-11-20 | 903857e | add waiting field to groupstudy
+2024-11-19 | a1b2db4 | fix error
+2024-11-18 | 36979b9 | Merge branch 'main' of https://github.com/AboutClan/nest-back
+2024-11-18 | 779c39b | add point method
+2024-11-18 | e238e24 | add get Point query
+2024-11-18 | 3a66a84 | docs: change user point value
+2024-11-17 | e31d55e | populate userInfo
+2024-11-17 | df4b429 | chore
+2024-11-17 | f067c3b | chore
+2024-11-17 | f55fefd | add get three groups with new
+2024-11-17 | 6269da4 | fix: group-study-error
+2024-11-17 | 116151f | add category.sub field
+2024-11-16 | b52df01 | fix , error
+2024-11-16 | 2c44cb5 | add meetingType field
+2024-11-16 | 721427c | Merge branch 'feature/group-study-get'
+2024-11-16 | 0b08194 | final
+2024-11-16 | f02563b | Merge pull request #22 from AboutClan/feature/group-study-get
+2024-11-16 | 0cfd793 | feat: get groupStudy method - mine and title
+2024-11-12 | 0853cbc | refactor: groupStudy snapshot func
+2024-11-12 | 9d91208 | add get method: groupStudy - snapshot
+2024-11-12 | c3cb959 | add groupStudy meetingType field
