@@ -647,6 +647,7 @@ export class Vote2Service {
         const placeRank = places
           .map((pl) => ({
             placeId: pl._id.toString(),
+            isMain: (pl as any).status === 'main' ? 1 : 0,
             dist: ClusterUtils.haversineDistance(
               pl.location.latitude,
               pl.location.longitude,
@@ -658,7 +659,10 @@ export class Vote2Service {
           }))
           .filter((x) => x.dist <= expanded)
           .sort(
-            (a, b) => a.dist - b.dist || a.placeId.localeCompare(b.placeId),
+            (a, b) =>
+              b.isMain - a.isMain || // status = 'main' 우선
+              a.dist - b.dist ||
+              a.placeId.localeCompare(b.placeId),
           );
 
         let attached = false;
@@ -790,8 +794,8 @@ export class Vote2Service {
     // 확장 패스 실행(1) 기존 그룹 합류
     attachWithExpandedEps();
 
-    // 확장 패스 실행(2) 남은 인원으로 새 그룹 형성
-    for (const place of places) {
+    // 확장 패스 실행(2) 남은 인원으로 새 그룹 형성 (status = 'main' 우선)
+    for (const place of sortedPlaces) {
       formNewGroupsWithExpandedEpsAtPlace(place);
     }
 
