@@ -20,9 +20,8 @@ interface NiceTokenResponse {
 
 @Injectable()
 export class NiceService {
-  private readonly clientId = 'NI863690af-2510-4c6f-872d-3eea986a4039';
-  private readonly clientSecret =
-    'N2RiYmViYTgtNTMyYS00ZmIyLWE3YzUtNDZkODRlZDE4Mzc3MTI1NDk5OUMzQTU2REE0QjA4NDI3RDA1';
+  private readonly clientId = process.env.NICE_CLIENT_ID;
+  private readonly clientSecret = process.env.NICE_CLIENT_SECRET;
   private readonly baseUrl = 'https://auth.niceid.co.kr/ido/intc/v1.0';
 
   constructor(
