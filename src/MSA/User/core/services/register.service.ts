@@ -186,7 +186,17 @@ export default class RegisterService {
 
     const user = await this.registerRepository.findByUid(uid);
 
-    if (!user) throw new ValidationError('wrong uid');
+    if (!user) {
+      // 대기 등록 문서가 없다는 건 두 가지 경우: 가입 신청을 한 적이 없거나,
+      // 이미 승인되어 대기 문서가 삭제된 상태(webhook 재시도 등으로 approve가
+      // 중복 호출된 경우)일 수 있다. 후자는 에러가 아니라 성공으로 처리해야
+      // 호출부(결제 webhook 재시도, 클라이언트 재시도)가 안전하게 멱등 재시도할 수 있다.
+      const existingUser = await this.User.findOne({ uid });
+      if (existingUser?.isActive) {
+        return;
+      }
+      throw new ValidationError('wrong uid');
+    }
 
     const { _id, __v, ...registeredFields } = user.toObject();
 
