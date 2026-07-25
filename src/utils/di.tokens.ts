@@ -28,6 +28,7 @@ export const IUSER_REPOSITORY = 'UserRepository';
 export const ILOG_MEMBERSHIP_REPOSITORY = 'LogMembershipRepository';
 export const ICHAT_REPOSITORY = 'ChatRepository';
 export const ICOLLECTION_REPOSITORY = 'CollectionRepository';
+export const ICOUPON_REPOSITORY = 'CouponRepository';
 export const ICOUNTER_REPOSITORY = 'CounterRepository';
 export const IDAILYCHECK_REPOSITORY = 'DailyCheckRepository';
 export const IFCM_REPOSITORY = 'FcmRepository';

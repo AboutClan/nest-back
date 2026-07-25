@@ -49,6 +49,7 @@ import { PrizeModule } from './MSA/Store/prize.module';
 import { StoreModule } from './MSA/Store/store.module';
 import { GroupStudyModule } from './MSA/GroupStudy/groupStudy.module';
 import { AuthModule } from './MSA/Auth/auth.module';
+import { CouponModule } from './MSA/Coupon/coupon.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -142,6 +143,7 @@ const corsOptions = {
     FcmAModule,
     StoreModule,
     AuthModule,
+    CouponModule,
   ],
   controllers: [AppController],
   providers: [
