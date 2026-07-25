@@ -3,6 +3,8 @@ export const DB_SCHEMA = {
   ACCOUNCEMENT: 'Announcement',
   CHAT: 'Chat',
   COLLECTION: 'collection',
+  COUPON: 'Coupon',
+  COUPON_ISSUE: 'CouponIssue',
   DAILYCHECK: 'DailyCheck',
   FEED: 'Feed',
   GATHER: 'Gather',
