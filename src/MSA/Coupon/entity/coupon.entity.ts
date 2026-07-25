@@ -25,6 +25,7 @@ export const couponSchema: Schema<ICoupon> = new Schema(
 );
 
 couponSchema.index({ partnerId: 1 });
+couponSchema.index({ name: 1 });
 
 export const Coupon =
   (mongoose.models.Coupon as Model<ICoupon, {}, {}, {}>) ||

@@ -31,13 +31,20 @@ export class CouponService {
     if (!coupon) {
       throw new HttpException('쿠폰을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
     }
-    return {
-      couponId: coupon._id.toString(),
-      partnerId: coupon.partnerId,
-      name: coupon.name,
-      totalCount: coupon.totalCount,
-      remainingCount: coupon.remainingCount,
-    };
+    return this.toCouponResponse(coupon);
+  }
+
+  async getAll() {
+    const coupons = await this.couponRepository.findAll();
+    return coupons.map((coupon) => this.toCouponResponse(coupon));
+  }
+
+  async getByName(name: string) {
+    const coupon = await this.couponRepository.findByName(name);
+    if (!coupon) {
+      throw new HttpException('쿠폰을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+    }
+    return this.toCouponResponse(coupon);
   }
 
   async issue(couponId: string) {
@@ -116,6 +123,22 @@ export class CouponService {
       userId: issued.userId,
       issuedAt: issued.issuedAt,
     });
+  }
+
+  private toCouponResponse(coupon: {
+    _id: { toString(): string };
+    partnerId: string;
+    name?: string;
+    totalCount: number;
+    remainingCount: number;
+  }) {
+    return {
+      couponId: coupon._id.toString(),
+      partnerId: coupon.partnerId,
+      name: coupon.name,
+      totalCount: coupon.totalCount,
+      remainingCount: coupon.remainingCount,
+    };
   }
 
   private toIssueResponse(issue: {

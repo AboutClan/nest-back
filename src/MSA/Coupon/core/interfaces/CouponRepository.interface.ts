@@ -10,6 +10,10 @@ export interface ICouponRepository {
 
   findById(couponId: string): Promise<ICoupon | null>;
 
+  findAll(): Promise<ICoupon[]>;
+
+  findByName(name: string): Promise<ICoupon | null>;
+
   findIssued(couponId: string, userId: string): Promise<ICouponIssue | null>;
 
   /** remainingCount > 0 일 때만 1 감소. 실패 시 null */

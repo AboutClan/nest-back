@@ -32,6 +32,14 @@ export class MongoCouponRepository implements ICouponRepository {
     return this.Coupon.findById(couponId).lean();
   }
 
+  async findAll(): Promise<ICoupon[]> {
+    return this.Coupon.find().sort({ createdAt: -1 }).lean();
+  }
+
+  async findByName(name: string): Promise<ICoupon | null> {
+    return this.Coupon.findOne({ name }).lean();
+  }
+
   async findIssued(
     couponId: string,
     userId: string,
