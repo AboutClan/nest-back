@@ -74,6 +74,17 @@ export default class LogService {
     }
   }
 
+  async getLogBySub(type: string, sub: string) {
+    const token = RequestContext.getDecodedToken();
+
+    const log = await this.logRepository.findByUidAndSubType(
+      token.uid,
+      type,
+      sub,
+    );
+    return log;
+  }
+
   async getAllLog(type: string, scope?: 'month') {
     const logs = await this.logRepository.findAllByType(type, scope);
     return logs;

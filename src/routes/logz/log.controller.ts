@@ -44,6 +44,13 @@ export class LogController {
     else return false;
   }
 
+  @Get('point/sub/:sub')
+  async getPointSubLog(@Param('sub') sub: string) {
+    const log = await this.logService.getLogBySub('point', sub);
+    if (log) return log;
+    else return false;
+  }
+
   @Get('point/all')
   async getAllPointLog() {
     const logs = await this.logService.getAllLog('point');
