@@ -6,7 +6,10 @@ import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
 import * as logger from 'src/logger';
-import { BLOCKED_UIDS } from 'src/MSA/Auth/constants/auth-users.constant';
+import {
+  BLOCKED_UIDS,
+  CLUB_UIDS,
+} from 'src/MSA/Auth/constants/auth-users.constant';
 import { IAccount } from 'src/MSA/User/entity/account.entity';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
@@ -177,7 +180,7 @@ export default class RegisterService {
     await this.removeUnnecessaryUserField();
   }
 
-  async approve(uid: string) {
+  async approve(uid: string, referrerUid?: string) {
     if (BLOCKED_UIDS.has(uid)) {
       throw new ValidationError('wrong uid');
     }
@@ -190,12 +193,16 @@ export default class RegisterService {
 
     const { _id, __v, ...registeredFields } = user.toObject();
 
+    // 추천인이 동아리 관계자(CLUB_UIDS)라 가입비 전액 할인을 받은 경우, 가입 보증금을 축소 지급
+    const depositPoint =
+      referrerUid && CLUB_UIDS.has(referrerUid) ? 3000 : 5000;
+
     userForm = {
       ...registeredFields,
       role: 'member',
       registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
-      point: 5000,
+      point: depositPoint,
       ticket: {
         gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
         groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
@@ -223,7 +230,7 @@ export default class RegisterService {
     logger.logger.info('가입 보증금', {
       type: 'point',
       uid,
-      value: 5000,
+      value: depositPoint,
     });
     return;
   }

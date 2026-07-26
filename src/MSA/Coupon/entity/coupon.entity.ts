@@ -5,6 +5,7 @@ import { z } from 'zod';
 /** 한 종류의 쿠폰 (동일 couponId, 수량만 관리) */
 export const CouponZodSchema = z.object({
   partnerId: z.string(),
+  code: z.string(),
   name: z.string().optional(),
   totalCount: z.number(),
   remainingCount: z.number(),
@@ -17,6 +18,7 @@ export type ICoupon = z.infer<typeof CouponZodSchema> & Document;
 export const couponSchema: Schema<ICoupon> = new Schema(
   {
     partnerId: { type: String, required: true },
+    code: { type: String, required: true, unique: true },
     name: { type: String },
     totalCount: { type: Number, required: true, default: 0 },
     remainingCount: { type: Number, required: true, default: 0 },

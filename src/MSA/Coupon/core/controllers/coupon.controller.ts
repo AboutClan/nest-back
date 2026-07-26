@@ -13,7 +13,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import {
   GetMyCouponDto,
+  IssueCouponByPartnerDto,
   IssueCouponDto,
+  RegisterCouponBulkDto,
   RegisterCouponDto,
 } from '../../dtos/coupon.dto';
 import { CouponService } from '../services/coupon.service';
@@ -29,7 +31,23 @@ export class CouponController {
   async register(@Body() dto: RegisterCouponDto, @Res() res: Response) {
     const result = await this.couponService.register(
       dto.partnerId,
+      dto.code,
       dto.quantity,
+      dto.name,
+    );
+    return res.status(201).json(result);
+  }
+
+  /** 파트너 쿠폰 코드 일괄 등록 (코드별 1회 사용 쿠폰) */
+  @Post('bulk')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async registerBulk(
+    @Body() dto: RegisterCouponBulkDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.couponService.registerBulk(
+      dto.partnerId,
+      dto.codes,
       dto.name,
     );
     return res.status(201).json(result);
@@ -71,6 +89,17 @@ export class CouponController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async issue(@Body() dto: IssueCouponDto, @Res() res: Response) {
     const result = await this.couponService.issue(dto.couponId);
+    return res.status(200).json(result);
+  }
+
+  /** partnerId로 발급: 기존 발급 기록이 있으면 그대로, 없으면 잔여 코드 중 신규 배정 */
+  @Post('issue-by-partner')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async issueByPartner(
+    @Body() dto: IssueCouponByPartnerDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.couponService.issueByPartner(dto.partnerId);
     return res.status(200).json(result);
   }
 }

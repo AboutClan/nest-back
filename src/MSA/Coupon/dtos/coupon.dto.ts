@@ -1,4 +1,6 @@
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -11,6 +13,10 @@ export class RegisterCouponDto {
   @IsString()
   partnerId: string;
 
+  @IsNotEmpty({ message: 'code필요' })
+  @IsString()
+  code: string;
+
   @IsOptional()
   @IsString()
   name?: string;
@@ -20,10 +26,31 @@ export class RegisterCouponDto {
   quantity: number;
 }
 
+export class RegisterCouponBulkDto {
+  @IsNotEmpty({ message: 'partnerId필요' })
+  @IsString()
+  partnerId: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsArray()
+  @ArrayNotEmpty({ message: 'codes필요' })
+  @IsString({ each: true })
+  codes: string[];
+}
+
 export class IssueCouponDto {
   @IsNotEmpty({ message: 'couponId필요' })
   @IsString()
   couponId: string;
+}
+
+export class IssueCouponByPartnerDto {
+  @IsNotEmpty({ message: 'partnerId필요' })
+  @IsString()
+  partnerId: string;
 }
 
 export class GetMyCouponDto {

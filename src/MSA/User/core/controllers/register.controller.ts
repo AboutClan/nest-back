@@ -51,7 +51,10 @@ export class RegisterController {
   @Post('approval')
   async approveUser(@Body() approveUserDto: ApproveUserDto) {
     try {
-      await this.registerService.approve(approveUserDto.uid);
+      await this.registerService.approve(
+        approveUserDto.uid,
+        approveUserDto.referrerUid,
+      );
       return { status: 'success' };
     } catch (err) {
       throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);

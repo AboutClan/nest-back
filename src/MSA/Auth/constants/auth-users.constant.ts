@@ -34,5 +34,8 @@ export const MEMBER_GUEST_USER = {
 
 export const BLOCKED_UIDS = new Set(['1234567890']);
 
+/** 추천인이 이 목록에 있으면 가입비 2만원 전액 할인 (동아리 관계자) */
+export const CLUB_UIDS = new Set(['5006986335', '5006950630']);
+
 export const SESSION_MAX_AGE_SEC = 720 * 60 * 60;
 export const SESSION_UPDATE_AGE_SEC = 72 * 60 * 60;
