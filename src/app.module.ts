@@ -50,6 +50,7 @@ import { StoreModule } from './MSA/Store/store.module';
 import { GroupStudyModule } from './MSA/GroupStudy/groupStudy.module';
 import { AuthModule } from './MSA/Auth/auth.module';
 import { CouponModule } from './MSA/Coupon/coupon.module';
+import { CookiepayModule } from './routes/cookiepay/cookiepay.module';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -144,6 +145,7 @@ const corsOptions = {
     StoreModule,
     AuthModule,
     CouponModule,
+    CookiepayModule,
   ],
   controllers: [AppController],
   providers: [
@@ -167,6 +169,10 @@ export class AppModule implements NestModule {
       )
       .exclude(
         { path: 'payment/portone-webhook', method: RequestMethod.POST }, // 특정 경로 제외
+        { path: 'cookiepay/order', method: RequestMethod.POST },
+        { path: 'cookiepay/order/:orderNo', method: RequestMethod.GET },
+        { path: 'cookiepay/mark-result', method: RequestMethod.POST },
+        { path: 'cookiepay/finalize', method: RequestMethod.POST },
       )
       .forRoutes('*');
   }

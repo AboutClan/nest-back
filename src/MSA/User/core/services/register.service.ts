@@ -189,7 +189,16 @@ export default class RegisterService {
 
     const user = await this.registerRepository.findByUid(uid);
 
-    if (!user) throw new ValidationError('wrong uid');
+    if (!user) {
+      // 대기 문서가 이미 없다면(중복 호출 등) 실제로 승인이 완료된 상태인지 확인해서
+      // 그런 경우엔 에러 대신 성공(no-op)으로 처리한다 (webhook/return/클라이언트 중복 호출 대비).
+      const NOT_YET_APPROVED_ROLES = ['waiting', 'newUser', 'noMember'];
+      const existingUser = await this.User.findOne({ uid });
+      if (existingUser && !NOT_YET_APPROVED_ROLES.includes(existingUser.role)) {
+        return;
+      }
+      throw new ValidationError('wrong uid');
+    }
 
     const { _id, __v, ...registeredFields } = user.toObject();
 

@@ -5,6 +5,7 @@ export const DB_SCHEMA = {
   COLLECTION: 'collection',
   COUPON: 'Coupon',
   COUPON_ISSUE: 'CouponIssue',
+  COOKIEPAY_ORDER: 'CookiepayOrder',
   DAILYCHECK: 'DailyCheck',
   FEED: 'Feed',
   GATHER: 'Gather',
