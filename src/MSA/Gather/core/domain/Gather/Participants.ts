@@ -24,6 +24,7 @@ export class Participants {
   }
 
   isInvited(): boolean {
+    console.log('test');
     return this.invited;
   }
 
