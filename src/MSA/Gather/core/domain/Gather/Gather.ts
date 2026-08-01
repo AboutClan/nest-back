@@ -1,5 +1,6 @@
 // src/domain/entities/gather/Gather.ts
 
+import { DateOption, DateOptionProps } from './DateOption';
 import { GatherList, GatherListProps } from './GatherList';
 import { Location, LocationProps } from './Location';
 import { MemberCnt, MemberCntProps } from './MemberCnt';
@@ -39,6 +40,7 @@ export interface GatherProps {
   category?: string;
   groupId?: string | null;
   hasReview?: boolean;
+  dateOptions?: DateOptionProps[];
 }
 
 export class Gather {
@@ -71,6 +73,7 @@ export class Gather {
   public category?: string;
   public groupId?: string | null;
   public hasReview?: boolean;
+  public dateOptions: DateOption[];
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -103,6 +106,7 @@ export class Gather {
     this.groupId = props.groupId ?? null;
     this.postImage = props.postImage ?? null;
     this.hasReview = props.hasReview ?? false;
+    this.dateOptions = (props.dateOptions ?? []).map((d) => new DateOption(d));
   }
 
   participate(participant: ParticipantsProps) {
@@ -170,6 +174,20 @@ export class Gather {
     this.reviewers.push(reviewer);
   }
 
+  // 참여자가 선택한 후보 날짜들로 내 투표 상태를 통째로 갱신 (복수 선택 가능)
+  public voteDateOptions(userId: string, selectedDates: string[]) {
+    for (const option of this.dateOptions) {
+      const hasVoted = option.voters.some((v) => v.toString() === userId.toString());
+      const shouldVote = selectedDates.includes(option.date);
+
+      if (shouldVote && !hasVoted) {
+        option.voters.push(userId);
+      } else if (!shouldVote && hasVoted) {
+        option.voters = option.voters.filter((v) => v.toString() !== userId.toString());
+      }
+    }
+  }
+
   public toPrimitives(): GatherProps {
     return {
       _id: this._id,
@@ -200,6 +218,7 @@ export class Gather {
       category: this.category,
       groupId: this.groupId,
       hasReview: this.hasReview,
+      dateOptions: this.dateOptions.map((d) => d.toPrimitives()),
     };
   }
 }

@@ -57,4 +57,8 @@ export class ParticipateGatherDto {
   isFree?: boolean;
   @IsOptional()
   userId?: string;
+  @IsOptional()
+  selectedDates?: string[];
+  @IsOptional()
+  withCompanion?: boolean;
 }

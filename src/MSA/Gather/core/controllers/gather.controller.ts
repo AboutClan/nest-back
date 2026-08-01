@@ -6,10 +6,10 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import { GeneratePostDraftDto } from 'src/utils/gpt/content-draft.dto';
@@ -81,10 +81,19 @@ export class GatherController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'image', maxCount: 1 },
+        { name: 'coverImage', maxCount: 1 },
+      ],
+      { storage: memoryStorage() },
+    ),
+  )
   async createGather(
     @Body() createGatherDto: CreateGatherDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: { image?: Express.Multer.File[]; coverImage?: Express.Multer.File[] },
   ) {
     // multipart/form-data로 전송될 때 gather 필드가 JSON 문자열로 올 수 있음
     const gatherData =
@@ -92,19 +101,28 @@ export class GatherController {
         ? JSON.parse(createGatherDto.gather)
         : createGatherDto.gather;
 
-    const gatherId = await this.gatherService.createGather(
-      gatherData,
-      file?.buffer,
-    );
+    const gatherId = await this.gatherService.createGather(gatherData, {
+      image: files?.image?.[0]?.buffer,
+      coverImage: files?.coverImage?.[0]?.buffer,
+    });
 
     return { gatherId };
   }
 
   @Patch()
-  @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'image', maxCount: 1 },
+        { name: 'coverImage', maxCount: 1 },
+      ],
+      { storage: memoryStorage() },
+    ),
+  )
   async updateGather(
     @Body() updateGatherDto: any,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: { image?: Express.Multer.File[]; coverImage?: Express.Multer.File[] },
   ) {
     // multipart/form-data로 전송될 때 gather 필드가 JSON 문자열로 올 수 있음
     const gatherData =
@@ -112,7 +130,10 @@ export class GatherController {
         ? JSON.parse(updateGatherDto.gather)
         : updateGatherDto.gather;
 
-    await this.gatherService.updateGather(gatherData, file?.buffer);
+    await this.gatherService.updateGather(gatherData, {
+      image: files?.image?.[0]?.buffer,
+      coverImage: files?.coverImage?.[0]?.buffer,
+    });
     return { status: 'success' };
   }
 
@@ -165,6 +186,8 @@ export class GatherController {
       participateGatherDto.gatherId,
       participateGatherDto.phase,
       participateGatherDto.isFree,
+      participateGatherDto.selectedDates,
+      participateGatherDto.withCompanion,
     );
     return { status: 'success' };
   }

@@ -13,7 +13,11 @@
       "Bash(npx tsc *)",
       "Bash(xargs grep -n \"isNewUser\\\\|newUser\")",
       "Bash(xargs cat)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(echo \"EXIT:$?\")",
+      "Read(//tmp/**)",
+      "Bash(nslookup -type=SRV _mongodb._tcp.cluster0.o85ddbk.mongodb.net)",
+      "Bash(nslookup -type=SRV _mongodb._tcp.cluster0.o85ddbk.mongodb.net 8.8.8.8)"
     ]
   }
 }

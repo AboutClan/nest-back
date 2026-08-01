@@ -303,26 +303,41 @@ export class GatherService {
 
   //todo: 타입 수정 필요
   //place 프론트에서 데이터 전송으로 인해 생성 삭제
-  async createGather(data: Partial<IGatherData>, buffer: any) {
-    let imageUrl = '';
-    if (buffer) {
-      imageUrl = await this.imageServiceInstance.uploadSingleImage(
-        'gather',
-        buffer,
-      );
-    } else {
-      imageUrl = data.image;
-    }
+  async createGather(
+    data: Partial<IGatherData>,
+    files: { image?: any; coverImage?: any },
+  ) {
+    const imageUrl = files?.image
+      ? await this.imageServiceInstance.uploadSingleImage('gather', files.image)
+      : data.image;
+
+    const coverImageUrl = files?.coverImage
+      ? await this.imageServiceInstance.uploadSingleImage(
+          'gather',
+          files.coverImage,
+        )
+      : data.coverImage;
+
     const token = RequestContext.getDecodedToken();
 
     const nextId =
       await this.counterServiceInstance.getNextSequence('counterid');
+
+    const dateOptions =
+      data.category === 'openGather' && !data.dateOptions?.length && data.date
+        ? [0, 1, 2].map((addDay) => ({
+            date: dayjs(data.date).add(addDay, 'day').toISOString(),
+            voters: [],
+          }))
+        : data.dateOptions;
 
     const gatherInfo = {
       ...data,
       user: token.id,
       id: nextId,
       image: imageUrl,
+      coverImage: coverImageUrl,
+      dateOptions,
     };
 
     const gatherData = new Gather(gatherInfo as GatherProps);
@@ -339,13 +354,21 @@ export class GatherService {
     return gatherData.id;
   }
 
-  async updateGather(gatherData: Partial<IGatherData>, buffer: any) {
-    if (buffer) {
-      const imageUrl = await this.imageServiceInstance.uploadSingleImage(
+  async updateGather(
+    gatherData: Partial<IGatherData>,
+    files: { image?: any; coverImage?: any },
+  ) {
+    if (files?.image) {
+      gatherData.image = await this.imageServiceInstance.uploadSingleImage(
         'gather',
-        buffer,
+        files.image,
       );
-      gatherData.coverImage = imageUrl;
+    }
+    if (files?.coverImage) {
+      gatherData.coverImage = await this.imageServiceInstance.uploadSingleImage(
+        'gather',
+        files.coverImage,
+      );
     }
 
     await this.gatherRepository.updateGather(gatherData.id, gatherData);
@@ -397,7 +420,13 @@ export class GatherService {
   }
 
   //isFree는 초대코드 입력해서 온 경우
-  async participateGather(gatherId: number, phase: string, isFree: boolean) {
+  async participateGather(
+    gatherId: number,
+    phase: string,
+    isFree: boolean,
+    selectedDates?: string[],
+    withCompanion?: boolean,
+  ) {
     const token = RequestContext.getDecodedToken();
     const ticket = await this.userServiceInstance.getTicketInfo(token.id);
 
@@ -410,10 +439,16 @@ export class GatherService {
         user: token.id,
         phase,
         invited: !!isFree,
+        withCompanion: !!withCompanion,
       };
       const validatedParticipate = ParticipantsZodSchema.parse(partData);
 
       gather.participate(validatedParticipate as ParticipantsProps);
+
+      if (gather.category === 'openGather' && selectedDates?.length) {
+        gather.voteDateOptions(token.id, selectedDates);
+      }
+
       await this.gatherRepository.save(gather);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');

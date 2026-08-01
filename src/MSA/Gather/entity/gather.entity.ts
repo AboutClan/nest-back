@@ -39,6 +39,12 @@ export const ParticipantsZodSchema = z.object({
   phase: z.string(),
   invited: z.boolean().default(false),
   absence: z.boolean().default(false),
+  withCompanion: z.boolean().default(false),
+});
+
+export const DateOptionZodSchema = z.object({
+  date: z.string(),
+  voters: z.array(z.union([z.string(), z.custom<IUser>()])).default([]),
 });
 
 export const GatherZodSchema = z.object({
@@ -73,6 +79,7 @@ export const GatherZodSchema = z.object({
   category: z.enum(ENTITY.GATHER.ENUM_CATEGORY_TYPE),
   groupId: z.string().optional(),
   hasReview: z.boolean().optional().default(false),
+  dateOptions: z.array(DateOptionZodSchema).optional().default([]),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;
@@ -82,6 +89,7 @@ export type LocationType = z.infer<typeof LocationZodSchema>;
 export type memberCntType = z.infer<typeof MemberCntZodSchema>;
 export type GatherType = z.infer<typeof GathersZodSchema>;
 export type participantsType = z.infer<typeof ParticipantsZodSchema>;
+export type dateOptionType = z.infer<typeof DateOptionZodSchema>;
 export type IGatherData = z.infer<typeof GatherZodSchema> & Document;
 
 export const typeSchema: Schema<TitleType> = new Schema(
@@ -166,6 +174,24 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     absence: {
       type: Boolean,
       default: false,
+    },
+    withCompanion: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: false, timestamps: false },
+);
+
+export const dateOptionSchema: Schema<dateOptionType> = new Schema(
+  {
+    date: {
+      type: String,
+    },
+    voters: {
+      type: [Schema.Types.ObjectId],
+      ref: DB_SCHEMA.USER,
+      default: [],
     },
   },
   { _id: false, timestamps: false },
@@ -287,6 +313,10 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     hasReview: {
       type: Boolean,
       default: false,
+    },
+    dateOptions: {
+      type: [dateOptionSchema],
+      default: [],
     },
   },
   { timestamps: true, strict: false },

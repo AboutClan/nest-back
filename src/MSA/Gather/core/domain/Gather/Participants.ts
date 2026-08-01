@@ -5,6 +5,7 @@ export interface ParticipantsProps {
   phase: string;
   invited?: boolean;
   absence?: boolean;
+  withCompanion?: boolean;
 }
 
 export class Participants {
@@ -12,12 +13,14 @@ export class Participants {
   public phase: string;
   public invited: boolean;
   public absence: boolean;
+  public withCompanion: boolean;
 
   constructor(props: ParticipantsProps) {
     this.user = props.user;
     this.phase = props.phase ?? 'all';
     this.invited = props.invited ?? false;
     this.absence = props.absence ?? false;
+    this.withCompanion = props.withCompanion ?? false;
   }
 
   isInvited(): boolean {
@@ -30,6 +33,7 @@ export class Participants {
       phase: this.phase,
       invited: this.invited,
       absence: this.absence,
+      withCompanion: this.withCompanion,
     };
   }
 }

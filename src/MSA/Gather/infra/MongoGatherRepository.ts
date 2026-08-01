@@ -84,6 +84,10 @@ export class GatherRepository implements IGatherRepository {
         .populate({
           path: 'user',
           select: ENTITY.USER.C_SIMPLE_USER,
+        })
+        .populate({
+          path: 'dateOptions.voters',
+          select: ENTITY.USER.C_SIMPLE_USER,
         });
     }
     const result = await query.exec();
@@ -425,6 +429,7 @@ export class GatherRepository implements IGatherRepository {
         phase: p.phase,
         invited: p.invited,
         absence: p.absence,
+        withCompanion: p.withCompanion ?? false,
       })),
       user: doc.user as string,
       id: doc.id,
@@ -446,6 +451,10 @@ export class GatherRepository implements IGatherRepository {
       category: doc.category ?? 'gather',
       groupId: doc.groupId ?? null,
       hasReview: doc.hasReview ?? false,
+      dateOptions: (doc.dateOptions ?? []).map((d: any) => ({
+        date: d.date,
+        voters: d.voters ?? [],
+      })),
     });
   }
 
@@ -489,6 +498,7 @@ export class GatherRepository implements IGatherRepository {
         phase: p.phase,
         invited: p.invited,
         absence: p.absence,
+        withCompanion: p.withCompanion,
       })),
       user: props.user,
       id: props.id,
@@ -508,6 +518,10 @@ export class GatherRepository implements IGatherRepository {
       category: props.category as any,
       groupId: props.groupId ?? null,
       hasReview: props.hasReview,
+      dateOptions: props.dateOptions?.map((d) => ({
+        date: d.date,
+        voters: d.voters,
+      })),
     };
   }
 }
