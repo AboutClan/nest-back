@@ -71,6 +71,7 @@ export const GatherZodSchema = z.object({
   postImage: z.string().nullable().optional(),
   coverImage: z.string().nullable().optional(),
   kakaoUrl: z.string().nullable().optional(),
+  googleFormUrl: z.string().nullable().optional(),
   waiting: z.array(WaitingZodSchema).default([]),
   isApprovalRequired: z.boolean().nullable().optional(),
   reviewers: z.array(z.string()).default([]),
@@ -285,6 +286,9 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
       type: String,
     },
     kakaoUrl: {
+      type: String,
+    },
+    googleFormUrl: {
       type: String,
     },
     isApprovalRequired: {

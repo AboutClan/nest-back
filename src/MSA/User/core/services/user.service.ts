@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -96,6 +97,40 @@ export class UserService {
       result.telephone = await this.decodeByAES256(result.telephone);
 
     return result;
+  }
+
+  // telephone은 CryptoJS.AES.encrypt(passphrase 방식)로 매 암호화마다 salt가 달라져
+  // 동일한 번호도 ciphertext가 매번 다르다. 따라서 DB에서 직접 equality 매칭이 불가능해
+  // telephone이 있는 유저를 모두 불러와 복호화하며 순차 비교한다.
+  async getUserWithTelephone(phone: string) {
+    const token = RequestContext.getDecodedToken();
+    const requester = token?.uid
+      ? await this.UserRepository.findByUid(token.uid)
+      : null;
+
+    if (!requester || !['previliged', 'manager'].includes(requester.role)) {
+      throw new ForbiddenException('접근 권한이 없습니다.');
+    }
+
+    const normalizedInput = (phone || '').replace(/\D/g, '');
+    if (!normalizedInput) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    const users = await this.UserRepository.findAll('uid telephone');
+
+    for (const user of users) {
+      if (!user.telephone) continue;
+
+      const decoded = await this.decodeByAES256(user.telephone);
+      const normalizedDecoded = (decoded || '').replace(/\D/g, '');
+
+      if (normalizedDecoded && normalizedDecoded === normalizedInput) {
+        return this.getUserWithUid(user.uid);
+      }
+    }
+
+    throw new NotFoundException(`User not found`);
   }
 
   async getUsersWithUids(uids: string[]) {

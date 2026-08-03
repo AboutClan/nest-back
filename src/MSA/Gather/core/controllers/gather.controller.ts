@@ -41,7 +41,7 @@ export class GatherController {
     if (gatherIdNum) {
       return await this.gatherService.getGatherById(gatherIdNum);
     } else if (cursorNum === -1) {
-      return await this.gatherService.getThreeGather();
+      return await this.gatherService.getHomeGatherSections();
     } else {
       return await this.gatherService.getGather(cursorNum, category, sortBy, mode);
     }

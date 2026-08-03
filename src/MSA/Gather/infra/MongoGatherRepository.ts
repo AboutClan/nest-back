@@ -127,70 +127,50 @@ export class GatherRepository implements IGatherRepository {
     return results.map((doc) => this.mapToDomain(doc));
   }
 
-  async findThree(): Promise<Gather[] | null> {
-    const gatherData1 = await this.Gather.find({
-      status: { $nin: ['close', 'end'] },
-    })
-      .sort({ createdAt: -1 })
-      .limit(6)
-      .populate({
-        path: 'user',
-        select: ENTITY.USER.C_MINI_USER,
-      })
-      .populate({
-        path: 'participants.user',
-        select: ENTITY.USER.C_MINI_USER,
-      });
+  // 홈 화면 번개 섹션: [1] openGather/officialGather 중 임박순 3개,
+  // [2] 나머지 중 임박순 6개, [3] 앞서 나온 9개를 제외한 최근 개설순 6개.
+  // 각 구간은 부족하면 null로 패딩해 프론트에서 고정 길이로 slice 할 수 있게 한다.
+  async findHomeGatherSections(): Promise<Gather[] | null> {
+    const populateOptions = [
+      { path: 'user', select: ENTITY.USER.C_MINI_USER },
+      { path: 'participants.user', select: ENTITY.USER.C_MINI_USER },
+    ];
 
-    const excludeIds = gatherData1.map((item) => item._id);
-
-    const gatherData2 = await this.Gather.find({
+    const featured = await this.Gather.find({
       status: 'pending',
-      _id: { $nin: excludeIds },
-      $expr: {
-        $gte: [
-          { $divide: [{ $size: '$participants' }, '$memberCnt.max'] },
-          0.5,
-        ],
-      },
+      category: { $in: ['openGather', 'officialGather'] },
+    })
+      .sort({ date: 1 })
+      .limit(3)
+      .populate(populateOptions);
+
+    const featuredIds = featured.map((item) => item._id);
+
+    const upcoming = await this.Gather.find({
+      status: 'pending',
+      _id: { $nin: featuredIds },
     })
       .sort({ date: 1 })
       .limit(6)
-      .populate({
-        path: 'user',
-        select: ENTITY.USER.C_MINI_USER,
-      })
-      .populate({
-        path: 'participants.user',
-        select: ENTITY.USER.C_MINI_USER,
-      });
-    console.log(gatherData2, gatherData2.length);
-    const gatherData3 = await this.Gather.find({
-      'participants.11': { $exists: true },
+      .populate(populateOptions);
+
+    const excludeIds = [...featuredIds, ...upcoming.map((item) => item._id)];
+
+    const recentlyOpened = await this.Gather.find({
+      status: 'pending',
       _id: { $nin: excludeIds },
     })
-      .sort({ date: -1 })
+      .sort({ createdAt: -1 })
       .limit(6)
-      .populate({
-        path: 'user',
-        select: ENTITY.USER.C_MINI_USER,
-      })
-      .populate({
-        path: 'participants.user',
-        select: ENTITY.USER.C_MINI_USER,
-      });
+      .populate(populateOptions);
 
     return [
-      ...gatherData1
+      ...featured.slice(0, 3).concat(Array(Math.max(0, 3 - featured.length)).fill(null)),
+      ...upcoming.slice(0, 6).concat(Array(Math.max(0, 6 - upcoming.length)).fill(null)),
+      ...recentlyOpened
         .slice(0, 6)
-        .concat(Array(Math.max(0, 6 - gatherData1.length)).fill(null)),
-      ...gatherData2
-        .slice(0, 6)
-        .concat(Array(Math.max(0, 6 - gatherData2.length)).fill(null)),
-      ...gatherData3
-        .slice(0, 6)
-        .concat(Array(Math.max(0, 6 - gatherData3.length)).fill(null)),
-    ].map((doc) => this.mapToDomain(doc));
+        .concat(Array(Math.max(0, 6 - recentlyOpened.length)).fill(null)),
+    ].map((doc) => (doc ? this.mapToDomain(doc) : null));
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {
@@ -440,6 +420,7 @@ export class GatherRepository implements IGatherRepository {
       coverImage: doc.coverImage ?? null,
       postImage: doc.postImage ?? null,
       kakaoUrl: doc.kakaoUrl ?? null,
+      googleFormUrl: doc.googleFormUrl ?? null,
       waiting: doc.waiting.map((w: any) => ({
         user: w.user,
         phase: w.phase,
@@ -508,6 +489,7 @@ export class GatherRepository implements IGatherRepository {
       image: props.image,
       coverImage: props.coverImage,
       kakaoUrl: props.kakaoUrl,
+      googleFormUrl: props.googleFormUrl,
       waiting: props.waiting.map((w) => ({
         user: w.user,
         phase: w.phase,

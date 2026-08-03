@@ -22,6 +22,7 @@ export const ENTITY = {
       'official',
       'openGather',
       'secretGather',
+      'officialGather',
     ] as const,
     DEFAULT_CATEGORY_TYPE: 'gather' as const,
   },

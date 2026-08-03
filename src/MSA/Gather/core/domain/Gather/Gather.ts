@@ -34,6 +34,7 @@ export interface GatherProps {
   coverImage?: string | null;
   postImage?: string | null;
   kakaoUrl?: string | null;
+  googleFormUrl?: string | null;
   isApprovalRequired?: boolean | null;
   reviewers: string[];
   deposit: number;
@@ -67,6 +68,7 @@ export class Gather {
   public coverImage: string | null;
   public postImage: string | null;
   public kakaoUrl: string | null;
+  public googleFormUrl: string | null;
   public isApprovalRequired: boolean | null;
   public reviewers: string[];
   public deposit: number;
@@ -99,6 +101,7 @@ export class Gather {
     this.image = props.image ?? null;
     this.coverImage = props.coverImage ?? null;
     this.kakaoUrl = props.kakaoUrl ?? null;
+    this.googleFormUrl = props.googleFormUrl ?? null;
     this.isApprovalRequired = props.isApprovalRequired ?? null;
     this.reviewers = props.reviewers || [];
     this.deposit = props.deposit || 0;
@@ -212,6 +215,7 @@ export class Gather {
       image: this.image,
       coverImage: this.coverImage,
       kakaoUrl: this.kakaoUrl,
+      googleFormUrl: this.googleFormUrl,
       isApprovalRequired: this.isApprovalRequired,
       reviewers: this.reviewers,
       deposit: this.deposit,

@@ -177,6 +177,13 @@ export class UserController {
     return user;
   }
 
+  @Get('profile/phone/:phone')
+  async getUserByPhone(@Param('phone') phone: string) {
+    const user = await this.userService.getUserWithTelephone(phone);
+
+    return user;
+  }
+
   @Get('profiles')
   async getUserByUids(@Query('uids') uids: string[]) {
     const isActive = await this.userService.getUsersWithUids(uids);

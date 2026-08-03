@@ -81,8 +81,8 @@ export class GatherService {
     return { ...gatherData, comments };
   }
 
-  async getThreeGather() {
-    const gatherData = await this.gatherRepository.findThree();
+  async getHomeGatherSections() {
+    const gatherData = await this.gatherRepository.findHomeGatherSections();
 
     return gatherData;
   }
