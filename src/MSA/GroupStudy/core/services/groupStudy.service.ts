@@ -9,7 +9,8 @@ import { DatabaseError } from 'src/errors/DatabaseError';
 import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 import {
   GroupStudy,
-  GroupStudyProps
+  GroupStudyProps,
+  ParticipantProps
 } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 import { ILogTemperatureRepository } from 'src/MSA/User/core/interfaces/LogTemperature.interface';
 import { UserService } from 'src/MSA/User/core/services/user.service';
@@ -604,11 +605,36 @@ export default class GroupStudyService {
   async participateGroupStudy(id: string) {
     const token = RequestContext.getDecodedToken();
 
-    //ticket 차감 로직
-    const ticketInfo = await this.userServiceInstance.getTicketInfo(token.id);
-
     const groupStudy = await this.groupStudyRepository.findById(id);
     if (!groupStudy) throw new Error();
+
+    // 참가자 추가를 원자적(atomic) DB 연산으로 먼저 처리한다.
+    // 동시에 같은 유저의 중복 요청이 들어와도 'participants.user' $ne 조건 때문에
+    // 정확히 한 번만 성공하고, 두 번째 요청은 null을 받아 즉시 실패한다.
+    // 이 성공 여부로 아래 티켓/포인트 차감의 중복 실행을 막는다.
+    const newParticipant: ParticipantProps = {
+      user: token.id,
+      randomId: Math.floor(Math.random() * 1000000),
+      role: 'member',
+      deposit: 0,
+      monthAttendance: false,
+      status: 'active',
+      registerDate: new Date(),
+    };
+
+    const updatedGroupStudy =
+      await this.groupStudyRepository.addParticipantIfAbsent(
+        id,
+        token.id,
+        newParticipant,
+      );
+
+    if (!updatedGroupStudy) {
+      throw new Error('User is already a participant');
+    }
+
+    //ticket 차감 로직
+    const ticketInfo = await this.userServiceInstance.getTicketInfo(token.id);
     const extraTemp = groupStudy.requiredTicket - ticketInfo.groupStudyTicket;
 
     if (extraTemp <= 0) {
@@ -631,12 +657,7 @@ export default class GroupStudyService {
         'ticket',
       );
     }
-
-    groupStudy.participateGroupStudy(token.id, 'member');
-
     //ticket 차감 로직
-
-    await this.groupStudyRepository.save(groupStudy);
 
     await this.fcmServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer.toString(),

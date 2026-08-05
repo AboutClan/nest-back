@@ -293,6 +293,25 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return this.mapToDomain(updatedDoc);
   }
 
+  async addParticipantIfAbsent(
+    groupStudyId: string,
+    userId: string,
+    participant: ParticipantProps,
+  ): Promise<GroupStudy | null> {
+    const updatedDoc = await this.GroupStudy.findOneAndUpdate(
+      {
+        id: groupStudyId,
+        'participants.user': { $ne: userId },
+      },
+      {
+        $push: { participants: participant },
+      },
+      { new: true },
+    );
+
+    return updatedDoc ? this.mapToDomain(updatedDoc) : null;
+  }
+
   async findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null> {
     const doc = await this.GroupStudy.findOne({ id: groupStudyId })
       .populate({ path: 'waiting.user', select: ENTITY.USER.C_SIMPLE_USER })

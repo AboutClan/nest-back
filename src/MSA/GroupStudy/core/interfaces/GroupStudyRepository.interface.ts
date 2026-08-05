@@ -1,4 +1,7 @@
-import { GroupStudy } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
+import {
+  GroupStudy,
+  ParticipantProps,
+} from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 import { IGroupStudyData } from '../../entity/groupStudy.entity';
 
 export interface IGroupStudyRepository {
@@ -24,6 +27,11 @@ export interface IGroupStudyRepository {
   findMyGroupStudyComment(userId: string): Promise<any[]>;
   save(entity: GroupStudy): Promise<GroupStudy>;
   create(entity: GroupStudy): Promise<GroupStudy>;
+  addParticipantIfAbsent(
+    groupStudyId: string,
+    userId: string,
+    participant: ParticipantProps,
+  ): Promise<GroupStudy | null>;
   findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null>;
   findAllForLLM(): Promise<Partial<IGroupStudyData>[]>;
   test();
