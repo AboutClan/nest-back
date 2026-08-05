@@ -164,7 +164,7 @@ export class Realtime {
           time: member.arrived,
           memo: member?.memo,
           attendanceImage: member.image,
-          type: member.arrived ? 'arrived' : null,
+          type: member.absence ? 'absenced' : member.arrived ? 'arrived' : null,
         },
         comment: {
           text: member.comment?.text,
@@ -185,7 +185,7 @@ export class Realtime {
           time: member.arrived,
           memo: member?.memo,
           attendanceImage: member.image,
-          type: member.arrived ? 'arrived' : null,
+          type: member.absence ? 'absenced' : member.arrived ? 'arrived' : null,
         },
         comment: {
           text: member.comment?.text,

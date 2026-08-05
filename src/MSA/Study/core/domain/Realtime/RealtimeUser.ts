@@ -65,7 +65,9 @@ export class RealtimeUser {
   updateAbsence(userId: string, absence: boolean, message?: string) {
     if (this.user.toString() === userId.toString()) {
       this.absence = absence;
-      this.comment = new Comment(message);
+      if (message) {
+        this.comment = new Comment(message);
+      }
     }
   }
 
@@ -79,6 +81,7 @@ export class RealtimeUser {
       comment: this.comment?.toPrimitives(),
       status: this.status,
       time: this.time.toPrimitives(),
+      absence: this.absence,
       heartCnt: this.heartCnt,
     };
   }
