@@ -180,6 +180,11 @@ export default class RegisterService {
     await this.removeUnnecessaryUserField();
   }
 
+  async isAdmin(uid: string): Promise<boolean> {
+    const user = await this.User.findOne({ uid }).lean();
+    return user?.role === 'manager' || user?.role === 'previliged';
+  }
+
   async approve(uid: string, referrerUid?: string) {
     if (BLOCKED_UIDS.has(uid)) {
       throw new ValidationError('wrong uid');
