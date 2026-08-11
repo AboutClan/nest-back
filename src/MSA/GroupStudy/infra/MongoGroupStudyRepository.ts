@@ -173,7 +173,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       })
       .populate({
         path: 'waiting.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
+        select: ENTITY.USER.C_SIMPLE_USER + 'telephone',
       })
       .select('-_id');
 
@@ -314,7 +314,10 @@ export class GroupStudyRepository implements IGroupStudyRepository {
 
   async findByIdWithWaiting(groupStudyId: string): Promise<GroupStudy | null> {
     const doc = await this.GroupStudy.findOne({ id: groupStudyId })
-      .populate({ path: 'waiting.user', select: ENTITY.USER.C_SIMPLE_USER })
+      .populate({
+        path: 'waiting.user',
+        select: ENTITY.USER.C_SIMPLE_USER + 'telephone',
+      })
       .select('-_id');
 
     return doc ? this.mapToDomain(doc) : null;

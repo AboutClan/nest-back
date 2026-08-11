@@ -138,7 +138,7 @@ export class GatherRepository implements IGatherRepository {
 
     const featured = await this.Gather.find({
       status: 'pending',
-      category: { $in: ['openGather', 'officialGather'] },
+      category: { $in: ['openGather', 'officialGather', 'gather2'] },
     })
       .sort({ date: 1 })
       .limit(3)
@@ -165,8 +165,12 @@ export class GatherRepository implements IGatherRepository {
       .populate(populateOptions);
 
     return [
-      ...featured.slice(0, 3).concat(Array(Math.max(0, 3 - featured.length)).fill(null)),
-      ...upcoming.slice(0, 6).concat(Array(Math.max(0, 6 - upcoming.length)).fill(null)),
+      ...featured
+        .slice(0, 3)
+        .concat(Array(Math.max(0, 3 - featured.length)).fill(null)),
+      ...upcoming
+        .slice(0, 6)
+        .concat(Array(Math.max(0, 6 - upcoming.length)).fill(null)),
       ...recentlyOpened
         .slice(0, 6)
         .concat(Array(Math.max(0, 6 - recentlyOpened.length)).fill(null)),
