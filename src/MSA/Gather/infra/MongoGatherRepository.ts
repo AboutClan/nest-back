@@ -137,7 +137,6 @@ export class GatherRepository implements IGatherRepository {
     ];
 
     const featured = await this.Gather.find({
-      status: 'pending',
       category: { $in: ['openGather', 'officialGather', 'gather2'] },
     })
       .sort({ date: 1 })
