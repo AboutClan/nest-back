@@ -17,6 +17,9 @@ import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
 import { IRegistered } from '../../entity/register.entity';
 import { RegisterRepository } from '../../infra/MongoRegisterRepository';
+import { UserService } from './user.service';
+
+const REFERRAL_REWARD_POINT = 3000;
 
 export default class RegisterService {
   constructor(
@@ -24,6 +27,7 @@ export default class RegisterService {
     private readonly registerRepository: RegisterRepository,
     @InjectModel(DB_SCHEMA.USER) private User: Model<IUser>,
     @InjectModel(DB_SCHEMA.ACCOUNT) private Account: Model<IAccount>,
+    private readonly userService: UserService,
   ) {}
 
   async encodeByAES56(tel: string) {
@@ -246,7 +250,38 @@ export default class RegisterService {
       uid,
       value: depositPoint,
     });
+
+    await this.rewardReferrerIfEligible(referrerUid);
     return;
+  }
+
+  /**
+   * 추천인이 운영진(manager/previliged)도 동아리 관계자(CLUB_UIDS)도 아닌
+   * 일반 회원인 경우, 추천 성공에 대한 보상으로 추천인에게도 포인트를 지급한다.
+   */
+  private async rewardReferrerIfEligible(referrerUid?: string) {
+    if (!referrerUid) return;
+    if (CLUB_UIDS.has(referrerUid)) return;
+
+    const referrer = await this.User.findOne({ uid: referrerUid });
+    if (!referrer) return;
+    if (referrer.role === 'manager' || referrer.role === 'previliged') return;
+
+    try {
+      await this.userService.updatePoint(
+        REFERRAL_REWARD_POINT,
+        '추천인 보상',
+        'referral',
+        referrerUid,
+      );
+    } catch (err) {
+      logger.logger.error('추천인 보상 지급 실패', {
+        type: 'point',
+        sub: 'referral',
+        uid: referrerUid,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
   }
 
   async deleteRegisterUser(uid: string, approve: boolean) {

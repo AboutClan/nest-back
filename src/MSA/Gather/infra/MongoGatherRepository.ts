@@ -137,10 +137,12 @@ export class GatherRepository implements IGatherRepository {
     ];
 
     const featured = await this.Gather.find({
-      category: { $in: ['openGather', 'officialGather', 'gather2'] },
+      category: {
+        $in: ['openGather', 'officialGather', 'gather2', 'secretGather'],
+      },
     })
-      .sort({ date: 1 })
-      .limit(3)
+      .sort({ date: -1 })
+      .limit(6)
       .populate(populateOptions);
 
     const featuredIds = featured.map((item) => item._id);
@@ -165,8 +167,8 @@ export class GatherRepository implements IGatherRepository {
 
     return [
       ...featured
-        .slice(0, 3)
-        .concat(Array(Math.max(0, 3 - featured.length)).fill(null)),
+        .slice(0, 6)
+        .concat(Array(Math.max(0, 6 - featured.length)).fill(null)),
       ...upcoming
         .slice(0, 6)
         .concat(Array(Math.max(0, 6 - upcoming.length)).fill(null)),
