@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
@@ -59,7 +60,7 @@ export class GatherService {
 
     const par = gatherData.participants;
 
-    const ids = par.map((p) => (p.user as any)?._id.toString());
+    const ids = par.map((p) => (p.user as any)?._id?.toString());
 
     // await this.fcmServiceInstance.sendNotificationUserIds(
     //   ids,
@@ -276,7 +277,7 @@ export class GatherService {
       const isReviewed = reviewerIds.includes(userIdString);
 
       const isParticipant = g.participants.some(
-        (p) => (p.user as any)._id.toString() === userIdString,
+        (p) => (p.user as any)?._id?.toString() === userIdString,
       );
       const isOwner = (g.user as any)._id.toString() === userIdString;
 
@@ -401,6 +402,8 @@ export class GatherService {
     const participants = gather.participants;
 
     for (const participant of participants) {
+      if (participant.isDummy || !participant.user) continue;
+
       gather.deposit += CONST.POINT.PARTICIPATE_GATHER;
 
       if (gather.deposit < 0) {
@@ -528,6 +531,36 @@ export class GatherService {
     return;
   }
 
+  async inviteDummyGather(
+    gatherId: number,
+    phase: string,
+    gender: string,
+    birth: string,
+  ) {
+    const gather = await this.gatherRepository.findById(gatherId);
+    if (!gather) throw new Error();
+
+    try {
+      const partData = {
+        phase,
+        invited: true,
+        isDummy: true,
+        dummyId: randomUUID(),
+        dummyGender: gender,
+        dummyBirth: birth,
+      };
+      const validatedParticipate = ParticipantsZodSchema.parse(partData);
+
+      gather.participate(validatedParticipate as ParticipantsProps);
+
+      await this.gatherRepository.save(gather);
+    } catch (err) {
+      throw new BadRequestException('Invalid participate data');
+    }
+
+    return;
+  }
+
   async exileGather(gatherId: number, userId: string) {
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
@@ -573,6 +606,16 @@ export class GatherService {
 
     const participants = gather.participants;
 
+    const targetParticipant = participants.find(
+      (p) => (p.isDummy && p.dummyId === targetId) || p.user?.toString() === targetId?.toString(),
+    );
+
+    if (targetParticipant?.isDummy) {
+      gather.exile(targetId);
+      await this.gatherRepository.save(gather);
+      return;
+    }
+
     // 모임 이틀 전까지 = 포인트 100% + 티켓 반환
     // 모임 하루 전 = 포인트만 50% 반환
     // 모임 당일 = 반환 X
@@ -591,7 +634,7 @@ export class GatherService {
 
       if (diffDay >= 2) {
         const targetInfo = participants.find(
-          (data) => data.user.toString() == targetId.toString(),
+          (data) => data.user?.toString() == targetId.toString(),
         );
 
         if (targetInfo?.invited === false) {
@@ -662,6 +705,7 @@ export class GatherService {
       const distributeList = [];
 
       gather.participants.forEach((participant) => {
+        if (participant.isDummy || !participant.user) return;
         if (!participant.absence) {
           distributeList.push(participant.user.toString());
 
@@ -710,6 +754,7 @@ export class GatherService {
 
     for (const gather of gathers) {
       for (const participant of gather.participants) {
+        if (participant.isDummy || !participant.user) continue;
         if (participant.absence) {
           await this.userServiceInstance.updatePointById(
             CONST.POINT.PARTICIPATE_GATHER,

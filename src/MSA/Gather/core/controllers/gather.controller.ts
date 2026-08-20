@@ -18,6 +18,7 @@ import {
   DeleteGatherDto,
   ExileGatherDto,
   HandleWaitingPersonDto,
+  InviteDummyGatherDto,
   ParticipateGatherDto,
   SetWaitingPersonDto,
 } from '../../dtos/dto';
@@ -198,6 +199,17 @@ export class GatherController {
       inviteGatherDto.gatherId,
       inviteGatherDto.phase,
       inviteGatherDto.userId,
+    );
+    return { status: 'success' };
+  }
+
+  @Post('invite/dummy')
+  async inviteDummyGather(@Body() inviteDummyGatherDto: InviteDummyGatherDto) {
+    await this.gatherService.inviteDummyGather(
+      inviteDummyGatherDto.gatherId,
+      inviteDummyGatherDto.phase,
+      inviteDummyGatherDto.gender,
+      inviteDummyGatherDto.birth,
     );
     return { status: 'success' };
   }

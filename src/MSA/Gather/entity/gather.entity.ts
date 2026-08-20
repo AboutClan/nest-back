@@ -35,11 +35,15 @@ export const GathersZodSchema = z.object({
 });
 
 export const ParticipantsZodSchema = z.object({
-  user: z.union([z.string(), z.custom<IUser>()]),
+  user: z.union([z.string(), z.custom<IUser>()]).optional(),
   phase: z.string(),
   invited: z.boolean().default(false),
   absence: z.boolean().default(false),
   withCompanion: z.boolean().default(false),
+  isDummy: z.boolean().default(false),
+  dummyId: z.string().optional(),
+  dummyGender: z.string().optional(),
+  dummyBirth: z.string().optional(),
 });
 
 export const DateOptionZodSchema = z.object({
@@ -163,6 +167,7 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: DB_SCHEMA.USER,
+      required: false,
     },
     phase: {
       type: String,
@@ -179,6 +184,19 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     withCompanion: {
       type: Boolean,
       default: false,
+    },
+    isDummy: {
+      type: Boolean,
+      default: false,
+    },
+    dummyId: {
+      type: String,
+    },
+    dummyGender: {
+      type: String,
+    },
+    dummyBirth: {
+      type: String,
     },
   },
   { _id: false, timestamps: false },

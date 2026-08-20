@@ -47,6 +47,23 @@ export class ExileGatherDto {
   userId: string;
 }
 
+export class InviteDummyGatherDto {
+  @IsNotEmpty({ message: 'gatherId필요' })
+  @IsNumber()
+  gatherId: number;
+
+  @IsOptional()
+  phase?: string;
+
+  @IsNotEmpty({ message: 'gender필요' })
+  @IsString()
+  gender: string;
+
+  @IsNotEmpty({ message: 'birth필요' })
+  @IsString()
+  birth: string;
+}
+
 export class ParticipateGatherDto {
   @IsNotEmpty({ message: 'gatherId필요' })
   @IsNumber()

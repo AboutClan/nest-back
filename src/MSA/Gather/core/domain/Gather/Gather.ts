@@ -113,8 +113,12 @@ export class Gather {
   }
 
   participate(participant: ParticipantsProps) {
+    if (participant.isDummy) {
+      this.participants.push(new Participants(participant));
+      return;
+    }
     const isParticipate = this.participants.find(
-      (p) => p.user.toString() === participant.user.toString(),
+      (p) => !p.isDummy && p.user?.toString() === participant.user?.toString(),
     );
     if (!isParticipate) {
       this.participants.push(new Participants(participant));
@@ -123,7 +127,9 @@ export class Gather {
 
   exile(userId: string) {
     const index = this.participants.findIndex(
-      (p) => p.user.toString() === userId.toString(),
+      (p) =>
+        (p.isDummy && p.dummyId === userId) ||
+        (!p.isDummy && p.user?.toString() === userId.toString()),
     );
     if (index !== -1) {
       this.participants.splice(index, 1);
@@ -150,7 +156,7 @@ export class Gather {
 
   setAbsence(userId: string) {
     const index = this.participants.findIndex(
-      (w) => w.user.toString() === userId.toString(),
+      (w) => w.user?.toString() === userId.toString(),
     );
     if (index !== -1) {
       this.participants[index].absence = true;
