@@ -428,6 +428,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       createdAt: (doc as any).createdAt,
       updatedAt: (doc as any).updatedAt,
       notionUrl: doc?.notionUrl,
+      googleFormUrl: doc?.googleFormUrl,
       requiredTicket: doc?.requiredTicket,
       totalDeposit: doc?.totalDeposit,
       randomTicket: doc?.randomTicket,
