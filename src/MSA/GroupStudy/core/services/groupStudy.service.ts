@@ -10,7 +10,7 @@ import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherReposito
 import {
   GroupStudy,
   GroupStudyProps,
-  ParticipantProps
+  ParticipantProps,
 } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 import { ILogTemperatureRepository } from 'src/MSA/User/core/interfaces/LogTemperature.interface';
 import { UserService } from 'src/MSA/User/core/services/user.service';
@@ -22,7 +22,7 @@ import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
-  ILOG_TEMPERATURE_REPOSITORY
+  ILOG_TEMPERATURE_REPOSITORY,
 } from 'src/utils/di.tokens';
 import { PostDraftResult } from 'src/utils/gpt/content-draft.dto';
 import { ContentDraftService } from 'src/utils/gpt/content-draft.service';
@@ -33,6 +33,11 @@ import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { IGroupStudyData } from '../../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interface';
 import GroupCommentService from './groupComment.service';
+
+// 홈 화면 "26년 2학기 동아리, 핫한 동아리" 섹션에 노출할 후보 group id 목록.
+// 여기에 등록된 id 중 매 요청마다 랜덤으로 6개를 뽑아 맨 앞 섹션에 노출한다.
+const HOT_CLUB_GROUP_ID_LIST: number[] = [271, 176, 277, 104, 106, 102];
+
 //test
 export default class GroupStudyService {
   constructor(
@@ -286,7 +291,7 @@ export default class GroupStudyService {
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
     try {
-      // groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
+      groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
     } catch (error) {
       // Redis 연결이 안 되어 있거나 장애가 있을 경우
       console.error('Redis 연결 에러:', error);
@@ -311,30 +316,36 @@ export default class GroupStudyService {
       return array.sort(() => Math.random() - 0.5);
     };
 
+    const hotClubCandidates = HOT_CLUB_GROUP_ID_LIST.length
+      ? await this.groupStudyRepository.findWithQueryPopPage({
+          id: { $in: HOT_CLUB_GROUP_ID_LIST },
+        })
+      : [];
+
+    const hotClubData = suffleArray(hotClubCandidates).slice(0, 6);
+    const hotClubIds = new Set(hotClubData.map((group) => group.id));
+
+    groupStudyData = groupStudyData.filter(
+      (group) => !hotClubIds.has(group.id),
+    );
+
     const hobbyData = suffleArray(
       groupStudyData.filter((group) => {
-        if (
-          [
-            '소셜 게임',
-            '감상',
-            '운동',
-            '푸드',
-            '힐링',
-            '친목',
-            '파티',
-            '기타',
-          ].includes(group.category.main)
-        ) {
-          return group.status === 'pending' && group.participants.length > 2;
-        }
+        return (
+          group.category.main === '취미' &&
+          group.status === 'pending' &&
+          group.participants.length > 2
+        );
       }),
     );
 
     const developData = suffleArray(
       groupStudyData.filter((group) => {
-        if (['스터디', '자기계발', '말하기'].includes(group.category.main)) {
-          return group.status === 'pending' && group.participants.length > 2;
-        }
+        return (
+          group.category.main === '공부·자기계발' &&
+          group.status === 'pending' &&
+          group.participants.length > 2
+        );
       }),
     );
 
@@ -345,11 +356,12 @@ export default class GroupStudyService {
     );
     const crewData = suffleArray(
       groupStudyData.filter((group) => {
-        return group.category.main === '크루';
+        return group.category.main === '스터디 크루';
       }),
     );
 
     const returnVal = {
+      hotClub: hotClubData,
       hobby: hobbyData.slice(0, 6),
       develop: developData.slice(0, 6),
       crew: crewData.slice(0, 6),
@@ -376,18 +388,8 @@ export default class GroupStudyService {
     const gap = 12;
     const start = gap * (cursor || 0);
 
-    const categoryMapping = {
-      크루: ['크루'],
-      스터디: ['스터디', '말하기', '크루'],
-      자기계발: ['자기계발'],
-      취미: ['힐링', '소셜 게임', '요리'],
-      '문화·감상': ['감상'],
-      액티비티: ['운동'],
-      친목: ['친목', '파티', '푸드'],
-    };
-
     const filterQuery: any = {
-      'category.main': { $in: categoryMapping[category] },
+      'category.main': category,
       $expr: { $gt: [{ $size: '$participants' }, 1] },
     };
 

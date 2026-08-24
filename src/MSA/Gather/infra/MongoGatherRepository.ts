@@ -366,7 +366,6 @@ export class GatherRepository implements IGatherRepository {
   async findByGroupId(groupId: string, type: string): Promise<Gather[] | null> {
     const result = await this.Gather.find({
       groupId,
-      category: type,
     })
       .populate([
         { path: 'user', select: ENTITY.USER.C_SIMPLE_USER },
