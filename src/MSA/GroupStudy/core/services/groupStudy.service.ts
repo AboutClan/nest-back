@@ -299,9 +299,14 @@ export default class GroupStudyService {
     }
 
     if (groupStudyData) {
-      return await JSON.parse(
-        (await gunzip(Buffer.from(groupStudyData, 'base64'))).toString(),
-      );
+      try {
+        return JSON.parse(
+          (await gunzip(Buffer.from(groupStudyData, 'base64'))).toString(),
+        );
+      } catch (error) {
+        console.error('그룹스터디 캐시 파싱 에러:', error);
+        groupStudyData = null;
+      }
     }
 
     groupStudyData = await this.groupStudyRepository.findWithQueryPopPage(
