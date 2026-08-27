@@ -23,6 +23,24 @@ export class inviteGroupStudyDto {
   userId: number;
 }
 
+export class InviteDummyGroupStudyDto {
+  @IsNotEmpty({ message: 'id필요' })
+  @IsNumber()
+  id: number;
+
+  @IsNotEmpty({ message: 'name필요' })
+  @IsString()
+  name: string;
+
+  @IsNotEmpty({ message: 'gender필요' })
+  @IsString()
+  gender: string;
+
+  @IsNotEmpty({ message: 'birth필요' })
+  @IsString()
+  birth: string;
+}
+
 export class CommentDto {
   @IsNotEmpty({ message: 'id필요' })
   @IsNumber()

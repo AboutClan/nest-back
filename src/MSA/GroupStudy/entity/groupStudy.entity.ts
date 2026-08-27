@@ -29,6 +29,7 @@ const participantsZodSchema = z.object({
   deposit: z.number().optional(),
   registerDate: z.date(),
   status: z.enum(["active", "rest", "warning"]).default("active"),
+  isDummy: z.boolean().optional(),
 });
 // IWaiting Zod schema
 const waitingZodSchema = z.object({
@@ -188,6 +189,10 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     },
     registerDate: {
       type: Date,
+    },
+    isDummy: {
+      type: Boolean,
+      default: false,
     },
   },
   { _id: false },

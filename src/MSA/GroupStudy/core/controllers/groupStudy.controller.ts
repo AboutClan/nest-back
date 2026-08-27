@@ -14,6 +14,7 @@ import { GeneratePostDraftDto } from 'src/utils/gpt/content-draft.dto';
 import {
   CommentDto,
   CreateGroupStudyDto,
+  InviteDummyGroupStudyDto,
   inviteGroupStudyDto,
   ParticipateGroupStudyDto,
   PatchRole,
@@ -155,6 +156,19 @@ export class GroupStudyController {
     await this.groupStudyService.inviteGroupStudy(
       inviteGroupStudyDto.id.toString(),
       inviteGroupStudyDto.userId.toString(),
+    );
+    return { status: 'success' };
+  }
+
+  @Post('invite/dummy')
+  async inviteDummyGroupStudy(
+    @Body() inviteDummyGroupStudyDto: InviteDummyGroupStudyDto,
+  ) {
+    await this.groupStudyService.inviteDummyGroupStudy(
+      inviteDummyGroupStudyDto.id.toString(),
+      inviteDummyGroupStudyDto.name,
+      inviteDummyGroupStudyDto.gender,
+      inviteDummyGroupStudyDto.birth,
     );
     return { status: 'success' };
   }

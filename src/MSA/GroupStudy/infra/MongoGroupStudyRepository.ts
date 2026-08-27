@@ -364,6 +364,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
         lastMonthAttendance: p.lastMonthAttendance || true,
         status: p.status as ParticipantProps['status'],
         registerDate: p.registerDate,
+        isDummy: p.isDummy,
       }),
     );
 
@@ -451,6 +452,7 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       lastMonthAttendance: pt.lastMonthAttendance,
       status: pt.status,
       registerDate: pt.registerDate || null,
+      isDummy: pt.isDummy,
     }));
 
     const waitingDb = (p.waiting || []).map((w) => ({

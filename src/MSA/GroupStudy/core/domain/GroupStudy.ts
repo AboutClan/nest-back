@@ -43,6 +43,7 @@ export interface ParticipantProps {
   lastMonthAttendance?: boolean;
   status?: 'active' | 'rest' | 'warning';
   registerDate?: Date;
+  isDummy?: boolean;
 }
 
 export interface GroupStudyProps {
@@ -165,11 +166,11 @@ export class GroupStudy {
     this.randomTicket = props.randomTicket ?? 0;
   }
 
-  participateGroupStudy(userId: string, role: UserRole): void {
+  participateGroupStudy(userId: string, role: UserRole, isDummy = false): void {
     if (!userId) {
       throw new Error('User ID, name, and UID cannot be empty');
     }
- 
+
     const existingParticipant = this.participants.find(
       (p) => p.user.toString() === userId.toString(),
     );
@@ -187,6 +188,7 @@ export class GroupStudy {
       monthAttendance: false,
       status: 'active',
       registerDate: new Date(),
+      isDummy,
     };
 
     this.participants.push(newParticipant);

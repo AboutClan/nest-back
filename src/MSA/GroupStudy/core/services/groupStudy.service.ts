@@ -1,5 +1,6 @@
 import { HttpException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { randomUUID } from 'crypto';
 import Redis from 'ioredis';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
@@ -698,6 +699,31 @@ export default class GroupStudyService {
     return;
   }
 
+  async inviteDummyGroupStudy(
+    id: string,
+    name: string,
+    gender: string,
+    birth: string,
+  ) {
+    const groupStudy = await this.groupStudyRepository.findById(id);
+    if (!groupStudy) throw new Error();
+
+    const dummyUser = await this.User.create({
+      uid: `dummy_${randomUUID()}`,
+      name,
+      gender,
+      birth,
+      role: 'dummy',
+      isActive: false,
+    });
+
+    groupStudy.participateGroupStudy(dummyUser._id.toString(), 'member', true);
+
+    await this.groupStudyRepository.save(groupStudy);
+
+    return;
+  }
+
   async updateGroupStudyStatus(
     id: string,
     userId: string,
@@ -726,12 +752,22 @@ export default class GroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(id);
 
     if (!groupStudy) throw new Error();
+
+    const target = groupStudy.participants.find(
+      (p) => p.user?.toString() === userId.toString(),
+    );
+
     try {
       groupStudy.deleteParticipant(userId);
       await this.groupStudyRepository.save(groupStudy);
     } catch (err) {
       throw new Error();
     }
+
+    if (target?.isDummy) {
+      await this.User.findByIdAndDelete(userId);
+    }
+
     return;
   }
 

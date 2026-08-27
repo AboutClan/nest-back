@@ -109,9 +109,9 @@ export const ENTITY = {
   },
 
   USER: {
-    C_MINI_USER: `_id profileImage avatar ` as const,
+    C_MINI_USER: `_id profileImage avatar role ` as const,
     C_SIMPLE_USER:
-      ` _id belong name profileImage uid avatar comment birth badge temperature monthScore nickname studyRecord ` as const,
+      ` _id belong name profileImage uid avatar comment birth badge temperature monthScore nickname studyRecord role ` as const,
 
     DEFAULT_GATHER_TICKET: 2 as const,
     DEFAULT_GROUPSTUDY_TICKET: 4 as const,
@@ -155,6 +155,7 @@ export const ENTITY = {
       'secede',
       'newUser',
       'cafe_user',
+      'dummy',
     ] as const,
     DEFAULT_ROLE: 'newUser' as const,
 
