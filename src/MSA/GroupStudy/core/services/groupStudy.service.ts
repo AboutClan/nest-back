@@ -37,7 +37,9 @@ import GroupCommentService from './groupComment.service';
 
 // 홈 화면 "26년 2학기 동아리, 핫한 동아리" 섹션에 노출할 후보 group id 목록.
 // 여기에 등록된 id 중 매 요청마다 랜덤으로 6개를 뽑아 맨 앞 섹션에 노출한다.
-const HOT_CLUB_GROUP_ID_LIST: number[] = [271, 176, 277, 104, 106, 102];
+const HOT_CLUB_GROUP_ID_LIST: number[] = [
+  245, 176, 104, 135, 152, 234, 102, 106, 256, 271, 262, 319, 277, 310, 320,
+];
 
 //test
 export default class GroupStudyService {
@@ -291,13 +293,13 @@ export default class GroupStudyService {
 
     const filterQuery = { status: { $in: ['pending', 'planned'] } };
 
-    try {
-      groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
-    } catch (error) {
-      // Redis 연결이 안 되어 있거나 장애가 있을 경우
-      console.error('Redis 연결 에러:', error);
-      groupStudyData = null;
-    }
+    // try {
+    //   groupStudyData = await this.redisClient.get(GROUPSTUDY_FULL_DATA);
+    // } catch (error) {
+    //   // Redis 연결이 안 되어 있거나 장애가 있을 경우
+    //   console.error('Redis 연결 에러:', error);
+    //   groupStudyData = null;
+    // }
 
     if (groupStudyData) {
       try {
@@ -328,32 +330,32 @@ export default class GroupStudyService {
         })
       : [];
 
-    const hotClubData = suffleArray(hotClubCandidates).slice(0, 6);
+    const hotClubData = suffleArray(hotClubCandidates).slice(0, 12);
     const hotClubIds = new Set(hotClubData.map((group) => group.id));
 
     groupStudyData = groupStudyData.filter(
       (group) => !hotClubIds.has(group.id),
     );
 
-    const hobbyData = suffleArray(
-      groupStudyData.filter((group) => {
-        return (
-          group.category.main === '취미' &&
-          group.status === 'pending' &&
-          group.participants.length > 2
-        );
-      }),
-    );
+    // const hobbyData = suffleArray(
+    //   groupStudyData.filter((group) => {
+    //     return (
+    //       group.category.main === '취미' &&
+    //       group.status === 'pending' &&
+    //       group.participants.length > 2
+    //     );
+    //   }),
+    // );
 
-    const developData = suffleArray(
-      groupStudyData.filter((group) => {
-        return (
-          group.category.main === '공부·자기계발' &&
-          group.status === 'pending' &&
-          group.participants.length > 2
-        );
-      }),
-    );
+    // const developData = suffleArray(
+    //   groupStudyData.filter((group) => {
+    //     return (
+    //       group.category.main === '공부·자기계발' &&
+    //       group.status === 'pending' &&
+    //       group.participants.length > 2
+    //     );
+    //   }),
+    // );
 
     const waitingData = suffleArray(
       groupStudyData.filter((group) => {
@@ -368,8 +370,8 @@ export default class GroupStudyService {
 
     const returnVal = {
       hotClub: hotClubData,
-      hobby: hobbyData.slice(0, 6),
-      develop: developData.slice(0, 6),
+      // hobby: hobbyData.slice(0, 6),
+      // develop: developData.slice(0, 6),
       crew: crewData.slice(0, 6),
       waiting: waitingData.slice(0, 6),
     };
@@ -388,6 +390,7 @@ export default class GroupStudyService {
     filter: string,
     category: string,
     cursor: number | null,
+    seed?: string,
   ) {
     let groupStudyData;
     //임시 수정 cursor을 프론트에서 우선 제거했음
@@ -409,11 +412,14 @@ export default class GroupStudyService {
       filterQuery,
       start,
       gap,
+      seed,
     );
 
-    const shuffledGroups = groupStudyData.sort(() => Math.random() - 0.5);
-
-    return shuffledGroups;
+    // seed가 있으면 이미 seed 기준으로 안정적인 랜덤 순서이므로 다시 섞지 않는다.
+    // (다시 섞으면 페이지 간 중복/스킵이 생겨 무한스크롤이 깨진다)
+    return seed
+      ? groupStudyData
+      : groupStudyData.sort(() => Math.random() - 0.5);
   }
 
   async getUserGroupsTitleByUserId(userId: string) {
@@ -433,7 +439,11 @@ export default class GroupStudyService {
     );
   }
 
-  async getGroupStudyByFilter(filter: string, cursor: number | null) {
+  async getGroupStudyByFilter(
+    filter: string,
+    cursor: number | null,
+    seed?: string,
+  ) {
     let groupStudyData;
     const gap = filter === 'planned' ? 20 : 8;
     const start = gap * (cursor || 0);
@@ -459,11 +469,14 @@ export default class GroupStudyService {
       filterQuery,
       start,
       gap,
+      seed,
     );
 
-    const shuffledGroups = groupStudyData.sort(() => Math.random() - 0.5);
-
-    return shuffledGroups;
+    // seed가 있으면 이미 seed 기준으로 안정적인 랜덤 순서이므로 다시 섞지 않는다.
+    // (다시 섞으면 페이지 간 중복/스킵이 생겨 무한스크롤이 깨진다)
+    return seed
+      ? groupStudyData
+      : groupStudyData.sort(() => Math.random() - 0.5);
   }
 
   async getGroupStudyByCategory(category: string) {

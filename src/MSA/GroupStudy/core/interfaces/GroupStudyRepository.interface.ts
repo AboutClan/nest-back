@@ -9,6 +9,7 @@ export interface IGroupStudyRepository {
     filterQuery: any,
     start?: number,
     gap?: number,
+    seed?: string,
   ): Promise<GroupStudy[]>;
   findByGroupId(groupId: string): Promise<GroupStudy[] | null>;
   findMyGroupStudyId(userId: string);

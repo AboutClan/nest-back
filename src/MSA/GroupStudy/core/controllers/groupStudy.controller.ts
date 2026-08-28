@@ -36,6 +36,7 @@ export class GroupStudyController {
     @Query('filter') filter?: GroupStudyStatus | 'planned',
     @Query('category') category?: string,
     @Query('cursor') cursor?: string,
+    @Query('seed') seed?: string,
   ) {
     const cursorNum = cursor ? parseInt(cursor) : 0;
     let groupStudyData;
@@ -49,6 +50,7 @@ export class GroupStudyController {
         groupStudyData = await this.groupStudyService.getGroupStudyByFilter(
           filter,
           cursorNum,
+          seed,
         );
       } else if (category && category !== '전체') {
         groupStudyData =
@@ -56,11 +58,13 @@ export class GroupStudyController {
             filter,
             category,
             cursorNum,
+            seed,
           );
       } else {
         groupStudyData = await this.groupStudyService.getGroupStudyByFilter(
           filter,
           cursorNum,
+          seed,
         );
       }
       return groupStudyData;
