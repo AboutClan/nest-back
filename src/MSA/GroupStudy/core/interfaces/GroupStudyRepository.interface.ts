@@ -16,6 +16,10 @@ export interface IGroupStudyRepository {
   findEnthMembers();
   getUserGroupsTitleByUserId(userId: string): Promise<any>;
   getSigningGroupByStatus(userId: string, status: string): Promise<any>;
+  findCrewMembership(
+    userId: string,
+    crewIds: string[],
+  ): Promise<string | null>;
   findByIdWithPop(groupStudyId: number): Promise<GroupStudy | null>;
   findAll(): Promise<GroupStudy[]>;
   findAllTemp();

@@ -42,6 +42,7 @@ export const ParticipantsZodSchema = z.object({
   withCompanion: z.boolean().default(false),
   isDummy: z.boolean().default(false),
   dummyId: z.string().optional(),
+  dummyName: z.string().optional(),
   dummyGender: z.string().optional(),
   dummyBirth: z.string().optional(),
 });
@@ -190,6 +191,9 @@ export const participantsSchema: Schema<participantsType> = new Schema(
       default: false,
     },
     dummyId: {
+      type: String,
+    },
+    dummyName: {
       type: String,
     },
     dummyGender: {

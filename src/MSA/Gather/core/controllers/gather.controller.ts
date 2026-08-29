@@ -208,6 +208,7 @@ export class GatherController {
     await this.gatherService.inviteDummyGather(
       inviteDummyGatherDto.gatherId,
       inviteDummyGatherDto.phase,
+      inviteDummyGatherDto.name,
       inviteDummyGatherDto.gender,
       inviteDummyGatherDto.birth,
     );

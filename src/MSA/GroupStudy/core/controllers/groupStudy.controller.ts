@@ -140,6 +140,11 @@ export class GroupStudyController {
     return await this.groupStudyService.getSigningGroupByStatus(status);
   }
 
+  @Get('crew/mine')
+  async getMyCrewGroupStudy() {
+    return await this.groupStudyService.getMyCrewGroupStudy();
+  }
+
   @Get('profile/:userId')
   async getUserGroupsTitleByUserId(@Param('userId') userId: string) {
     return await this.groupStudyService.getUserGroupsTitleByUserId(userId);

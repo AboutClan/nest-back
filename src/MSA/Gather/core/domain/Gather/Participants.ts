@@ -8,6 +8,7 @@ export interface ParticipantsProps {
   withCompanion?: boolean;
   isDummy?: boolean;
   dummyId?: string;
+  dummyName?: string;
   dummyGender?: string;
   dummyBirth?: string;
 }
@@ -20,6 +21,7 @@ export class Participants {
   public withCompanion: boolean;
   public isDummy: boolean;
   public dummyId?: string;
+  public dummyName?: string;
   public dummyGender?: string;
   public dummyBirth?: string;
 
@@ -31,6 +33,7 @@ export class Participants {
     this.withCompanion = props.withCompanion ?? false;
     this.isDummy = props.isDummy ?? false;
     this.dummyId = props.dummyId;
+    this.dummyName = props.dummyName;
     this.dummyGender = props.dummyGender;
     this.dummyBirth = props.dummyBirth;
   }
@@ -49,6 +52,7 @@ export class Participants {
       withCompanion: this.withCompanion,
       isDummy: this.isDummy,
       dummyId: this.dummyId,
+      dummyName: this.dummyName,
       dummyGender: this.dummyGender,
       dummyBirth: this.dummyBirth,
     };

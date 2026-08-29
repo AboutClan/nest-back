@@ -55,6 +55,10 @@ export class InviteDummyGatherDto {
   @IsOptional()
   phase?: string;
 
+  @IsNotEmpty({ message: 'name필요' })
+  @IsString()
+  name: string;
+
   @IsNotEmpty({ message: 'gender필요' })
   @IsString()
   gender: string;

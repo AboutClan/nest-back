@@ -337,3 +337,17 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
 export const GroupStudy =
   (mongoose.models.GroupStudy as Model<IGroupStudyData, {}, {}, {}>) ||
   model<IGroupStudyData>(DB_SCHEMA.GROUPSTUDY, GroupStudySchema);
+
+// "스터디크루"(category.main === '스터디 크루')에 해당하는 8개 지역별 고정 groupStudy
+// id 목록. 여기서 id는 GroupStudy._id가 아니라 위 groupStudyZodSchema의 `id`(숫자) 필드
+// 값이며, 문자열로 들고 있어도 mongoose가 Number 필드 쿼리 시 자동 캐스팅한다.
+export const CREW_GROUP_STUDY_IDS: string[] = [
+  '270',
+  '272',
+  '273',
+  '274',
+  '321',
+  '275',
+  '283',
+  '284',
+];

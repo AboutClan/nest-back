@@ -31,7 +31,10 @@ import { OpenAIService } from 'src/utils/gpt/gpt.service';
 import { promisify } from 'util';
 import * as zlib from 'zlib';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
-import { IGroupStudyData } from '../../entity/groupStudy.entity';
+import {
+  CREW_GROUP_STUDY_IDS,
+  IGroupStudyData,
+} from '../../entity/groupStudy.entity';
 import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interface';
 import GroupCommentService from './groupComment.service';
 
@@ -437,6 +440,17 @@ export default class GroupStudyService {
       token.id,
       status,
     );
+  }
+
+  async getMyCrewGroupStudy(): Promise<{ groupStudyId: string | null }> {
+    const token = RequestContext.getDecodedToken();
+
+    const groupStudyId = await this.groupStudyRepository.findCrewMembership(
+      token.id,
+      CREW_GROUP_STUDY_IDS,
+    );
+
+    return { groupStudyId };
   }
 
   async getGroupStudyByFilter(

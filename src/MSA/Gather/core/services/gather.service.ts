@@ -4,9 +4,12 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
+import { Model } from 'mongoose';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 
 import { AppError } from 'src/errors/AppError';
@@ -33,12 +36,29 @@ import { ParticipantsProps } from '../domain/Gather/Participants';
 import { IGatherRepository } from '../interfaces/GatherRepository.interface';
 import GatherCommentService from './comment.service';
 
+const DUMMY_COMMENT_POOL = [
+  '반가워요! 잘 부탁드립니다ㅎㅎ',
+  '이제 막 들어왔어요! 잘 부탁드립니다!',
+  '편하게 말 걸어주세요, 잘 부탁드려요!',
+  '다들 만나서 반가워요!',
+  '안녕하세요! 잘 부탁드립니다 :)',
+  '같이 스터디할 사람 환영!',
+  '열심히 하겠습니당☺',
+  '말 걸면 90% 확률로 답해요',
+  '활동 같이 하면서 친해져요!',
+  '조용한데 말 걸면 잘 받아줘요',
+  '다 같이 재밌게 놀아봐요!',
+  '참여 열심히 하겠습니다ㅎㅎ',
+  '새로운 사람 만나는 거 좋아해요',
+];
+
 //commit
 @Injectable()
 export class GatherService {
   constructor(
     @Inject(IGATHER_REPOSITORY)
     private readonly gatherRepository: IGatherRepository,
+    @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
     private readonly userServiceInstance: UserService,
     private readonly counterServiceInstance: CounterService,
     private readonly fcmServiceInstance: FcmService,
@@ -534,18 +554,32 @@ export class GatherService {
   async inviteDummyGather(
     gatherId: number,
     phase: string,
+    name: string,
     gender: string,
     birth: string,
   ) {
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
 
+    const dummyUser = await this.User.create({
+      uid: `dummy_${randomUUID()}`,
+      name,
+      gender,
+      birth,
+      role: 'dummy',
+      isActive: false,
+      comment:
+        DUMMY_COMMENT_POOL[Math.floor(Math.random() * DUMMY_COMMENT_POOL.length)],
+    });
+
     try {
       const partData = {
         phase,
         invited: true,
         isDummy: true,
+        user: dummyUser._id.toString(),
         dummyId: randomUUID(),
+        dummyName: name,
         dummyGender: gender,
         dummyBirth: birth,
       };
@@ -555,6 +589,7 @@ export class GatherService {
 
       await this.gatherRepository.save(gather);
     } catch (err) {
+      await this.User.findByIdAndDelete(dummyUser._id);
       throw new BadRequestException('Invalid participate data');
     }
 
@@ -564,8 +599,17 @@ export class GatherService {
   async exileGather(gatherId: number, userId: string) {
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
+
+    const target = gather.participants.find(
+      (p) => (p.isDummy && p.dummyId === userId) || p.user?.toString() === userId?.toString(),
+    );
+
     gather.exile(userId);
     await this.gatherRepository.save(gather);
+
+    if (target?.isDummy && target.user) {
+      await this.User.findByIdAndDelete(target.user);
+    }
   }
 
   getDaysDifferenceFromNowKST(isoDate: string): number {
@@ -613,6 +657,9 @@ export class GatherService {
     if (targetParticipant?.isDummy) {
       gather.exile(targetId);
       await this.gatherRepository.save(gather);
+      if (targetParticipant.user) {
+        await this.User.findByIdAndDelete(targetParticipant.user);
+      }
       return;
     }
 

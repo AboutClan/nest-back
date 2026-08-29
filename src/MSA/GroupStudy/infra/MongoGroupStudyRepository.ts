@@ -227,17 +227,31 @@ export class GroupStudyRepository implements IGroupStudyRepository {
     return docs;
   }
 
+  async findCrewMembership(
+    userId: string,
+    crewIds: string[],
+  ): Promise<string | null> {
+    const doc = await this.GroupStudy.findOne({
+      id: { $in: crewIds },
+      participants: { $elemMatch: { user: userId } },
+    })
+      .select('id')
+      .lean();
+
+    return doc ? String(doc.id) : null;
+  }
+
   async findByIdWithPop(groupStudyId: number): Promise<GroupStudy | null> {
     const doc = await this.GroupStudy.findOne({
       id: groupStudyId,
     })
       .populate({
         path: 'organizer',
-        select: ENTITY.USER.C_SIMPLE_USER,
+        select: ENTITY.USER.C_SIMPLE_USER + 'studyIntroduce',
       })
       .populate({
         path: 'participants.user',
-        select: ENTITY.USER.C_SIMPLE_USER,
+        select: ENTITY.USER.C_SIMPLE_USER + 'studyIntroduce',
       })
       .populate({
         path: 'waiting.user',
