@@ -688,7 +688,7 @@ export default class GroupStudyService {
       }
       await this.userServiceInstance.updatePoint(
         -1000 * extraTemp,
-        '소모임 참여권 대체 사용',
+        '월간 소모임 참여권 초과 사용 사용',
         'ticket',
       );
     }
@@ -871,7 +871,7 @@ export default class GroupStudyService {
           }
           await this.userServiceInstance.updatePointById(
             -1000 * extraTemp,
-            '소모임 참여권 대체 사용',
+            '월간 소모임 참여권 초과 사용 사용',
             'ticket',
             userId,
           );
