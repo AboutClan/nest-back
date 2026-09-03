@@ -125,6 +125,34 @@ export class Vote2Repository implements IVote2Repository {
     });
   }
 
+  async getCrewStatsRaw(
+    userIds: string[],
+    startDay: string,
+    endDay: string,
+  ): Promise<
+    {
+      date: string;
+      participations: { userId: string }[];
+      results: { members: { userId: string }[] }[];
+    }[]
+  > {
+    const docs = await this.Vote2Model.find({
+      date: { $gte: startDay, $lte: endDay },
+      $or: [
+        { 'participations.userId': { $in: userIds } },
+        { 'results.members.userId': { $in: userIds } },
+      ],
+    })
+      .select('date participations.userId results.members.userId')
+      .lean();
+
+    return docs as unknown as {
+      date: string;
+      participations: { userId: string }[];
+      results: { members: { userId: string }[] }[];
+    }[];
+  }
+
   async findAllUserIdsAfterDate(date: string): Promise<string[]> {
     const db = await this.Vote2Model.find({ date: { $gte: date } });
     return db

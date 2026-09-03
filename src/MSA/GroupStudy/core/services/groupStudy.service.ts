@@ -212,39 +212,33 @@ export default class GroupStudyService {
 
   async getMannerByGroupId(groupId: string, type: 'private' | null) {
     const group = await this.groupStudyRepository.findById(groupId, true);
-    const gathers = await this.gatherRepository.findByGroupId(groupId, 'group');
-
-    const gatherUids = gathers.flatMap((g) => [
-      (g.user as any)?.uid,
-      ...(g.participants ?? []).map((p) => (p.user as any)?.uid),
-    ]);
-
-    const groupUids = (group?.participants ?? []).map(
-      (p) => (p.user as any)?.uid,
-    );
 
     const uids = [
       ...new Set(
-        [...gatherUids, ...groupUids].filter((uid): uid is string =>
-          Boolean(uid),
-        ),
+        (group?.participants ?? [])
+          .map((p) => (p.user as any)?.uid)
+          .filter((uid): uid is string => Boolean(uid)),
       ),
     ];
 
     const notices =
       await this.LogTemperatureRepository.findTemperatureByUidArr(uids);
 
-    const latestByPair = new Map<string, any>();
+    const RECENT_LIMIT_PER_PAIR = 2;
+    const recentByPair = new Map<string, any[]>();
 
     for (const notice of notices) {
       const key = `${notice.to}-${notice.from}`;
 
-      if (!latestByPair.has(key)) {
-        latestByPair.set(key, notice);
+      const bucket = recentByPair.get(key) ?? [];
+      bucket.push(notice);
+      if (bucket.length > RECENT_LIMIT_PER_PAIR) {
+        bucket.shift();
       }
+      recentByPair.set(key, bucket);
     }
 
-    const latestNotices = [...latestByPair.values()];
+    const latestNotices = [...recentByPair.values()].flat();
 
     const result: Record<
       string,

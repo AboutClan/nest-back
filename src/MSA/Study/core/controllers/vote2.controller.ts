@@ -45,6 +45,20 @@ export class Vote2Controller {
     return filteredVote;
   }
 
+  //스터디 크루 멤버별 최근 N일간 투표/참여 통계
+  @Post('crew-stats')
+  async getCrewStats(
+    @Body() body: { userIds: string[]; days?: number },
+  ): Promise<any> {
+    const { userIds, days = 30 } = body;
+
+    if (!userIds?.length) {
+      return [];
+    }
+
+    return this.voteService2.getCrewStudyStats(userIds, days);
+  }
+
   @Get(':date/info')
   async getVoteInfo(@Req() req: Request): Promise<any> {
     const { date } = req;

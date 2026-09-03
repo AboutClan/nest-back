@@ -9,4 +9,15 @@ export interface IVote2Repository {
   getVoteByPeriod(startDay: string, endDay: string);
   findAllUserIdsAfterDate(date: string): Promise<string[]>;
   findMineById(userId: string): Promise<Vote2[]>;
+  getCrewStatsRaw(
+    userIds: string[],
+    startDay: string,
+    endDay: string,
+  ): Promise<
+    {
+      date: string;
+      participations: { userId: string }[];
+      results: { members: { userId: string }[] }[];
+    }[]
+  >;
 }

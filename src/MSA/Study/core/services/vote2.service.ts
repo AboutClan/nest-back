@@ -111,6 +111,64 @@ export class Vote2Service {
     return voteData;
   }
 
+  // 스터디 크루 멤버별 최근 한달 간 투표/참여 통계
+  // vote2는 날짜(document)별로 participations(투표만 한 유저), results.members(스터디가 열려 실제 참여한 유저)를 담고 있다.
+  async getCrewStudyStats(userIds: string[], days = 30) {
+    // 기준일을 오늘이 아니라 오늘+6일로 잡는다.
+    // 예) 오늘이 9/2면 기준일은 9/8, 최근 한달은 8/9~9/8.
+    const referenceDay = dayjs().add(6, 'day');
+    const endDay = referenceDay.format('YYYY-MM-DD');
+    const startDay = referenceDay.subtract(days, 'day').format('YYYY-MM-DD');
+
+    const docs = await this.Vote2Repository.getCrewStatsRaw(
+      userIds,
+      startDay,
+      endDay,
+    );
+
+    type Stat = {
+      lastVoteDate: string | null;
+      lastParticipationDate: string | null;
+      voteCount: number;
+      participationCount: number;
+    };
+
+    const statsMap = new Map<string, Stat>(
+      userIds.map((userId) => [
+        userId,
+        {
+          lastVoteDate: null,
+          lastParticipationDate: null,
+          voteCount: 0,
+          participationCount: 0,
+        },
+      ]),
+    );
+
+    const sortedDocs = [...docs].sort((a, b) => (a.date > b.date ? 1 : -1));
+
+    for (const doc of sortedDocs) {
+      for (const participation of doc.participations || []) {
+        const uid = participation.userId?.toString();
+        const stat = uid && statsMap.get(uid);
+        if (!stat) continue;
+        stat.voteCount += 1;
+        stat.lastVoteDate = doc.date;
+      }
+      for (const result of doc.results || []) {
+        for (const member of result.members || []) {
+          const uid = member.userId?.toString();
+          const stat = uid && statsMap.get(uid);
+          if (!stat) continue;
+          stat.participationCount += 1;
+          stat.lastParticipationDate = doc.date;
+        }
+      }
+    }
+
+    return userIds.map((userId) => ({ userId, ...statsMap.get(userId) }));
+  }
+
   async getVoteInfo(date: string) {
     // const now = new Date(date);
     // const targetTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
