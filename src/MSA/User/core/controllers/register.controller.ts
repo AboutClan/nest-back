@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { ApproveUserDto } from '../../dtos/registerDto';
 import { ApiTags } from '@nestjs/swagger';
-import { CLUB_UIDS } from 'src/MSA/Auth/constants/auth-users.constant';
 import { RequestContext } from 'src/request-context';
 import RegisterService from '../services/register.service';
 
@@ -65,7 +64,10 @@ export class RegisterController {
       const { uid, referrerUid } = approveUserDto;
 
       if (uid === token.uid) {
-        if (!referrerUid || !CLUB_UIDS.has(referrerUid)) {
+        if (
+          !referrerUid ||
+          !(await this.registerService.isFullFeeWaiverReferrer(referrerUid))
+        ) {
           throw new HttpException(
             '결제 없이 가입을 완료할 수 없습니다.',
             HttpStatus.FORBIDDEN,

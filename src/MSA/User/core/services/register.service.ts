@@ -189,6 +189,16 @@ export default class RegisterService {
     return user?.role === 'manager' || user?.role === 'previliged';
   }
 
+  // 프론트(RegisterInvite.tsx)와 동일한 "가입비 전액 면제" 추천인 조건:
+  // 추천인이 동아리 관계자(CLUB_UIDS)이거나 운영진(manager/previliged)인 경우
+  async isFullFeeWaiverReferrer(referrerUid?: string): Promise<boolean> {
+    if (!referrerUid) return false;
+    if (CLUB_UIDS.has(referrerUid)) return true;
+
+    const referrer = await this.User.findOne({ uid: referrerUid }).lean();
+    return referrer?.role === 'manager' || referrer?.role === 'previliged';
+  }
+
   async approve(uid: string, referrerUid?: string) {
     if (BLOCKED_UIDS.has(uid)) {
       throw new ValidationError('wrong uid');
@@ -211,9 +221,12 @@ export default class RegisterService {
 
     const { _id, __v, ...registeredFields } = user.toObject();
 
-    // 추천인이 동아리 관계자(CLUB_UIDS)라 가입비 전액 할인을 받은 경우, 가입 보증금을 축소 지급
-    const depositPoint =
-      referrerUid && CLUB_UIDS.has(referrerUid) ? 3000 : 5000;
+    // 추천인이 동아리 관계자(CLUB_UIDS)이거나 운영진(manager/previliged)이라
+    // 가입비 전액 할인을 받은 경우, 포인트 충전분까지 포함해 1,000만 포인트를 지급한다.
+    const isFullFeeWaiverReferral = await this.isFullFeeWaiverReferrer(
+      referrerUid,
+    );
+    const depositPoint = isFullFeeWaiverReferral ? 10_000_000 : 5000;
 
     userForm = {
       ...registeredFields,
