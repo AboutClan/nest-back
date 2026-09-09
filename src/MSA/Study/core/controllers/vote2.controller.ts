@@ -98,6 +98,7 @@ export class Vote2Controller {
       end,
       locationDetail,
       eps = 3,
+      anchors,
     } = createVoteDTO;
     const { date } = req;
 
@@ -109,6 +110,7 @@ export class Vote2Controller {
       locationDetail,
       userId: null,
       eps,
+      anchors,
     });
 
     return null;
@@ -127,6 +129,7 @@ export class Vote2Controller {
       locationDetail,
       userId,
       eps = 1,
+      anchors,
     } = createVoteDTO;
     const { date } = req;
 
@@ -138,6 +141,7 @@ export class Vote2Controller {
       locationDetail,
       userId,
       eps,
+      anchors,
     });
 
     return null;
@@ -159,6 +163,7 @@ export class Vote2Controller {
       eps = 3,
       userId = null,
       type = null,
+      anchors,
     } = createVoteDTO;
 
     await this.voteService2.setVoteWithArr(
@@ -171,6 +176,7 @@ export class Vote2Controller {
         end,
         locationDetail,
         eps,
+        anchors,
       },
       type,
     );
@@ -190,6 +196,7 @@ export class Vote2Controller {
       end,
       locationDetail,
       eps = 3,
+      anchors,
     } = createVoteDTO;
     const { date } = req;
 
@@ -201,6 +208,7 @@ export class Vote2Controller {
       end,
       locationDetail,
       eps,
+      anchors,
     });
 
     return 'success';
@@ -346,12 +354,5 @@ export class Vote2Controller {
       memo,
     );
     return result;
-  }
-
-  //test
-  @Get('test')
-  async test(): Promise<any> {
-    await this.voteService2.setResult('2025-11-28');
-    return 'success';
   }
 }

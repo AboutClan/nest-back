@@ -1,3 +1,5 @@
+import { IAnchor } from 'src/MSA/Study/entity/vote2.entity';
+
 import { VoteComment, VoteCommentProps } from './Vote2VoteComment';
 
 export interface ParticipationProps {
@@ -10,6 +12,7 @@ export interface ParticipationProps {
   locationDetail?: string;
   isBeforeResult?: boolean;
   eps?: number;
+  anchors?: IAnchor[];
 }
 
 export class Participation {
@@ -22,6 +25,7 @@ export class Participation {
   locationDetail: string;
   isBeforeResult?: boolean;
   eps?: number;
+  anchors?: IAnchor[];
 
   constructor(props: ParticipationProps) {
     this.userId = props.userId;
@@ -33,6 +37,7 @@ export class Participation {
     this.locationDetail = props.locationDetail;
     this.isBeforeResult = props.isBeforeResult;
     this.eps = props.eps;
+    this.anchors = props.anchors;
   }
   toPrimitives(): ParticipationProps {
     return {
@@ -45,6 +50,7 @@ export class Participation {
       locationDetail: this.locationDetail,
       isBeforeResult: this.isBeforeResult,
       eps: this.eps,
+      anchors: this.anchors,
     };
   }
 }

@@ -9,8 +9,20 @@ export interface IVote2 {
   results: any[];
 }
 
+/**
+ * 매칭 기준점. 유저는 최대 2개까지 지정할 수 있고, 그중 어느 하나라도
+ * eps 안에 장소가 들어오면 그 장소에 참여 가능한 것으로 본다(union).
+ * 순서에는 의미가 없다 — anchors[0]은 아래 latitude/longitude의 미러링이다.
+ */
+export interface IAnchor {
+  latitude: number;
+  longitude: number;
+  locationDetail?: string;
+}
+
 export interface IParticipation {
   userId: string | IUser;
+  // anchors[0]과 동일. anchors를 안 보내는 레거시 클라이언트를 위해 유지한다.
   latitude: number;
   longitude: number;
   start?: string;
@@ -18,7 +30,9 @@ export interface IParticipation {
   comment?: IVoteComment;
   locationDetail: string;
   isBeforeResult?: boolean;
+  // 매칭 반경(km). 유저당 1개이며 모든 anchor에 공통 적용된다.
   eps?: number;
+  anchors?: IAnchor[];
 }
 
 export interface IMember {
@@ -76,6 +90,15 @@ export const MemberSchema: Schema<IMember> = new Schema(
   { _id: false },
 );
 
+export const AnchorSchema: Schema<IAnchor> = new Schema(
+  {
+    latitude: Number,
+    longitude: Number,
+    locationDetail: String,
+  },
+  { _id: false },
+);
+
 export const ParticipationSchema: Schema<IParticipation> = new Schema(
   {
     userId: {
@@ -103,6 +126,10 @@ export const ParticipationSchema: Schema<IParticipation> = new Schema(
     eps: {
       type: Number,
       default: 3,
+    },
+    anchors: {
+      type: [AnchorSchema],
+      default: undefined,
     },
   },
   { _id: false },

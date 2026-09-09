@@ -8,16 +8,24 @@ import RealtimeService from 'src/MSA/Study/core/services/realtime.service';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
-import { ClusterUtils, coordType } from 'src/utils/ClusterUtils';
+import { ClusterUtils } from 'src/utils/ClusterUtils';
 import { DateUtils } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import ImageService from '../../../../routes/imagez/image.service';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
 import { CreateNewVoteDTO, CreateParticipateDTO } from '../../dtos/vote2.dto';
-import { IMember, IParticipation, IResult } from '../../entity/vote2.entity';
+import {
+  IAnchor,
+  IMember,
+  IParticipation,
+  IResult,
+} from '../../entity/vote2.entity';
 import { Realtime } from '../domain/Realtime/Realtime';
 import { Result } from '../domain/Vote2/Vote2Result';
 import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
+// 유저가 지정할 수 있는 매칭 기준점 최대 개수. 프론트 UI와 맞춰져 있다.
+const MAX_ANCHORS = 2;
+
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -63,15 +71,21 @@ export class Vote2Service {
   async getWeekData() {
     const dates = DateUtils.getWeekDate();
 
+    // 장소 목록은 날짜와 무관하므로 한 번만 조회해 모든 날짜가 공유한다.
+    const places = await this.PlaceRepository.findForVote2();
+
     const rawData = await Promise.all(
       dates.map(async (date, idx) => {
+        // 오늘(idx 0)은 시간에 따라 갈린다. 9시 전에는 아직 매칭 전이므로
+        // getBeforeVoteInfo가 participations를 포함해 내려줘야 한다.
+        // 이게 없으면 프론트가 "오늘 내 신청"을 알 수 없어, 신청 목록을
+        // 다시 제출할 때 오늘 신청이 삭제된다(setVoteWithArr는 전체 교체다).
         if (idx === 0) {
-          return await this.getAfterVoteInfo(date);
-        } else {
-          const before = await this.getBeforeVoteInfo(date);
-          // const realtime = await this.RealtimeService.getTodayData(date);
-          return { ...before };
+          return await this.getVoteInfo(date, places);
         }
+        const before = await this.getBeforeVoteInfo(date, places);
+        // const realtime = await this.RealtimeService.getTodayData(date);
+        return { ...before };
       }),
     );
 
@@ -169,7 +183,10 @@ export class Vote2Service {
     return userIds.map((userId) => ({ userId, ...statsMap.get(userId) }));
   }
 
-  async getVoteInfo(date: string) {
+  async getVoteInfo(
+    date: string,
+    injectedPlaces?: Awaited<ReturnType<PlaceRepository['findForVote2']>>,
+  ) {
     // const now = new Date(date);
     // const targetTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
 
@@ -189,14 +206,21 @@ export class Vote2Service {
       return this.getAfterVoteInfo(date);
     }
 
-    return this.getBeforeVoteInfo(date);
+    return this.getBeforeVoteInfo(date, injectedPlaces);
   }
 
-  private async getBeforeVoteInfo(date: string) {
+  private async getBeforeVoteInfo(
+    date: string,
+    injectedPlaces?: Awaited<ReturnType<PlaceRepository['findForVote2']>>,
+  ) {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
-    const { voteResults } = await this.doAlgorithm(participations, 3);
+    const { voteResults } = await this.doAlgorithm(
+      participations,
+      3,
+      injectedPlaces,
+    );
 
     const resultPlaceIds = voteResults.map((result) => result.placeId);
 
@@ -278,13 +302,67 @@ export class Vote2Service {
     };
   }
 
+  /**
+   * 기준점을 항상 배열로 만든다. anchors를 안 보내는 레거시 호출(초대·장소변경·취소)은
+   * latitude/longitude 한 점짜리 배열이 된다.
+   *
+   * 같은 유저의 기준점이 서로 너무 가까우면(= 한쪽이 다른 쪽 범위에 사실상 포함) 하나로 접는다.
+   * 접지 않으면 그 유저가 후보 목록에 두 번 잡혀 인원이 부풀 수 있다.
+   */
+  static normalizeAnchors(
+    anchors: IAnchor[] | undefined,
+    latitude: number | string,
+    longitude: number | string,
+    locationDetail?: string,
+  ): IAnchor[] {
+    const toNum = (v: number | string) => (typeof v === 'string' ? +v : v);
+
+    const raw = (
+      anchors?.length ? anchors : [{ latitude, longitude, locationDetail }]
+    )
+      .map((a) => ({
+        latitude: toNum(a.latitude),
+        longitude: toNum(a.longitude),
+        locationDetail: a.locationDetail,
+      }))
+      .filter(
+        (a) => Number.isFinite(a.latitude) && Number.isFinite(a.longitude),
+      );
+
+    const MERGE_THRESHOLD_KM = 0.5;
+    const merged: IAnchor[] = [];
+
+    for (const a of raw) {
+      const isDuplicate = merged.some(
+        (b) =>
+          ClusterUtils.haversineDistance(
+            a.latitude,
+            a.longitude,
+            b.latitude,
+            b.longitude,
+          ) < MERGE_THRESHOLD_KM,
+      );
+      if (!isDuplicate) merged.push(a);
+    }
+
+    return merged.slice(0, MAX_ANCHORS);
+  }
+
   async setVote(date: string, createVote: CreateNewVoteDTO) {
     const token = RequestContext.getDecodedToken();
 
     const vote2 = await this.Vote2Repository.findByDate(date);
 
-    const { latitude, longitude, start, end, locationDetail, userId, eps } =
-      createVote;
+    const {
+      latitude,
+      longitude,
+      start,
+      end,
+      locationDetail,
+      userId,
+      eps,
+      anchors,
+    } = createVote;
 
     const voteData: any = {};
 
@@ -300,6 +378,14 @@ export class Vote2Service {
     if (end !== null) voteData.end = end;
     if (locationDetail !== null) voteData.locationDetail = locationDetail;
     if (eps !== null) voteData.eps = eps;
+
+    // anchors를 안 보내는 레거시 호출은 latitude/longitude 한 점으로 정규화한다.
+    voteData.anchors = Vote2Service.normalizeAnchors(
+      anchors,
+      latitude,
+      longitude,
+      locationDetail,
+    );
 
     vote2.setOrUpdateParticipation(voteData);
 
@@ -363,42 +449,12 @@ export class Vote2Service {
     await this.Vote2Repository.save(vote2);
   }
 
-  private refineClusters(
-    coords: coordType[],
-    clusters: number[][],
-    maxMember: number,
-    eps: number,
-  ): number[][] {
-    // 더 이상 분해가 필요 없으면 그대로 반환
-    if (ClusterUtils.findLongestArrayLength(clusters) <= maxMember) {
-      return clusters;
-    }
-
-    // 각 클러스터를 순회하면서, 너무 크면 반으로 재클러스터링
-    return clusters.flatMap((cluster) => {
-      if (cluster.length <= maxMember) {
-        return [cluster];
-      }
-      // cluster에 속한 좌표만 뽑아서 DBSCAN
-      const subCoords = cluster.map((i) => coords[i]);
-      const { clusters: subClusters } = ClusterUtils.DBSCANClustering(
-        subCoords,
-        eps / 2,
-      );
-
-      // subClusters는 subCoords 기준 인덱스이므로 원본 인덱스로 매핑
-      const remapped = subClusters.map((sub) =>
-        sub.map((localIdx) => cluster[localIdx]),
-      );
-
-      // 재귀 호출로 깊이가 남아있다면 계속 분해
-      return this.refineClusters(coords, remapped, maxMember, eps / 2);
-    });
-  }
-
   private async doAlgorithm(
     participations2: IParticipation[],
     defaultStandardCnt?: number,
+    // 주간 조회는 날짜마다 이 함수를 돌린다. 장소 목록은 날짜와 무관하므로
+    // 호출부에서 한 번만 조회해 넘기면 중복 쿼리를 없앨 수 있다.
+    injectedPlaces?: Awaited<ReturnType<PlaceRepository['findForVote2']>>,
   ) {
     const MIN_OVERLAP_MINUTES = 60;
     const INITIAL_MAX_GROUP_SIZE = 6; // ✅ 처음 그룹 만들 때 cap
@@ -434,7 +490,7 @@ export class Vote2Service {
       return Math.max(0, overlap);
     }
 
-    // “그룹 중 단 한 쌍이라도 2시간 이상 겹치면 OK”
+    // “그룹 안의 누구든 한 명과 MIN_OVERLAP_MINUTES(60분) 이상 겹치면 합류 OK”
     function canJoinByTime(
       group: Array<{ start: string; end: string }>,
       c: { start: string; end: string },
@@ -442,11 +498,19 @@ export class Vote2Service {
       return group.some((m) => overlapMinutes(m, c) >= MIN_OVERLAP_MINUTES);
     }
 
+    // 참여자 1명당 항목 1개를 유지한다. 기준점이 2개여도 항목을 늘리지 않으므로
+    // 후보 인원 집계·중복 배정 문제가 생기지 않는다.
     const coords = participations?.map((par, idx) => ({
       user: par.userId,
       userId: (par.userId as unknown as IUser)._id.toString(),
       lat: par.latitude,
       lon: par.longitude,
+      anchors: Vote2Service.normalizeAnchors(
+        par.anchors,
+        par.latitude,
+        par.longitude,
+        par.locationDetail,
+      ),
       eps: par?.eps + 0.1 || 3.1,
       start: par.start,
       end: par.end,
@@ -454,7 +518,14 @@ export class Vote2Service {
       order: idx,
     }));
 
-    const places = await this.PlaceRepository.findForVote2();
+    /** 기준점 중 가장 가까운 것까지의 거리. 하나라도 범위에 들면 참여 가능하다. */
+    const distToPlace = (
+      coord: { anchors: IAnchor[] },
+      placeLat: number,
+      placeLon: number,
+    ) => ClusterUtils.minDistanceToAnchors(coord.anchors, placeLat, placeLon);
+
+    const places = injectedPlaces ?? (await this.PlaceRepository.findForVote2());
 
     const voteResults: IResult[] = [];
     const clusteredParticipantIds = new Set<string>();
@@ -465,21 +536,22 @@ export class Vote2Service {
     for (const coord of coords) {
       const cnt = places.filter(
         (pl) =>
-          ClusterUtils.haversineDistance(
-            pl.location.latitude,
-            pl.location.longitude,
-            coord.lat,
-            coord.lon,
-          ) <= coord.eps,
+          distToPlace(coord, pl.location.latitude, pl.location.longitude) <=
+          coord.eps,
       ).length;
       reachableCount.set(coord.userId, Math.max(cnt, 1));
     }
 
-    // ---------- 사전 계산: 완전히 동일한 좌표 번들 ----------
-    // 같은 (lat, lon) 참여자는 반드시 같은 그룹에 배정
+    // ---------- 사전 계산: 완전히 동일한 기준점 번들 ----------
+    // 기준점 "집합"이 같은 참여자는 반드시 같은 그룹에 배정한다.
+    // 순서에는 의미가 없으므로 정렬해서 키를 만든다.
     const userToCoordKey = new Map<string, string>();
     for (const coord of coords) {
-      userToCoordKey.set(coord.userId, `${coord.lat},${coord.lon}`);
+      const key = coord.anchors
+        .map((a) => `${a.latitude},${a.longitude}`)
+        .sort()
+        .join('|');
+      userToCoordKey.set(coord.userId, key);
     }
 
     type CandItem = {
@@ -511,12 +583,8 @@ export class Vote2Service {
     const getCandidatesForPlace = (pl: (typeof places)[0]) =>
       coords.filter(
         (coord) =>
-          ClusterUtils.haversineDistance(
-            pl.location.latitude,
-            pl.location.longitude,
-            coord.lat,
-            coord.lon,
-          ) <= coord.eps,
+          distToPlace(coord, pl.location.latitude, pl.location.longitude) <=
+          coord.eps,
       );
 
     const getPlaceTotalScore = (place: (typeof places)[0]): number => {
@@ -566,23 +634,21 @@ export class Vote2Service {
       const placeId = place._id.toString();
       if (!candidateCache.has(placeId)) {
         const candidates = coords
-          .filter((coord) => {
-            const dist = ClusterUtils.haversineDistance(
-              place.location.latitude,
-              place.location.longitude,
-              coord.lat,
-              coord.lon,
-            );
-            return dist <= coord.eps;
-          })
+          .filter(
+            (coord) =>
+              distToPlace(
+                coord,
+                place.location.latitude,
+                place.location.longitude,
+              ) <= coord.eps,
+          )
           .map((coord) => ({
             user: coord.user as IUser,
             userId: coord.userId,
-            dist: ClusterUtils.haversineDistance(
+            dist: distToPlace(
+              coord,
               place.location.latitude,
               place.location.longitude,
-              coord.lat,
-              coord.lon,
             ),
             start: coord.start,
             end: coord.end,
@@ -614,15 +680,43 @@ export class Vote2Service {
         );
         if (pool.length < targetSize) return;
 
-        const groupMembers: CandItem[] = [];
+        const bundles = toBundles(pool);
 
-        // 번들 단위로 추가: 같은 좌표 참여자는 반드시 함께
-        for (const bundle of toBundles(pool)) {
-          if (groupMembers.length >= targetSize) break;
-          for (const p of bundle) groupMembers.push(p);
+        // 시간대가 맞는 사람끼리만 묶는다.
+        // 첫 번들을 시드로 삼아 쌓되, 시드와 시간이 안 맞아 인원을 못 채우면
+        // 다음 번들을 시드로 다시 시도한다. 이게 없으면 소수파 시간대가 먼저 잡혀
+        // 다수파로 만들 수 있었던 그룹까지 통째로 놓친다.
+        const tryFormFromSeed = (seedIdx: number): CandItem[] | null => {
+          const members: CandItem[] = [];
+
+          for (let i = seedIdx; i < bundles.length; i++) {
+            if (members.length >= targetSize) break;
+
+            const bundle = bundles[i];
+            // 번들은 통째로 넣거나 아예 넣지 않는다(같은 기준점 참여자는 함께 배정).
+            if (
+              members.length &&
+              !canJoinByTime(members as any, {
+                start: bundle[0].start,
+                end: bundle[0].end,
+              })
+            ) {
+              continue;
+            }
+
+            for (const p of bundle) members.push(p);
+          }
+
+          return members.length >= targetSize ? members : null;
+        };
+
+        let groupMembers: CandItem[] | null = null;
+        for (let seed = 0; seed < bundles.length; seed++) {
+          groupMembers = tryFormFromSeed(seed);
+          if (groupMembers) break;
         }
 
-        if (groupMembers.length < targetSize) return;
+        if (!groupMembers) return;
 
         voteResults.push({
           placeId,
@@ -706,12 +800,7 @@ export class Vote2Service {
           .map((pl) => ({
             placeId: pl._id.toString(),
             isMain: (pl as any).status === 'main' ? 1 : 0,
-            dist: ClusterUtils.haversineDistance(
-              pl.location.latitude,
-              pl.location.longitude,
-              p.lat,
-              p.lon,
-            ),
+            dist: distToPlace(p, pl.location.latitude, pl.location.longitude),
             lat: pl.location.latitude,
             lon: pl.location.longitude,
           }))
@@ -770,11 +859,10 @@ export class Vote2Service {
       }>;
       for (const p of coords) {
         if (clusteredParticipantIds.has(p.userId)) continue;
-        const d = ClusterUtils.haversineDistance(
+        const d = distToPlace(
+          p,
           place.location.latitude,
           place.location.longitude,
-          p.lat,
-          p.lon,
         );
         if (d <= p.eps * 1.5) {
           expCandidates.push({
@@ -951,13 +1039,20 @@ export class Vote2Service {
   async setResult(date: string) {
     try {
       const today = DateUtils.getTodayYYYYMMDD();
+      const targetDate = date || today;
+      // RealtimeService.setResult()와 결과 알림은 "오늘"만 대상으로 한다.
+      // 과거 날짜를 다시 계산할 때 오늘 realtime을 정리하거나 엉뚱한 알림을 쏘면 안 된다.
+      const isToday = targetDate === today;
 
-      //vote2에서 realtime 성공한 유저 삭제
-      const realtimeSuccessUsers = await this.RealtimeService.setResult();
-      const vote2 = await this.Vote2Repository.findByDate(today);
+      const vote2 = await this.Vote2Repository.findByDate(targetDate);
 
-      for (const user of realtimeSuccessUsers) {
-        vote2.removeParticipationByUserId(user);
+      if (isToday) {
+        //vote2에서 realtime 성공한 유저 삭제
+        const realtimeSuccessUsers = await this.RealtimeService.setResult();
+
+        for (const user of realtimeSuccessUsers) {
+          vote2.removeParticipationByUserId(user);
+        }
       }
 
       //투표 결과 계산 시작
@@ -987,19 +1082,22 @@ export class Vote2Service {
       //     (participation.userId as unknown as IUser)._id?.toString(),
       //   );
       // }
-      await this.fcmServiceInstance.sendNotificationUserIds(
-        successUserIds,
-        WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
-        WEBPUSH_MSG.VOTE.SUCCESS_DESC,
-        `/studyPage?date=${today}`,
-      );
+      // 과거 날짜를 다시 계산하는 경우에는 알림을 보내지 않는다.
+      if (isToday) {
+        await this.fcmServiceInstance.sendNotificationUserIds(
+          successUserIds,
+          WEBPUSH_MSG.VOTE.SUCCESS_TITLE,
+          WEBPUSH_MSG.VOTE.SUCCESS_DESC,
+          `/studyPage?date=${targetDate}`,
+        );
 
-      await this.fcmServiceInstance.sendNotificationUserIds(
-        failedUserIds,
-        WEBPUSH_MSG.VOTE.FAILURE_TITLE,
-        WEBPUSH_MSG.VOTE.FAILURE_DESC,
-        `/studyPage?date=${today}`,
-      );
+        await this.fcmServiceInstance.sendNotificationUserIds(
+          failedUserIds,
+          WEBPUSH_MSG.VOTE.FAILURE_TITLE,
+          WEBPUSH_MSG.VOTE.FAILURE_DESC,
+          `/studyPage?date=${targetDate}`,
+        );
+      }
     } catch (err) {
       console.log(err);
       throw new AppError(err?.message ?? 'Failed to set result', 500);

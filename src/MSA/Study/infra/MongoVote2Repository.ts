@@ -175,6 +175,7 @@ export class Vote2Repository implements IVote2Repository {
             locationDetail: p.locationDetail,
             isBeforeResult: p.isBeforeResult,
             eps: p.eps,
+            anchors: p.anchors,
           }),
       ),
       results: (db.results || []).map(
@@ -215,6 +216,7 @@ export class Vote2Repository implements IVote2Repository {
         locationDetail: p.locationDetail,
         isBeforeResult: p.isBeforeResult,
         eps: p.eps,
+        anchors: p.anchors,
       })),
       results: domain.results.map((r) => ({
         placeId: r.placeId,

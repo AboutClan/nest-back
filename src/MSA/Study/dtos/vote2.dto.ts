@@ -1,5 +1,17 @@
 import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
+export class AnchorDTO {
+  @IsNumber()
+  latitude: number;
+
+  @IsNumber()
+  longitude: number;
+
+  @IsOptional()
+  @IsString()
+  locationDetail: string;
+}
+
 export class CreateNewVoteDTO {
   @IsString()
   @IsOptional()
@@ -28,6 +40,11 @@ export class CreateNewVoteDTO {
   @IsOptional()
   @IsNumber()
   eps: number;
+
+  // 매칭 기준점 1~2개. 없으면 서버가 latitude/longitude로 정규화한다.
+  @IsOptional()
+  @IsArray()
+  anchors?: AnchorDTO[];
 }
 export class CreateNewVotesDTO {
   @IsString()
@@ -65,6 +82,10 @@ export class CreateNewVotesDTO {
   @IsOptional()
   @IsNumber()
   userId: string;
+
+  @IsOptional()
+  @IsArray()
+  anchors?: AnchorDTO[];
 }
 
 export class CreateParticipateDTO {
