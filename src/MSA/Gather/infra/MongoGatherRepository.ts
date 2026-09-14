@@ -128,7 +128,7 @@ export class GatherRepository implements IGatherRepository {
   }
 
   // 홈 화면 번개 섹션: [1] openGather/officialGather 중 임박순 3개,
-  // [2] 나머지 중 임박순 6개, [3] 앞서 나온 9개를 제외한 최근 개설순 6개.
+  // [2] 나머지 중 임박순 6개.
   // 각 구간은 부족하면 null로 패딩해 프론트에서 고정 길이로 slice 할 수 있게 한다.
   async findHomeGatherSections(): Promise<Gather[] | null> {
     const populateOptions = [
@@ -155,16 +155,6 @@ export class GatherRepository implements IGatherRepository {
       .limit(6)
       .populate(populateOptions);
 
-    const excludeIds = [...featuredIds, ...upcoming.map((item) => item._id)];
-
-    const recentlyOpened = await this.Gather.find({
-      status: 'pending',
-      _id: { $nin: excludeIds },
-    })
-      .sort({ createdAt: -1 })
-      .limit(6)
-      .populate(populateOptions);
-
     return [
       ...featured
         .slice(0, 6)
@@ -172,9 +162,6 @@ export class GatherRepository implements IGatherRepository {
       ...upcoming
         .slice(0, 6)
         .concat(Array(Math.max(0, 6 - upcoming.length)).fill(null)),
-      ...recentlyOpened
-        .slice(0, 6)
-        .concat(Array(Math.max(0, 6 - recentlyOpened.length)).fill(null)),
     ].map((doc) => (doc ? this.mapToDomain(doc) : null));
   }
 
@@ -413,6 +400,7 @@ export class GatherRepository implements IGatherRepository {
         phase: p.phase,
         invited: p.invited,
         absence: p.absence,
+        absenceType: p.absenceType,
         withCompanion: p.withCompanion ?? false,
         isDummy: p.isDummy ?? false,
         dummyId: p.dummyId,
@@ -488,6 +476,7 @@ export class GatherRepository implements IGatherRepository {
         phase: p.phase,
         invited: p.invited,
         absence: p.absence,
+        absenceType: p.absenceType,
         withCompanion: p.withCompanion,
         isDummy: p.isDummy,
         dummyId: p.dummyId,
