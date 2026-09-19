@@ -219,7 +219,13 @@ export class UserRepository implements IUserRepository {
         role: { $ne: 'resting' },
         registerDate: { $lt: maxDate },
       },
-      { $inc: { point: -1000 } },
+      [
+        {
+          $set: {
+            point: { $max: [{ $subtract: ['$point', 1000] }, 0] },
+          },
+        },
+      ],
     );
 
     return uids.map((user) => user.uid);
@@ -451,7 +457,36 @@ export class UserRepository implements IUserRepository {
     return null;
   }
 
-  async resetNegativePoint(): Promise<void> {}
+  /**
+   * point를 원자적으로 delta만큼 증감시키되 0 밑으로는 내려가지 않도록 클램프한다.
+   * read → mutate → save 방식(전체 문서 덮어쓰기)과 달리 동시 호출 간 lost update가 없다.
+   */
+  async incrementPointByUid(uid: string, delta: number): Promise<void> {
+    await this.UserModel.updateOne({ uid }, [
+      {
+        $set: {
+          point: { $max: [{ $add: ['$point', delta] }, 0] },
+        },
+      },
+    ]);
+  }
+
+  async incrementPointByUserId(userId: string, delta: number): Promise<void> {
+    await this.UserModel.updateOne({ _id: userId }, [
+      {
+        $set: {
+          point: { $max: [{ $add: ['$point', delta] }, 0] },
+        },
+      },
+    ]);
+  }
+
+  async resetNegativePoint(): Promise<void> {
+    await this.UserModel.updateMany(
+      { point: { $lt: 0 } },
+      { $set: { point: 0 } },
+    );
+  }
 
   async findUsersWithNegativeGroupStudyTicket(): Promise<User[]> {
     const users = await this.UserModel.find({

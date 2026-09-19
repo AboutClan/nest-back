@@ -32,7 +32,10 @@ import {
   ParticipantsZodSchema,
 } from '../../entity/gather.entity';
 import { Gather, GatherProps } from '../domain/Gather/Gather';
-import { ParticipantsProps } from '../domain/Gather/Participants';
+import {
+  GatherAbsenceType,
+  ParticipantsProps,
+} from '../domain/Gather/Participants';
 import { IGatherRepository } from '../interfaces/GatherRepository.interface';
 import GatherCommentService from './comment.service';
 
@@ -145,15 +148,17 @@ export class GatherService {
         );
       } else {
         const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
-        return await this.gatherRepository.findWithQueryPop(
-          pastQuery,
-          cursor,
-          { date: -1 },
-        );
+        return await this.gatherRepository.findWithQueryPop(pastQuery, cursor, {
+          date: -1,
+        });
       }
     } else {
       const sortOption: { [key: string]: any } = { [sortBy]: -1 };
-      return await this.gatherRepository.findWithQueryPop(query, cursor, sortOption);
+      return await this.gatherRepository.findWithQueryPop(
+        query,
+        cursor,
+        sortOption,
+      );
     }
   }
 
@@ -569,7 +574,9 @@ export class GatherService {
       role: 'dummy',
       isActive: false,
       comment:
-        DUMMY_COMMENT_POOL[Math.floor(Math.random() * DUMMY_COMMENT_POOL.length)],
+        DUMMY_COMMENT_POOL[
+          Math.floor(Math.random() * DUMMY_COMMENT_POOL.length)
+        ],
     });
 
     try {
@@ -601,7 +608,9 @@ export class GatherService {
     if (!gather) throw new Error();
 
     const target = gather.participants.find(
-      (p) => (p.isDummy && p.dummyId === userId) || p.user?.toString() === userId?.toString(),
+      (p) =>
+        (p.isDummy && p.dummyId === userId) ||
+        p.user?.toString() === userId?.toString(),
     );
 
     gather.exile(userId);
@@ -651,7 +660,9 @@ export class GatherService {
     const participants = gather.participants;
 
     const targetParticipant = participants.find(
-      (p) => (p.isDummy && p.dummyId === targetId) || p.user?.toString() === targetId?.toString(),
+      (p) =>
+        (p.isDummy && p.dummyId === targetId) ||
+        p.user?.toString() === targetId?.toString(),
     );
 
     if (targetParticipant?.isDummy) {
@@ -727,12 +738,64 @@ export class GatherService {
     return;
   }
 
-  async setAbsence(userId: string, gatherId: number) {
-    const gather = await this.gatherRepository.findById(gatherId);
+  async setAbsence(userId: string, gatherId: number, type?: GatherAbsenceType) {
+    const token = RequestContext.getDecodedToken();
 
-    gather.setAbsence(userId);
+    const penaltyByType: Record<
+      GatherAbsenceType,
+      { point: number; label: string }
+    > = {
+      normal: { point: CONST.POINT.GATHER_ABSENCE_NORMAL, label: '일반 불참' },
+      noshow: { point: CONST.POINT.GATHER_ABSENCE_NOSHOW, label: '당일 노쇼' },
+      nomanner: {
+        point: CONST.POINT.GATHER_ABSENCE_NOMANNER,
+        label: '비매너 불참',
+      },
+    };
+    const penalty = type ? penaltyByType[type] : null;
+    if (type && !penalty) throw new AppError('잘못된 불참 유형입니다.', 400);
+
+    const gather = await this.gatherRepository.findById(gatherId);
+    if (!gather) throw new AppError('모임을 찾을 수 없습니다.', 404);
+
+    // 포인트 차감과 알림이 함께 나가므로 권한은 서버에서 확인한다.
+    // 모임장, 운영진(manager/previliged), 그리고 프론트에서 관리자로 취급하던 계정만 허용한다.
+    // 매퍼가 ObjectId를 string으로 캐스트만 하므로 비교 전에 문자열로 바꾼다.
+    if (gather.user?.toString() !== token.id) {
+      const ADMIN_UIDS = ['2259633694', '3224546232'];
+      const requester = await this.userServiceInstance.getUserWithUserId(
+        token.id,
+      );
+      const isStaff =
+        ADMIN_UIDS.includes(token.uid) ||
+        requester?.role === 'manager' ||
+        requester?.role === 'previliged';
+      if (!isStaff) throw new AppError('불참 처리 권한이 없습니다.', 403);
+    }
+
+    // 이미 불참 처리된 참여자면 다시 차감하지 않는다.
+    if (!gather.setAbsence(userId, type)) return;
 
     await this.gatherRepository.save(gather);
+
+    // 구버전 클라이언트(type 없음)는 포인트를 따로 차감하므로 여기서는 표시만 한다.
+    if (!penalty) return;
+
+    await this.userServiceInstance.updatePointById(
+      penalty.point,
+      `[${gather.title}] 모임 불참 패널티(${penalty.label})`,
+      'gather',
+      userId,
+    );
+
+    await this.fcmServiceInstance.sendNotificationToXWithId(
+      userId,
+      WEBPUSH_MSG.GATHER.ABSENCE_PENALTY_TITLE(
+        dayjs(gather.date).tz('Asia/Seoul').format('M월 D일'),
+      ),
+      WEBPUSH_MSG.GATHER.ABSENCE_PENALTY_DESC(Math.abs(penalty.point)),
+      `/gather/${gather.id}`,
+    );
   }
 
   async distributeDeposit() {
@@ -802,7 +865,8 @@ export class GatherService {
     for (const gather of gathers) {
       for (const participant of gather.participants) {
         if (participant.isDummy || !participant.user) continue;
-        if (participant.absence) {
+        // 유형이 있는 불참은 모임장이 체크할 때 이미 패널티를 부과했다. 여기서 또 차감하지 않는다.
+        if (participant.absence && !participant.absenceType) {
           await this.userServiceInstance.updatePointById(
             CONST.POINT.PARTICIPATE_GATHER,
             '번개 모임 노쇼 패널티',

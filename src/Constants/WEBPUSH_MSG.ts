@@ -29,6 +29,10 @@ export const WEBPUSH_MSG = {
       `내부 사정으로 [${title}] 모임 참여가 승인되지 않았어요🥲`,
     COMMENT_CREATE: (name, title) =>
       `${name}님이 [${title}] 모임에 댓글을 남겼어요!`,
+    ABSENCE_PENALTY_TITLE: (dateLabel: string) =>
+      `${dateLabel} 모임 불참 패널티`,
+    ABSENCE_PENALTY_DESC: (point: number) =>
+      `불참 패널티로 ${point.toLocaleString('ko-KR')} 포인트가 차감되었습니다.`,
   },
 
   GROUPSTUDY: {

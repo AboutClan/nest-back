@@ -39,6 +39,8 @@ export const ParticipantsZodSchema = z.object({
   phase: z.string(),
   invited: z.boolean().default(false),
   absence: z.boolean().default(false),
+  // 도메인 GATHER_ABSENCE_TYPES와 같은 값. 없으면 유형 없이 불참만 표시된 예전 데이터다.
+  absenceType: z.enum(['normal', 'noshow', 'nomanner']).optional(),
   withCompanion: z.boolean().default(false),
   isDummy: z.boolean().default(false),
   dummyId: z.string().optional(),
@@ -181,6 +183,11 @@ export const participantsSchema: Schema<participantsType> = new Schema(
     absence: {
       type: Boolean,
       default: false,
+    },
+    absenceType: {
+      type: String,
+      enum: ['normal', 'noshow', 'nomanner'],
+      required: false,
     },
     withCompanion: {
       type: Boolean,

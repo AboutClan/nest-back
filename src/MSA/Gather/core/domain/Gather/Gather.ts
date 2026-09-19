@@ -4,7 +4,11 @@ import { DateOption, DateOptionProps } from './DateOption';
 import { GatherList, GatherListProps } from './GatherList';
 import { Location, LocationProps } from './Location';
 import { MemberCnt, MemberCntProps } from './MemberCnt';
-import { Participants, ParticipantsProps } from './Participants';
+import {
+  GatherAbsenceType,
+  Participants,
+  ParticipantsProps,
+} from './Participants';
 import { Title, TitleProps } from './Title';
 import { Waiting, WaitingProps } from './Waiting';
 
@@ -154,13 +158,20 @@ export class Gather {
     }
   }
 
-  setAbsence(userId: string) {
-    const index = this.participants.findIndex(
+  /**
+   * 참여자를 불참 처리한다. 이미 불참이거나 참여자가 아니면 false를 돌려
+   * 호출부가 패널티를 중복으로 부과하지 않게 한다.
+   * type이 없으면 유형 없이 불참만 표시한다(구버전 클라이언트 호환).
+   */
+  setAbsence(userId: string, type?: GatherAbsenceType): boolean {
+    const participant = this.participants.find(
       (w) => w.user?.toString() === userId.toString(),
     );
-    if (index !== -1) {
-      this.participants[index].absence = true;
-    }
+    if (!participant || participant.absence) return false;
+
+    participant.absence = true;
+    participant.absenceType = type;
+    return true;
   }
 
   openGather() {
@@ -186,13 +197,17 @@ export class Gather {
   // 참여자가 선택한 후보 날짜들로 내 투표 상태를 통째로 갱신 (복수 선택 가능)
   public voteDateOptions(userId: string, selectedDates: string[]) {
     for (const option of this.dateOptions) {
-      const hasVoted = option.voters.some((v) => v.toString() === userId.toString());
+      const hasVoted = option.voters.some(
+        (v) => v.toString() === userId.toString(),
+      );
       const shouldVote = selectedDates.includes(option.date);
 
       if (shouldVote && !hasVoted) {
         option.voters.push(userId);
       } else if (!shouldVote && hasVoted) {
-        option.voters = option.voters.filter((v) => v.toString() !== userId.toString());
+        option.voters = option.voters.filter(
+          (v) => v.toString() !== userId.toString(),
+        );
       }
     }
   }

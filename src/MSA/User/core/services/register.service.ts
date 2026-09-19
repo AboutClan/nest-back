@@ -280,20 +280,31 @@ export default class RegisterService {
     if (!referrer) return;
     if (referrer.role === 'manager' || referrer.role === 'previliged') return;
 
-    try {
-      await this.userService.updatePoint(
-        REFERRAL_REWARD_POINT,
-        '추천인 보상',
-        'referral',
-        referrerUid,
-      );
-    } catch (err) {
-      logger.logger.error('추천인 보상 지급 실패', {
-        type: 'point',
-        sub: 'referral',
-        uid: referrerUid,
-        error: err instanceof Error ? err.message : String(err),
-      });
+    // approve()는 register/approval의 멱등 계약상 이미 승인된 uid로는 재호출되지
+    // 않으므로(no-op으로 스킵됨), 이 지급이 여기서 실패하면 다시 재시도될 기회가
+    // 없다. 그래서 가입 승인 자체를 막지 않는 선에서 자체적으로 재시도한다.
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await this.userService.updatePoint(
+          REFERRAL_REWARD_POINT,
+          '추천인 보상',
+          'referral',
+          referrerUid,
+        );
+        return;
+      } catch (err) {
+        const isLastAttempt = attempt === maxAttempts;
+        logger.logger.error('추천인 보상 지급 실패', {
+          type: 'point',
+          sub: 'referral',
+          uid: referrerUid,
+          attempt,
+          giveUp: isLastAttempt,
+          error: err instanceof Error ? err.message : String(err),
+        });
+        if (isLastAttempt) return;
+      }
     }
   }
 

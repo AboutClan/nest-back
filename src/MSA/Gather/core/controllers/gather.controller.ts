@@ -23,6 +23,7 @@ import {
   SetWaitingPersonDto,
 } from '../../dtos/dto';
 import { gatherStatus } from '../../entity/gather.entity';
+import { GatherAbsenceType } from '../domain/Gather/Participants';
 import { GatherService } from '../services/gather.service';
 @ApiTags('gather')
 @Controller('gather')
@@ -44,7 +45,12 @@ export class GatherController {
     } else if (cursorNum === -1) {
       return await this.gatherService.getHomeGatherSections();
     } else {
-      return await this.gatherService.getGather(cursorNum, category, sortBy, mode);
+      return await this.gatherService.getGather(
+        cursorNum,
+        category,
+        sortBy,
+        mode,
+      );
     }
   }
 
@@ -94,7 +100,10 @@ export class GatherController {
   async createGather(
     @Body() createGatherDto: CreateGatherDto,
     @UploadedFiles()
-    files: { image?: Express.Multer.File[]; coverImage?: Express.Multer.File[] },
+    files: {
+      image?: Express.Multer.File[];
+      coverImage?: Express.Multer.File[];
+    },
   ) {
     // multipart/form-data로 전송될 때 gather 필드가 JSON 문자열로 올 수 있음
     const gatherData =
@@ -123,7 +132,10 @@ export class GatherController {
   async updateGather(
     @Body() updateGatherDto: any,
     @UploadedFiles()
-    files: { image?: Express.Multer.File[]; coverImage?: Express.Multer.File[] },
+    files: {
+      image?: Express.Multer.File[];
+      coverImage?: Express.Multer.File[];
+    },
   ) {
     // multipart/form-data로 전송될 때 gather 필드가 JSON 문자열로 올 수 있음
     const gatherData =
@@ -219,8 +231,9 @@ export class GatherController {
   async setAbsence(
     @Body('userId') userId: string,
     @Body('gatherId') gatherId: number,
+    @Body('type') type?: GatherAbsenceType,
   ) {
-    await this.gatherService.setAbsence(userId, gatherId);
+    await this.gatherService.setAbsence(userId, gatherId, type);
     return { status: 'success' };
   }
 

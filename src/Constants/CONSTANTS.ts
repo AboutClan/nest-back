@@ -28,6 +28,10 @@ export const CONST = {
     ABSENCE_FEE: -1000,
     NO_SHOW: -1000,
     REALTIME_OPEN: 100,
+    // 모임장이 불참 인원을 체크할 때 부과하는 패널티
+    GATHER_ABSENCE_NORMAL: -1000, // 모임 1~2일 전 불참
+    GATHER_ABSENCE_NOSHOW: -3000, // 모임 당일 노쇼
+    GATHER_ABSENCE_NOMANNER: -5000, // 연락 없이 당일 불참
   },
 };
 

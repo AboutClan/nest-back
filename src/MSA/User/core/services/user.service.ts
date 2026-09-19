@@ -300,8 +300,7 @@ export class UserService {
       newMessage = message + ` (멤버십 +20%)`;
     }
 
-    user.increasePoint(newPoint);
-    await this.UserRepository.save(user);
+    await this.UserRepository.incrementPointByUid(uid ?? token.uid, newPoint);
 
     logger?.info(newMessage, {
       type: 'point',
@@ -320,9 +319,10 @@ export class UserService {
   ) {
     const token = RequestContext.getDecodedToken();
 
-    const user = await this.UserRepository.findByUserId(userId ?? token.id);
-    user.increasePoint(point);
-    await this.UserRepository.save(user);
+    await this.UserRepository.incrementPointByUserId(
+      userId ?? token.id,
+      point,
+    );
 
     logger?.info(message, {
       type: 'point',
