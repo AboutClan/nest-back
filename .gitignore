@@ -60,3 +60,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Naver map crawler browser profile (cookies/session)
 .naver-crawl-profile
+# DB backups (crawl:all 등 일괄 작업 전)
+backups/

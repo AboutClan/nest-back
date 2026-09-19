@@ -9,6 +9,9 @@ import { z } from 'zod';
 import { PlaceZodSchema } from '../../entity/place.entity';
 import { PlaceRepository } from '../interfaces/place.repository.interface';
 
+
+// 일반 카페가 아닌 스터디카페·스터디라운지 브랜드. 이름에 포함되면 카공 랭킹에서 제외한다.
+const RANKING_EXCLUDED_NAME_KEYWORDS = ['카공족', '공태풍', '디딤돌'];
 const GPT_STUDY_CAFE_RATING_SYSTEM_PROMPT = `
 당신은 카페 리뷰를 분석해 카공(카페에서 공부하기)에 적합한지 평가하는 assistant입니다.
 
@@ -314,7 +317,14 @@ export default class PlaceService {
     }
   }
 
-  async evaluatePlaceWithGpt(placeId: string, externalReviews: string[] = []) {
+  /**
+   * @param aiSummary 크롤러 특성 판단 GPT가 만든 카공 요약 — "어바웃 AI" 리뷰 본문으로 저장 (없으면 기존 본문 유지)
+   */
+  async evaluatePlaceWithGpt(
+    placeId: string,
+    externalReviews: string[] = [],
+    aiSummary?: string,
+  ) {
     const places = await this.placeRepository.findByIds([placeId]);
     const place = places[0];
     if (!place) throw new ValidationError('place not found');
@@ -336,35 +346,31 @@ export default class PlaceService {
     );
 
     const result = gptRatingResultSchema.parse(raw);
-    const { mood, power, space, etc, ...studyCafeMeta } = result;
+    const { mood, power, space, etc } = result;
 
     const computedRating =
       Math.round(((mood + power + space + etc) / 4) * 10) / 10;
 
-    await this.placeRepository.updateStudyCafeMetaAndRating(
-      placeId,
-      studyCafeMeta,
-      computedRating,
-    );
+    // studyCafeMeta는 크롤러의 특성 판단 GPT(studyCafeMetaGpt) 결과를 사용 — 여기서는 점수만 저장
+    await this.placeRepository.updateRating(placeId, computedRating);
 
     const hasExistingAIRating = (place.ratings || []).some(
       (r: any) => r.name === '어바웃 AI',
     );
 
     if (hasExistingAIRating) {
-      await this.placeRepository.updateAIRating(placeId, {
-        mood,
-        power,
-        space,
-        etc,
-      });
+      await this.placeRepository.updateAIRating(
+        placeId,
+        { mood, power, space, etc },
+        aiSummary,
+      );
     } else {
       await this.placeRepository.addRating(placeId, {
         mood,
         power,
         space,
         etc,
-        comment: 'AI 카공 적합도 분석',
+        comment: aiSummary ?? 'AI 카공 적합도 분석',
         name: '어바웃 AI',
       });
     }
@@ -373,11 +379,22 @@ export default class PlaceService {
   }
 
   /**
-   * 모든 place에 대해:
-   * 1. 네이버 크롤링으로 operatingHours + studyCafeMeta 업데이트
-   * 2. AI 댓글(어바웃 AI)이 없는 place에 한해 GPT 평가 추가
+   * place 목록에 대해:
+   * 1. 네이버 크롤링으로 operatingHours + studyCafeMeta + naverPlace 업데이트
+   * 2. 크롤링한 리뷰로 GPT 카공 점수 평가
+   * @param options.all true면 AI 평가 여부와 무관하게 전체 place 처리 (기본: AI 평가 없는 place만)
+   * @param options.skipCrawledWithinHours 최근 N시간 내 처리한 place는 건너뜀 (중단 후 이어하기용)
+   * @param options.skipCrawledSince 이 시각 이후 처리한 place는 건너뜀 (skipCrawledWithinHours보다 우선)
+   * @param options.limit 처리할 최대 place 수 (시험 실행용)
    */
-  async processAllPlacesStudyCafe(): Promise<void> {
+  async processAllPlacesStudyCafe(
+    options: {
+      all?: boolean;
+      skipCrawledWithinHours?: number;
+      skipCrawledSince?: Date;
+      limit?: number;
+    } = {},
+  ): Promise<void> {
     const DEFAULT_AI = { mood: 3, power: 3.5, space: 3.5, etc: 3 };
 
     const needsProcessing = (place: any): boolean => {
@@ -393,8 +410,20 @@ export default class PlaceService {
       );
     };
 
+    const skipSince = options.skipCrawledSince
+      ? options.skipCrawledSince.getTime()
+      : options.skipCrawledWithinHours
+        ? Date.now() - options.skipCrawledWithinHours * 60 * 60 * 1000
+        : null;
+    const recentlyCrawled = (place: any): boolean =>
+      skipSince !== null &&
+      place.lastCrawledAt != null &&
+      new Date(place.lastCrawledAt).getTime() >= skipSince;
+
     const places = await this.placeRepository.findAll();
-    const targetPlaces = places.filter(needsProcessing);
+    const targetPlaces = places
+      .filter((p) => (options.all || needsProcessing(p)) && !recentlyCrawled(p))
+      .slice(0, options.limit || undefined);
 
     console.log(
       `전체 ${places.length}개 중 ${targetPlaces.length}개 처리 (${places.length - targetPlaces.length}개 스킵)`,
@@ -411,6 +440,7 @@ export default class PlaceService {
       targetPlaces.map((p) => ({
         _id: (p._id as any).toString(),
         location: p.location,
+        naverPlace: p.naverPlace,
       })),
       async (result) => {
         crawledIds.add(result.placeId);
@@ -419,13 +449,20 @@ export default class PlaceService {
           result.placeId,
           result.operatingHours,
           result.studyCafeMeta,
+          {
+            naverPlace: result.naverPlace,
+            naverKeywords: result.naverKeywords,
+            image: result.image,
+          },
         );
 
         try {
           await this.evaluatePlaceWithGpt(
             result.placeId,
             result.visitorReviews,
+            result.aiSummary,
           );
+          await this.placeRepository.markCrawled(result.placeId);
           await sleep(1_500);
         } catch (err) {
           console.error(`[GPT 평가 실패] ${result.placeId}:`, err);
@@ -434,9 +471,16 @@ export default class PlaceService {
       },
     );
 
-    // Step 3: 크롤 실패한 place도 GPT 평가
-    const remainingPlaces = await this.placeRepository.findAll();
-    for (const place of remainingPlaces) {
+    // 네이버 이용 제한으로 중단된 경우 남은 place를 리뷰 없이 평가하지 않음
+    if (crawler.wasRateLimited) {
+      console.error(
+        `🚫 네이버 이용 제한으로 중단 — 처리 완료 ${crawledIds.size}/${targetPlaces.length}개`,
+      );
+      return;
+    }
+
+    // Step 3: 이번 대상 중 크롤 실패한 place — AI 평가가 없는 곳만 리뷰 없이 GPT 평가
+    for (const place of targetPlaces) {
       const placeId = (place._id as any).toString();
       if (crawledIds.has(placeId)) continue;
       if (!needsProcessing(place)) continue;
@@ -512,6 +556,7 @@ export default class PlaceService {
       (async () => {
         const crawler = new NaverMapCrawler();
         let visitorReviews: string[] = [];
+        let aiSummary: string | undefined;
         let crawlSuccess = false;
 
         try {
@@ -520,10 +565,16 @@ export default class PlaceService {
             async (result) => {
               crawlSuccess = true;
               visitorReviews = result.visitorReviews;
+              aiSummary = result.aiSummary;
               await this.placeRepository.updateOperatingHoursAndStudyCafeMeta(
                 result.placeId,
                 result.operatingHours,
                 result.studyCafeMeta,
+                {
+                  naverPlace: result.naverPlace,
+                  naverKeywords: result.naverKeywords,
+                  image: result.image,
+                },
               );
             },
           );
@@ -532,10 +583,11 @@ export default class PlaceService {
         }
 
         try {
-          await this.evaluatePlaceWithGpt(placeId, [
-            ...visitorReviews,
-            ...externalReviews,
-          ]);
+          await this.evaluatePlaceWithGpt(
+            placeId,
+            [...visitorReviews, ...externalReviews],
+            aiSummary,
+          );
         } catch (err: any) {
           console.error('[addPlace] GPT 평가 실패:', err?.message ?? err);
         }
@@ -566,7 +618,10 @@ export default class PlaceService {
   }
 
   async getTopRankedPlaces() {
-    return await this.placeRepository.findTopRanked(100);
+    return await this.placeRepository.findTopRanked(
+      100,
+      RANKING_EXCLUDED_NAME_KEYWORDS,
+    );
   }
 
   async updatePrefCnt(placeId: string, num: number) {

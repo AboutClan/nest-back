@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Browser, HTTPRequest, Page } from 'puppeteer';
+import { Browser, HTTPRequest, HTTPResponse, Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { IPlace, Place } from 'src/MSA/Place/entity/place.entity';
@@ -7,8 +7,11 @@ import dbConnect from '../Database/conn';
 import { logger } from '../logger';
 import {
   StudyCafeMeta,
-  StudyCafeMetaGptAnalyzer
+  StudyCafeMetaGptAnalyzer,
+  StudyCafeMetaResult,
 } from './studyCafeMeta/studyCafeMetaGpt';
+import { is24HoursFromOperatingHours } from './studyCafeMeta/keywordMetaRules';
+import { extractRepresentativeImage } from './naverPlaceDetail';
 
 puppeteer.use(StealthPlugin());
 
@@ -19,10 +22,21 @@ const CRAWL_CONFIG = {
   batchSize: Number(process.env.CRAWL_BATCH_SIZE) || 1000,
   /** 장소 간 대기 (ms). 크롤링 본문에는 딜레이 없음 */
   betweenPlacesMs: Number(process.env.CRAWL_BETWEEN_PLACES_MS) || 0,
+  /** 지정 시 해당 이름(location.name)의 장소만 크롤링 — 단건 테스트용 */
+  placeName: process.env.CRAWL_PLACE_NAME,
+  /** 방문자 리뷰 최대 페이지 수 (페이지당 50개) */
+  reviewMaxPages: Number(process.env.CRAWL_REVIEW_MAX_PAGES) || 4,
+  /** 카공 관련 리뷰가 이만큼 모이면 추가 페이지 요청 중단 */
+  reviewStudyTarget: Number(process.env.CRAWL_REVIEW_STUDY_TARGET) || 15,
+  /** 리뷰 페이지 요청 사이 대기 (ms) */
+  reviewPageDelayMs: Number(process.env.CRAWL_REVIEW_PAGE_DELAY_MS) || 1000,
   userDataDir:
     process.env.CRAWL_USER_DATA_DIR ||
     path.join(process.cwd(), '.naver-crawl-profile'),
 };
+
+/** GraphQL 요청/응답 전문 로그 (카페당 수천 줄) — CRAWL_LOG_GRAPHQL=false로 끔 */
+const GRAPHQL_LOG_ENABLED = () => process.env.CRAWL_LOG_GRAPHQL !== 'false';
 
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36';
@@ -43,6 +57,31 @@ interface SessionContext {
   cookie: string;
   ncaptchaToken: string;
   pcmapUrl: string;
+  /** pcmap 페이지 SSR 데이터에서 추출한 영업시간 (없으면 []) */
+  operatingHours: string[][];
+  /** pcmap 상세 첫 번째 대표 이미지 (네이버 이미지 주소) */
+  image?: string;
+}
+
+/** DB(Place.location) 좌표 — 검색 결과 중 같은 지점 선택에 사용 */
+interface PlaceCoord {
+  latitude?: number;
+  longitude?: number;
+}
+
+/** 검색 결과가 DB 좌표에서 이 거리(km) 이상 떨어져 있으면 다른 장소로 간주 */
+const SEARCH_MATCH_MAX_KM = 1;
+
+/** DB(Place.naverKeywords)에 저장되는 방문자 키워드 투표 */
+interface NaverKeywords {
+  totalCount: number;
+  details: { name: string; count: number }[];
+}
+
+/** DB(Place.naverPlace)에 저장되는 네이버 플레이스 식별자 */
+interface NaverPlaceRef {
+  businessId: string;
+  businessType: string;
 }
 
 interface GraphqlBatchItem {
@@ -56,6 +95,12 @@ export interface CrawlPlaceResult {
   operatingHours: string[][];
   studyCafeMeta?: StudyCafeMeta;
   visitorReviews: string[];
+  naverPlace: NaverPlaceRef;
+  naverKeywords?: NaverKeywords;
+  /** 카공 관점 AI 요약 ("어바웃 AI" 리뷰 본문) */
+  aiSummary?: string;
+  /** 상세 첫 번째 대표 이미지 → Place.image */
+  image?: string;
 }
 
 interface NaverMapInfo {
@@ -64,6 +109,7 @@ interface NaverMapInfo {
   businessId?: string;
   businessType?: string;
   operatingHours?: string[][];
+  image?: string;
   graphqlBatch?: unknown[];
   studyCafeMeta?: StudyCafeMeta;
   crawledAt: Date;
@@ -157,9 +203,14 @@ function buildGetAiBriefingQuery(
   };
 }
 
+/** 네이버 visitorReviews 1회 최대 개수 (100 요청 시 null 응답) */
+const REVIEW_PAGE_SIZE = 50;
+
+/** after: 이전 페이지 마지막 item의 cursor (커서 기반 페이지네이션) */
 function buildGetVisitorReviewsQuery(
   businessId: string,
   businessType: string,
+  after?: string,
 ): GraphqlBatchItem {
   return {
     operationName: 'getVisitorReviews',
@@ -168,14 +219,16 @@ function buildGetVisitorReviewsQuery(
         businessId,
         bookingBusinessId: null,
         businessType,
-        size: 50,
+        size: REVIEW_PAGE_SIZE,
         includeContent: true,
+        ...(after && { after }),
       },
     },
     query: `query getVisitorReviews($input: VisitorReviewsInput) {
   visitorReviews(input: $input) {
     items {
       id
+      cursor
       rating
       author {
         nickname
@@ -202,6 +255,7 @@ function buildGetVisitorReviewsQuery(
 function buildGetVisitorReviewsQueryFallback(
   businessId: string,
   businessType: string,
+  after?: string,
 ): GraphqlBatchItem {
   return {
     operationName: 'getVisitorReviews',
@@ -210,14 +264,16 @@ function buildGetVisitorReviewsQueryFallback(
         businessId,
         bookingBusinessId: null,
         businessType,
-        size: 50,
+        size: REVIEW_PAGE_SIZE,
         includeContent: true,
+        ...(after && { after }),
       },
     },
     query: `query getVisitorReviews($input: VisitorReviewsInput) {
   visitorReviews(input: $input) {
     items {
       id
+      cursor
       rating
       author {
         nickname
@@ -310,71 +366,139 @@ const GRAPHQL_OPERATION_NAMES = [
   'getVisitorReviewStats',
 ] as const;
 
-/** GraphQL 응답 JSON에서 영업시간 형태 배열 탐색 */
-function extractOperatingHoursFromGraphql(data: unknown): string[][] {
-  const results: string[][] = [];
+/** 카공 판단에 쓰는 리뷰 본문 키워드 */
+const STUDY_REVIEW_PATTERN = new RegExp(
+  [
+    // 공부 환경
+    '공부|카공|노트북|작업|콘센트|충전|조용|시끄|와이파이|책|오래|혼자',
+    // 자리 여유·혼잡도 (자리 여유 = 자리 + 사람 적음)
+    '좌석|자리|넓|붐비|북적|복작|혼잡|번잡|만석|꽉 ?차|웨이팅|줄 ?서|사람 ?많|사람이 많|한산|여유롭|여유 ?있|여유가 있|사람 ?없|사람이 없',
+  ].join('|'),
+);
 
-  const walk = (node: unknown): void => {
-    if (!node || typeof node !== 'object') return;
+/** 카공 판단에 쓰는 네이버 키워드 투표 항목 (예: 집중하기 좋아요, 좌석이 편해요) */
+const STUDY_VOTED_KEYWORD_PATTERN =
+  /집중|좌석|오래|넓|차분|조용|아늑|혼자|콘센트|와이파이|대화/;
 
-    if (Array.isArray(node)) {
-      node.forEach(walk);
-      return;
+/** 이보다 짧은 리뷰 본문은 판단 근거가 없어 제외 */
+const MIN_REVIEW_LENGTH = 10;
+
+const normalizeText = (s: string) => s.replace(/\s+/g, ' ').trim();
+
+/**
+ * GPT에 넘길 카공 관련 리뷰 선별 — 카공 단어 포함, 짧은 리뷰 제외, 작성자당 1개
+ * 페이지네이션 중단 기준과 extractVisitorReviews가 같은 규칙을 쓰도록 공유
+ */
+function selectStudyReviews(
+  reviewItems: any[],
+): { body: string; author?: string }[] {
+  const seenAuthors = new Set<string>();
+  const selected: { body: string; author?: string }[] = [];
+
+  for (const r of reviewItems) {
+    const body = typeof r?.body === 'string' ? normalizeText(r.body) : '';
+    if (body.length < MIN_REVIEW_LENGTH) continue;
+    if (!STUDY_REVIEW_PATTERN.test(body)) continue;
+
+    const author: string | undefined = r.author?.nickname;
+    if (author) {
+      if (seenAuthors.has(author)) continue;
+      seenAuthors.add(author);
     }
-
-    const obj = node as Record<string, unknown>;
-
-    for (const key of [
-      'businessHours',
-      'operatingHours',
-      'bizHours',
-      'openingHours',
-      'schedule',
-    ]) {
-      const val = obj[key];
-      if (Array.isArray(val) && val.length > 0) {
-        const parsed = parseHoursArray(val);
-        if (parsed.length > 0) {
-          results.push(...parsed);
-        }
-      }
-    }
-
-    Object.values(obj).forEach(walk);
-  };
-
-  walk(data);
-  return results;
+    selected.push({ body, author });
+  }
+  return selected;
 }
 
-function parseHoursArray(val: unknown[]): string[][] {
-  const rows: string[][] = [];
-  for (const item of val) {
-    if (Array.isArray(item)) {
-      const texts = item
-        .map((v) => (typeof v === 'string' ? v : String(v ?? '')))
-        .filter(Boolean);
-      if (texts.length >= 2) rows.push(texts);
-    } else if (item && typeof item === 'object') {
-      const o = item as Record<string, unknown>;
-      const day =
-        (o.day as string) ??
-        (o.weekday as string) ??
-        (o.dayName as string) ??
-        '';
-      const time =
-        (o.businessHours as string) ??
-        (o.hours as string) ??
-        (o.time as string) ??
-        (o.description as string) ??
-        '';
-      if (day && time) rows.push([day, time]);
+/** 두 좌표 사이 거리(km) — 하버사인 */
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * toRad;
+  const dLng = (lng2 - lng1) * toRad;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/**
+ * allSearch 응답의 place 목록에서 DB 좌표와 가장 가까운 장소 선택 (x=경도, y=위도)
+ * 좌표가 없으면 첫 결과, 가장 가까운 곳도 SEARCH_MATCH_MAX_KM 밖이면 null
+ */
+function pickSearchResult(list: any[], coord?: PlaceCoord): any | null {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  const lat = Number(coord?.latitude);
+  const lng = Number(coord?.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return list[0];
+
+  let best: any = null;
+  let bestKm = Infinity;
+  for (const item of list) {
+    const km = distanceKm(lat, lng, Number(item?.y), Number(item?.x));
+    if (km < bestKm) {
+      best = item;
+      bestKm = km;
     }
   }
-  return rows;
+  return bestKm <= SEARCH_MATCH_MAX_KM ? best : null;
+}
+
+/** getVisitorReviewStats(index 3)의 키워드 투표 전체 추출 — 없으면 undefined */
+function extractNaverKeywords(graphqlBatch: unknown): NaverKeywords | undefined {
+  const batch = Array.isArray(graphqlBatch) ? graphqlBatch : [graphqlBatch];
+  const voted = (batch[3] as any)?.data?.visitorReviewStats?.analysis
+    ?.votedKeyword;
+  const details = (Array.isArray(voted?.details) ? voted.details : [])
+    .filter((d: any) => typeof d?.displayName === 'string')
+    .map((d: any) => ({ name: d.displayName, count: Number(d.count) || 0 }));
+  if (details.length === 0) return undefined;
+  return { totalCount: Number(voted.totalCount) || 0, details };
+}
+
+/** "HH:mm" → 분. 형식이 아니면 null */
+const toMinutes = (hhmm: unknown): number | null => {
+  const m = typeof hhmm === 'string' ? hhmm.match(/^(\d{1,2}):(\d{2})$/) : null;
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+};
+
+/** 영업 시간 길이(분). 종료가 시작보다 이르면 자정을 넘기는 영업으로 계산 */
+const businessMinutes = (t: any): number | null => {
+  const start = toMinutes(t?.start);
+  const end = toMinutes(t?.end);
+  if (start === null || end === null) return null;
+  return end > start ? end - start : end + 24 * 60 - start;
+};
+
+/**
+ * pcmap 상세 페이지의 window.__APOLLO_STATE__에서 영업시간 추출
+ * placeDetail.newBusinessHours(오늘부터 7일간 날짜별 시간) 중 가장 긴 하루를 대표값으로 사용
+ * 요일별 차이·휴무일·연휴 시간은 고려하지 않음 → [['영업시간', 'HH:mm - HH:mm']]
+ * 매장 외 드라이브스루·배달 항목이 함께 오므로 '매장'을 우선 사용
+ */
+function extractOperatingHoursFromApollo(apollo: unknown): string[][] {
+  const root = (apollo as any)?.ROOT_QUERY;
+  if (!root) return [];
+  const detailKey = Object.keys(root).find((k) => k.startsWith('placeDetail('));
+  const entries: any[] = detailKey ? (root[detailKey]?.newBusinessHours ?? []) : [];
+
+  const dayHours = (e: any): any[] =>
+    (Array.isArray(e?.businessHours) ? e.businessHours : [])
+      .map((b: any) => b?.businessHours)
+      .filter((t: any) => businessMinutes(t) !== null);
+  const store =
+    entries.find((e) => e?.name === '매장' && dayHours(e).length > 0) ??
+    entries.find((e) => dayHours(e).length > 0);
+  if (!store) return [];
+
+  const longest = dayHours(store).reduce((a, b) =>
+    businessMinutes(b)! > businessMinutes(a)! ? b : a,
+  );
+  return [['영업시간', `${longest.start} - ${longest.end}`]];
 }
 
 class NaverMapCrawler {
+  /** crawlPlacesList가 네이버 이용 제한으로 중단됐는지 */
+  wasRateLimited = false;
   private db: unknown = null;
   private browser: Browser | null = null;
   private studyCafeMetaAnalyzer: StudyCafeMetaGptAnalyzer | null = null;
@@ -395,7 +519,7 @@ class NaverMapCrawler {
   private async inferStudyCafeMeta(
     placeName: string,
     graphqlBatch: unknown,
-  ): Promise<StudyCafeMeta | undefined> {
+  ): Promise<StudyCafeMetaResult | undefined> {
     const analyzer = this.getStudyCafeMetaAnalyzer();
     if (!analyzer) {
       console.log(
@@ -415,6 +539,45 @@ class NaverMapCrawler {
       logger.error(`[${placeName}] studyCafeMeta GPT 분석 실패:`, error);
       return undefined;
     }
+  }
+
+  /**
+   * "어바웃 AI" 리뷰 본문용 카공 요약 — 선별 리뷰·카공 키워드 투표·네이버 AI 요약 문장으로 별도 GPT 호출
+   * 실패해도 크롤링 결과에는 영향 없음 (undefined → 기존 AI 리뷰 본문 유지)
+   */
+  private async summarizePlace(
+    placeName: string,
+    graphqlBatch: unknown,
+  ): Promise<string | undefined> {
+    const analyzer = this.getStudyCafeMetaAnalyzer();
+    if (!analyzer || !graphqlBatch) return undefined;
+
+    const batch = Array.isArray(graphqlBatch) ? graphqlBatch : [graphqlBatch];
+    const briefing: string[] = (
+      (batch[1] as any)?.data?.aiBriefing?.textSummaries ?? []
+    )
+      .map((t: any) => t?.sentence)
+      .filter((t: unknown): t is string => typeof t === 'string' && t.length > 0);
+    const evidence = [
+      ...this.extractVisitorReviews(graphqlBatch),
+      ...(briefing.length > 0 ? [`[네이버 AI 요약] ${briefing.join(' ')}`] : []),
+    ];
+
+    try {
+      return await analyzer.summarize(evidence);
+    } catch (error) {
+      logger.error(`[${placeName}] 카공 요약 GPT 실패:`, error);
+      return undefined;
+    }
+  }
+
+  /** is24Hours는 GPT 대신 추출한 영업시간(00:00 - 24:00) 기준 — 영업시간이 없으면 GPT 결과 유지 */
+  private withHoursBasedMeta(
+    meta: StudyCafeMeta | undefined,
+    operatingHours?: string[][],
+  ): StudyCafeMeta | undefined {
+    const is24Hours = is24HoursFromOperatingHours(operatingHours);
+    return meta && is24Hours !== undefined ? { ...meta, is24Hours } : meta;
   }
 
   private delay(ms: number): Promise<void> {
@@ -441,6 +604,7 @@ class NaverMapCrawler {
     label: string,
     body: GraphqlBatchItem[],
   ): void {
+    if (!GRAPHQL_LOG_ENABLED()) return;
     console.log(`\n[${placeName}] ─── GraphQL 요청 (${label}) ───`);
     console.log(JSON.stringify(body, null, 2));
   }
@@ -450,12 +614,14 @@ class NaverMapCrawler {
     label: string,
     data: unknown,
   ): void {
+    if (!GRAPHQL_LOG_ENABLED()) return;
     console.log(`\n[${placeName}] ─── GraphQL 응답 (${label}) ───`);
     console.log(JSON.stringify(data, null, 2));
   }
 
   /** 배치 응답 배열을 operation별로 분리 로그 */
   private logGraphqlBatchByOperation(placeName: string, result: unknown): void {
+    if (!GRAPHQL_LOG_ENABLED()) return;
     const wrapper = result as { status?: number; ok?: boolean; body?: unknown };
     const responses = Array.isArray(wrapper?.body)
       ? wrapper.body
@@ -554,6 +720,34 @@ class NaverMapCrawler {
     });
   }
 
+  /** 가로챈 allSearch 응답에서 DB 좌표와 일치하는 장소의 businessId 추출 */
+  private async pickFromSearchResponse(
+    placeName: string,
+    response: HTTPResponse | null,
+    coord?: PlaceCoord,
+  ): Promise<NaverPlaceRef | null> {
+    if (!response) {
+      console.warn(`[${placeName}] allSearch 응답 없음 — 검색 결과 클릭으로 진행`);
+      return null;
+    }
+    try {
+      const data: any = await response.json();
+      const list: any[] = data?.result?.place?.list ?? [];
+      const picked = pickSearchResult(list, coord);
+      console.log(
+        `[${placeName}] ③ allSearch ${list.length}건 → ${picked ? `${picked.name} (${picked.id})` : '좌표 일치 없음'}`,
+      );
+      if (!picked?.id) return null;
+      return { businessId: String(picked.id), businessType: 'restaurant' };
+    } catch (error) {
+      console.warn(
+        `[${placeName}] allSearch 응답 파싱 실패:`,
+        error instanceof Error ? error.message : String(error),
+      );
+      return null;
+    }
+  }
+
   private async getBusinessIdFromApi(
     placeName: string,
   ): Promise<string | null> {
@@ -576,14 +770,40 @@ class NaverMapCrawler {
     }
   }
 
-  /** test.ts와 동일: map 검색 → iframe → businessId → pcmap (딜레이 없음) */
+  /**
+   * map 검색 → iframe → businessId → pcmap (딜레이 없음)
+   * knownPlace(DB에 저장된 businessId)가 있으면 map 검색을 건너뛰고 pcmap으로 바로 이동
+   */
   private async bootstrapSession(
     page: Page,
     placeName: string,
     getNcaptchaToken: () => string,
+    knownPlace?: Partial<NaverPlaceRef>,
+    coord?: PlaceCoord,
   ): Promise<SessionContext | null> {
+    if (knownPlace?.businessId) {
+      console.log(
+        `[${placeName}] ① 저장된 businessId 사용: ${knownPlace.businessId} (map 검색 생략)`,
+      );
+      return this.openPcmapSession(
+        page,
+        placeName,
+        getNcaptchaToken,
+        knownPlace.businessId,
+        knownPlace.businessType ?? 'restaurant',
+      );
+    }
+
     const naverMapUrl = generateNaverMapUrl(placeName);
     console.log(`[${placeName}] ① map 접속: ${naverMapUrl}`);
+
+    // map 페이지가 직접 보내는 allSearch 응답을 가로챔 — 페이지 요청에는 ncaptcha 토큰이 붙어 있음
+    // (Node에서 직접 호출하면 searchCoord 필수 + ncaptcha CE_EMPTY_TOKEN으로 빈 결과)
+    const searchResponse = page
+      .waitForResponse((res) => res.url().includes('/api/search/allSearch'), {
+        timeout: 20000,
+      })
+      .catch(() => null);
 
     await page.goto(naverMapUrl, {
       waitUntil: 'domcontentloaded',
@@ -593,6 +813,21 @@ class NaverMapCrawler {
 
     if (await this.isRateLimited(page)) {
       throw new Error('RATE_LIMITED');
+    }
+
+    const searched = await this.pickFromSearchResponse(
+      placeName,
+      await searchResponse,
+      coord,
+    );
+    if (searched) {
+      return this.openPcmapSession(
+        page,
+        placeName,
+        getNcaptchaToken,
+        searched.businessId,
+        searched.businessType,
+      );
     }
 
     const entryIframeSelector = '#entryIframe';
@@ -656,6 +891,23 @@ class NaverMapCrawler {
       return null;
     }
 
+    return this.openPcmapSession(
+      page,
+      placeName,
+      getNcaptchaToken,
+      businessId,
+      businessType,
+    );
+  }
+
+  /** pcmap 상세 페이지를 열어 GraphQL 호출에 필요한 쿠키·ncaptcha 토큰 확보 */
+  private async openPcmapSession(
+    page: Page,
+    placeName: string,
+    getNcaptchaToken: () => string,
+    businessId: string,
+    businessType: string,
+  ): Promise<SessionContext> {
     const pcmapUrl = `https://pcmap.place.naver.com/${businessType}/${businessId}/home`;
     console.log(`[${placeName}] ⑨ pcmap 이동: ${pcmapUrl}`);
 
@@ -664,6 +916,12 @@ class NaverMapCrawler {
       timeout: 30000,
     });
     console.log(`[${placeName}] ⑩ pcmap 로드 완료`);
+
+    const apolloState = await page
+      .evaluate(() => (window as any).__APOLLO_STATE__ ?? null)
+      .catch(() => null);
+    const operatingHours = extractOperatingHoursFromApollo(apolloState);
+    const image = extractRepresentativeImage(apolloState);
 
     const cookies = await page.cookies(
       'https://pcmap.place.naver.com',
@@ -680,6 +938,8 @@ class NaverMapCrawler {
       cookie,
       ncaptchaToken,
       pcmapUrl,
+      operatingHours,
+      image,
     };
 
     this.logSessionContext(placeName, ctx);
@@ -731,6 +991,64 @@ class NaverMapCrawler {
     return parsed;
   }
 
+  /**
+   * 첫 페이지 이후 리뷰를 after 커서로 이어서 수집
+   * 카공 관련 리뷰가 reviewStudyTarget개 모이거나 reviewMaxPages에 도달하면 중단
+   */
+  private async fetchMoreVisitorReviews(
+    placeName: string,
+    session: SessionContext,
+    firstPage: unknown,
+  ): Promise<any[]> {
+    const firstReviews = (firstPage as any)?.data?.visitorReviews;
+    const items: any[] = [...(firstReviews?.items ?? [])];
+    const total: number = firstReviews?.total ?? 0;
+    const countStudy = () => selectStudyReviews(items).length;
+
+    let lastPageSize = items.length;
+    let pages = 1;
+
+    while (
+      pages < CRAWL_CONFIG.reviewMaxPages &&
+      lastPageSize === REVIEW_PAGE_SIZE &&
+      items.length < total &&
+      countStudy() < CRAWL_CONFIG.reviewStudyTarget
+    ) {
+      const after = items[items.length - 1]?.cursor;
+      if (!after) break;
+
+      await this.delay(CRAWL_CONFIG.reviewPageDelayMs);
+      try {
+        const result = await this.fetchGraphqlBatch(placeName, session, [
+          buildGetVisitorReviewsQuery(
+            session.businessId,
+            session.businessType,
+            after,
+          ),
+        ]);
+        const pageItems: any[] =
+          (Array.isArray(result) ? result[0] : result)?.data?.visitorReviews
+            ?.items ?? [];
+        if (pageItems.length === 0) break;
+
+        items.push(...pageItems);
+        lastPageSize = pageItems.length;
+        pages++;
+      } catch (error) {
+        console.warn(
+          `[${placeName}] 리뷰 ${pages + 1}페이지 요청 실패 — 수집분까지만 사용:`,
+          error instanceof Error ? error.message : String(error),
+        );
+        break;
+      }
+    }
+
+    console.log(
+      `[${placeName}] 방문자 리뷰 ${items.length}/${total}개 수집 (${pages}페이지, 카공 관련 ${countStudy()}개)`,
+    );
+    return items;
+  }
+
   async initialize(): Promise<void> {
     try {
       this.db = await dbConnect();
@@ -743,9 +1061,11 @@ class NaverMapCrawler {
 
   async getPlacesFromDB(): Promise<IPlace[]> {
     try {
-      const places = await Place.find({
-        studyCafeMeta: { $exists: false },
-      }).exec();
+      const places = await Place.find(
+        CRAWL_CONFIG.placeName
+          ? { 'location.name': CRAWL_CONFIG.placeName }
+          : { studyCafeMeta: { $exists: false } },
+      ).exec();
       console.log(`Fetched ${places.length} places from DB.`);
       return places;
     } catch (error) {
@@ -758,6 +1078,8 @@ class NaverMapCrawler {
     page: Page,
     placeName: string,
     dbPlaceId: string,
+    knownPlace?: Partial<NaverPlaceRef>,
+    coord?: PlaceCoord,
   ): Promise<NaverMapInfo | null> {
     const { getNcaptchaToken } = this.attachGraphqlListeners(page, placeName);
 
@@ -766,6 +1088,8 @@ class NaverMapCrawler {
         page,
         placeName,
         getNcaptchaToken,
+        knownPlace,
+        coord,
       );
       if (!session) {
         console.error(`[${placeName}] businessId를 찾을 수 없습니다.`);
@@ -813,17 +1137,18 @@ class NaverMapCrawler {
         }
       }
 
-      let operatingHours: string[][] = [];
-      for (const res of graphqlBatch) {
-        const found = extractOperatingHoursFromGraphql(res);
-        if (found.length > 0) {
-          operatingHours = found;
-          break;
-        }
-      }
+      // 페이지네이션으로 모은 리뷰 전체를 index 2에 합침 — 두 GPT 분석 모두 같은 리뷰 사용
+      const visitorReviewItems = await this.fetchMoreVisitorReviews(
+        placeName,
+        session,
+        graphqlBatch[2],
+      );
+      const firstReviews = (graphqlBatch[2] as any)?.data?.visitorReviews;
+      if (firstReviews) firstReviews.items = visitorReviewItems;
 
+      const { operatingHours } = session;
       console.log(
-        `[${placeName}] GraphQL에서 추출한 operatingHours:`,
+        `[${placeName}] pcmap 페이지에서 추출한 operatingHours:`,
         operatingHours,
       );
 
@@ -833,6 +1158,7 @@ class NaverMapCrawler {
         businessId: session.businessId,
         businessType: session.businessType,
         operatingHours,
+        image: session.image,
         graphqlBatch,
         crawledAt: new Date(),
       };
@@ -871,25 +1197,42 @@ class NaverMapCrawler {
           page,
           placeName,
           place._id?.toString() || '',
+          place.naverPlace,
+          place.location,
         );
 
         if (placeInfo?.businessId) {
-          const studyCafeMeta = await this.inferStudyCafeMeta(
-            placeName,
-            placeInfo.graphqlBatch,
+          const studyCafeMeta = this.withHoursBasedMeta(
+            (await this.inferStudyCafeMeta(placeName, placeInfo.graphqlBatch))
+              ?.meta,
+            placeInfo.operatingHours,
           );
           if (studyCafeMeta) {
             placeInfo.studyCafeMeta = studyCafeMeta;
           }
 
           const updateData: {
-            operatingHours: string[][];
+            operatingHours?: string[][];
             studyCafeMeta?: StudyCafeMeta;
+            naverPlace: NaverPlaceRef;
+            naverKeywords?: NaverKeywords;
+            image?: string;
           } = {
-            operatingHours: placeInfo.operatingHours ?? [],
+            naverKeywords: extractNaverKeywords(placeInfo.graphqlBatch),
+            naverPlace: {
+              businessId: placeInfo.businessId,
+              businessType: placeInfo.businessType ?? 'restaurant',
+            },
           };
           if (studyCafeMeta) {
             updateData.studyCafeMeta = studyCafeMeta;
+          }
+          // 영업시간·대표 이미지를 못 찾은 경우 기존 값 유지
+          if (placeInfo.operatingHours?.length) {
+            updateData.operatingHours = placeInfo.operatingHours;
+          }
+          if (placeInfo.image) {
+            updateData.image = placeInfo.image;
           }
 
           await Place.findByIdAndUpdate(place._id, updateData);
@@ -934,37 +1277,61 @@ class NaverMapCrawler {
     return naverMapInfos;
   }
 
-  /** GraphQL 배치에서 방문자 리뷰 텍스트 + 태그 추출 (getVisitorReviews = index 2) */
+  /**
+   * GraphQL 배치에서 카공 판단에 필요한 텍스트만 추출
+   * - getVisitorReviewStats(index 3): 카공 관련 키워드 투표 수 (전체 리뷰 기준)
+   * - getVisitorReviews(index 2): 카공 단어가 포함된 리뷰 (작성자당 1개, 짧은 리뷰 제외)
+   * - getAiBriefing(index 1): 카공 단어가 포함된 근거 리뷰 스니펫
+   */
   private extractVisitorReviews(graphqlBatch: unknown): string[] {
     const batch = Array.isArray(graphqlBatch) ? graphqlBatch : [graphqlBatch];
     try {
+      const texts: string[] = [];
+
+      // index 3 = getVisitorReviewStats (null 방어)
+      const votedKeyword = (batch[3] as any)?.data?.visitorReviewStats?.analysis
+        ?.votedKeyword;
+      const keywordDetails: any[] = votedKeyword?.details ?? [];
+      const studyKeywords = keywordDetails
+        .filter(
+          (d) =>
+            typeof d?.displayName === 'string' &&
+            STUDY_VOTED_KEYWORD_PATTERN.test(d.displayName),
+        )
+        .map((d) => `${d.displayName} ${d.count ?? 0}`);
+      if (studyKeywords.length > 0) {
+        texts.push(
+          `[카공 키워드 투표 (전체 ${votedKeyword?.totalCount ?? '?'}표 중)] ${studyKeywords.join(' / ')}`,
+        );
+      }
+
       // index 2 = getVisitorReviews
       const reviewItems: any[] =
         (batch[2] as any)?.data?.visitorReviews?.items ?? [];
+      // AI 요약 스니펫 중복 판정용 — 작성자 중복으로 건너뛴 리뷰까지 포함
+      const allBodies = reviewItems
+        .map((r) => (typeof r.body === 'string' ? normalizeText(r.body) : ''))
+        .filter(Boolean);
+      const seenAuthors = new Set<string>();
 
-      const texts: string[] = [];
-
-      for (const r of reviewItems) {
-        if (typeof r.body === 'string' && r.body.length > 0) {
-          texts.push(r.body);
-        }
-        // tags는 string[] — 객체 배열이 아님
-        const tags: string[] = Array.isArray(r.tags)
-          ? r.tags.filter((t: unknown): t is string => typeof t === 'string' && t.length > 0)
-          : [];
-        if (tags.length > 0) {
-          texts.push(`[태그: ${tags.join(', ')}]`);
-        }
+      for (const { body, author } of selectStudyReviews(reviewItems)) {
+        if (author) seenAuthors.add(author);
+        texts.push(body);
       }
 
-      // index 3 = getVisitorReviewStats (null 방어)
-      const stats = (batch[3] as any)?.data?.visitorReviewStats;
-      if (stats?.analysis?.votedKeyword?.details) {
-        const keywords: string[] = (stats.analysis.votedKeyword.details as any[])
-          .map((d: any) => d.displayName)
-          .filter((d: unknown): d is string => typeof d === 'string' && d.length > 0);
-        if (keywords.length > 0) {
-          texts.push(`[키워드: ${keywords.join(', ')}]`);
+      // index 1 = getAiBriefing — 네이버 AI 요약의 근거 리뷰 중 카공 관련만
+      const summaries: any[] =
+        (batch[1] as any)?.data?.aiBriefing?.textSummaries ?? [];
+      for (const s of summaries) {
+        for (const rr of s?.relatedReviews ?? []) {
+          const snippet =
+            typeof rr?.snippet === 'string' ? normalizeText(rr.snippet) : '';
+          if (!snippet || !STUDY_REVIEW_PATTERN.test(snippet)) continue;
+          if (rr.userName && seenAuthors.has(rr.userName)) continue;
+          if (allBodies.some((b) => b.includes(snippet))) continue;
+
+          if (rr.userName) seenAuthors.add(rr.userName);
+          texts.push(snippet);
         }
       }
 
@@ -979,7 +1346,11 @@ class NaverMapCrawler {
    * NestJS PlaceService에서 호출할 때 사용.
    */
   async crawlPlacesList(
-    places: Array<{ _id: string; location: { name?: string } }>,
+    places: Array<{
+      _id: string;
+      location: { name?: string } & PlaceCoord;
+      naverPlace?: Partial<NaverPlaceRef>;
+    }>,
     onResult?: (result: CrawlPlaceResult) => Promise<void>,
   ): Promise<CrawlPlaceResult[]> {
     const results: CrawlPlaceResult[] = [];
@@ -998,14 +1369,20 @@ class NaverMapCrawler {
           page,
           placeName,
           place._id,
+          place.naverPlace,
+          place.location,
         );
 
         console.log(placeInfo);
         if (!placeInfo?.businessId) continue;
 
-        const studyCafeMeta = await this.inferStudyCafeMeta(
+        const metaResult = await this.inferStudyCafeMeta(
           placeName,
           placeInfo.graphqlBatch,
+        );
+        const studyCafeMeta = this.withHoursBasedMeta(
+          metaResult?.meta,
+          placeInfo.operatingHours,
         );
         const visitorReviews = this.extractVisitorReviews(
           placeInfo.graphqlBatch,
@@ -1016,6 +1393,16 @@ class NaverMapCrawler {
           operatingHours: placeInfo.operatingHours ?? [],
           studyCafeMeta,
           visitorReviews,
+          naverKeywords: extractNaverKeywords(placeInfo.graphqlBatch),
+          image: placeInfo.image,
+          aiSummary: await this.summarizePlace(
+            placeName,
+            placeInfo.graphqlBatch,
+          ),
+          naverPlace: {
+            businessId: placeInfo.businessId,
+            businessType: placeInfo.businessType ?? 'restaurant',
+          },
         };
 
         results.push(result);
@@ -1025,7 +1412,10 @@ class NaverMapCrawler {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        if (message === 'RATE_LIMITED') break;
+        if (message === 'RATE_LIMITED') {
+          this.wasRateLimited = true;
+          break;
+        }
         logger.error(`❌ ${place.location.name}`, error);
       } finally {
         if (page && !page.isClosed()) {

@@ -35,6 +35,19 @@ export const studyCafeMetaZodSchema = z.object({
   hasGoodWifi: z.boolean().default(false),
   hasGoodValueDrinks: z.boolean().default(false),
   hasTimeLimit: z.boolean().default(false),
+  goodForDate: z.boolean().default(false),
+});
+
+/** 네이버 방문자 키워드 투표 (전체 리뷰 기준, 예: "대화하기 좋아요" 356표) */
+export const naverKeywordsZodSchema = z.object({
+  totalCount: z.number(),
+  details: z.array(z.object({ name: z.string(), count: z.number() })),
+});
+
+/** 네이버 플레이스 식별자 — 크롤러가 한 번 찾으면 저장해 두고 지도 검색 없이 재사용 */
+export const naverPlaceZodSchema = z.object({
+  businessId: z.string(),
+  businessType: z.string(),
 });
 
 export const PlaceZodSchema = z.object({
@@ -53,6 +66,9 @@ export const PlaceZodSchema = z.object({
   pick: z.string().optional(),
   likes: z.array(z.union([z.string(), z.custom<mongoose.Types.ObjectId>()])).optional().default([]),
   studyCafeMeta: studyCafeMetaZodSchema.optional(),
+  naverPlace: naverPlaceZodSchema.optional(),
+  lastCrawledAt: z.date().optional(),
+  naverKeywords: naverKeywordsZodSchema.optional(),
 });
 
 export type IPlace = z.infer<typeof PlaceZodSchema> & Document;
@@ -178,10 +194,41 @@ export const PlaceSchema: Schema<IPlace> = new Schema({
         hasGoodWifi: { type: Boolean, default: false },
         hasGoodValueDrinks: { type: Boolean, default: false },
         hasTimeLimit: { type: Boolean, default: false },
+        goodForDate: { type: Boolean, default: false },
       },
       { _id: false },
     ),
     default: () => ({}),
+  },
+  /** 마지막으로 네이버 크롤링 + GPT 평가를 마친 시각 (전체 재실행 시 이어하기용) */
+  lastCrawledAt: {
+    type: Date,
+  },
+  naverKeywords: {
+    type: new Schema(
+      {
+        totalCount: { type: Number, default: 0 },
+        details: {
+          type: [
+            new Schema(
+              { name: String, count: Number },
+              { _id: false },
+            ),
+          ],
+          default: [],
+        },
+      },
+      { _id: false },
+    ),
+  },
+  naverPlace: {
+    type: new Schema(
+      {
+        businessId: { type: String, required: true },
+        businessType: { type: String, required: true },
+      },
+      { _id: false },
+    ),
   },
 });
 

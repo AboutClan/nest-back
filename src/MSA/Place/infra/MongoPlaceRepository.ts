@@ -169,9 +169,21 @@ export class MongoPlaceReposotory implements PlaceRepository {
     );
   }
 
+  async updateRating(placeId: string, rating: number): Promise<void> {
+    await this.Place.updateOne({ _id: placeId }, { $set: { rating } });
+  }
+
+  async markCrawled(placeId: string): Promise<void> {
+    await this.Place.updateOne(
+      { _id: placeId },
+      { $set: { lastCrawledAt: new Date() } },
+    );
+  }
+
   async updateAIRating(
     placeId: string,
     scores: { mood: number; power: number; space: number; etc: number },
+    comment?: string,
   ): Promise<void> {
     await this.Place.updateOne(
       { _id: placeId, 'ratings.name': '어바웃 AI' },
@@ -181,6 +193,8 @@ export class MongoPlaceReposotory implements PlaceRepository {
           'ratings.$.power': scores.power,
           'ratings.$.space': scores.space,
           'ratings.$.etc': scores.etc,
+          // 요약이 없으면 기존 본문 유지
+          ...(comment && { 'ratings.$.comment': comment }),
         },
       },
     );
@@ -226,10 +240,33 @@ export class MongoPlaceReposotory implements PlaceRepository {
     placeId: string,
     operatingHours: string[][],
     studyCafeMeta?: object,
+    extra?: {
+      naverPlace?: { businessId: string; businessType: string };
+      naverKeywords?: {
+        totalCount: number;
+        details: { name: string; count: number }[];
+      };
+      /** 네이버 상세 대표 이미지 주소 */
+      image?: string;
+    },
   ): Promise<void> {
-    const update: Record<string, unknown> = { operatingHours };
+    const update: Record<string, unknown> = {};
+    // 크롤러가 영업시간을 못 찾은 경우([]) 기존 값 유지
+    if (operatingHours.length > 0) {
+      update.operatingHours = operatingHours;
+    }
     if (studyCafeMeta !== undefined) {
       update.studyCafeMeta = studyCafeMeta;
+    }
+    if (extra?.naverPlace !== undefined) {
+      update.naverPlace = extra.naverPlace;
+    }
+    if (extra?.naverKeywords !== undefined) {
+      update.naverKeywords = extra.naverKeywords;
+    }
+    // 대표 이미지를 못 찾은 경우 기존 값 유지
+    if (extra?.image) {
+      update.image = extra.image;
     }
     await this.Place.findByIdAndUpdate(placeId, { $set: update });
   }
@@ -300,11 +337,22 @@ export class MongoPlaceReposotory implements PlaceRepository {
 
   async findTopRanked(
     limit: number,
+    excludeNameKeywords: string[] = [],
   ): Promise<{ place: IPlace; totalScore: number }[]> {
+    const excludeNameMatch = excludeNameKeywords.length
+      ? {
+          'location.name': {
+            $not: new RegExp(excludeNameKeywords.join('|')),
+          },
+        }
+      : {};
+
     const results = await this.Place.aggregate([
       {
         $match: {
           $expr: { $gte: [{ $size: { $ifNull: ['$ratings', []] } }, 2] },
+          // 정렬·limit 전에 제외해야 제외된 만큼 다음 순위로 채워진다
+          ...excludeNameMatch,
         },
       },
       {

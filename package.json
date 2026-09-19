@@ -23,6 +23,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "crawl:naver": "ts-node -r tsconfig-paths/register src/crawler/cafe.ts",
+    "crawl:all": "ts-node -r tsconfig-paths/register src/crawler/crawlAll.ts",
+    "crawl:backfill-meta": "ts-node -r tsconfig-paths/register src/crawler/backfillStudyCafeMeta.ts",
+    "crawl:backfill-images": "ts-node -r tsconfig-paths/register src/crawler/backfillPlaceImages.ts",
     "crawl:restaurant": "ts-node -r tsconfig-paths/register src/crawler/naverMapRestaurant.ts",
     "crawl:test-hours": "ts-node -r tsconfig-paths/register src/crawler/test.ts"
   },

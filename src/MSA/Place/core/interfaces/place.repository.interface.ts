@@ -23,19 +23,34 @@ export interface PlaceRepository {
     studyCafeMeta: object,
     rating: number,
   ): Promise<void>;
+  updateRating(placeId: string, rating: number): Promise<void>;
+  markCrawled(placeId: string): Promise<void>;
   updateOperatingHoursAndStudyCafeMeta(
     placeId: string,
     operatingHours: string[][],
     studyCafeMeta?: object,
+    extra?: {
+      naverPlace?: { businessId: string; businessType: string };
+      naverKeywords?: {
+        totalCount: number;
+        details: { name: string; count: number }[];
+      };
+      /** 네이버 상세 대표 이미지 주소 */
+      image?: string;
+    },
   ): Promise<void>;
   updateAIRating(
     placeId: string,
     scores: { mood: number; power: number; space: number; etc: number },
+    comment?: string,
   ): Promise<void>;
   migrateRatingTableToPower(): Promise<void>;
   findForVote2(): Promise<IPlace[]>;
   findByUserId(userId: string): Promise<{ registeredPlaces: IPlace[]; myRatings: { place: Partial<IPlace>; rating: any }[] }>;
-  findTopRanked(limit: number): Promise<{ place: IPlace; totalScore: number }[]>;
+  findTopRanked(
+    limit: number,
+    excludeNameKeywords?: string[],
+  ): Promise<{ place: IPlace; totalScore: number }[]>;
   toggleLike(placeId: string, userId: string): Promise<{ liked: boolean }>;
   findLikesAndPicks(userId: string, userName: string): Promise<{ likes: IPlace[]; picks: IPlace[] }>;
   test();
