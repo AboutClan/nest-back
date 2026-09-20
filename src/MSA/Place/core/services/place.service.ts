@@ -11,7 +11,7 @@ import { PlaceRepository } from '../interfaces/place.repository.interface';
 
 
 // 일반 카페가 아닌 스터디카페·스터디라운지 브랜드. 이름에 포함되면 카공 랭킹에서 제외한다.
-const RANKING_EXCLUDED_NAME_KEYWORDS = ['카공족', '공태풍', '디딤돌'];
+const RANKING_EXCLUDED_NAME_KEYWORDS = ['카공족', '공태풍', '디딤돌', '스터디'];
 const GPT_STUDY_CAFE_RATING_SYSTEM_PROMPT = `
 당신은 카페 리뷰를 분석해 카공(카페에서 공부하기)에 적합한지 평가하는 assistant입니다.
 
