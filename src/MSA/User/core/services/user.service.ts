@@ -1032,6 +1032,7 @@ export class UserService {
       await this.prizeService.processMonthPrize();
 
       await this.UserRepository.resetMonthScore();
+      await this.UserRepository.resetMonthStudyRecord();
 
       uids.forEach((tempUid) => {
         const point = -1000;

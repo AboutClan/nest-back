@@ -21,6 +21,7 @@ export interface IUserRepository {
   resetGatherTicket(): Promise<null>;
   processTicket(whiteList: any);
   resetMonthScore();
+  resetMonthStudyRecord();
   findByUidProjection(
     uid: string,
     projection?: string,

@@ -302,6 +302,17 @@ export class UserRepository implements IUserRepository {
     await this.UserModel.updateMany({}, { monthScore: 0 });
   }
 
+  /**
+   * 월간 공부 기록 초기화. monthScore와 같은 시점(매월 1일)에 돌린다.
+   * 이게 없어서 "월간" 참여 횟수·공부 시간이 계속 누적되고 있었다.
+   */
+  async resetMonthStudyRecord() {
+    await this.UserModel.updateMany(
+      {},
+      { 'studyRecord.monthCnt': 0, 'studyRecord.monthMinutes': 0 },
+    );
+  }
+
   async test(): Promise<any> {
     await this.UserModel.updateMany(
       { point: { $lte: 0 } },

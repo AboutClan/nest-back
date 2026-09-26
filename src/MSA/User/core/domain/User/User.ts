@@ -197,14 +197,28 @@ export class User {
   }
 
   //acc은 공부 횟수 & month는 공부 시간
+  /**
+   * 공부 기록 누적.
+   *
+   * - `accumulationMinutes` 누적 공부 시간(분)
+   * - `accumulationCnt` 누적 참여 횟수
+   * - `monthCnt` 월간 참여 횟수
+   * - `monthMinutes` 월간 공부 시간(분)
+   *
+   * 예전에는 `monthCnt`에 분을, `accumulationMinutes`에 횟수 1을 더해 두 필드가
+   * 뒤바뀌어 있었다. 그래서 "월간 참여 횟수"에 분이 쌓이고 "누적 공부 시간"에
+   * 횟수가 쌓였다.
+   *
+   * 개인 공부 인증(`solo`)은 스터디 참여가 아니므로 시간만 누적하고 횟수는 세지 않는다
+   * — 등업 판정이 `accumulationCnt`를 "스터디 참여 횟수"로 쓴다.
+   */
   increaseStudyRecord(type: 'study' | 'solo', diffMinutes: number): void {
+    this.studyRecord.accumulationMinutes += diffMinutes;
+    this.studyRecord.monthMinutes += diffMinutes;
+
     if (type === 'study') {
       this.studyRecord.accumulationCnt += 1;
-      this.studyRecord.monthCnt += diffMinutes;
-    }
-    if (type === 'solo') {
-      this.studyRecord.accumulationMinutes += 1;
-      this.studyRecord.monthMinutes += diffMinutes;
+      this.studyRecord.monthCnt += 1;
     }
   }
 
