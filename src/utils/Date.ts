@@ -8,6 +8,74 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Seoul');
 dayjs.locale('ko');
 
+/** 한 번의 출석 인증으로 공부 기록에 쌓을 수 있는 최대 시간(분). */
+export const MAX_STUDY_MINUTES_PER_ATTEND = 12 * 60;
+
+/**
+ * 'HH:mm' 또는 ISO 문자열에서 KST 시:분만 분(0~1439)으로 꺼낸다.
+ * 파싱할 수 없으면 null.
+ */
+export const toMinutesOfDayKst = (raw: string): number | null => {
+  if (!raw) return null;
+
+  if (/^\d{1,2}:\d{2}$/.test(raw)) {
+    const [hour, minute] = raw.split(':').map(Number);
+    return hour * 60 + minute;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return null;
+
+  return (
+    (parsed.getUTCHours() * 60 + parsed.getUTCMinutes() + 9 * 60) % (24 * 60)
+  );
+};
+
+/**
+ * 시:분만 살려서 `dateStr`(YYYY-MM-DD, KST) 기준 실제 시각으로 맞춘다.
+ *
+ * 저장된 값의 날짜는 믿을 수 없다 — 프론트가 시각을 만들 때 `parseTimeToDayjs`로
+ * **오늘 날짜**를 쓰기 때문에, 미래 날짜의 신청(vote2 `dateArr`)이나 개설(realtime
+ * `basicVote`)에는 스터디 날짜가 아니라 조작한 날짜가 박혀 있다. 그 값을 절대 시각으로
+ * 비교하면 지각 판정·출석 누락 알림이 전부 어긋난다.
+ */
+export const getScheduledAtOnDate = (
+  dateStr: string,
+  raw: string,
+): Date | null => {
+  const minutes = toMinutesOfDayKst(raw);
+  if (minutes === null) return null;
+
+  const [year, month, day] = (dateStr ?? '').split('-').map(Number);
+  if (!year || !month || !day) return null;
+
+  // KST 자정 = 같은 날 00:00 UTC에서 9시간 뺀 시각
+  const kstMidnightUtc = Date.UTC(year, month - 1, day) - 9 * 60 * 60 * 1000;
+  return new Date(kstMidnightUtc + minutes * 60 * 1000);
+};
+
+/**
+ * 출석 시점부터 예정 종료 시각까지의 분. 공부 기록(studyRecord)에 누적된다.
+ *
+ * 예전에는 vote2·realtime 서비스가 각자 `Math.abs(now - end)`로 계산했다. abs를 쓰면
+ * 종료 시각이 이미 지난 값일 때(구버전 클라이언트, 자정을 넘긴 입력) 지나간 시간이
+ * 그대로 공부 시간으로 더해진다. 음수는 0으로 접고 상한을 둔다.
+ *
+ * 주의: 이 값은 사용자가 출석 시 신고한 "예정" 종료 시각 기준이므로 실제 체류 시간이
+ * 아니다. 일찍 나가도 기록은 줄지 않는다.
+ */
+export const getStudyMinutesUntil = (
+  end: string | Date,
+  now: Date = new Date(),
+): number => {
+  const endTime = new Date(end).getTime();
+  if (Number.isNaN(endTime)) return 0;
+
+  const diffMinutes = Math.floor((endTime - now.getTime()) / 1000 / 60);
+
+  return Math.min(Math.max(diffMinutes, 0), MAX_STUDY_MINUTES_PER_ATTEND);
+};
+
 export class DateUtils {
   static getStartOfMonth(date?: string): Dayjs {
     return dayjs().subtract(1, 'month').startOf('month');
@@ -128,6 +196,9 @@ export class DateUtils {
   }
   static getYesterdayYYYYMMDD(): string {
     return dayjs().subtract(1, 'day').format('YYYY-MM-DD');
+  }
+  static getTomorrowYYYYMMDD(): string {
+    return dayjs().add(1, 'day').format('YYYY-MM-DD');
   }
 
   //년-월

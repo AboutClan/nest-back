@@ -5,6 +5,7 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseInterceptors,
@@ -12,6 +13,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { memoryStorage } from 'multer';
+import { AppError } from 'src/errors/AppError';
 import {
   CreateArriveDTO,
   CreateNewVoteDTO,
@@ -29,6 +31,19 @@ export class Vote2Controller {
     const filteredVote = await this.voteService2.getWeekData();
 
     return filteredVote;
+  }
+
+  // ':date' 패턴보다 먼저 선언해야 'record'가 날짜로 해석되지 않는다.
+  @Get('record')
+  async getAttendRecord(
+    @Query('startDay') startDay: string,
+    @Query('endDay') endDay: string,
+  ): Promise<any> {
+    if (!startDay || !endDay) {
+      throw new AppError('startDay와 endDay가 필요합니다.', 400);
+    }
+
+    return await this.voteService2.getAttendRecord(startDay, endDay);
   }
   @Get(':date/lastWeek')
   async getLastWeekData(@Req() req: Request): Promise<any> {
@@ -133,16 +148,21 @@ export class Vote2Controller {
     } = createVoteDTO;
     const { date } = req;
 
-    await this.voteService2.setVote(date as string, {
-      latitude,
-      longitude,
-      start,
-      end,
-      locationDetail,
-      userId,
-      eps,
-      anchors,
-    });
+    await this.voteService2.setVote(
+      date as string,
+      {
+        latitude,
+        longitude,
+        start,
+        end,
+        locationDetail,
+        userId,
+        eps,
+        anchors,
+      },
+      // 단일 날짜 초대 경로. 초대받은 사람에게 푸시를 보낸다.
+      true,
+    );
 
     return null;
   }
@@ -159,6 +179,7 @@ export class Vote2Controller {
       start,
       end,
       dates,
+      dateTimes,
       locationDetail,
       eps = 3,
       userId = null,
@@ -179,6 +200,7 @@ export class Vote2Controller {
         anchors,
       },
       type,
+      dateTimes,
     );
 
     return null;

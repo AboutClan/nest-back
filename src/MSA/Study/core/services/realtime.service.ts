@@ -1,12 +1,14 @@
 import { Inject } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { CONST } from 'src/Constants/CONSTANTS';
+import { ENTITY } from 'src/Constants/ENTITY';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
+import { AppError } from 'src/errors/AppError';
 import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { RequestContext } from 'src/request-context';
 import ImageService from 'src/routes/imagez/image.service';
-import { DateUtils } from 'src/utils/Date';
+import { DateUtils, getStudyMinutesUntil } from 'src/utils/Date';
 import { IREALTIME_REPOSITORY } from 'src/utils/di.tokens';
 import { DatabaseError } from '../../../../errors/DatabaseError'; // 에러 처리 클래스 (커스텀 에러)
 import PlaceService from '../../../Place/core/services/place.service';
@@ -34,72 +36,6 @@ export default class RealtimeService {
 
   private getToday() {
     return DateUtils.getTodayYYYYMMDD();
-  }
-
-  async setResult() {
-    const realtimeData = await this.getTodayData('2023-04-09');
-
-    const realtimeMap = new Map<string, any[]>();
-
-    realtimeData.userList.forEach((data) => {
-      const key = `${data.place.latitude}${data.place.longitude}`;
-
-      if (realtimeMap.has(key)) {
-        realtimeMap.set(key, [
-          ...realtimeMap.get(key),
-          {
-            userId: (data.user as any)._id,
-            start: data.time.start,
-            end: data.time.end,
-          },
-        ]);
-      } else {
-        realtimeMap.set(key, [
-          {
-            userId: (data.user as any)._id,
-            start: data.time.start,
-            end: data.time.end,
-          },
-        ]);
-      }
-    });
-
-    const ONE_HOUR_MS = 60 * 60 * 1000;
-
-    const overlappingUserIds = new Set<string>();
-
-    for (const entries of realtimeMap.values()) {
-      for (let i = 0; i < entries.length; i++) {
-        for (let j = i + 1; j < entries.length; j++) {
-          for (let k = j + 1; k < entries.length; k++) {
-            const a = entries[i];
-            const b = entries[j];
-            const c = entries[k];
-
-            const starts = [a.start, b.start, c.start].map(Date.parse);
-            const ends = [a.end, b.end, c.end].map(Date.parse);
-
-            const maxStart = Math.max(...starts);
-            const minEnd = Math.min(...ends);
-
-            if (minEnd - maxStart >= ONE_HOUR_MS) {
-              overlappingUserIds.add(a.userId);
-              overlappingUserIds.add(b.userId);
-              overlappingUserIds.add(c.userId);
-            }
-          }
-        }
-      }
-    }
-
-    const resultUserIds = Array.from(overlappingUserIds);
-
-    await this.realtimeRepository.updateStatusWithIdArr(
-      '2023-04-09',
-      resultUserIds,
-    );
-
-    return resultUserIds;
   }
 
   async getTodayData(date?: string) {
@@ -131,7 +67,12 @@ export default class RealtimeService {
 
     const realtime = await this.getTodayData(date);
 
-    realtime.addUser(
+    // 이미 등록돼 있으면 새로 넣지 않고 교체한다. 예전에는 addUser로 무조건 append해서
+    // 같은 유저가 userList에 중복으로 쌓였고(이후 find가 첫 항목만 잡아 유령 항목이 남았다),
+    // status가 open이면 호출마다 +100P가 지급돼 포인트를 무한히 받을 수 있었다.
+    const isNewUser = !realtime.hasUser(user);
+
+    realtime.patchUser(
       new RealtimeUser({
         user,
         place: validatedUserData.place as PlaceProps,
@@ -147,7 +88,8 @@ export default class RealtimeService {
 
     await this.realtimeRepository.save(realtime);
 
-    if (validatedUserData?.status === 'pending') {
+    // 재신청으로 개설자에게 푸시가 반복되지 않게 신규 등록일 때만 보낸다.
+    if (isNewUser && validatedUserData?.status === 'pending') {
       const openUser = realtime.userList.find(
         (u) => u.status === 'open' && u.user.toString() !== user,
       );
@@ -161,7 +103,8 @@ export default class RealtimeService {
         );
       }
     }
-    if (validatedUserData?.status === 'open') {
+    // 개설 보상은 신규 등록에만. 같은 유저가 다시 개설을 눌러도 중복 지급하지 않는다.
+    if (isNewUser && validatedUserData?.status === 'open') {
       await this.userServiceInstance.updatePoint(
         CONST.POINT.REALTIME_OPEN,
         '스터디 개설',
@@ -197,13 +140,6 @@ export default class RealtimeService {
         studyData.image = images[0];
       }
 
-      function getDiffMinutes(end: string | Date): number {
-        const startDate = new Date();
-        const endDate = new Date(end);
-
-        const diffMs = Math.abs(startDate.getTime() - endDate.getTime());
-        return Math.floor(diffMs / 1000 / 60);
-      }
 
       const todayData = await this.getTodayData(date);
 
@@ -242,7 +178,7 @@ export default class RealtimeService {
 
         await this.userServiceInstance.updateStudyRecord(
           'study',
-          getDiffMinutes(studyData.time.end),
+          getStudyMinutesUntil(studyData.time.end),
         );
 
         const message = `스터디 출석 ${isLate ? '(지각)' : ''}`;
@@ -256,7 +192,7 @@ export default class RealtimeService {
         const point = CONST.POINT.REALTIME_ATTEND_SOLO();
         await this.userServiceInstance.updateStudyRecord(
           'solo',
-          getDiffMinutes(studyData.time.end),
+          getStudyMinutesUntil(studyData.time.end),
         );
         await this.userServiceInstance.updateScore(
           CONST.SCORE.ATTEND_PRIVATE_STUDY,
@@ -304,15 +240,32 @@ export default class RealtimeService {
     return updatedRealtime;
   }
 
+  /**
+   * 개인 공부 인증에 하트를 누른다.
+   *
+   * 누가 눌렀는지는 저장하지 않고 카운터만 올리는 구조라, 같은 사람이 반복 호출해
+   * 수치를 올릴 수 있다. 그건 스키마 변경이 필요해 남겨 두고, 최소한 자기 자신에게
+   * 누르는 것과 에러를 삼키는 것만 막는다.
+   */
   async increaseHeart(userId: string, date: string) {
+    const token = RequestContext.getDecodedToken();
+
+    if (!userId) {
+      throw new AppError('하트를 보낼 대상이 필요합니다.', 400);
+    }
+    if (userId.toString() === token.id?.toString()) {
+      throw new AppError('자기 자신에게는 하트를 누를 수 없습니다.', 400);
+    }
+
     const todayData = await this.getTodayData(date);
 
-    try {
-      todayData.increaseHeartCount(userId);
-      await this.realtimeRepository.save(todayData);
-    } catch (err) {
-      throw new Error();
+    if (!todayData.hasUser(userId)) {
+      throw new AppError('하트를 보낼 대상을 찾을 수 없습니다.', 400);
     }
+
+    // 예전에는 catch에서 `throw new Error()`로 원인을 지워 500만 남았다.
+    todayData.increaseHeartCount(userId);
+    await this.realtimeRepository.save(todayData);
   }
   async patchVote(start: any, end: any, date: string) {
     const token = RequestContext.getDecodedToken();
@@ -351,17 +304,29 @@ export default class RealtimeService {
 
   async deleteVote(date: string, userId?: string) {
     const token = RequestContext.getDecodedToken();
+    const targetId = userId || token.id;
+    const isSelf = targetId?.toString() === token.id?.toString();
 
     const todayData = await this.getTodayData(date);
 
-    const isOpen = todayData.deleteVote(userId || token.id);
+    // 남을 내보내는 건(참여 거절) 그 스터디의 개설자만. 본인 취소는 항상 허용한다.
+    // 예전에는 검증이 없어 userId만 넘기면 누구든 남의 등록을 지울 수 있었다.
+    if (!isSelf && !todayData.isHostOf(token.id, targetId)) {
+      throw new AppError('스터디 개설자만 참여를 거절할 수 있습니다.', 403);
+    }
+
+    const isOpen = todayData.deleteVote(targetId);
     await this.realtimeRepository.save(todayData);
 
-    if (isOpen) {
+    // 개설 보상 회수는 본인이 자기 개설을 취소한 경우에만. 예전에는 대상이 누구든
+    // 호출자(token.uid)의 포인트를 깎아, 남을 내보낸 사람이 차감당할 수 있었다.
+    if (isOpen && isSelf) {
+      // sub은 지급 때와 같은 'host'를 쓴다. 'study'면 updatePoint가 멤버십 +20%를
+      // 곱해서, 지급은 +100P인데 회수는 −120P가 된다(차감에 보너스가 붙는 셈).
       await this.userServiceInstance.updatePoint(
         -CONST.POINT.REALTIME_OPEN,
         '스터디 개설 취소',
-        'study',
+        'host',
         token.uid,
       );
 
@@ -372,17 +337,35 @@ export default class RealtimeService {
     }
   }
 
-  async patchStatus(status: any, date: string, userId: string) {
+  async patchStatus(status: any, date: string, userId?: string) {
     const token = RequestContext.getDecodedToken();
+    const targetId = userId ?? token.id;
+
+    // 예전에는 임의 문자열이 그대로 저장됐다(updateStatus가 캐스팅만 한다).
+    if (!ENTITY.REALTIME.ENUM_STATUS.includes(status)) {
+      throw new AppError('올바르지 않은 상태값입니다.', 400);
+    }
 
     const todayData = await this.getTodayData(date);
 
-    todayData.updateStatus(userId ?? token.id, status);
+    // 상태 변경은 그 스터디의 개설자만. 예전에는 검증이 없어서 참여 신청자가
+    // 자기 상태를 스스로 participation으로 승인하거나 남의 상태를 바꿀 수 있었다.
+    if (!todayData.isHostOf(token.id, targetId)) {
+      throw new AppError(
+        '스터디 개설자만 참여 상태를 변경할 수 있습니다.',
+        403,
+      );
+    }
+
+    todayData.updateStatus(targetId, status);
 
     await this.realtimeRepository.save(todayData);
-    if (status === 'participation') {
+
+    // 승인 대상이 본인(개설자)이면 알릴 필요가 없다.
+    // 예전에는 userId를 그대로 넘겨 자기 호출 시 undefined에게 푸시를 시도했다.
+    if (status === 'participation' && targetId !== token.id) {
       await this.fcmServiceInstance.sendNotificationToXWithId(
-        userId,
+        targetId,
         WEBPUSH_MSG.GATHER.TITLE,
         WEBPUSH_MSG.STUDY.ACCEPT(dayjs(date).format('M월 D일(ddd)')),
         `/studyPage`,

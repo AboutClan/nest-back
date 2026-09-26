@@ -53,26 +53,6 @@ export class RealtimeRepository implements IRealtimeRepository {
     );
   }
 
-  async updateStatusWithIdArr(date: string, userIds: string[]) {
-    await this.realtime.updateMany(
-      {
-        date,
-      },
-      {
-        $set: {
-          'userList.$[inUser].status': 'cancel', // userIds에 포함된 것
-          'userList.$[outUser].status': 'open', // userIds에 없는 것
-        },
-      },
-      {
-        arrayFilters: [
-          { 'inUser.user': { $in: userIds } },
-          { 'outUser.user': { $nin: userIds } },
-        ],
-      },
-    );
-  }
-
   async findAllUserIdsAfterDate(date: string): Promise<string[]> {
     const db = await this.realtime.find({ date: { $gte: date } });
     return db.map((d) => d.userList.map((u) => u.user.toString())).flat();

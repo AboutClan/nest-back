@@ -9,11 +9,15 @@ import { UserService } from 'src/MSA/User/core/services/user.service';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
 import { ClusterUtils } from 'src/utils/ClusterUtils';
-import { DateUtils } from 'src/utils/Date';
+import { DateUtils, getStudyMinutesUntil } from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import ImageService from '../../../../routes/imagez/image.service';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
-import { CreateNewVoteDTO, CreateParticipateDTO } from '../../dtos/vote2.dto';
+import {
+  CreateNewVoteDTO,
+  CreateParticipateDTO,
+  DateTimeDTO,
+} from '../../dtos/vote2.dto';
 import {
   IAnchor,
   IMember,
@@ -21,6 +25,7 @@ import {
   IResult,
 } from '../../entity/vote2.entity';
 import { Realtime } from '../domain/Realtime/Realtime';
+import { toId } from '../domain/Vote2/Vote2';
 import { Result } from '../domain/Vote2/Vote2Result';
 import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
 // 유저가 지정할 수 있는 매칭 기준점 최대 개수. 프론트 UI와 맞춰져 있다.
@@ -216,9 +221,12 @@ export class Vote2Service {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
+    // 확정(09:00)과 같은 기준으로 돌린다. 예전에는 3명 기준이라 미리보기에 보였던 조가
+    // 확정에서 인원 미달로 사라졌다 — 미리보기의 목적은 "이대로 가면 어떻게 되는지"이므로
+    // 기준이 달라선 안 된다.
     const { voteResults } = await this.doAlgorithm(
       participations,
-      3,
+      undefined,
       injectedPlaces,
     );
 
@@ -270,14 +278,16 @@ export class Vote2Service {
 
     const unmatchedUsers = [];
 
+    // toId로 비교해야 한다. 양쪽 userId가 모두 populate된 User 문서인데다
+    // results.members와 participations의 populate select가 서로 달라(전자는 studyIntroduce,
+    // 후자는 isLocationSharingDenided studyIntroduce), toString() 결과가 절대 일치하지 않았다.
+    // 그래서 그날 신청자 전원이 unmatched로 내려가 매칭 성공자에게도 실패 배너가 떴다.
     const resultMembers = voteData.results.flatMap((result) =>
-      result.members
-        .filter((p) => p?.userId)
-        .map((member) => member.userId.toString()),
+      result.members.filter((p) => p?.userId).map((member) => toId(member.userId)),
     );
 
     participations?.forEach((par) => {
-      if (!resultMembers.includes(par.userId.toString())) {
+      if (!resultMembers.includes(toId(par.userId))) {
         unmatchedUsers.push(par.userId);
       }
     });
@@ -300,6 +310,25 @@ export class Vote2Service {
         : null,
       unmatchedUsers,
     };
+  }
+
+  /**
+   * 당일 불참 벌금.
+   *
+   * 결과가 확정되는 09:00에 1,000P에서 시작해, 한 시간이 지날 때마다 100P씩 늘고
+   * 2,000P에서 멈춘다. 늦게 알릴수록 같은 조원들이 대응할 시간이 줄기 때문이다.
+   * 09:00 이전에는 아직 확정된 스터디가 없으므로(= setAbsence가 not-member로 거절)
+   * 기본값 1,000P가 그대로 쓰인다.
+   */
+  static getStudyAbsencePoint(now = dayjs().tz('Asia/Seoul')) {
+    const STUDY_RESULT_HOUR = 9;
+    const hoursSinceResult = Math.max(0, now.hour() - STUDY_RESULT_HOUR);
+
+    return Math.max(
+      CONST.POINT.STUDY_ABSENCE_MAX,
+      CONST.POINT.STUDY_ABSENCE_BASE +
+        hoursSinceResult * CONST.POINT.STUDY_ABSENCE_HOURLY,
+    );
   }
 
   /**
@@ -348,7 +377,11 @@ export class Vote2Service {
     return merged.slice(0, MAX_ANCHORS);
   }
 
-  async setVote(date: string, createVote: CreateNewVoteDTO) {
+  async setVote(
+    date: string,
+    createVote: CreateNewVoteDTO,
+    notifyInvite = false,
+  ) {
     const token = RequestContext.getDecodedToken();
 
     const vote2 = await this.Vote2Repository.findByDate(date);
@@ -391,14 +424,17 @@ export class Vote2Service {
 
     await this.Vote2Repository.save(vote2);
 
-    // if (createVote?.userId) {
-    //   await this.fcmServiceInstance.sendNotificationToXWithId(
-    //     createVote?.userId,
-    //     `스터디 초대 알림 ${dayjs(date).format('(M월 D일)')}`,
-    //     `[${locationDetail}] 스터디에 초대되었어요!`,
-    //     `/study/participations/${date}?type=participations`,
-    //   );
-    // }
+    // 초대는 다른 사람이 대신 신청시키는 것이라, 알리지 않으면 초대받은 사람이
+    // 신청된 사실 자체를 알 수 없다. 주간 초대(setVoteWithArr)는 날짜마다 여기를
+    // 지나므로 푸시를 한 번만 보내려고 호출부에서 플래그로 제어한다.
+    if (notifyInvite && createVote?.userId) {
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        createVote.userId,
+        `스터디 초대 알림 ${dayjs(date).format('(M월 D일)')}`,
+        `[${locationDetail}] 스터디에 초대되었어요!`,
+        `/study/participations/${date}?type=participations`,
+      );
+    }
 
     return;
   }
@@ -407,24 +443,45 @@ export class Vote2Service {
     dates: string[],
     createVote: CreateNewVoteDTO,
     type?: 'invite',
+    dateTimes?: DateTimeDTO[],
   ) {
     const thisWeek = DateUtils.getWeekDate();
 
+    // 날짜별 시간이 오면 그 날짜만 해당 값을 쓴다. 예전에는 선택한 모든 날짜에 공용
+    // start/end를 그대로 써서, 한 날짜의 시간을 정하면 이미 신청해 둔 다른 날짜의
+    // 시간까지 조용히 덮였다(사용자에게 아무 표시도 없었다).
+    const timeByDate = new Map(
+      (dateTimes ?? []).map((entry) => [entry.date, entry]),
+    );
+
     for (const date of thisWeek) {
       if (dates.includes(date)) {
-        await this.setVote(date, createVote);
+        const override = timeByDate.get(date);
+
+        await this.setVote(
+          date,
+          override
+            ? { ...createVote, start: override.start, end: override.end }
+            : createVote,
+        );
       } else if (type !== 'invite') {
         await this.deleteVote(date);
       }
     }
-    // if (createVote?.userId) {
-    //   await this.fcmServiceInstance.sendNotificationToXWithId(
-    //     createVote?.userId,
-    //     '스터디 초대',
-    //     `${dayjs(dates[0]).format('M월 D일(ddd)')} 스터디에 초대되었어요!`,
-    //     `/study/participations/${dates[0]}?type=participations`,
-    //   );
-    // }
+
+    // 초대는 날짜가 여러 개여도 푸시는 한 번만 보낸다.
+    if (type === 'invite' && createVote?.userId && dates.length) {
+      const dateText = dates
+        .map((date) => dayjs(date).format('M월 D일(ddd)'))
+        .join(', ');
+
+      await this.fcmServiceInstance.sendNotificationToXWithId(
+        createVote.userId,
+        '스터디 초대',
+        `${dateText} 스터디에 초대되었어요!`,
+        `/study/participations/${dates[0]}?type=participations`,
+      );
+    }
   }
 
   async deleteVote(date: string) {
@@ -459,7 +516,12 @@ export class Vote2Service {
     const MIN_OVERLAP_MINUTES = 60;
     const INITIAL_MAX_GROUP_SIZE = 6; // ✅ 처음 그룹 만들 때 cap
     const FINAL_MAX_GROUP_SIZE = 8; // ✅ 남은 인원 채울 때 cap
-    const standardCnt = defaultStandardCnt || 4;
+    // 확정 매칭은 목표 5명, 미달 시 4명까지만 축소한다.
+    const standardCnt = defaultStandardCnt || 5;
+    // 축소 시도 인원. 어떤 경우에도 3명 미만 그룹은 만들지 않는다.
+    // 미리보기(getBeforeVoteInfo)도 같은 기준으로 돌리므로 defaultStandardCnt를 넘기지 않는다.
+    const MIN_GROUP_SIZE = 3;
+    const reducedCnt = Math.max(standardCnt - 1, MIN_GROUP_SIZE);
 
     const participations = participations2?.filter((p) => p?.userId);
 
@@ -736,7 +798,7 @@ export class Vote2Service {
       };
 
       formMinimalGroup(standardCnt);
-      formMinimalGroup(4);
+      if (reducedCnt < standardCnt) formMinimalGroup(reducedCnt);
     }
 
     // ---------- 1b) 채우기 패스: 모든 그룹 확보 후 번들 단위로 6명까지 보충 ----------
@@ -934,7 +996,8 @@ export class Vote2Service {
       };
 
       make(standardCnt);
-      if (!usedPlaceIds.has(placeId)) make(standardCnt - 1);
+      if (reducedCnt < standardCnt && !usedPlaceIds.has(placeId))
+        make(reducedCnt);
     };
 
     // 확장 패스 실행(1) 기존 그룹 합류
@@ -978,26 +1041,23 @@ export class Vote2Service {
     );
     if (!vote) return;
 
-    const results = vote.results;
-    const userIds = [];
-    for (const result of results) {
-      const members = result.members;
-      for (const member of members) {
-        const startTime = new Date(member.start);
-        if (!member.arrived && startTime < new Date()) {
-          userIds.push(member.userId.toString());
-        }
-      }
-    }
+    // member.start의 날짜는 신청 시점 날짜일 수 있어 그대로 비교하면 안 된다.
+    // (그래서 예전에는 20시 스터디인 사람에게도 16시에 알림이 갔다.)
+    const userIds = vote.getUnarrivedUserIdsAfterStart();
 
     const realTimeResult = realtimeData.userList.filter(
       (who) => who.status !== 'solo',
     );
 
-    for (const user of realTimeResult) {
-      const startTime = new Date(user.time.start);
-      if (!user.arrived && startTime < new Date()) {
-        userIds.push(user.toString());
+    for (const who of realTimeResult) {
+      if (who.arrived || who.absence) continue;
+
+      // time.start의 날짜도 개설한 날짜일 수 있어 그대로 비교하면 안 된다(vote2와 동일).
+      const startTime = realtimeData.getScheduledAt(who.time.start);
+      if (startTime && startTime < new Date()) {
+        // 예전에는 항목 객체를 그대로 넣어 "[object Object]"가 들어갔고,
+        // 그 결과 realtime 참여자에게는 알림이 한 번도 가지 않았다.
+        userIds.push(toId(who.user));
       }
     }
 
@@ -1018,7 +1078,12 @@ export class Vote2Service {
 
     for (const result of vote.results) {
       const members = result.members;
-      const arrivedCount = members.filter((m) => m.arrived).length;
+      // 불참 신고자도 arrived에 신고 시각이 들어가므로 absence를 함께 봐야 한다.
+      // 이게 빠지면 성실히 신고한 사람이 많을수록 "합의 취소" 면제가 깨져,
+      // 남은 무단 불참자에게 벌금이 부과된다.
+      const arrivedCount = members.filter(
+        (m) => m.arrived && !m.absence,
+      ).length;
 
       // 절반 미만 참석 = 합의 취소, 벌금 없음
       if (arrivedCount * 2 < members.length) continue;
@@ -1040,20 +1105,11 @@ export class Vote2Service {
     try {
       const today = DateUtils.getTodayYYYYMMDD();
       const targetDate = date || today;
-      // RealtimeService.setResult()와 결과 알림은 "오늘"만 대상으로 한다.
-      // 과거 날짜를 다시 계산할 때 오늘 realtime을 정리하거나 엉뚱한 알림을 쏘면 안 된다.
+      // 결과 알림은 "오늘"만 대상으로 한다.
+      // 과거 날짜를 다시 계산할 때 엉뚱한 알림을 쏘면 안 된다.
       const isToday = targetDate === today;
 
       const vote2 = await this.Vote2Repository.findByDate(targetDate);
-
-      if (isToday) {
-        //vote2에서 realtime 성공한 유저 삭제
-        const realtimeSuccessUsers = await this.RealtimeService.setResult();
-
-        for (const user of realtimeSuccessUsers) {
-          vote2.removeParticipationByUserId(user);
-        }
-      }
 
       //투표 결과 계산 시작
       const participations: IParticipation[] = vote2.participations;
@@ -1128,7 +1184,10 @@ export class Vote2Service {
       return {
         place: result.placeId,
         absences: result.members.filter((member) => member.absence),
-        members: result.members.filter((member) => member.arrived),
+        // absence를 빼지 않으면 불참 신고자가 absences와 members 양쪽에 중복으로 들어간다.
+        members: result.members.filter(
+          (member) => member.arrived && !member.absence,
+        ),
       };
     });
   }
@@ -1144,26 +1203,20 @@ export class Vote2Service {
 
     const token = RequestContext.getDecodedToken();
 
-    const arriveData = {
-      memo,
-      arrived: new Date(),
-      end,
-    };
-
     const vote = await this.Vote2Repository.findByDate(date);
-    vote.setArrive(token.id, memo, end, imageUrl);
-    //todo: score, point 추가
+    const arriveResult = vote.setArrive(token.id, memo, end, imageUrl);
+
+    // 확정된 스터디에 속해 있지 않거나 이미 출석 처리된 경우에는 점수·포인트를 주지 않는다.
+    // (예전에는 결과와 무관하게 지급돼 중복 호출 시 중복 지급됐다.)
+    if (arriveResult === 'not-member') {
+      throw new AppError('확정된 스터디가 없어 출석 처리할 수 없습니다.', 400);
+    }
+    if (arriveResult === 'already-arrived') {
+      throw new AppError('이미 출석 처리된 스터디입니다.', 400);
+    }
+
     await this.Vote2Repository.save(vote);
 
-    // await this.userServiceInstance.setVoteArriveInfo(token.id, arriveData.end);
-
-    function getDiffMinutes(end: string | Date): number {
-      const startDate = new Date();
-      const endDate = new Date(end);
-
-      const diffMs = Math.abs(startDate.getTime() - endDate.getTime());
-      return Math.floor(diffMs / 1000 / 60);
-    }
 
     const isArriveBefore = vote.isVoteBefore(token.id);
     const isLate = vote.isLate(token.id);
@@ -1175,7 +1228,7 @@ export class Vote2Service {
     );
     await this.userServiceInstance.updateStudyRecord(
       'study',
-      getDiffMinutes(end),
+      getStudyMinutesUntil(end),
     );
 
     if (isArriveBefore) {
@@ -1193,14 +1246,12 @@ export class Vote2Service {
         message: `스터디 출석 ${isLate ? '(지각)' : ''}`,
       };
     } else {
+      // 미리 신청하지 않고 당일 합류한 경우. 신청자보다 적게 받는다.
       point = CONST.POINT.STUDY_ATTEND_AFTER();
-      const message = `스터디 당일 참여 (30% 획득)`;
+      const message = '스터디 당일 참여';
       await this.userServiceInstance.updatePoint(point, message, 'study');
 
-      return {
-        point,
-        message: `스터디 당일 참여 `,
-      };
+      return { point, message };
     }
   }
 
@@ -1228,22 +1279,86 @@ export class Vote2Service {
 
     const vote = await this.Vote2Repository.findByDate(date, false);
 
-    const result = vote.findStudyPlace(beforeId);
-    result.placeId = placeId;
-    const userIds = result.members
-      .map((member) => member.userId?.toString?.())
-      .filter(Boolean);
+    const result = vote?.findStudyPlace(beforeId);
+    if (!result) {
+      throw new AppError('변경할 스터디를 찾을 수 없습니다.', 400);
+    }
 
-    if (userIds.length > 0) {
+    const memberIds = result.members.map((member) => toId(member.userId));
+
+    // 같은 조 멤버만 바꿀 수 있다. 예전에는 검증이 전혀 없어서 date와 placeId만 알면
+    // 아무나 남의 조 장소를 옮기고 그 조 전원에게 푸시를 보낼 수 있었다.
+    if (!memberIds.includes(toId(token.id))) {
+      throw new AppError('이 스터디의 멤버만 장소를 변경할 수 있습니다.', 403);
+    }
+
+    // 같은 장소를 다시 고른 경우. 저장도 푸시도 필요 없다(반복 호출로 푸시가 쌓이는 것도 막는다).
+    if (toId(result.placeId) === toId(placeId)) {
+      return;
+    }
+
+    // 존재하지 않는 placeId로 바꾸면 그 조 전원의 상세 페이지가 깨지고 되돌릴 UI도 없다.
+    // 같은 쿼리로 푸시에 쓸 카페 이름도 가져온다.
+    const places = await this.PlaceRepository.findByIds([beforeId, placeId]);
+    const nextPlace = places.find((place) => toId(place._id) === toId(placeId));
+
+    if (!nextPlace) {
+      throw new AppError('변경할 장소를 찾을 수 없습니다.', 400);
+    }
+
+    const beforePlace = places.find(
+      (place) => toId(place._id) === toId(beforeId),
+    );
+
+    result.placeId = placeId;
+    await this.Vote2Repository.save(vote);
+
+    // 저장이 실패했는데 푸시만 나가지 않도록 save 뒤에 보낸다.
+    // 본인은 자기가 바꾼 것이므로 대상에서 뺀다.
+    const targetIds = memberIds.filter((id) => id && id !== toId(token.id));
+
+    if (targetIds.length > 0) {
+      // 어디로 옮겼는지까지 알려준다. 예전에는 "변경했어요"만 와서 앱을 열어야 알 수 있었다.
+      const body = beforePlace
+        ? `${token.name}님이 오늘 스터디 장소를 ${beforePlace.name} → ${nextPlace.name}으로 변경했어요.`
+        : `${token.name}님이 오늘 스터디 장소를 ${nextPlace.name}으로 변경했어요.`;
+
       await this.fcmServiceInstance.sendNotificationUserIds(
-        userIds,
+        targetIds,
         '스터디 장소 변경 안내',
-        `${token.name}님이 오늘 스터디 장소를 변경했어요. 변경된 장소를 확인해 주세요!`,
+        body,
         `/study/${placeId}/${date}?type=results`,
       );
     }
+  }
 
-    await this.Vote2Repository.save(vote);
+  /**
+   * 기간 내 날짜별 출석 기록. 공부 기록 캘린더가 쓴다.
+   *
+   * 예전에는 프론트가 `GET /vote/arrived`를 호출했는데 백엔드에 `vote` 컨트롤러가 없어
+   * 항상 실패했다(캘린더가 비어 보였다). 같은 응답 형태를 vote2 데이터로 다시 만든다.
+   */
+  async getAttendRecord(startDay: string, endDay: string) {
+    const votes = await this.Vote2Repository.getVoteByPeriod(startDay, endDay);
+
+    return votes
+      .map((vote) => ({
+        date: vote.date,
+        arrivedInfoList: vote.results
+          .map((result) => ({
+            placeId: toId(result.placeId),
+            // 불참 신고자도 arrived에 신고 시각이 들어가므로 absence를 함께 본다.
+            arrivedInfo: result.members
+              .filter((member) => member.arrived && !member.absence)
+              .map((member) => {
+                const user = member.userId as unknown as IUser;
+                return { uid: user?.uid, name: user?.name };
+              })
+              .filter((info) => info.uid),
+          }))
+          .filter((entry) => entry.arrivedInfo.length > 0),
+      }))
+      .filter((entry) => entry.arrivedInfoList.length > 0);
   }
 
   async getAbsence(date: string) {
@@ -1252,12 +1367,16 @@ export class Vote2Service {
     const resultArr = [];
     voteData.results.forEach((result) => {
       resultArr.push(
-        ...result.members.map((member) => {
-          return {
-            userId: member.userId,
-            message: member.memo,
-          };
-        }),
+        // absence로 걸러야 한다. memo는 불참 사유와 출석 메모("2층 창가, 체크 셔츠")를
+        // 같은 필드에 담으므로, 필터가 없으면 출석자의 인상착의가 불참 사유 목록으로 새어 나간다.
+        ...result.members
+          .filter((member) => member.absence)
+          .map((member) => {
+            return {
+              userId: member.userId,
+              message: member.memo,
+            };
+          }),
       );
     });
 
@@ -1269,19 +1388,25 @@ export class Vote2Service {
 
     const vote = await this.Vote2Repository.findByDate(date);
 
-    vote.setAbsence(token.id, message);
+    const absenceResult = vote.setAbsence(token.id, message);
+
+    // 확정된 스터디가 없거나 이미 불참 처리된 경우에는 저장도 차감도 하지 않는다.
+    // (예전에는 결과와 무관하게 차감이 나가 중복 신고 시 중복 차감됐다.)
+    if (absenceResult === 'not-member') {
+      throw new AppError('확정된 스터디가 없어 불참 처리할 수 없습니다.', 400);
+    }
+    if (absenceResult === 'already-absent') {
+      throw new AppError('이미 불참 처리된 스터디입니다.', 400);
+    }
 
     await this.Vote2Repository.save(vote);
 
-    const isLate = dayjs().tz('Asia/Seoul').hour() > 13;
+    const point = Vote2Service.getStudyAbsencePoint();
 
-    await this.userServiceInstance.updatePoint(
-      isLate ? CONST.POINT.NO_SHOW : CONST.POINT.ABSENCE,
-      `스터디 당일 ${isLate ? '노쇼' : '불참'}`,
-    );
+    await this.userServiceInstance.updatePoint(point, '스터디 당일 불참');
 
     return {
-      point: isLate ? CONST.POINT.NO_SHOW : CONST.POINT.ABSENCE,
+      point,
       message: '스터디 당일 불참',
     };
   }
@@ -1311,29 +1436,38 @@ export class Vote2Service {
     };
   }
 
+  /**
+   * "내일 스터디 매칭이 예정되어 있어요" 알림(21:10).
+   *
+   * 예전에는 **오늘** 문서의 `results`를 대상으로 보냈다. 오늘 결과에 들어간 사람은
+   * 이미 오늘 스터디를 다녀온 사람이라, 내일 신청해 둔 사람에게는 알림이 가지 않고
+   * 엉뚱한 사람에게 "내일 예정"이라고 알리고 있었다. 링크의 date도 오늘이었다.
+   *
+   * 매칭은 당일 09:00에 돌기 때문에 내일의 `results`는 아직 없다. 따라서 대상은
+   * 내일 날짜에 신청해 둔 사람(`participations`)이다.
+   */
   async alertMatching() {
-    const today = DateUtils.getTodayYYYYMMDD();
-    const vote = await this.Vote2Repository.findByDate(today, false);
+    const tomorrow = DateUtils.getTomorrowYYYYMMDD();
+    const vote = await this.Vote2Repository.findByDate(tomorrow, false);
     if (!vote) return;
-    const results = vote.results;
 
-    const alertedUsers = [];
+    // toId로 모아야 중복이 걸러진다. 예전에는 ObjectId 객체를 includes로 비교해
+    // 참조가 다르면 같은 사람도 중복으로 들어갔다.
+    const userIds = [
+      ...new Set(
+        (vote.participations ?? []).map((participation) =>
+          toId(participation.userId),
+        ),
+      ),
+    ].filter(Boolean);
 
-    for (const result of results) {
-      const members = result.members;
-      for (const member of members) {
-        if (alertedUsers.includes(member.userId)) {
-          continue;
-        }
-        alertedUsers.push(member.userId);
-      }
-    }
+    if (!userIds.length) return;
 
     await this.fcmServiceInstance.sendNotificationUserIds(
-      alertedUsers,
+      userIds,
       '스터디 예정 알림',
       '내일 스터디 매칭이 예정되어 있어요!',
-      `/studyPage?date=${today}`,
+      `/studyPage?date=${tomorrow}`,
     );
   }
 }

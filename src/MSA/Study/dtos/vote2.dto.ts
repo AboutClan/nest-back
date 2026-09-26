@@ -12,6 +12,18 @@ export class AnchorDTO {
   locationDetail: string;
 }
 
+/** 날짜별 참여 시간. 주간 신청에서 날짜마다 다른 시간을 보낼 때 쓴다. */
+export class DateTimeDTO {
+  @IsString()
+  date: string;
+
+  @IsString()
+  start: string;
+
+  @IsString()
+  end: string;
+}
+
 export class CreateNewVoteDTO {
   @IsString()
   @IsOptional()
@@ -70,6 +82,14 @@ export class CreateNewVotesDTO {
   @IsOptional()
   @IsArray()
   dates: string[];
+
+  /**
+   * 날짜별로 다른 참여 시간. 여기에 있는 날짜만 이 값을 쓰고,
+   * 나머지는 공용 start/end를 쓴다. 안 보내면 예전과 동일하게 동작한다.
+   */
+  @IsOptional()
+  @IsArray()
+  dateTimes?: DateTimeDTO[];
 
   @IsOptional()
   @IsArray()

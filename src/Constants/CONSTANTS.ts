@@ -24,9 +24,15 @@ export const CONST = {
     REALTIME_ATTEND_SOLO: () => getLowBiasedRandom(30, 500),
     REALTIME_ATTEND_BEFORE: () => getLowBiasedRandom(20, 500),
     LATE: -50,
+    // realtime(직접 개설/참여) 당일 불참
     ABSENCE: -500,
-    ABSENCE_FEE: -1000,
-    NO_SHOW: -1000,
+    // 자동 매칭 당일 불참: 결과 확정(09:00) 시점 1,000P에서 시작해
+    // 1시간이 지날 때마다 100P씩 늘고 2,000P에서 멈춘다.
+    STUDY_ABSENCE_BASE: -1000,
+    STUDY_ABSENCE_HOURLY: -100,
+    STUDY_ABSENCE_MAX: -2000,
+    // 무단 불참(신고 없이 미출석). 다음 날 01:10 배치가 부과한다.
+    ABSENCE_FEE: -2000,
     REALTIME_OPEN: 100,
     // 모임장이 불참 인원을 체크할 때 부과하는 패널티
     GATHER_ABSENCE_NORMAL: -1000, // 모임 1~2일 전 불참
