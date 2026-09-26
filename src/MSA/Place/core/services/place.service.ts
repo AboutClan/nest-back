@@ -144,28 +144,35 @@ power 판단 기준:
 
 space는 자리 여유를 의미합니다.
 
+자리 여유는 "좌석이 많다"가 아니라 "찾아오는 사람을 고려했을 때 가면 빈자리가 있다"는 뜻입니다.
+좌석이 많아도 늘 사람이 꽉 차 있으면 자리 여유가 있는 것이 아닙니다.
+(위의 "방문객 수는 반영하지 마세요"는 인기·유명세를 말하는 것이며, 자리가 차 있는지에 대한 혼잡도 근거는 space에 반드시 반영하세요.)
+
 space:
 
-* 5.0: 자리 넓음, 좌석 많음, 층이 여러 개, 항상 자리 있음, 자리 여유 많음
-* 4.5: 자리 여유가 있다는 긍정 근거가 명확히 확인됨
-* 4.0: 매장이 넓음, 좌석 수가 적지 않음
-* 3.5: 자리 관련 정보 없음
-* 3.0: 자리 부족, 만석, 웨이팅 등의 부정 근거가 확인되지만 공간 관련 긍정 근거도 함께 존재함
-* 2.5: 항상 만석, 자리 잡기 어려움, 웨이팅 반복, 좌석 부족이 지속적으로 언급됨
+* 5.0: 빈자리가 넉넉하다는 직접 근거가 여러 리뷰에서 확인되고 혼잡 언급이 없음 — "항상 자리 있음", "한산해요", "한적해요", "사람이 적어요", "자리 걱정 없음", "웨이팅 없이", "주말/시험기간에도 자리 있음"
+* 4.5: 좌석 많음·층이 여러 개·대형 매장 + 한산하다는 근거가 함께 있음. 또는 혼잡 부정 근거 없이 "자리 많음", "좌석 넉넉"이 반복 확인됨
+* 4.0: 매장이 넓음, 좌석 많음 등 공간 규모 근거만 있고 혼잡도 정보는 없음
+* 3.5: 자리 관련 정보 없음. 또는 혼잡 언급이 2~3개 리뷰에서 나옴
+* 3.0: 넓거나 좌석이 많지만 "주말/저녁/시험기간엔 자리 잡기 어렵다", "사람이 많다", "만석" 등 혼잡 언급이 4개 이상 리뷰에서 나옴
+* 2.5: 항상 만석, 자리 잡기 어려움, 웨이팅 반복, 빈자리 없음이 지속적으로 언급됨
 
 space 판단 기준:
 
-* 자리 여유 관련 긍정 리뷰가 존재하면 적극적으로 높은 점수를 부여하세요.
-* 리뷰 개수는 고려하지 마세요.
+* space만은 예외로, 위의 "리뷰 개수는 고려하지 마세요"를 적용하지 않습니다. 혼잡 언급과 여유 언급이 각각 몇 개의 리뷰에서 나오는지 세어서 판단하세요.
+  (혼잡 언급 = "자리가 없다", "만석", "꽉 찼다", "자리 잡기 힘들다", "사람이 너무 많다", "붐빈다", "웨이팅" 등. 여유 언급 = "한산하다", "한적하다", "사람이 적다", "항상 자리 있다", "웨이팅 없이" 등.)
+* 혼잡 언급이 있는 리뷰가 1개라도 있으면 5.0을 주지 마세요.
+* 혼잡 언급이 서로 다른 리뷰 2~3개에서 나오면 좌석 수·매장 규모와 관계없이 최대 3.5입니다.
+* 혼잡 언급이 서로 다른 리뷰 4개 이상에서 나오면 최대 3.0, 시간대를 가리지 않고 반복되면 2.5를 고려하세요.
+* 혼잡 언급이 없고 여유 언급이 여러 리뷰에서 반복되면 5.0을 적극 고려하세요.
+* 공간 규모(넓음·좌석 많음·층 수)만으로는 최대 4.0입니다. 4.5 이상은 실제로 자리가 비어 있다는 근거가 있을 때만 주세요.
+* "매장이 넓어요"는 공간 규모 근거입니다. 혼잡 근거가 없으면 4.0을 고려하세요.
+* 혼잡 근거와 공간 규모 근거가 함께 있으면 혼잡 근거를 우선하세요. "넓은데도 자리가 없다"는 자리 여유가 없는 것입니다.
+* "사람은 많은데 자리는 있다", "사람이 많아도 좌석이 많아 괜찮다"처럼 결국 자리를 찾았다는 근거는 혼잡 언급으로 세지 마세요.
+* "공부하는 사람이 많다", "카공족이 많다"는 손님층 묘사이지 혼잡 언급이 아닙니다.
+* 화장실·계산대·주문 대기는 좌석 혼잡이 아닙니다.
+* "좌석이 편해요"는 좌석 품질이지 자리 여유 근거가 아닙니다.
 * 정보 부족은 3.5입니다.
-* "매장이 넓어요"는 강한 공간 근거입니다.
-* "매장이 넓어요"가 확인되면 최소 4.0 이상을 적극 고려하세요.
-* "층이 여러 개", "좌석 많음", "대형 매장", "자리 많음"은 4.5~5.0 근거가 될 수 있습니다.
-* "좌석이 편해요"는 좌석 품질이지 공간 크기 근거는 아닙니다.
-* 단순히 "만석", "웨이팅" 리뷰가 존재한다는 이유만으로 낮은 점수를 부여하지 마세요.
-* 주말, 점심시간, 피크타임의 일시적인 만석은 공간 부족의 강한 근거가 아닙니다.
-* "매장이 넓어요", "층이 여러 개", "좌석 많음", "자리 많음" 등의 긍정 근거가 존재한다면 우선적으로 반영하세요.
-* 공간 관련 긍정 근거와 부정 근거가 동시에 존재할 경우, 공간 규모와 좌석 수를 더 중요하게 평가하세요.
 
 etc:
 
@@ -376,6 +383,59 @@ export default class PlaceService {
     }
 
     return { ...result, computedRating };
+  }
+
+  /**
+   * space(자리 여유)만 다시 채점 — mood/power는 기존 "어바웃 AI" 값을 유지
+   * etc는 프롬프트 규칙대로 (mood+power+space)/3 을 0.5 단위로, place.rating은 네 항목 평균
+   * @param dryRun true면 저장하지 않고 결과만 반환
+   */
+  async rescoreSpaceWithGpt(
+    placeId: string,
+    externalReviews: string[],
+    dryRun = true,
+  ) {
+    const place = (await this.placeRepository.findByIds([placeId]))[0];
+    if (!place) throw new ValidationError('place not found');
+    const ai: any = (place.ratings || []).find(
+      (r: any) => r.name === '어바웃 AI',
+    );
+    if (!ai) return null;
+
+    const existingComments = (place.ratings || [])
+      .map((r) => r.comment)
+      .filter(Boolean);
+    const allReviews = [...existingComments, ...externalReviews];
+    const userPrompt =
+      `카페명: ${place.name || '알 수 없음'}\n\n` +
+      `리뷰 목록:\n${allReviews.length ? allReviews.map((r, i) => `${i + 1}. ${r}`).join('\n') : '리뷰 없음'}`;
+
+    const raw = await this.openAIService.structured<object>(
+      GPT_STUDY_CAFE_RATING_SYSTEM_PROMPT,
+      userPrompt,
+      {},
+    );
+    const { space } = gptRatingResultSchema.parse(raw);
+
+    const { mood, power } = ai;
+    const etc = Math.round(((mood + power + space) / 3) * 2) / 2;
+    const computedRating =
+      Math.round(((mood + power + space + etc) / 4) * 10) / 10;
+
+    if (!dryRun) {
+      await this.placeRepository.updateRating(placeId, computedRating);
+      await this.placeRepository.updateAIRating(placeId, {
+        mood,
+        power,
+        space,
+        etc,
+      });
+    }
+    return {
+      before: { space: ai.space, etc: ai.etc },
+      after: { space, etc },
+      computedRating,
+    };
   }
 
   /**

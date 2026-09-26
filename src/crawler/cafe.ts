@@ -389,7 +389,7 @@ const normalizeText = (s: string) => s.replace(/\s+/g, ' ').trim();
  * GPT에 넘길 카공 관련 리뷰 선별 — 카공 단어 포함, 짧은 리뷰 제외, 작성자당 1개
  * 페이지네이션 중단 기준과 extractVisitorReviews가 같은 규칙을 쓰도록 공유
  */
-function selectStudyReviews(
+export function selectStudyReviews(
   reviewItems: any[],
 ): { body: string; author?: string }[] {
   const seenAuthors = new Set<string>();
