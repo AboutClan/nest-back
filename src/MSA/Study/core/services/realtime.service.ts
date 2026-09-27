@@ -364,9 +364,10 @@ export default class RealtimeService {
     // 승인 대상이 본인(개설자)이면 알릴 필요가 없다.
     // 예전에는 userId를 그대로 넘겨 자기 호출 시 undefined에게 푸시를 시도했다.
     if (status === 'participation' && targetId !== token.id) {
+      // 스터디 승인인데 제목이 GATHER.TITLE('번개 모임')이었다.
       await this.fcmServiceInstance.sendNotificationToXWithId(
         targetId,
-        WEBPUSH_MSG.GATHER.TITLE,
+        WEBPUSH_MSG.BASE.TITLE,
         WEBPUSH_MSG.STUDY.ACCEPT(dayjs(date).format('M월 D일(ddd)')),
         `/studyPage`,
       );
