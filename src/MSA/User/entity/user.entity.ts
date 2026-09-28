@@ -51,6 +51,23 @@ const badgeZodSchema = z
   })
   .optional();
 
+/**
+ * 스터디 챌린지 배지. 기존 badge(칭호 목록)와는 다른 개념이다.
+ *
+ * 정규 매칭 신청 1개 + 스터디 출석 1개를 매월 쌓아 스터디 랭킹을 산정한다.
+ * 매월 1일 정산 후 monthCnt를 0으로 초기화한다. lastAt은 동점자 정렬용
+ * (배지 수가 같으면 먼저 달성한 사람이 상위).
+ *
+ * 도메인 User 클래스를 거치지 않고 리포지토리에서 $inc로만 다룬다 —
+ * save()가 지정 필드만 $set하므로 도메인 왕복에 영향받지 않는다.
+ */
+const studyBadgeZodSchema = z
+  .object({
+    monthCnt: z.number().default(0),
+    lastAt: z.date().nullable().optional(),
+  })
+  .optional();
+
 const rankZodSchema = z
   .object({
     num: z.number(),
@@ -102,6 +119,7 @@ export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
 export type ticketType = z.infer<typeof ticketZodSchema>;
 export type badgeType = z.infer<typeof badgeZodSchema>;
+export type studyBadgeType = z.infer<typeof studyBadgeZodSchema>;
 export type studyRecordType = z.infer<typeof studyRecordZodSchema>;
 export type temperatureType = z.infer<typeof temperatureZodSchema>;
 
@@ -157,6 +175,7 @@ export const userZodSchema = z.object({
   weekStudyAccumulationMinutes: z.number().default(0),
   ticket: ticketZodSchema,
   badge: badgeZodSchema,
+  studyBadge: studyBadgeZodSchema,
   isLocationSharingDenided: z.boolean().default(false).optional(),
   temperature: z.number().default(ENTITY.USER.DEAFULT_TEMPERATURE),
   introduceText: z.string(),
@@ -194,6 +213,7 @@ export interface IUser extends Document, IRegistered {
   instagram?: string;
   ticket: ticketType;
   badge: badgeType;
+  studyBadge: studyBadgeType;
   monthStudyTarget: number;
   studyRecord: studyRecordType;
   isLocationSharingDenided: boolean;
@@ -314,6 +334,16 @@ export const studyRecordSchema: Schema<studyRecordType> = new Schema(
     accumulationCnt: { type: Number, default: 0 },
     monthMinutes: { type: Number, default: 0 },
     monthCnt: { type: Number, default: 0 },
+  },
+  {
+    _id: false,
+    timestamps: false,
+  },
+);
+export const studyBadgeSchema: Schema<studyBadgeType> = new Schema(
+  {
+    monthCnt: { type: Number, default: 0 },
+    lastAt: { type: Date, default: null },
   },
   {
     _id: false,
@@ -484,6 +514,10 @@ export const UserSchema: Schema<IUser> = new Schema({
   badge: {
     type: badgeSchema,
     default: () => ({ badgeIdx: 0, badgeList: [] }),
+  },
+  studyBadge: {
+    type: studyBadgeSchema,
+    default: () => ({ monthCnt: 0, lastAt: null }),
   },
   studyRecord: {
     type: studyRecordSchema,

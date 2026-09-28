@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import dayjs from 'dayjs';
-import { CONST } from 'src/Constants/CONSTANTS';
+import { CONST, getLatePenalty } from 'src/Constants/CONSTANTS';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
@@ -49,6 +49,45 @@ export default class RealtimeService {
     }
 
     return data;
+  }
+
+  /**
+   * 같은 좌표로 묶인 realtime 스터디별 참여자 목록. 개인 공부 인증(solo)은 제외한다.
+   *
+   * realtime은 날짜당 문서 하나에 여러 장소의 스터디가 평평하게 들어 있어
+   * "어느 스터디인지"를 장소 좌표로 판정한다.
+   */
+  async getPlaceGroups(date: string): Promise<{ userIds: string[] }[]> {
+    const todayData = await this.getTodayData(date);
+
+    const groups = new Map<string, string[]>();
+
+    for (const who of todayData.userList) {
+      if (who.status === 'solo') continue;
+
+      const key = `${who.place?.latitude},${who.place?.longitude}`;
+      const userId = who.user?.toString();
+      if (!userId) continue;
+
+      groups.set(key, [...(groups.get(key) ?? []), userId]);
+    }
+
+    return [...groups.values()].map((userIds) => ({ userIds }));
+  }
+
+  /**
+   * realtime 등록을 제거한다. 09:00 매칭에서 정규 매칭 쪽으로 편성된 인원을 빼는 데 쓴다.
+   * 배치에서 호출되므로 토큰을 읽지 않고, 개설 보상도 회수하지 않는다
+   * (본인이 취소한 게 아니라 시스템이 한쪽으로 정리한 것이다).
+   */
+  async removeUsers(date: string, userIds: string[]) {
+    if (!userIds.length) return;
+
+    const todayData = await this.getTodayData(date);
+
+    userIds.forEach((userId) => todayData.deleteVote(userId));
+
+    await this.realtimeRepository.save(todayData);
   }
 
   //todo: date:YYYYMMDD라 가정
@@ -165,11 +204,11 @@ export default class RealtimeService {
       await this.realtimeRepository.save(todayData);
 
       if (todayData.isOpen(token.id)) {
-        const isLate = todayData.isLate(token.id);
+        // 지각 벌금은 늦은 시간에 비례한다(100P + 1시간마다 100P).
+        const latePenalty = getLatePenalty(todayData.getLateMinutes(token.id));
+        const isLate = !!latePenalty;
 
-        const point = isLate
-          ? CONST.POINT.REALTIME_ATTEND_BEFORE() + CONST.POINT.LATE
-          : CONST.POINT.REALTIME_ATTEND_BEFORE();
+        const point = CONST.POINT.REALTIME_ATTEND_BEFORE() + latePenalty;
 
         await this.userServiceInstance.updateScore(
           CONST.SCORE.ATTEND_STUDY,
@@ -180,6 +219,10 @@ export default class RealtimeService {
           'study',
           getStudyMinutesUntil(studyData.time.end),
         );
+
+        // 스터디 챌린지 배지 — 출석 1개. 개인 공부 인증(solo)은 스터디 출석이
+        // 아니므로 아래 else 분기에서는 주지 않는다.
+        await this.userServiceInstance.addStudyBadgeById(token.id);
 
         const message = `스터디 출석 ${isLate ? '(지각)' : ''}`;
         await this.userServiceInstance.updatePoint(point, message, 'study');
@@ -272,12 +315,23 @@ export default class RealtimeService {
 
     const todayData = await this.getTodayData(date);
 
-    try {
-      todayData.updateUserTime(token.id, start, end);
-      await this.realtimeRepository.save(todayData);
-    } catch (err) {
-      throw new Error();
-    }
+    // 예정 시작 시각이 지난 뒤 시작을 더 뒤로 미루면 지각과 같은 기준으로 차감한다.
+    // 그러지 않으면 출석 직전에 시간만 미뤄 지각 벌금을 피할 수 있다.
+    const lateMinutes = todayData.updateUserTimeWithLateCheck(
+      token.id,
+      start,
+      end,
+    );
+
+    await this.realtimeRepository.save(todayData);
+
+    const point = getLatePenalty(lateMinutes);
+    if (!point) return;
+
+    const message = '스터디 시작 시간 지연 변경';
+    await this.userServiceInstance.updatePoint(point, message);
+
+    return { point, message };
   }
 
   async patchAbsence(absence: boolean, date: string, message?: string) {

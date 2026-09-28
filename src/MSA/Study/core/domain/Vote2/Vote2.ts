@@ -91,23 +91,29 @@ export class Vote2 {
     return participant.isBeforeResult;
   }
 
-  /** 예정 시작 시각보다 60분 이상 늦게 출석했는지. */
-  isLate(userId: string) {
+  /**
+   * 예정 시작 시각보다 몇 분 늦게 출석했는지. 늦지 않았거나 알 수 없으면 0.
+   *
+   * 예전에는 60분 이상일 때만 지각으로 봤다. 지금은 1분이라도 넘기면 지각이고
+   * 벌금이 늦은 시간에 비례한다(getLatePenalty).
+   */
+  getLateMinutes(userId: string): number {
     const member = this.findResultMember(userId);
     if (!member?.arrived || !member?.start) {
-      return false;
+      return 0;
     }
 
     const scheduledStart = this.getScheduledAt(member.start);
     if (!scheduledStart) {
-      return false;
+      return 0;
     }
 
-    const diffMinutes =
+    const diffMinutes = Math.floor(
       (new Date(member.arrived).getTime() - scheduledStart.getTime()) /
-      (60 * 1000);
+        (60 * 1000),
+    );
 
-    return diffMinutes >= 60;
+    return Math.max(diffMinutes, 0);
   }
 
   /**
@@ -139,15 +145,32 @@ export class Vote2 {
       }
     });
   }
-  updateResult(userId: string, start: string, end: string) {
-    this.results.forEach((result) => {
-      result.members.forEach((member) => {
-        if (toId(member.userId) === toId(userId)) {
-          member.start = this.anchorTime(start);
-          member.end = this.anchorTime(end);
-        }
-      });
-    });
+  /**
+   * 확정된 스터디의 참여 시간 변경.
+   *
+   * 예정 시작 시각이 지난 뒤 시작을 **더 뒤로** 미루는 경우, 지각과 같은 기준으로
+   * 벌금 대상이 된다 — 그러지 않으면 출석 직전에 시작 시간만 미뤄 지각을 회피할 수
+   * 있다. 부과는 호출부가 하므로 지연된 분만 돌려준다(대상이 아니면 0).
+   */
+  updateResult(userId: string, start: string, end: string): number {
+    const member = this.findResultMember(userId);
+    if (!member) return 0;
+
+    const now = new Date();
+    const prevStart = member.start ? this.getScheduledAt(member.start) : null;
+    const nextStart = this.getScheduledAt(start);
+
+    const isDeferringAfterStart =
+      !!prevStart && !!nextStart && prevStart < now && nextStart > prevStart;
+
+    const lateMinutes = isDeferringAfterStart
+      ? Math.floor((now.getTime() - prevStart.getTime()) / (60 * 1000))
+      : 0;
+
+    member.start = this.anchorTime(start);
+    member.end = this.anchorTime(end);
+
+    return Math.max(lateMinutes, 0);
   }
 
   setComment(userId: string, comment: string) {

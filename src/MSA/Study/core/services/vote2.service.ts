@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import dayjs from 'dayjs';
-import { CONST } from 'src/Constants/CONSTANTS';
+import { CONST, getLatePenalty } from 'src/Constants/CONSTANTS';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { PlaceRepository } from 'src/MSA/Place/core/interfaces/place.repository.interface';
@@ -25,7 +25,7 @@ import {
   IResult,
 } from '../../entity/vote2.entity';
 import { Realtime } from '../domain/Realtime/Realtime';
-import { toId } from '../domain/Vote2/Vote2';
+import { toId, Vote2 } from '../domain/Vote2/Vote2';
 import { Result } from '../domain/Vote2/Vote2Result';
 import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
 // 유저가 지정할 수 있는 매칭 기준점 최대 개수. 프론트 UI와 맞춰져 있다.
@@ -123,6 +123,11 @@ export class Vote2Service {
       }),
     }));
   }
+  /** 스터디 배지 랭킹(이번 달). 상품 구간이 50등까지라 기본 50명. */
+  async getStudyBadgeRanking(limit?: number) {
+    return await this.userServiceInstance.getStudyBadgeRanking(limit);
+  }
+
   async getMine() {
     const token = RequestContext.getDecodedToken();
 
@@ -221,12 +226,15 @@ export class Vote2Service {
     const participations: IParticipation[] =
       await this.Vote2Repository.findParticipationsByDate(date);
 
-    // 확정(09:00)과 같은 기준으로 돌린다. 예전에는 3명 기준이라 미리보기에 보였던 조가
-    // 확정에서 인원 미달로 사라졌다 — 미리보기의 목적은 "이대로 가면 어떻게 되는지"이므로
-    // 기준이 달라선 안 된다.
+    // 미리보기는 3명부터 조를 만든다. 확정은 4명 기준이지만(doAlgorithm의 reducedCnt),
+    // 3명인 조도 하루 사이에 한 명만 더 들어오면 성사되므로 "개설 가능성"으로 보여 준다.
+    // 대신 인원이 4명 미만인 카드에는 프론트가 "확정(4명)까지 N명 남았어요"를 함께 적어,
+    // 미리보기가 확정으로 오해되지 않게 한다(StudyThumbnailCard).
+    const PREVIEW_MIN_GROUP_SIZE = 3;
+
     const { voteResults } = await this.doAlgorithm(
       participations,
-      undefined,
+      PREVIEW_MIN_GROUP_SIZE,
       injectedPlaces,
     );
 
@@ -1101,6 +1109,49 @@ export class Vote2Service {
     }
   }
 
+  /**
+   * 같은 날 realtime과 정규 매칭에 모두 들어간 인원을 한쪽으로만 편성한다.
+   *
+   * 제외 처리가 없어서 양쪽에 배정될 수 있었고, 한쪽은 자동으로 무단 불참이 되어
+   * 다음 날 01:10 배치에서 −2,000P를 맞았다.
+   *
+   * 규칙: 같은 좌표로 묶인 realtime 스터디가 3명 이상이면 realtime을 우선해
+   * 정규 매칭 신청에서 뺀다. 3명 미만이면 정규 매칭을 우선해 realtime 등록을 뺀다.
+   *
+   * 양쪽에 걸친 사람만 건드린다 — realtime만 한 사람은 그대로 둔다.
+   * 3명 미만 그룹에서 인원이 빠지면 남은 사람의 스터디도 줄어들 수 있는데,
+   * 애초에 성사되기 어려운 인원이라 정규 매칭으로 보내는 쪽이 낫다고 본다.
+   */
+  private async resolveRealtimeOverlap(date: string, vote2: Vote2) {
+    const REALTIME_PRIORITY_MIN_SIZE = 3;
+
+    const groups = await this.RealtimeService.getPlaceGroups(date);
+    if (!groups.length) return;
+
+    const participationIds = new Set(
+      (vote2.participations ?? []).map((participation) =>
+        toId(participation.userId),
+      ),
+    );
+
+    const removeFromRealtime: string[] = [];
+
+    for (const group of groups) {
+      const overlap = group.userIds.filter((userId) =>
+        participationIds.has(toId(userId)),
+      );
+      if (!overlap.length) continue;
+
+      if (group.userIds.length >= REALTIME_PRIORITY_MIN_SIZE) {
+        overlap.forEach((userId) => vote2.removeParticipationByUserId(userId));
+      } else {
+        removeFromRealtime.push(...overlap);
+      }
+    }
+
+    await this.RealtimeService.removeUsers(date, removeFromRealtime);
+  }
+
   async setResult(date: string) {
     try {
       const today = DateUtils.getTodayYYYYMMDD();
@@ -1110,6 +1161,16 @@ export class Vote2Service {
       const isToday = targetDate === today;
 
       const vote2 = await this.Vote2Repository.findByDate(targetDate);
+
+      // 신청 배지는 realtime 우선으로 빠지기 전 명단으로 준다. realtime 쪽으로
+      // 편성됐더라도 정규 매칭 신청은 실제로 했기 때문이다.
+      const appliedUserIds = (vote2.participations ?? []).map((participation) =>
+        toId(participation.userId),
+      );
+
+      if (isToday) {
+        await this.resolveRealtimeOverlap(targetDate, vote2);
+      }
 
       //투표 결과 계산 시작
       const participations: IParticipation[] = vote2.participations;
@@ -1129,6 +1190,15 @@ export class Vote2Service {
       vote2.setResult(resultInstances);
 
       await this.Vote2Repository.save(vote2);
+
+      // 스터디 챌린지 배지 — 신청만 해도 1개(매칭 실패도 포함), 날짜당 1개.
+      // 여기서 주면 재신청·취소를 반복해도 그날 명단 기준으로 한 번만 지급된다.
+      // 과거 날짜를 다시 계산할 때 중복 지급되지 않도록 오늘만 지급한다.
+      if (isToday) {
+        for (const userId of appliedUserIds) {
+          await this.userServiceInstance.addStudyBadgeById(userId);
+        }
+      }
 
       // for (let participation of participations) {
       //   await this.userServiceInstance.updatePointById(
@@ -1174,8 +1244,19 @@ export class Vote2Service {
 
     const vote = await this.Vote2Repository.findByDate(date);
 
-    vote.updateResult(token.id, start, end);
+    // 예정 시작 시각이 지난 뒤 시작을 더 뒤로 미루면 지각과 같은 기준으로 차감한다.
+    // 이게 없으면 출석 직전에 시간만 미뤄 지각 벌금을 피할 수 있다.
+    const lateMinutes = vote.updateResult(token.id, start, end);
+
     await this.Vote2Repository.save(vote);
+
+    const point = getLatePenalty(lateMinutes);
+    if (!point) return;
+
+    const message = '스터디 시작 시간 지연 변경';
+    await this.userServiceInstance.updatePoint(point, message);
+
+    return { point, message };
   }
 
   async getFilteredVoteOne(date: string) {
@@ -1219,7 +1300,7 @@ export class Vote2Service {
 
 
     const isArriveBefore = vote.isVoteBefore(token.id);
-    const isLate = vote.isLate(token.id);
+    const lateMinutes = vote.getLateMinutes(token.id);
     let point = 0;
 
     await this.userServiceInstance.updateScore(
@@ -1231,24 +1312,24 @@ export class Vote2Service {
       getStudyMinutesUntil(end),
     );
 
-    if (isArriveBefore) {
-      point = isLate
-        ? CONST.POINT.STUDY_ATTEND_BEFORE() + CONST.POINT.LATE
-        : CONST.POINT.STUDY_ATTEND_BEFORE();
-      await this.userServiceInstance.updatePoint(
-        point,
-        `스터디 출석 ${isLate ? '(지각)' : ''}`,
-        'study',
-      );
+    // 스터디 챌린지 배지 — 출석 1개. 중복 출석은 위에서 이미 막혀 있다.
+    await this.userServiceInstance.addStudyBadgeById(toId(token.id));
 
-      return {
-        point,
-        message: `스터디 출석 ${isLate ? '(지각)' : ''}`,
-      };
+    // 지각 벌금은 늦은 시간에 비례한다(100P + 1시간마다 100P). 신청자·당일 참여자
+    // 모두 같은 기준으로 적용한다.
+    const latePenalty = getLatePenalty(lateMinutes);
+    const lateSuffix = latePenalty ? ' (지각)' : '';
+
+    if (isArriveBefore) {
+      point = CONST.POINT.STUDY_ATTEND_BEFORE() + latePenalty;
+      const message = `스터디 출석${lateSuffix}`;
+      await this.userServiceInstance.updatePoint(point, message, 'study');
+
+      return { point, message };
     } else {
       // 미리 신청하지 않고 당일 합류한 경우. 신청자보다 적게 받는다.
-      point = CONST.POINT.STUDY_ATTEND_AFTER();
-      const message = '스터디 당일 참여';
+      point = CONST.POINT.STUDY_ATTEND_AFTER() + latePenalty;
+      const message = `스터디 당일 참여${lateSuffix}`;
       await this.userServiceInstance.updatePoint(point, message, 'study');
 
       return { point, message };

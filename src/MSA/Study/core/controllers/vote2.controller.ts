@@ -33,6 +33,14 @@ export class Vote2Controller {
     return filteredVote;
   }
 
+  // ':date' 패턴보다 먼저 선언해야 날짜로 해석되지 않는다.
+  @Get('badge-ranking')
+  async getStudyBadgeRanking(@Query('limit') limit?: string): Promise<any> {
+    return await this.voteService2.getStudyBadgeRanking(
+      limit ? Number(limit) : undefined,
+    );
+  }
+
   // ':date' 패턴보다 먼저 선언해야 'record'가 날짜로 해석되지 않는다.
   @Get('record')
   async getAttendRecord(
@@ -305,9 +313,14 @@ export class Vote2Controller {
     @Body('end') end: string,
   ): Promise<any> {
     const { date } = req;
-    await this.voteService2.updateResult(date as string, start, end);
+    // 시작 시각이 지난 뒤 뒤로 미룬 경우 차감 결과({point, message})가 돌아온다.
+    const result = await this.voteService2.updateResult(
+      date as string,
+      start,
+      end,
+    );
 
-    return 'success';
+    return result ?? 'success';
   }
 
   @Post(':date/arrive')

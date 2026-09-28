@@ -60,33 +60,65 @@ export class Realtime {
   }
 
   /**
-   * 예정 시작 시각보다 60분 이상 늦게 출석했는지.
+   * 예정 시작 시각보다 몇 분 늦게 출석했는지. 늦지 않았거나 알 수 없으면 0.
+   * 벌금은 늦은 시간에 비례한다(getLatePenalty).
    *
    * time.start의 날짜는 믿지 않는다 — 개설 화면은 14일 뒤 날짜까지 고를 수 있는데
    * 프론트가 시각을 만들 때 오늘 날짜를 쓰므로, 미래 날짜 개설에는 개설한 날짜가
    * 박혀 있다. 절대 시각으로 비교하면 며칠 차이가 나 무조건 지각이 된다.
    *
    * 멤버를 못 찾으면 예전에는 throw했다. 판정이 안 될 뿐 출석 자체는 되어야 하므로
-   * Vote2.isLate와 같이 false를 돌려준다.
+   * Vote2.getLateMinutes와 같이 0을 돌려준다.
    */
-  public isLate(userId: string) {
-    const user = this.userList.find(
-      (u) => u.user.toString() === userId.toString(),
-    );
+  public getLateMinutes(userId: string): number {
+    const user = this.findUser(userId);
     if (!user?.arrived || !user?.time?.start) {
-      return false;
+      return 0;
     }
 
     const scheduledStart = this.getScheduledAt(user.time.start);
     if (!scheduledStart) {
-      return false;
+      return 0;
     }
 
-    const diffMinutes =
+    const diffMinutes = Math.floor(
       (new Date(user.arrived).getTime() - scheduledStart.getTime()) /
-      (60 * 1000);
+        (60 * 1000),
+    );
 
-    return diffMinutes >= 60;
+    return Math.max(diffMinutes, 0);
+  }
+
+  /**
+   * 참여 시간 변경. 예정 시작 시각이 지난 뒤 시작을 더 뒤로 미루면 지각과 같은
+   * 기준으로 벌금 대상이 된다. 지연된 분을 돌려준다(대상이 아니면 0).
+   */
+  public updateUserTimeWithLateCheck(
+    userId: string,
+    start: string,
+    end: string,
+  ): number {
+    const user = this.findUser(userId);
+    if (!user) {
+      throw new Error(`RealtimeUser not found: ${userId}`);
+    }
+
+    const now = new Date();
+    const prevStart = user.time?.start
+      ? this.getScheduledAt(user.time.start)
+      : null;
+    const nextStart = this.getScheduledAt(start);
+
+    const isDeferringAfterStart =
+      !!prevStart && !!nextStart && prevStart < now && nextStart > prevStart;
+
+    const lateMinutes = isDeferringAfterStart
+      ? Math.floor((now.getTime() - prevStart.getTime()) / (60 * 1000))
+      : 0;
+
+    user.time = new Time(start, end);
+
+    return Math.max(lateMinutes, 0);
   }
 
   public updateAbsence(userId: string, absence: boolean, message?: string) {
@@ -157,15 +189,6 @@ export class Realtime {
     }
     // Time 객체 교체
     user.heartCnt += 1;
-  }
-  updateUserTime(userId: string, start: string, end: string): void {
-    const user = this.userList.find((u) => u.user.toString() === userId);
-
-    if (!user) {
-      throw new Error(`RealtimeUser not found: ${userId}`);
-    }
-    // Time 객체 교체
-    user.time = new Time(start, end);
   }
 
   updateStatus(userId: string, status: string): void {

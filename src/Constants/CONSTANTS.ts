@@ -23,7 +23,11 @@ export const CONST = {
     STUDY_ATTEND_AFTER: () => getLowBiasedRandom(30, 500),
     REALTIME_ATTEND_SOLO: () => getLowBiasedRandom(30, 500),
     REALTIME_ATTEND_BEFORE: () => getLowBiasedRandom(20, 500),
-    LATE: -50,
+    // 지각 벌금. 예정 시작 시각으로부터 1시간까지는 무료, 그 뒤 1시간마다 100P씩.
+    // 출석 지각과 "시작 시각이 지난 뒤 시작을 더 뒤로 미루는 변경"에 같은 기준으로 적용한다
+    // (시간만 미루고 출석하면 지각을 회피할 수 있었다).
+    LATE_HOURLY: -100,
+    LATE_MAX: -1000,
     // realtime(직접 개설/참여) 당일 불참
     ABSENCE: -500,
     // 자동 매칭 당일 불참: 결과 확정(09:00) 시점 1,000P에서 시작해
@@ -46,4 +50,23 @@ export const getLowBiasedRandom = (min: number, max: number) => {
   const u = Math.random();
   const v = Math.pow(u, biasStrength);
   return Math.floor(min + (max - min) * v);
+};
+
+/** 지각 벌금이 붙기 시작하는 시점(분). 이 시간 이내는 무료. */
+const LATE_GRACE_MINUTES = 60;
+
+/**
+ * 지각 벌금(음수). 1시간까지는 무료, 그 뒤 1시간마다 100P씩 늘고 1,000P에서 멈춘다.
+ *
+ * - 0~59분 → 0
+ * - 60~119분 → −100P
+ * - 120~179분 → −200P
+ * - 10시간 이상 → −1,000P (상한)
+ */
+export const getLatePenalty = (minutesLate: number): number => {
+  if (!minutesLate || minutesLate < LATE_GRACE_MINUTES) return 0;
+
+  const hours = Math.floor(minutesLate / 60);
+
+  return Math.max(CONST.POINT.LATE_MAX, hours * CONST.POINT.LATE_HOURLY);
 };

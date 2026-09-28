@@ -147,8 +147,13 @@ export class RealtimeController {
     @Next() next: NextFunction,
   ) {
     const { date } = req;
-    await this.realtimeService.patchVote(start, end, date as string);
-    return res.status(HttpStatus.OK).end();
+    // 시작 시각이 지난 뒤 뒤로 미룬 경우 차감 결과({point, message})가 돌아온다.
+    const result = await this.realtimeService.patchVote(
+      start,
+      end,
+      date as string,
+    );
+    return res.status(HttpStatus.OK).json(result ?? null);
   }
 
   //todo:route명 수정

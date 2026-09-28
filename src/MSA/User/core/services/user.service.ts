@@ -12,6 +12,7 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
 import { logger } from 'src/logger';
+import { STUDY_BADGE_PRIZE_START_MONTH } from 'src/MSA/Store/core/services/prize.service';
 import NoticeService from 'src/MSA/Notice/core/services/notice.service';
 import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
 import PlaceService from 'src/MSA/Place/core/services/place.service';
@@ -375,6 +376,56 @@ export class UserService {
     });
     return;
   }
+  /**
+   * 스터디 챌린지 배지 지급.
+   *
+   * 정규 매칭 신청(09:00 배치)과 스터디 출석에서 각각 1개씩 준다.
+   * 배치에서도 부르므로 토큰을 읽지 않고 userId를 직접 받는다.
+   */
+  async addStudyBadgeById(userId: string, count = 1) {
+    if (!userId || count <= 0) return;
+
+    await this.UserRepository.incrementStudyBadge(userId, count);
+  }
+
+  /**
+   * 스터디 배지 랭킹. 상품 구간이 50등까지라 기본 50명을 내려주고,
+   * 내 순위는 목록 밖이어도 따로 계산해 붙인다.
+   */
+  async getStudyBadgeRanking(limit = 50) {
+    const token = RequestContext.getDecodedToken();
+
+    const ranking = await this.UserRepository.findStudyBadgeRanking(limit);
+
+    // findByUid는 도메인 User로 매핑해서 studyBadge를 잃는다. 전용 조회를 쓴다.
+    const { monthCnt: myBadgeCnt, lastAt: myLastAt } =
+      await this.UserRepository.findStudyBadgeByUid(token.uid);
+
+    const myRank = myBadgeCnt
+      ? (await this.UserRepository.countStudyBadgeAbove(
+          myBadgeCnt,
+          myLastAt,
+        )) + 1
+      : null;
+
+    return {
+      ranking: ranking.map((user: any, idx: number) => ({
+        rank: idx + 1,
+        user: {
+          _id: user._id,
+          uid: user.uid,
+          name: user.name,
+          profileImage: user.profileImage,
+          avatar: user.avatar,
+          role: user.role,
+        },
+        badgeCnt: user.studyBadge?.monthCnt ?? 0,
+      })),
+      myRank,
+      myBadgeCnt,
+    };
+  }
+
   async updateStudyRecord(type: 'study' | 'solo', diffMinutes: number) {
     const token = RequestContext.getDecodedToken();
 
@@ -1031,8 +1082,25 @@ export class UserService {
 
       await this.prizeService.processMonthPrize();
 
+      // 스터디 스탬프 랭킹은 반드시 초기화 전에 정산한다.
+      //
+      // 첫 정산(2026-10-01)은 건너뛴다. 스탬프 적립이 2026-09 말에 배포돼 한 달치
+      // 데이터가 없고, 이 경로는 이용권·기프티콘·포인트를 실제로 지급하므로
+      // 검증 없이 첫 달을 돌리지 않는다. 2026-11-01부터 정산한다.
+      // 초기화(resetStudyBadge)는 건너뛰지 않는다 — 10월을 빈 상태로 시작해야 한다.
+      if (dayjs().format('YYYY-MM') >= STUDY_BADGE_PRIZE_START_MONTH) {
+        await this.prizeService.processStudyBadgePrize();
+      } else {
+        logger?.info('스터디 스탬프 정산 건너뜀(첫 달)', {
+          type: 'point',
+          sub: '스터디 스탬프 랭킹',
+          value: dayjs().format('YYYY-MM'),
+        });
+      }
+
       await this.UserRepository.resetMonthScore();
       await this.UserRepository.resetMonthStudyRecord();
+      await this.UserRepository.resetStudyBadge();
 
       uids.forEach((tempUid) => {
         const point = -1000;
@@ -1104,10 +1172,12 @@ export class UserService {
       random === 0
         ? '이번주 카공 같이 할 사람? ✨'
         : '공부도 하고, 상품도 GET! 💰';
+    // 목요일 20시 발송이라 "다음 주"가 아니라 이번 주말을 가리켜야 한다.
+    // "신청만 해도 포인트"는 실제로 지급되지 않아(STUDY_ALL_RESULT는 주석 처리됨) 뺐다.
     const description =
       random === 0
         ? '근처에 있는 멤버들이 스터디 기다리고 있어요! 지금 신청하고 같이 카공해요!'
-        : '스터디 신청만 해도 포인트가 와르르 🎁 다음 주 함께 공부할 멤버를 찾고 있어요 🚀';
+        : '출석만 해도 포인트가 와르르 🎁 이번 주 함께 공부할 멤버를 찾고 있어요 🚀';
 
     await this.fcmServiceInstance.sendNotificationUserIds(
       userIds,

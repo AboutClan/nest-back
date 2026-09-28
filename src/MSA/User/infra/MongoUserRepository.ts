@@ -30,12 +30,17 @@ export class UserRepository implements IUserRepository {
     return this.mapToDomain(user);
   }
 
+  /**
+   * 스터디 신청 독려 푸시(매주 목 20:00) 대상 — 스터디에 한 번이라도 참여한 사람.
+   *
+   * 예전에는 `accumulationMinutes >= 2` 조건도 함께 봤다. 그 필드가 원래
+   * solo 인증 횟수를 담고 있어서(분 필드에 횟수가 들어가는 버그) "개인 인증 2회 이상"을
+   * 뜻했는데, 필드 의미를 바로잡은 뒤로는 "2분 이상 공부"가 되어 사실상 전체 유저가
+   * 걸렸다. 누적 참여 횟수만 본다.
+   */
   async findAllForStudyEngage() {
     return await this.UserModel.find({
-      $or: [
-        { 'studyRecord.accumulationMinutes': { $gte: 2 } },
-        { 'studyRecord.accumulationCnt': { $gte: 2 } },
-      ],
+      'studyRecord.accumulationCnt': { $gte: 1 },
       'notificationConsent.cafe': true,
     })
       .select('_id uid studyRecord')
@@ -300,6 +305,69 @@ export class UserRepository implements IUserRepository {
 
   async resetMonthScore() {
     await this.UserModel.updateMany({}, { monthScore: 0 });
+  }
+
+  /**
+   * 스터디 챌린지 배지 지급. 도메인 User를 거치지 않고 $inc로만 다룬다.
+   * lastAt은 동점자 정렬용이라 지급할 때마다 갱신한다.
+   */
+  async incrementStudyBadge(userId: string, count = 1) {
+    await this.UserModel.updateOne(
+      { _id: userId },
+      {
+        $inc: { 'studyBadge.monthCnt': count },
+        $set: { 'studyBadge.lastAt': new Date() },
+      },
+    );
+  }
+
+  /**
+   * 스터디 배지 랭킹. 배지 수 내림차순, 같으면 먼저 달성한 사람이 상위.
+   * lastAt이 없는(옛 데이터) 경우는 뒤로 밀린다.
+   */
+  async findStudyBadgeRanking(limit: number) {
+    return await this.UserModel.find({ 'studyBadge.monthCnt': { $gt: 0 } })
+      // 프론트 Avatar가 avatar·role까지 읽으므로 함께 내려준다.
+      .select('_id uid name profileImage avatar role studyBadge')
+      .sort({ 'studyBadge.monthCnt': -1, 'studyBadge.lastAt': 1 })
+      .limit(limit)
+      .lean();
+  }
+
+  /**
+   * 내 배지 현황. findByUid는 도메인 User로 매핑해 돌려주는데 studyBadge는
+   * 도메인에 없는 필드라 그 경로로는 읽을 수 없다(항상 undefined).
+   */
+  async findStudyBadgeByUid(uid: string) {
+    const user = await this.UserModel.findOne({ uid })
+      .select('studyBadge')
+      .lean();
+
+    return {
+      monthCnt: (user as any)?.studyBadge?.monthCnt ?? 0,
+      lastAt: (user as any)?.studyBadge?.lastAt ?? null,
+    };
+  }
+
+  /** 나보다 상위인 사람 수. 내 순위는 여기에 1을 더한 값이다. */
+  async countStudyBadgeAbove(monthCnt: number, lastAt: Date | null) {
+    return await this.UserModel.countDocuments({
+      $or: [
+        { 'studyBadge.monthCnt': { $gt: monthCnt } },
+        {
+          'studyBadge.monthCnt': monthCnt,
+          'studyBadge.lastAt': { $lt: lastAt ?? new Date() },
+        },
+      ],
+    });
+  }
+
+  /** 매월 1일 정산 후 초기화. lastAt도 비워 다음 달 동점 정렬이 섞이지 않게 한다. */
+  async resetStudyBadge() {
+    await this.UserModel.updateMany(
+      {},
+      { $set: { 'studyBadge.monthCnt': 0, 'studyBadge.lastAt': null } },
+    );
   }
 
   /**

@@ -22,6 +22,11 @@ export interface IUserRepository {
   processTicket(whiteList: any);
   resetMonthScore();
   resetMonthStudyRecord();
+  incrementStudyBadge(userId: string, count?: number);
+  findStudyBadgeByUid(uid: string);
+  findStudyBadgeRanking(limit: number);
+  countStudyBadgeAbove(monthCnt: number, lastAt: Date | null);
+  resetStudyBadge();
   findByUidProjection(
     uid: string,
     projection?: string,
