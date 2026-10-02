@@ -528,10 +528,28 @@ export class UserService {
       throw new Error();
 
     try {
-      this.updateUser({ role });
+      if (role === 'secede') await this.resetPointOnSecede();
+      await this.updateUser({ role });
     } catch (err: any) {
       throw new Error(err);
     }
+  }
+
+  // 회원 탈퇴 시 남은 포인트를 0으로 만들고 소멸분을 포인트 로그로 남긴다.
+  private async resetPointOnSecede() {
+    const token = RequestContext.getDecodedToken();
+    const user = await this.UserRepository.findByUid(token.uid);
+    const remaining = user?.point ?? 0;
+    if (remaining <= 0) return;
+
+    await this.UserRepository.updateUser(token.uid, { point: 0 });
+
+    logger?.info('회원 탈퇴 포인트 소멸', {
+      type: 'point',
+      sub: 'secede',
+      uid: token.uid,
+      value: -remaining,
+    });
   }
 
   async setRest(info: Omit<restType, 'restCnt' | 'cumulativeSum'>) {

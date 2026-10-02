@@ -222,11 +222,11 @@ export default class RegisterService {
     const { _id, __v, ...registeredFields } = user.toObject();
 
     // 추천인이 동아리 관계자(CLUB_UIDS)이거나 운영진(manager/previliged)이라
-    // 가입비 전액 할인을 받은 경우, 포인트 충전분까지 포함해 1,000만 포인트를 지급한다.
+    // 가입비 전액 할인을 받은 경우 3,000포인트를 지급한다.
     const isFullFeeWaiverReferral = await this.isFullFeeWaiverReferrer(
       referrerUid,
     );
-    const depositPoint = isFullFeeWaiverReferral ? 10_000_000 : 5000;
+    const depositPoint = isFullFeeWaiverReferral ? 3000 : 5000;
 
     userForm = {
       ...registeredFields,
