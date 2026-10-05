@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DatabaseModule } from 'src/Database/database.module';
+// AppModule과 같은 순서로 UserModule을 먼저 불러온다. Vote2Module부터 불러오면 모듈 파일 사이의
+// 순환 import 때문에 NoticeModule이 undefined로 잡혀 컨텍스트가 뜨지 않는다.
+import { UserModule } from 'src/MSA/User/user.module';
 import { Vote2Service } from 'src/MSA/Study/core/services/vote2.service';
 import { Vote2Module } from 'src/MSA/Study/vote2.module';
 
@@ -16,7 +19,12 @@ import { Vote2Module } from 'src/MSA/Study/vote2.module';
  *   npm run study:seed-dummy
  */
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, Vote2Module],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    UserModule,
+    Vote2Module,
+  ],
 })
 class SeedStudyDummyModule {}
 
@@ -30,6 +38,8 @@ async function main() {
   } finally {
     await app.close();
   }
+  // Redis 등 열린 연결이 남아 프로세스가 끝나지 않으므로 명시적으로 종료한다.
+  process.exit(0);
 }
 
 main().catch((err) => {
