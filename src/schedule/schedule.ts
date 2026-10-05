@@ -105,6 +105,26 @@ export class NotificationScheduler {
     }
   }
 
+  // 스터디 가짜 신청자 시딩 (내일~이번 주 끝). 9시 매칭과 겹치지 않게 자정 직후에 돈다.
+  @Cron('0 10 0 * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async seedStudyDummy() {
+    const name = SCHEDULE_CONST.SEED_STUDY_DUMMY;
+    const flag = DateUtils.getTodayYYYYMMDD();
+    const log = await this.findLogByFlagAndName(flag, name);
+    if (log) {
+      return;
+    }
+    try {
+      await this.vote2Service.seedDummyParticipations();
+      await this.logSchedule(name, 'success', flag);
+    } catch (error) {
+      await this.logSchedule(name, 'failure', flag, error);
+      throw new Error(error);
+    }
+  }
+
   // //매주 groupStudy 초기화
   // @Cron('0 0 0 * * 1', {
   //   // 매주 월요일 0시 0분

@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { Vote2 } from '../core/domain/Vote2/Vote2';
 import { Member } from '../core/domain/Vote2/Vote2Member';
@@ -92,6 +92,30 @@ export class Vote2Repository implements IVote2Repository {
     await this.Vote2Model.updateOne({ date: vote2.date }, dbObj, {
       upsert: true,
     });
+  }
+
+  // save()는 participations 배열을 통째로 갈아끼워, 읽은 뒤 저장 사이에 들어온 다른
+  // 유저의 신청을 지울 수 있다. 가짜 신청자 시딩·철수는 이 두 메서드로만 바꾼다.
+  async pushParticipations(date: string, participations: any[]) {
+    if (!participations.length) return;
+    await this.Vote2Model.updateOne(
+      { date },
+      { $push: { participations: { $each: participations } } },
+    );
+  }
+
+  async pullParticipations(date: string, userIds: string[]) {
+    if (!userIds.length) return;
+    await this.Vote2Model.updateOne(
+      { date },
+      {
+        $pull: {
+          participations: {
+            userId: { $in: userIds.map((id) => new Types.ObjectId(id)) },
+          },
+        },
+      },
+    );
   }
 
   async findParticipationsByDate(date: string) {

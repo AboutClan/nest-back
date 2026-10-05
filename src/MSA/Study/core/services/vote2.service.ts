@@ -1,6 +1,10 @@
 import { Inject } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
+import { Model } from 'mongoose';
 import { CONST, getLatePenalty } from 'src/Constants/CONSTANTS';
+import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
 import { AppError } from 'src/errors/AppError';
 import { PlaceRepository } from 'src/MSA/Place/core/interfaces/place.repository.interface';
@@ -9,7 +13,11 @@ import { UserService } from 'src/MSA/User/core/services/user.service';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { RequestContext } from 'src/request-context';
 import { ClusterUtils } from 'src/utils/ClusterUtils';
-import { DateUtils, getStudyMinutesUntil } from 'src/utils/Date';
+import {
+  DateUtils,
+  getScheduledAtOnDate,
+  getStudyMinutesUntil,
+} from 'src/utils/Date';
 import { IPLACE_REPOSITORY, IVOTE2_REPOSITORY } from 'src/utils/di.tokens';
 import ImageService from '../../../../routes/imagez/image.service';
 import { FcmService } from '../../../Notification/core/services/fcm.service';
@@ -31,6 +39,113 @@ import { IVote2Repository } from '../interfaces/Vote2Repository.interface';
 // 유저가 지정할 수 있는 매칭 기준점 최대 개수. 프론트 UI와 맞춰져 있다.
 const MAX_ANCHORS = 2;
 
+/**
+ * 가짜 신청자(시딩).
+ *
+ * "어차피 안 열릴 것 같아서" 신청하지 않는 문제 때문에, 지역별 대표 장소에 가짜 신청자를
+ * 미리 넣어 라운지 인원과 9시 전 미리보기("오픈 예정" 조)가 보이게 한다.
+ *
+ * - 지역별 인원: 최근 LOOKBACK_DAYS 동안 그 지역 근처 실제 신청이 많을수록 많이(1~3명).
+ *
+ * - 실제 신청자만으로 확정 기준(5명, 미달 시 4명) 조가 만들어지면 그 조 근처 가짜는 빠진다.
+ * - 09:00 매칭 직전에는 남은 가짜를 전부 지운다. 가짜가 실제 조에 배정되는 일은 없다.
+ * - 가짜는 role 'dummy' User이고 uid 접두사로 다른 도메인의 dummy와 구분한다.
+ */
+const DUMMY_STUDY_UID_PREFIX = 'dummy_study_';
+const DUMMY_SEED = {
+  LOOKBACK_DAYS: 28, // 지역 인기를 잴 때 보는 기간
+  POPULARITY_RADIUS_KM: 3, // 이 반경 안의 신청을 그 지역 신청으로 센다
+  PER_SPOT_MIN: 1, // 신청이 적은(없는) 지역
+  PER_SPOT_MAX: 3, // 신청이 가장 많은 지역
+  POOL_SIZE: 30, // 재사용할 가짜 유저 수. 지역 수 × PER_SPOT_MAX 이상이어야 한다.
+  EPS: 2, // 가짜 신청자의 매칭 반경(km)
+  START_HOURS: ['12:00', '13:00', '14:00'],
+  END_HOURS: ['17:00', '18:00', '19:00'],
+};
+/**
+ * 지역별 대표 장소. 프론트 STUDY_CREW_REGION_LOCATION_MAPPING
+ * (about-web constants/service/study/place.ts)과 같은 값이다. 바꾸면 양쪽을 같이 고친다.
+ * address는 프론트가 두 번째 토큰(구)을 지역 배지로 쓰므로 구까지 적는다.
+ */
+const DUMMY_SEED_REGIONS = [
+  {
+    name: '수원·용인',
+    address: '경기도 수원시 팔달구 인계동',
+    latitude: 37.26424,
+    longitude: 127.030092,
+  },
+  {
+    name: '강남·서초',
+    address: '서울특별시 강남구',
+    latitude: 37.496193,
+    longitude: 127.030907,
+  },
+  {
+    name: '건대·왕십리',
+    address: '서울특별시 성동구',
+    latitude: 37.54024,
+    longitude: 127.070525,
+  },
+  {
+    name: '마포·영등포',
+    address: '서울특별시 마포구',
+    latitude: 37.557795,
+    longitude: 126.923103,
+  },
+  {
+    name: '노원구',
+    address: '서울특별시 노원구 상계동',
+    latitude: 37.65399,
+    longitude: 127.058,
+  },
+  {
+    name: '성북구',
+    address: '서울특별시 성북구',
+    latitude: 37.590298,
+    longitude: 127.018552,
+  },
+  {
+    name: '인천',
+    address: '인천광역시',
+    latitude: 37.4563,
+    longitude: 126.7052,
+  },
+  {
+    name: '사당·관악구',
+    address: '서울특별시 관악구',
+    latitude: 37.478163,
+    longitude: 126.959432,
+  },
+];
+const DUMMY_NAMES = [
+  '김민서',
+  '이도윤',
+  '박서연',
+  '최지호',
+  '정하은',
+  '강준우',
+  '조유진',
+  '윤지민',
+  '장서준',
+  '임수아',
+  '한예준',
+  '오지아',
+  '서현우',
+  '신채원',
+  '권도현',
+  '황다인',
+  '안시우',
+  '송지유',
+  '류건우',
+  '홍나연',
+  '전은호',
+  '고서윤',
+  '문하준',
+  '양소율',
+];
+const pickRandom = <T>(arr: T[]): T =>
+  arr[Math.floor(Math.random() * arr.length)];
+
 export class Vote2Service {
   constructor(
     @Inject(IVOTE2_REPOSITORY)
@@ -41,6 +156,7 @@ export class Vote2Service {
     private readonly userServiceInstance: UserService,
     private readonly fcmServiceInstance: FcmService,
     private readonly imageServiceInstance: ImageService,
+    @InjectModel(DB_SCHEMA.USER) private readonly User: Model<IUser>,
   ) {}
 
   formatMember(member: IMember) {
@@ -431,6 +547,8 @@ export class Vote2Service {
     vote2.setOrUpdateParticipation(voteData);
 
     await this.Vote2Repository.save(vote2);
+
+    await this.withdrawDummiesIfReady(date);
 
     // 초대는 다른 사람이 대신 신청시키는 것이라, 알리지 않으면 초대받은 사람이
     // 신청된 사실 자체를 알 수 없다. 주간 초대(setVoteWithArr)는 날짜마다 여기를
@@ -1152,6 +1270,254 @@ export class Vote2Service {
     await this.RealtimeService.removeUsers(date, removeFromRealtime);
   }
 
+  // ---------- 가짜 신청자(시딩) — 상단 DUMMY_SEED 주석 참고 ----------
+
+  private async getDummyStudyUserIds(): Promise<Set<string>> {
+    const users = await this.User.find({
+      uid: { $regex: `^${DUMMY_STUDY_UID_PREFIX}` },
+    })
+      .select('_id')
+      .lean();
+    return new Set(users.map((user) => user._id.toString()));
+  }
+
+  /** 가짜 유저를 POOL_SIZE만큼 확보한다. 날짜마다 새로 만들지 않고 재사용한다. */
+  private async ensureDummyStudyPool(): Promise<string[]> {
+    const ids = [...(await this.getDummyStudyUserIds())];
+
+    for (let i = ids.length; i < DUMMY_SEED.POOL_SIZE; i++) {
+      const year = 95 + Math.floor(Math.random() * 9); // 95~03년생
+      const birth = `${String(year % 100).padStart(2, '0')}0${1 + Math.floor(Math.random() * 9)}15`;
+      const user = await this.User.create({
+        uid: `${DUMMY_STUDY_UID_PREFIX}${randomUUID()}`,
+        name: DUMMY_NAMES[i % DUMMY_NAMES.length],
+        gender: Math.random() < 0.5 ? '남성' : '여성',
+        birth,
+        role: 'dummy',
+        isActive: false,
+        avatar: {
+          type: Math.floor(Math.random() * 13),
+          bg: Math.floor(Math.random() * 10),
+        },
+      });
+      ids.push(user._id.toString());
+    }
+
+    return ids;
+  }
+
+  /**
+   * 지역별 대표 장소와 넣을 가짜 인원.
+   *
+   * 인기는 최근 LOOKBACK_DAYS 동안 그 장소 POPULARITY_RADIUS_KM 안에 기준점이 있는 실제 신청 수다
+   * (날짜·유저 조합 기준, 가짜는 9시에 지워지므로 과거 문서에 없다). 가장 많은 지역이 PER_SPOT_MAX명,
+   * 나머지는 비율대로 줄고, 신청이 없어도 PER_SPOT_MIN명은 넣는다.
+   */
+  private async getDummySeedSpots() {
+    const today = DateUtils.getTodayYYYYMMDD();
+    const startDay = dayjs(today)
+      .subtract(DUMMY_SEED.LOOKBACK_DAYS, 'day')
+      .format('YYYY-MM-DD');
+    const docs = await this.Vote2Repository.getVoteByPeriod(startDay, today);
+
+    const scored = DUMMY_SEED_REGIONS.map((region) => {
+      const applied = new Set<string>();
+      for (const doc of docs) {
+        for (const participation of doc.participations ?? []) {
+          const anchors = Vote2Service.normalizeAnchors(
+            participation.anchors,
+            participation.latitude,
+            participation.longitude,
+          );
+          const distance = ClusterUtils.minDistanceToAnchors(
+            anchors,
+            region.latitude,
+            region.longitude,
+          );
+          if (distance <= DUMMY_SEED.POPULARITY_RADIUS_KM) {
+            applied.add(`${doc.date}:${toId(participation.userId)}`);
+          }
+        }
+      }
+      return { ...region, score: applied.size };
+    });
+
+    const maxScore = Math.max(1, ...scored.map((region) => region.score));
+    return scored.map((region) => ({
+      ...region,
+      count: Math.min(
+        DUMMY_SEED.PER_SPOT_MAX,
+        Math.max(
+          DUMMY_SEED.PER_SPOT_MIN,
+          Math.round((DUMMY_SEED.PER_SPOT_MAX * region.score) / maxScore),
+        ),
+      ),
+    }));
+  }
+
+  /** 가짜 기준점이 이 지점(카페) 위치에 있는가. */
+  private static isAnchoredAt(
+    anchors: IAnchor[] | undefined,
+    spot: { latitude: number; longitude: number },
+  ) {
+    return (anchors ?? []).some(
+      (a) =>
+        ClusterUtils.haversineDistance(
+          +a.latitude,
+          +a.longitude,
+          spot.latitude,
+          spot.longitude,
+        ) < 0.5,
+    );
+  }
+
+  /**
+   * populate된 userId로 가짜 신청자인지 본다. C_SIMPLE_USER에 uid가 들어 있어
+   * User를 따로 조회하지 않아도 된다. populate 안 된 값(ObjectId)이면 false.
+   */
+  private static isStudyDummy(userId: unknown) {
+    const uid = (userId as { uid?: string } | null)?.uid;
+    return typeof uid === 'string' && uid.startsWith(DUMMY_STUDY_UID_PREFIX);
+  }
+
+  /**
+   * 내일부터 7일 뒤까지, 지역별 대표 장소마다 인기에 비례해 가짜 신청자를 1~3명 넣는다
+   * (매일 00:10 배치). 이미 가짜가 있거나, 실제 인원만으로 그 근처 조가 만들어지는 날짜·지역은 건너뛴다.
+   * 오늘은 넣지 않는다 — 9시에 바로 지워질 가짜라 의미가 없다.
+   *
+   * 날짜는 KST로 직접 만든다. getWeekDate()는 프로세스 TZ를 따라서, 서버가 UTC면
+   * 00:10 KST가 전날로 잡혀 오늘에 가짜가 들어간다.
+   */
+  async seedDummyParticipations() {
+    const places = await this.PlaceRepository.findForVote2();
+    const spots = await this.getDummySeedSpots();
+
+    const poolIds = await this.ensureDummyStudyPool();
+    const todayKst = dayjs().tz('Asia/Seoul');
+    const dates = Array.from({ length: 7 }, (_, i) =>
+      todayKst.add(i + 1, 'day').format('YYYY-MM-DD'),
+    );
+
+    for (const date of dates) {
+      // 문서가 없으면 만든다(아직 아무도 조회하지 않은 +7일 등).
+      await this.Vote2Repository.findParticipationsByDate(date);
+      const vote2 = await this.Vote2Repository.findByDate(date);
+      if (!vote2 || vote2.results.length) continue;
+
+      const realParticipations = vote2.participations.filter(
+        (p) => !Vote2Service.isStudyDummy(p.userId),
+      );
+      const dummyParticipations = vote2.participations.filter((p) =>
+        Vote2Service.isStudyDummy(p.userId),
+      );
+      const { voteResults: realGroups } = await this.doAlgorithm(
+        realParticipations as unknown as IParticipation[],
+        undefined,
+        places,
+      );
+
+      const usedIds = new Set(vote2.participations.map((p) => toId(p.userId)));
+      const available = poolIds
+        .filter((id) => !usedIds.has(id))
+        .sort(() => Math.random() - 0.5);
+
+      const toPush = [];
+      for (const spot of spots) {
+        const alreadySeeded = dummyParticipations.some((p) =>
+          Vote2Service.isAnchoredAt(p.anchors, spot),
+        );
+        const realGroupNearby = realGroups.some(
+          (group) =>
+            ClusterUtils.haversineDistance(
+              group.center.lat,
+              group.center.lon,
+              spot.latitude,
+              spot.longitude,
+            ) <=
+            DUMMY_SEED.EPS + 0.1,
+        );
+        if (alreadySeeded || realGroupNearby) continue;
+
+        for (const userId of available.splice(0, spot.count)) {
+          // 프론트는 locationDetail을 주소로 보고 두 번째 토큰(구)을 지역 배지로 쓴다.
+          toPush.push({
+            userId,
+            latitude: spot.latitude,
+            longitude: spot.longitude,
+            anchors: [
+              {
+                latitude: spot.latitude,
+                longitude: spot.longitude,
+                locationDetail: spot.address,
+              },
+            ],
+            locationDetail: spot.address,
+            eps: DUMMY_SEED.EPS,
+            isBeforeResult: true,
+            // 이 문서 날짜(KST)의 시각으로 바로 만든다(setOrUpdateParticipation의 앵커링과 같은 결과).
+            start: getScheduledAtOnDate(
+              date,
+              pickRandom(DUMMY_SEED.START_HOURS),
+            ).toISOString(),
+            end: getScheduledAtOnDate(
+              date,
+              pickRandom(DUMMY_SEED.END_HOURS),
+            ).toISOString(),
+          });
+        }
+      }
+
+      // save()로 문서 전체를 다시 쓰면 그 사이 들어온 신청이 지워질 수 있어 $push로 넣는다.
+      await this.Vote2Repository.pushParticipations(date, toPush);
+    }
+  }
+
+  /**
+   * 실제 신청자만으로 확정 기준 조가 만들어지면, 그 조 카페에 닿는 가짜 신청자를 뺀다.
+   * 신청·시간 변경 직후에 부른다. 실패해도 신청 자체는 성공해야 하므로 에러를 삼킨다.
+   */
+  private async withdrawDummiesIfReady(date: string) {
+    try {
+      const vote2 = await this.Vote2Repository.findByDate(date);
+      if (!vote2 || vote2.results.length) return;
+
+      const dummyParticipations = vote2.participations.filter((p) =>
+        Vote2Service.isStudyDummy(p.userId),
+      );
+      if (!dummyParticipations.length) return;
+
+      const realParticipations = vote2.participations.filter(
+        (p) => !Vote2Service.isStudyDummy(p.userId),
+      );
+      // defaultStandardCnt를 넘기지 않으면 확정과 같은 기준(5명, 미달 시 4명)이다.
+      const { voteResults: realGroups } = await this.doAlgorithm(
+        realParticipations as unknown as IParticipation[],
+      );
+      if (!realGroups.length) return;
+
+      const toRemove = dummyParticipations.filter((p) =>
+        realGroups.some(
+          (group) =>
+            ClusterUtils.minDistanceToAnchors(
+              p.anchors ?? [],
+              group.center.lat,
+              group.center.lon,
+            ) <=
+            (p.eps ?? DUMMY_SEED.EPS) + 0.1,
+        ),
+      );
+
+      // save()로 문서 전체를 다시 쓰면 그 사이 들어온 다른 유저의 신청이 지워지거나
+      // 취소한 신청이 되살아날 수 있어 $pull로 가짜만 뺀다.
+      await this.Vote2Repository.pullParticipations(
+        date,
+        toRemove.map((p) => toId(p.userId)),
+      );
+    } catch (err) {
+      console.log('withdrawDummiesIfReady failed', err);
+    }
+  }
+
   async setResult(date: string) {
     try {
       const today = DateUtils.getTodayYYYYMMDD();
@@ -1161,6 +1527,15 @@ export class Vote2Service {
       const isToday = targetDate === today;
 
       const vote2 = await this.Vote2Repository.findByDate(targetDate);
+
+      // 가짜 신청자는 미리보기용이다. 매칭·배지·알림 어디에도 들어가면 안 되므로
+      // 가장 먼저 지운다(아래 save로 함께 저장된다).
+      vote2.participations
+        .filter((participation) =>
+          Vote2Service.isStudyDummy(participation.userId),
+        )
+        .map((participation) => toId(participation.userId))
+        .forEach((userId) => vote2.removeParticipationByUserId(userId));
 
       // 신청 배지는 realtime 우선으로 빠지기 전 명단으로 준다. realtime 쪽으로
       // 편성됐더라도 정규 매칭 신청은 실제로 했기 때문이다.
@@ -1237,6 +1612,9 @@ export class Vote2Service {
 
     vote.updateParticipation(token.id, start, end);
     await this.Vote2Repository.save(vote);
+
+    // 시간을 바꾸면 겹치는 인원이 생겨 실제 인원만으로 조가 만들어질 수 있다.
+    await this.withdrawDummiesIfReady(date);
   }
 
   async updateResult(date: string, start: string, end: string) {

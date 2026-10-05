@@ -9,6 +9,10 @@ export interface IVote2Repository {
   getVoteByPeriod(startDay: string, endDay: string);
   findAllUserIdsAfterDate(date: string): Promise<string[]>;
   findMineById(userId: string): Promise<Vote2[]>;
+  /** participations에 원자적으로 추가한다(문서 전체를 다시 쓰지 않는다). */
+  pushParticipations(date: string, participations: any[]): Promise<void>;
+  /** participations에서 원자적으로 뺀다(문서 전체를 다시 쓰지 않는다). */
+  pullParticipations(date: string, userIds: string[]): Promise<void>;
   getCrewStatsRaw(
     userIds: string[],
     startDay: string,
