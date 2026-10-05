@@ -45,7 +45,10 @@ const MAX_ANCHORS = 2;
  * "어차피 안 열릴 것 같아서" 신청하지 않는 문제 때문에, 지역별 대표 장소에 가짜 신청자를
  * 미리 넣어 라운지 인원과 9시 전 미리보기("오픈 예정" 조)가 보이게 한다.
  *
- * - 지역별 인원: 최근 LOOKBACK_DAYS 동안 그 지역 근처 실제 신청이 많을수록 많이(1~3명).
+ * - 실제 신청이 많은 상위 ACTIVE_REGION_COUNT개 지역에만 넣는다. 인기 1위 지역 PER_SPOT_MAX명,
+ *   나머지는 비율대로(최소 1명). 그 밖의 지역은 0명.
+ * - 지역마다 "단골" 가짜 REGULARS_PER_REGION명을 고정해 두고, 날짜마다 그중 일부를 돌아가며 쓴다.
+ *   무작위로 뽑으면 일주일 동안 서로 다른 가짜가 쌓여 라운지 인원이 크게 부풀었다.
  *
  * - 실제 신청자만으로 확정 기준(5명, 미달 시 4명) 조가 만들어지면 그 조 근처 가짜는 빠진다.
  * - 09:00 매칭 직전에는 남은 가짜를 전부 지운다. 가짜가 실제 조에 배정되는 일은 없다.
@@ -55,9 +58,14 @@ const DUMMY_STUDY_UID_PREFIX = 'dummy_study_';
 const DUMMY_SEED = {
   LOOKBACK_DAYS: 28, // 지역 인기를 잴 때 보는 기간
   POPULARITY_RADIUS_KM: 3, // 이 반경 안의 신청을 그 지역 신청으로 센다
-  PER_SPOT_MIN: 1, // 신청이 적은(없는) 지역
-  PER_SPOT_MAX: 3, // 신청이 가장 많은 지역
-  POOL_SIZE: 30, // 재사용할 가짜 유저 수. 지역 수 × PER_SPOT_MAX 이상이어야 한다.
+  // 지역마다 이 간격의 날짜에만 넣는다(3이면 사흘에 한 번, 주 2~3일). 매일 스터디가 예정돼 보일 필요는 없고,
+  // 지역마다 시작 날짜를 어긋나게 해 같은 날 여러 지역이 한꺼번에 차지 않게 한다.
+  DAY_INTERVAL: 3,
+  ACTIVE_REGION_COUNT: 3, // 가짜를 넣는 지역 수(실제 신청 많은 순). 라운지 가짜 인원 상한 = 이 값 × REGULARS_PER_REGION
+  PER_SPOT_MIN: 1, // 가짜를 넣는 지역의 최소 인원
+  PER_SPOT_MAX: 2, // 신청이 가장 많은 지역
+  REGULARS_PER_REGION: 2, // 지역별 고정 가짜 수. 날짜마다 이 안에서 돌아가며 쓴다.
+  POOL_SIZE: 30, // 재사용할 가짜 유저 수. 지역 수 × REGULARS_PER_REGION 이상이어야 한다.
   EPS: 2, // 가짜 신청자의 매칭 반경(km)
   START_HOURS: ['12:00', '13:00', '14:00'],
   END_HOURS: ['17:00', '18:00', '19:00'],
@@ -1311,7 +1319,7 @@ export class Vote2Service {
    *
    * 인기는 최근 LOOKBACK_DAYS 동안 그 장소 POPULARITY_RADIUS_KM 안에 기준점이 있는 실제 신청 수다
    * (날짜·유저 조합 기준, 가짜는 9시에 지워지므로 과거 문서에 없다). 가장 많은 지역이 PER_SPOT_MAX명,
-   * 나머지는 비율대로 줄고, 신청이 없어도 PER_SPOT_MIN명은 넣는다.
+   * 나머지는 비율대로 줄어 신청이 적은 지역은 0명이 될 수 있다.
    */
   private async getDummySeedSpots() {
     const today = DateUtils.getTodayYYYYMMDD();
@@ -1343,15 +1351,25 @@ export class Vote2Service {
     });
 
     const maxScore = Math.max(1, ...scored.map((region) => region.score));
+    // 실제 신청이 있는 지역 중 상위 ACTIVE_REGION_COUNT곳만 가짜를 받는다.
+    const activeNames = new Set(
+      [...scored]
+        .filter((region) => region.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, DUMMY_SEED.ACTIVE_REGION_COUNT)
+        .map((region) => region.name),
+    );
     return scored.map((region) => ({
       ...region,
-      count: Math.min(
-        DUMMY_SEED.PER_SPOT_MAX,
-        Math.max(
-          DUMMY_SEED.PER_SPOT_MIN,
-          Math.round((DUMMY_SEED.PER_SPOT_MAX * region.score) / maxScore),
-        ),
-      ),
+      count: !activeNames.has(region.name)
+        ? 0
+        : Math.min(
+            DUMMY_SEED.PER_SPOT_MAX,
+            Math.max(
+              DUMMY_SEED.PER_SPOT_MIN,
+              Math.round((DUMMY_SEED.PER_SPOT_MAX * region.score) / maxScore),
+            ),
+          ),
     }));
   }
 
@@ -1381,9 +1399,14 @@ export class Vote2Service {
   }
 
   /**
-   * 내일부터 7일 뒤까지, 지역별 대표 장소마다 인기에 비례해 가짜 신청자를 1~3명 넣는다
-   * (매일 00:10 배치). 이미 가짜가 있거나, 실제 인원만으로 그 근처 조가 만들어지는 날짜·지역은 건너뛴다.
-   * 오늘은 넣지 않는다 — 9시에 바로 지워질 가짜라 의미가 없다.
+   * 내일부터 7일 뒤까지, 지역별 대표 장소의 가짜 신청자를 "원하는 상태"로 맞춘다(매일 00:10 배치).
+   *
+   * - 지역 i의 단골은 정렬한 풀의 [i×R, (i+1)×R) 구간(R = REGULARS_PER_REGION)으로 고정한다.
+   * - 날짜마다 단골 중 count명을 날짜 순번만큼 밀어 가며 고른다. 같은 지역은 같은 얼굴이
+   *   자주 겹치고(실제 단골처럼), 지역을 합쳐도 가짜 인원이 지역 수 × R을 넘지 않는다.
+   * - 실제 인원만으로 그 근처 조가 만들어지는 날짜·지역은 가짜를 두지 않는다.
+   * - 원하는 상태와 다른 가짜(예전 방식으로 들어간 것 포함)는 빼고, 빠진 것만 넣는다.
+   * - 오늘은 건드리지 않는다 — 9시에 어차피 지워진다.
    *
    * 날짜는 KST로 직접 만든다. getWeekDate()는 프로세스 TZ를 따라서, 서버가 UTC면
    * 00:10 KST가 전날로 잡혀 오늘에 가짜가 들어간다.
@@ -1392,7 +1415,8 @@ export class Vote2Service {
     const places = await this.PlaceRepository.findForVote2();
     const spots = await this.getDummySeedSpots();
 
-    const poolIds = await this.ensureDummyStudyPool();
+    const poolIds = (await this.ensureDummyStudyPool()).sort();
+    const R = DUMMY_SEED.REGULARS_PER_REGION;
     const todayKst = dayjs().tz('Asia/Seoul');
     const dates = Array.from({ length: 7 }, (_, i) =>
       todayKst.add(i + 1, 'day').format('YYYY-MM-DD'),
@@ -1416,16 +1440,10 @@ export class Vote2Service {
         places,
       );
 
-      const usedIds = new Set(vote2.participations.map((p) => toId(p.userId)));
-      const available = poolIds
-        .filter((id) => !usedIds.has(id))
-        .sort(() => Math.random() - 0.5);
+      // 날짜마다 단골을 한 칸씩 밀어서 고른다(dayjs 일수 기준이라 날짜가 같으면 늘 같은 결과).
+      const dayIndex = dayjs(date).diff(dayjs('2026-01-01'), 'day');
 
-      const toPush = [];
-      for (const spot of spots) {
-        const alreadySeeded = dummyParticipations.some((p) =>
-          Vote2Service.isAnchoredAt(p.anchors, spot),
-        );
+      const desired = spots.flatMap((spot, regionIdx) => {
         const realGroupNearby = realGroups.some(
           (group) =>
             ClusterUtils.haversineDistance(
@@ -1436,38 +1454,64 @@ export class Vote2Service {
             ) <=
             DUMMY_SEED.EPS + 0.1,
         );
-        if (alreadySeeded || realGroupNearby) continue;
+        if (realGroupNearby || !spot.count) return [];
+        if ((dayIndex + regionIdx) % DUMMY_SEED.DAY_INTERVAL !== 0) return [];
 
-        for (const userId of available.splice(0, spot.count)) {
+        const regulars = poolIds.slice(regionIdx * R, (regionIdx + 1) * R);
+        return Array.from(
+          { length: Math.min(spot.count, regulars.length) },
+          (_, k) => ({
+            userId: regulars[(dayIndex + k) % regulars.length],
+            spot,
+          }),
+        );
+      });
+
+      const isWanted = (p: (typeof dummyParticipations)[number]) =>
+        desired.some(
+          (d) =>
+            d.userId === toId(p.userId) &&
+            Vote2Service.isAnchoredAt(p.anchors, d.spot),
+        );
+      const toPull = dummyParticipations
+        .filter((p) => !isWanted(p))
+        .map((p) => toId(p.userId));
+
+      const kept = new Set(
+        dummyParticipations
+          .filter((p) => isWanted(p))
+          .map((p) => toId(p.userId)),
+      );
+      const toPush = desired
+        .filter((d) => !kept.has(d.userId))
+        .map(({ userId, spot }) => ({
+          userId,
+          latitude: spot.latitude,
+          longitude: spot.longitude,
           // 프론트는 locationDetail을 주소로 보고 두 번째 토큰(구)을 지역 배지로 쓴다.
-          toPush.push({
-            userId,
-            latitude: spot.latitude,
-            longitude: spot.longitude,
-            anchors: [
-              {
-                latitude: spot.latitude,
-                longitude: spot.longitude,
-                locationDetail: spot.address,
-              },
-            ],
-            locationDetail: spot.address,
-            eps: DUMMY_SEED.EPS,
-            isBeforeResult: true,
-            // 이 문서 날짜(KST)의 시각으로 바로 만든다(setOrUpdateParticipation의 앵커링과 같은 결과).
-            start: getScheduledAtOnDate(
-              date,
-              pickRandom(DUMMY_SEED.START_HOURS),
-            ).toISOString(),
-            end: getScheduledAtOnDate(
-              date,
-              pickRandom(DUMMY_SEED.END_HOURS),
-            ).toISOString(),
-          });
-        }
-      }
+          anchors: [
+            {
+              latitude: spot.latitude,
+              longitude: spot.longitude,
+              locationDetail: spot.address,
+            },
+          ],
+          locationDetail: spot.address,
+          eps: DUMMY_SEED.EPS,
+          isBeforeResult: true,
+          // 이 문서 날짜(KST)의 시각으로 바로 만든다(setOrUpdateParticipation의 앵커링과 같은 결과).
+          start: getScheduledAtOnDate(
+            date,
+            pickRandom(DUMMY_SEED.START_HOURS),
+          ).toISOString(),
+          end: getScheduledAtOnDate(
+            date,
+            pickRandom(DUMMY_SEED.END_HOURS),
+          ).toISOString(),
+        }));
 
-      // save()로 문서 전체를 다시 쓰면 그 사이 들어온 신청이 지워질 수 있어 $push로 넣는다.
+      // save()로 문서 전체를 다시 쓰면 그 사이 들어온 신청이 지워질 수 있어 $pull/$push로만 바꾼다.
+      await this.Vote2Repository.pullParticipations(date, toPull);
       await this.Vote2Repository.pushParticipations(date, toPush);
     }
   }
