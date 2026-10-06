@@ -215,6 +215,17 @@ const makeDummyProfile = () => ({
     studyTool: pickRandomFrom(DUMMY_STUDY_TOOLS),
   },
 });
+/**
+ * 가짜 유저의 스터디 출석 횟수(목록의 🔥 배지 = studyRecord.accumulationCnt). 모두 0이면 티가 나서
+ * 0~5 사이로 둔다. 배치가 돌 때마다 바뀌면 어색하므로 유저 id로 정해 늘 같은 값이 나오게 한다.
+ */
+const DUMMY_ATTEND_MAX = 5;
+const dummyAttendCnt = (userId: string) => {
+  let hash = 0;
+  for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return hash % (DUMMY_ATTEND_MAX + 1);
+};
+
 const DUMMY_NAMES = [
   '김민서',
   '이도윤',
@@ -1541,6 +1552,14 @@ export class Vote2Service {
       await this.User.updateOne(
         { _id: dummy._id },
         { $set: makeDummyProfile() },
+      );
+    }
+
+    // 출석 횟수 배지. 값이 유저 id로 정해지므로 매번 덮어써도 같은 값이다(새로 만든 유저도 여기서 채워진다).
+    for (const id of ids) {
+      await this.User.updateOne(
+        { _id: id },
+        { $set: { 'studyRecord.accumulationCnt': dummyAttendCnt(id) } },
       );
     }
 
