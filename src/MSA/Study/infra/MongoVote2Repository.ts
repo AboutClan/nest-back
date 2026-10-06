@@ -177,6 +177,15 @@ export class Vote2Repository implements IVote2Repository {
     }[];
   }
 
+  async getRegionActivityRaw(startDay: string) {
+    return this.Vote2Model.find({ date: { $gte: startDay } })
+      .select(
+        'date participations.userId participations.locationDetail results.placeId results.members.userId results.members.arrived results.members.absence',
+      )
+      .populate({ path: 'results.placeId', select: 'location.address' })
+      .lean();
+  }
+
   async findAllUserIdsAfterDate(date: string): Promise<string[]> {
     const db = await this.Vote2Model.find({ date: { $gte: date } });
     return db

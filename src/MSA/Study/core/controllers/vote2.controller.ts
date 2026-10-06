@@ -41,6 +41,12 @@ export class Vote2Controller {
     );
   }
 
+  // 라운지 "지역 멤버" 탭. ':date' 패턴보다 먼저 선언해야 날짜로 해석되지 않는다.
+  @Get('region-members')
+  async getRegionMembers(): Promise<any> {
+    return await this.voteService2.getRegionMembers();
+  }
+
   // ':date' 패턴보다 먼저 선언해야 'record'가 날짜로 해석되지 않는다.
   @Get('record')
   async getAttendRecord(

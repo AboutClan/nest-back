@@ -125,6 +125,90 @@ const DUMMY_SEED_REGIONS = [
     longitude: 126.959432,
   },
 ];
+/**
+ * 가짜 유저 프로필. 실제 회원은 한 줄 소개와 공부 스타일(과목·스타일·도구)을 갖고 있어서,
+ * 비어 있으면 라운지 목록에서 "코멘트 없음"으로 티가 났다. 값 형식은 프론트 공부 스타일 설문
+ * (about-web StudyIntroduceDrawer)이 저장하는 문자열과 같아야 태그가 제대로 그려진다.
+ */
+const DUMMY_COMMENTS = [
+  '편하게 말 걸어주세요, 잘 부탁드려요!',
+  '조용히 집중하는 편이에요',
+  '같이 공부할 사람 환영해요',
+  '이번 주 목표는 꼭 끝내기!',
+  '카공 자주 다녀요 :)',
+  '잘 부탁드립니다!',
+  '쉬는 시간엔 수다도 좋아요',
+  '꾸준히 나오려고 해요',
+];
+const DUMMY_SUBJECTS = [
+  '코딩',
+  '전공 공부',
+  '취업 준비',
+  '토익',
+  '자격증',
+  '독서',
+  '개인 업무',
+  '과제',
+  '외국어 공부',
+];
+const DUMMY_STUDY_STYLES = [
+  '[쉬엄쉬엄] 공부하다가 편하게 대화해도 좋아요!',
+  '[밸런스] 공부할 땐 집중하고, 중간중간 쉬면서 대화하는 걸 좋아해요.',
+  '[몰입형] 적당한 대화도 좋지만, 개인 작업에 더 집중하는 걸 선호해요.',
+];
+const DUMMY_STUDY_TOOLS = [
+  '노트북 위주로 사용해요',
+  '책, 필기도구 위주로 사용해요',
+];
+/**
+ * 지역 멤버 탭의 묶음 단위. 구 단위로 나누면 1~2명짜리 구가 수십 개 생겨서, 서울은 생활권으로,
+ * 서울 밖은 광역(경기 남부·북부, 인천)으로 묶는다. 순서는 의미 없다(인원 순으로 다시 정렬한다).
+ */
+const SEOUL_ZONES: Record<string, string[]> = {
+  '강남·서초': ['강남구', '서초구'],
+  '송파·강동': ['송파구', '강동구'],
+  '관악·동작': ['관악구', '동작구'],
+  '영등포·강서': ['영등포구', '구로구', '금천구', '양천구', '강서구'],
+  '마포·서대문·은평': ['마포구', '서대문구', '은평구'],
+  '종로·중구·용산': ['종로구', '중구', '용산구'],
+  '성동·광진': ['성동구', '광진구'],
+  '성북·동대문·중랑': ['성북구', '동대문구', '중랑구'],
+  '노원·도봉·강북': ['노원구', '도봉구', '강북구'],
+};
+const GYEONGGI_SOUTH = [
+  '수원시', '용인시', '성남시', '화성시', '안양시', '군포시', '의왕시', '과천시', '오산시',
+  '평택시', '안산시', '시흥시', '광명시', '부천시', '하남시', '광주시', '이천시',
+];
+function toStudyZone(address?: string): string | null {
+  const [city, district] = (address ?? '').trim().split(/\s+/);
+  if (!city) return null;
+  if (city.startsWith('서울')) {
+    const zone = Object.entries(SEOUL_ZONES).find(([, gus]) =>
+      gus.includes(district),
+    );
+    return zone ? zone[0] : '서울 기타';
+  }
+  if (city.startsWith('경기')) {
+    return GYEONGGI_SOUTH.includes(district) ? '경기 남부' : '경기 북부·동부';
+  }
+  // "수원시 팔달구"처럼 도 이름 없이 시로 시작하는 주소도 있다.
+  if (GYEONGGI_SOUTH.includes(city)) return '경기 남부';
+  if (city.startsWith('인천')) return '인천';
+  // 수도권 밖(부산·천안 등). 주소가 비어 있으면 위에서 null로 빠진다.
+  return '기타 지역';
+}
+
+function pickRandomFrom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+const makeDummyProfile = () => ({
+  comment: pickRandomFrom(DUMMY_COMMENTS),
+  studyIntroduce: {
+    subject: pickRandomFrom(DUMMY_SUBJECTS),
+    studyStyle: pickRandomFrom(DUMMY_STUDY_STYLES),
+    studyTool: pickRandomFrom(DUMMY_STUDY_TOOLS),
+  },
+});
 const DUMMY_NAMES = [
   '김민서',
   '이도윤',
@@ -250,6 +334,131 @@ export class Vote2Service {
   /** 스터디 배지 랭킹(이번 달). 상품 구간이 50등까지라 기본 50명. */
   async getStudyBadgeRanking(limit?: number) {
     return await this.userServiceInstance.getStudyBadgeRanking(limit);
+  }
+
+  /**
+   * 라운지 "지역 멤버" 탭(스터디 크루 대체).
+   *
+   * 스터디를 한 번이라도 신청한 사람을 신청 주소의 구(예: "강남구") 단위로 묶고, 활동 순으로 정렬한다.
+   * 활동 점수 = 신청 수 + 출석 수 × 2, 같으면 최근 활동이 앞. 출석은 확정 스터디 카페의 구로 센다.
+   * 이번 주(오늘 이후)에 신청이 있으면 isApplying으로 표시한다. 가짜 신청자도 포함한다
+   * (신청 기록이 있으므로). 상세 정보가 아니라 "구마다 누가 있는지" 한눈에 보는 용도라
+   * 아바타·이름만 내려 준다.
+   */
+  async getRegionMembers() {
+    // 최근 90일 안에 신청 기록이 있는 사람만(프론트 탭 상단 안내와 같은 기준).
+    // 오래전에 한 번 신청하고 떠난 사람까지 넣으면 동네가 실제보다 활발해 보였다.
+    const REGION_ACTIVITY_DAYS = 90;
+    const today = dayjs().tz('Asia/Seoul').format('YYYY-MM-DD');
+    const REGION_ACTIVITY_START = dayjs(today)
+      .subtract(REGION_ACTIVITY_DAYS, 'day')
+      .format('YYYY-MM-DD');
+    const docs = await this.Vote2Repository.getRegionActivityRaw(
+      REGION_ACTIVITY_START,
+    );
+
+    const toRegion = (address?: string) => toStudyZone(address);
+
+    type Activity = {
+      applyCnt: number;
+      attendCnt: number;
+      lastDate: string;
+    };
+    // region → userId → 활동
+    const byRegion = new Map<string, Map<string, Activity>>();
+    const applying = new Set<string>();
+
+    const touch = (regionName: string | null, userId: string, date: string) => {
+      if (!regionName || !userId) return null;
+      if (!byRegion.has(regionName)) byRegion.set(regionName, new Map());
+      const users = byRegion.get(regionName);
+      if (!users.has(userId)) {
+        users.set(userId, { applyCnt: 0, attendCnt: 0, lastDate: date });
+      }
+      const activity = users.get(userId);
+      if (date > activity.lastDate) activity.lastDate = date;
+      return activity;
+    };
+
+    for (const doc of docs) {
+      for (const participation of doc.participations ?? []) {
+        const userId = toId(participation.userId);
+        const activity = touch(
+          toRegion(participation.locationDetail),
+          userId,
+          doc.date,
+        );
+        if (activity) activity.applyCnt += 1;
+        if (doc.date >= today) applying.add(userId);
+      }
+      for (const result of doc.results ?? []) {
+        const placeRegion = toRegion(
+          (result.placeId as { location?: { address?: string } })?.location
+            ?.address,
+        );
+        for (const member of result.members ?? []) {
+          if (!member.arrived || member.absence) continue;
+          const activity = touch(placeRegion, toId(member.userId), doc.date);
+          if (activity) activity.attendCnt += 1;
+        }
+      }
+    }
+
+    // 모든 지역을 멤버 많은 순으로. 프론트가 "+N"을 누르면 전부 펼치므로 지역별 멤버를 모두 내려 준다
+    // (최근 90일 신청자라 수가 많지 않고, 아바타·이름만 보낸다).
+    // 순서: 이번 주 신청 중 → 활동 점수(신청 + 출석×2) → 최근 활동.
+    const rankedByRegion = Array.from(byRegion.entries())
+      .map(([name, users]) => ({
+        name,
+        count: users.size,
+        ranked: Array.from(users.entries())
+          .map(([userId, activity]) => ({
+            userId,
+            lastDate: activity.lastDate,
+            score: activity.applyCnt + activity.attendCnt * 2,
+            isApplying: applying.has(userId),
+          }))
+          .sort(
+            (a, b) =>
+              Number(b.isApplying) - Number(a.isApplying) ||
+              b.score - a.score ||
+              b.lastDate.localeCompare(a.lastDate),
+          ),
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const userIds = Array.from(
+      new Set(rankedByRegion.flatMap((r) => r.ranked.map((m) => m.userId))),
+    );
+    const users = await this.User.find({
+      _id: { $in: userIds },
+      role: { $ne: 'secede' },
+    })
+      .select('_id name nickname avatar profileImage role uid')
+      .lean();
+    const userById = new Map(users.map((u) => [u._id.toString(), u]));
+
+    // 인원 수는 실제로 내려 주는 멤버(탈퇴 제외) 기준으로 센다. 신청 기록 기준으로 세면
+    // 제목은 "29명"인데 펼치면 27명처럼 어긋났다.
+    const regions = rankedByRegion
+      .map(({ name, ranked }) => {
+        const members = ranked
+          .filter((m) => userById.has(m.userId))
+          .map((m) => ({
+            user: userById.get(m.userId),
+            isApplying: m.isApplying,
+          }));
+        return {
+          name,
+          count: members.length,
+          applyingCount: members.filter((m) => m.isApplying).length,
+          members,
+        };
+      })
+      .filter((region) => region.count > 0)
+      .sort((a, b) => b.count - a.count);
+
+    return { regions };
   }
 
   async getMine() {
@@ -1307,8 +1516,26 @@ export class Vote2Service {
           type: Math.floor(Math.random() * 13),
           bg: Math.floor(Math.random() * 10),
         },
+        ...makeDummyProfile(),
       });
       ids.push(user._id.toString());
+    }
+
+    // 프로필 없이 만들어진 예전 가짜 유저는 한 번 채운다(이미 채워졌으면 건드리지 않는다).
+    const bareDummies = await this.User.find({
+      uid: { $regex: `^${DUMMY_STUDY_UID_PREFIX}` },
+      $or: [
+        { 'studyIntroduce.studyStyle': { $in: ['', null] } },
+        { studyIntroduce: { $exists: false } },
+      ],
+    })
+      .select('_id')
+      .lean();
+    for (const dummy of bareDummies) {
+      await this.User.updateOne(
+        { _id: dummy._id },
+        { $set: makeDummyProfile() },
+      );
     }
 
     return ids;
