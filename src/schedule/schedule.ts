@@ -125,6 +125,32 @@ export class NotificationScheduler {
     }
   }
 
+  // 스터디 가짜 신청자 점진 철수. 결과 발표 전날부터 매시간 떠날 시각이 지난 가짜를 뺀다.
+  @Cron('0 30 * * * *', {
+    timeZone: 'Asia/Seoul',
+  })
+  async thinStudyDummy() {
+    const name = SCHEDULE_CONST.THIN_STUDY_DUMMY;
+    // 매시간 돌므로 날짜+시로 중복 실행을 막는다.
+    const hourKst = new Date().toLocaleString('en-US', {
+      timeZone: 'Asia/Seoul',
+      hour: '2-digit',
+      hour12: false,
+    });
+    const flag = `${DateUtils.getTodayYYYYMMDD()}-${hourKst}`;
+    const log = await this.findLogByFlagAndName(flag, name);
+    if (log) {
+      return;
+    }
+    try {
+      await this.vote2Service.thinDummyParticipations();
+      await this.logSchedule(name, 'success', flag);
+    } catch (error) {
+      await this.logSchedule(name, 'failure', flag, error);
+      throw new Error(error);
+    }
+  }
+
   // //매주 groupStudy 초기화
   // @Cron('0 0 0 * * 1', {
   //   // 매주 월요일 0시 0분

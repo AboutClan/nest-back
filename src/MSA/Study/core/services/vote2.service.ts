@@ -69,6 +69,15 @@ const DUMMY_SEED = {
   // 미리보기 조는 3명부터 보이므로, 하루 한 곳쯤 "오픈 예정 · 확정까지 1명" 카드가 생긴다.
   // 가짜만으로는 확정 기준(4명)에 못 미쳐, 실제 신청자가 와야 열린다.
   FOCUS_COUNT: 3,
+  // 날짜가 멀수록 가짜를 줄인다(실제로도 가까운 날짜일수록 신청이 많다). 인원 × (1 - (남은 날 - 1) × 이 값)을 반올림.
+  // 0.12면 집중 지역 3명은 D+1~2 3명 → D+3~5 2명 → D+6~7 1명, 1명 지역은 D+6부터 0명.
+  // 배치가 매일 다시 맞추므로 날짜가 다가올수록 같은 얼굴에 사람이 한 명씩 붙는다.
+  DECAY_PER_DAY: 0.12,
+  // 결과 발표(당일 9시) LEAVE_WINDOW_HOURS 전부터 가짜가 한 명씩 신청을 취소한다. 사람마다 떠나는 시각은
+  // 유저·날짜로 정해져(1~이 값 시간 전) 매시간 배치(thinDummyParticipations)가 그 시각이 지난 가짜를 뺀다.
+  // 9시에 한꺼번에 사라지면 "확정까지 1명"을 보고 신청한 사람이 9시에 실패를 맞으므로, 전날부터 실제 인원이
+  // 드러나게 한다.
+  LEAVE_WINDOW_HOURS: 24,
   POOL_SIZE: 30, // 재사용할 가짜 유저 수. 지역 수 × REGULARS_PER_REGION 이상이어야 한다.
   EPS: 2, // 가짜 신청자의 매칭 반경(km)
   START_HOURS: ['12:00', '13:00', '14:00'],
@@ -207,14 +216,28 @@ function toStudyZone(address?: string): string | null {
 function pickRandomFrom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-const makeDummyProfile = () => ({
-  comment: pickRandomFrom(DUMMY_COMMENTS),
-  studyIntroduce: {
-    subject: pickRandomFrom(DUMMY_SUBJECTS),
-    studyStyle: pickRandomFrom(DUMMY_STUDY_STYLES),
-    studyTool: pickRandomFrom(DUMMY_STUDY_TOOLS),
-  },
-});
+/**
+ * k: 정렬된 가짜 풀에서의 순번. 연속한 3명은 소개(×3 mod 8)·과목(×4 mod 9)·스타일(mod 3)이 모두 다르다.
+ * k가 없으면(새로 만들 때) 임의로 고르고, 곧바로 ensureDummyStudyPool이 순번대로 덮어쓴다.
+ */
+const makeDummyProfile = (k?: number) =>
+  k === undefined
+    ? {
+        comment: pickRandomFrom(DUMMY_COMMENTS),
+        studyIntroduce: {
+          subject: pickRandomFrom(DUMMY_SUBJECTS),
+          studyStyle: pickRandomFrom(DUMMY_STUDY_STYLES),
+          studyTool: pickRandomFrom(DUMMY_STUDY_TOOLS),
+        },
+      }
+    : {
+        comment: DUMMY_COMMENTS[(k * 3) % DUMMY_COMMENTS.length],
+        studyIntroduce: {
+          subject: DUMMY_SUBJECTS[(k * 4) % DUMMY_SUBJECTS.length],
+          studyStyle: DUMMY_STUDY_STYLES[k % DUMMY_STUDY_STYLES.length],
+          studyTool: DUMMY_STUDY_TOOLS[Math.floor(k / 3) % DUMMY_STUDY_TOOLS.length],
+        },
+      };
 /**
  * 가짜 유저의 스터디 출석 횟수(목록의 🔥 배지 = studyRecord.accumulationCnt). 모두 0이면 티가 나서
  * 0~5 사이로 둔다. 배치가 돌 때마다 바뀌면 어색하므로 유저 id로 정해 늘 같은 값이 나오게 한다.
@@ -225,6 +248,18 @@ const dummyAttendCnt = (userId: string) => {
   for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
   return hash % (DUMMY_ATTEND_MAX + 1);
 };
+
+/** 이 가짜가 date 결과 발표 몇 시간 전에 떠나는지(1~LEAVE_WINDOW_HOURS). 유저·날짜가 같으면 늘 같다. */
+const dummyLeaveHours = (userId: string, date: string) => {
+  let hash = 0;
+  for (const ch of `${userId}:${date}`) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return 1 + (hash % DUMMY_SEED.LEAVE_WINDOW_HOURS);
+};
+/** date의 결과 발표(9시 KST)까지 남은 시간. */
+const hoursUntilResult = (date: string) =>
+  ((getScheduledAtOnDate(date, '09:00')?.getTime() ?? Date.now()) - Date.now()) / 3_600_000;
+const hasDummyLeft = (userId: string, date: string) =>
+  hoursUntilResult(date) <= dummyLeaveHours(userId, date);
 
 const DUMMY_NAMES = [
   '김민서',
@@ -1538,28 +1573,19 @@ export class Vote2Service {
       ids.push(user._id.toString());
     }
 
-    // 프로필 없이 만들어진 예전 가짜 유저는 한 번 채운다(이미 채워졌으면 건드리지 않는다).
-    const bareDummies = await this.User.find({
-      uid: { $regex: `^${DUMMY_STUDY_UID_PREFIX}` },
-      $or: [
-        { 'studyIntroduce.studyStyle': { $in: ['', null] } },
-        { studyIntroduce: { $exists: false } },
-      ],
-    })
-      .select('_id')
-      .lean();
-    for (const dummy of bareDummies) {
-      await this.User.updateOne(
-        { _id: dummy._id },
-        { $set: makeDummyProfile() },
-      );
-    }
-
-    // 출석 횟수 배지. 값이 유저 id로 정해지므로 매번 덮어써도 같은 값이다(새로 만든 유저도 여기서 채워진다).
-    for (const id of ids) {
+    // 프로필(소개·공부 스타일)과 출석 횟수 배지. 정렬된 풀 순서로 정해지므로 매번 덮어써도 같은 값이다.
+    // 지역별 고정 가짜는 정렬된 풀에서 연달아 REGULARS_PER_REGION명씩 잘라 쓰므로(seedDummyParticipations),
+    // 이웃한 순번끼리 소개·과목·스타일이 겹치지 않게 해 같은 조 안에서 같은 문구가 반복되지 않게 한다.
+    const sortedIds = [...ids].sort();
+    for (const [k, id] of sortedIds.entries()) {
       await this.User.updateOne(
         { _id: id },
-        { $set: { 'studyRecord.accumulationCnt': dummyAttendCnt(id) } },
+        {
+          $set: {
+            ...makeDummyProfile(k),
+            'studyRecord.accumulationCnt': dummyAttendCnt(id),
+          },
+        },
       );
     }
 
@@ -1658,6 +1684,8 @@ export class Vote2Service {
    *   자주 겹치고(실제 단골처럼), 지역을 합쳐도 가짜 인원이 지역 수 × R을 넘지 않는다.
    * - 실제 인원만으로 그 근처 조가 만들어지는 날짜·지역은 가짜를 두지 않는다.
    * - 원하는 상태와 다른 가짜(예전 방식으로 들어간 것 포함)는 빼고, 빠진 것만 넣는다.
+   * - 날짜가 멀수록 인원을 줄인다(DECAY_PER_DAY).
+   * - 이미 떠날 시각이 지난 가짜(hasDummyLeft)는 다시 넣지 않는다.
    * - 오늘은 건드리지 않는다 — 9시에 어차피 지워진다.
    *
    * 날짜는 KST로 직접 만든다. getWeekDate()는 프로세스 TZ를 따라서, 서버가 UTC면
@@ -1674,7 +1702,9 @@ export class Vote2Service {
       todayKst.add(i + 1, 'day').format('YYYY-MM-DD'),
     );
 
-    for (const date of dates) {
+    for (const [dateIdx, date] of dates.entries()) {
+      const daysAhead = dateIdx + 1;
+      const decay = Math.max(0, 1 - (daysAhead - 1) * DUMMY_SEED.DECAY_PER_DAY);
       // 문서가 없으면 만든다(아직 아무도 조회하지 않은 +7일 등).
       await this.Vote2Repository.findParticipationsByDate(date);
       const vote2 = await this.Vote2Repository.findByDate(date);
@@ -1719,14 +1749,18 @@ export class Vote2Service {
         }
 
         const regulars = poolIds.slice(regionIdx * R, (regionIdx + 1) * R);
-        const count = isFocus ? DUMMY_SEED.FOCUS_COUNT : spot.count;
+        // 단골 앞에서부터 count명을 쓰므로, 날짜가 다가와 count가 늘어도 이미 들어간 가짜는 그대로 남는다.
+        const count = Math.round(
+          (isFocus ? DUMMY_SEED.FOCUS_COUNT : spot.count) * decay,
+        );
+        if (!count) return [];
         return Array.from(
           { length: Math.min(count, regulars.length) },
           (_, k) => ({
             userId: regulars[(dayIndex + k) % regulars.length],
             spot,
           }),
-        );
+        ).filter((d) => !hasDummyLeft(d.userId, date));
       });
 
       const isWanted = (p: (typeof dummyParticipations)[number]) =>
@@ -1775,6 +1809,31 @@ export class Vote2Service {
       // save()로 문서 전체를 다시 쓰면 그 사이 들어온 신청이 지워질 수 있어 $pull/$push로만 바꾼다.
       await this.Vote2Repository.pullParticipations(date, toPull);
       await this.Vote2Repository.pushParticipations(date, toPush);
+    }
+  }
+
+  /**
+   * 결과 발표 전날부터 가짜를 한 명씩 뺀다(매시간 배치). 오늘(9시 전)과 내일 문서만 본다.
+   * 떠나는 시각은 dummyLeaveHours로 정해져 있어 몇 번을 돌려도 같은 결과다. 넣지는 않는다.
+   */
+  async thinDummyParticipations() {
+    const todayKst = dayjs().tz('Asia/Seoul');
+    const dates = [0, 1].map((i) =>
+      todayKst.add(i, 'day').format('YYYY-MM-DD'),
+    );
+    for (const date of dates) {
+      const vote2 = await this.Vote2Repository.findByDate(date);
+      if (!vote2 || vote2.results.length) continue;
+      const toPull = vote2.participations
+        .filter(
+          (p) =>
+            Vote2Service.isStudyDummy(p.userId) &&
+            hasDummyLeft(toId(p.userId), date),
+        )
+        .map((p) => toId(p.userId));
+      if (toPull.length) {
+        await this.Vote2Repository.pullParticipations(date, toPull);
+      }
     }
   }
 
