@@ -2261,36 +2261,35 @@ export class Vote2Service {
   }
 
   /**
-   * "내일 스터디 매칭이 예정되어 있어요" 알림(21:10).
+   * "내일 스터디가 오픈 예정이에요" 알림(21:10).
    *
-   * 예전에는 **오늘** 문서의 `results`를 대상으로 보냈다. 오늘 결과에 들어간 사람은
-   * 이미 오늘 스터디를 다녀온 사람이라, 내일 신청해 둔 사람에게는 알림이 가지 않고
-   * 엉뚱한 사람에게 "내일 예정"이라고 알리고 있었다. 링크의 date도 오늘이었다.
-   *
-   * 매칭은 당일 09:00에 돌기 때문에 내일의 `results`는 아직 없다. 따라서 대상은
-   * 내일 날짜에 신청해 둔 사람(`participations`)이다.
+   * 내일 신청자 전원에게 보내면 아직 아무 조도 없는 사람도 "예정"이라는 알림을 받는다.
+   * 그래서 지금 시점 실제 신청자만으로(가짜 제외) 9시 확정과 같은 기준(4명 이상)의 조가
+   * 만들어지는 사람, 즉 화면에서 [오픈 예정] 상태인 사람에게만 보낸다.
+   * 확정은 여전히 내일 9시이므로 문구도 "예정"으로 둔다.
    */
   async alertMatching() {
     const tomorrow = DateUtils.getTomorrowYYYYMMDD();
-    const vote = await this.Vote2Repository.findByDate(tomorrow, false);
-    if (!vote) return;
+    // isStudyDummy와 doAlgorithm 모두 userId가 populate돼 있어야 한다.
+    const vote = await this.Vote2Repository.findByDate(tomorrow);
+    if (!vote || vote.results.length) return;
 
-    // toId로 모아야 중복이 걸러진다. 예전에는 ObjectId 객체를 includes로 비교해
-    // 참조가 다르면 같은 사람도 중복으로 들어갔다.
-    const userIds = [
-      ...new Set(
-        (vote.participations ?? []).map((participation) =>
-          toId(participation.userId),
-        ),
-      ),
-    ].filter(Boolean);
+    const realParticipations = (vote.participations ?? []).filter(
+      (p) => !Vote2Service.isStudyDummy(p.userId),
+    );
+    if (!realParticipations.length) return;
 
+    // defaultStandardCnt를 넘기지 않으면 9시 확정과 같은 기준(5명, 미달 시 4명)이다.
+    const { successParticipations } = await this.doAlgorithm(
+      realParticipations as unknown as IParticipation[],
+    );
+    const userIds = [...new Set(successParticipations)].filter(Boolean);
     if (!userIds.length) return;
 
     await this.fcmServiceInstance.sendNotificationUserIds(
       userIds,
-      '스터디 예정 알림',
-      '내일 스터디 매칭이 예정되어 있어요!',
+      '스터디 오픈 예정 알림',
+      '내일 스터디가 오픈 예정이에요! 오전 9시에 최종 확정돼요.',
       `/studyPage?date=${tomorrow}`,
     );
   }
