@@ -64,7 +64,11 @@ const DUMMY_SEED = {
   ACTIVE_REGION_COUNT: 4, // 가짜를 넣는 지역 수(실제 신청 많은 순). 라운지 가짜 인원 상한 = 이 값 × REGULARS_PER_REGION
   PER_SPOT_MIN: 1, // 가짜를 넣는 지역의 최소 인원
   PER_SPOT_MAX: 2, // 신청이 가장 많은 지역
-  REGULARS_PER_REGION: 2, // 지역별 고정 가짜 수. 날짜마다 이 안에서 돌아가며 쓴다.
+  REGULARS_PER_REGION: 3, // 지역별 고정 가짜 수. FOCUS_COUNT 이상이어야 한다.
+  // 날마다 가짜를 넣는 지역 중 한 곳을 돌아가며 "집중 지역"으로 골라 이 인원을 넣는다.
+  // 미리보기 조는 3명부터 보이므로, 하루 한 곳쯤 "오픈 예정 · 확정까지 1명" 카드가 생긴다.
+  // 가짜만으로는 확정 기준(4명)에 못 미쳐, 실제 신청자가 와야 열린다.
+  FOCUS_COUNT: 3,
   POOL_SIZE: 30, // 재사용할 가짜 유저 수. 지역 수 × REGULARS_PER_REGION 이상이어야 한다.
   EPS: 2, // 가짜 신청자의 매칭 반경(km)
   START_HOURS: ['12:00', '13:00', '14:00'],
@@ -1672,6 +1676,12 @@ export class Vote2Service {
       // 날짜마다 단골을 한 칸씩 밀어서 고른다(dayjs 일수 기준이라 날짜가 같으면 늘 같은 결과).
       const dayIndex = dayjs(date).diff(dayjs('2026-01-01'), 'day');
 
+      // 오늘의 집중 지역: 가짜를 넣는 지역(count > 0)을 날짜마다 한 칸씩 돌아가며 고른다.
+      const activeNames = spots.filter((spot) => spot.count > 0).map((spot) => spot.name);
+      const focusName = activeNames.length
+        ? activeNames[dayIndex % activeNames.length]
+        : null;
+
       const desired = spots.flatMap((spot, regionIdx) => {
         const realGroupNearby = realGroups.some(
           (group) =>
@@ -1684,11 +1694,15 @@ export class Vote2Service {
             DUMMY_SEED.EPS + 0.1,
         );
         if (realGroupNearby || !spot.count) return [];
-        if ((dayIndex + regionIdx) % DUMMY_SEED.DAY_INTERVAL !== 0) return [];
+        const isFocus = spot.name === focusName;
+        if (!isFocus && (dayIndex + regionIdx) % DUMMY_SEED.DAY_INTERVAL !== 0) {
+          return [];
+        }
 
         const regulars = poolIds.slice(regionIdx * R, (regionIdx + 1) * R);
+        const count = isFocus ? DUMMY_SEED.FOCUS_COUNT : spot.count;
         return Array.from(
-          { length: Math.min(spot.count, regulars.length) },
+          { length: Math.min(count, regulars.length) },
           (_, k) => ({
             userId: regulars[(dayIndex + k) % regulars.length],
             spot,
