@@ -143,15 +143,22 @@ const DUMMY_SEED_REGIONS = [
  * 비어 있으면 라운지 목록에서 "코멘트 없음"으로 티가 났다. 값 형식은 프론트 공부 스타일 설문
  * (about-web StudyIntroduceDrawer)이 저장하는 문자열과 같아야 태그가 제대로 그려진다.
  */
+// 가입 화면 한 줄 소개 선택지(about-web constants/contentsText/ProfileData.ts MESSAGE_DATA)와 같은 문구.
+// 실제 회원도 이 중에서 고르므로 가짜만 튀지 않는다. 프론트 목록을 바꾸면 같이 바꾼다.
 const DUMMY_COMMENTS = [
+  '반가워요! 잘 부탁드립니다ㅎㅎ',
+  '이제 막 들어왔어요! 잘 부탁드립니다!',
   '편하게 말 걸어주세요, 잘 부탁드려요!',
-  '조용히 집중하는 편이에요',
-  '같이 공부할 사람 환영해요',
-  '이번 주 목표는 꼭 끝내기!',
-  '카공 자주 다녀요 :)',
-  '잘 부탁드립니다!',
-  '쉬는 시간엔 수다도 좋아요',
-  '꾸준히 나오려고 해요',
+  '다들 만나서 반가워요!',
+  '안녕하세요! 잘 부탁드립니다 :)',
+  '같이 스터디할 사람 환영!',
+  '열심히 하겠습니당☺',
+  '말 걸면 90% 확률로 답해요',
+  '활동 같이 하면서 친해져요!',
+  '조용한데 말 걸면 잘 받아줘요',
+  '다 같이 재밌게 놀아봐요!',
+  '참여 열심히 하겠습니다ㅎㅎ',
+  '새로운 사람 만나는 거 좋아해요',
 ];
 const DUMMY_SUBJECTS = [
   '코딩',
@@ -217,7 +224,7 @@ function pickRandomFrom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 /**
- * k: 정렬된 가짜 풀에서의 순번. 연속한 3명은 소개(×3 mod 8)·과목(×4 mod 9)·스타일(mod 3)이 모두 다르다.
+ * k: 정렬된 가짜 풀에서의 순번. 연속한 3명은 소개(×5 mod 13)·과목(×4 mod 9)·스타일(mod 3)이 모두 다르다.
  * k가 없으면(새로 만들 때) 임의로 고르고, 곧바로 ensureDummyStudyPool이 순번대로 덮어쓴다.
  */
 const makeDummyProfile = (k?: number) =>
@@ -231,7 +238,7 @@ const makeDummyProfile = (k?: number) =>
         },
       }
     : {
-        comment: DUMMY_COMMENTS[(k * 3) % DUMMY_COMMENTS.length],
+        comment: DUMMY_COMMENTS[(k * 5) % DUMMY_COMMENTS.length],
         studyIntroduce: {
           subject: DUMMY_SUBJECTS[(k * 4) % DUMMY_SUBJECTS.length],
           studyStyle: DUMMY_STUDY_STYLES[k % DUMMY_STUDY_STYLES.length],
