@@ -58,10 +58,10 @@ const DUMMY_STUDY_UID_PREFIX = 'dummy_study_';
 const DUMMY_SEED = {
   LOOKBACK_DAYS: 28, // 지역 인기를 잴 때 보는 기간
   POPULARITY_RADIUS_KM: 3, // 이 반경 안의 신청을 그 지역 신청으로 센다
-  // 지역마다 이 간격의 날짜에만 넣는다(3이면 사흘에 한 번, 주 2~3일). 매일 스터디가 예정돼 보일 필요는 없고,
+  // 지역마다 이 간격의 날짜에만 넣는다(2면 이틀에 한 번, 주 3~4일). 매일 스터디가 예정돼 보일 필요는 없고,
   // 지역마다 시작 날짜를 어긋나게 해 같은 날 여러 지역이 한꺼번에 차지 않게 한다.
-  DAY_INTERVAL: 3,
-  ACTIVE_REGION_COUNT: 3, // 가짜를 넣는 지역 수(실제 신청 많은 순). 라운지 가짜 인원 상한 = 이 값 × REGULARS_PER_REGION
+  DAY_INTERVAL: 2,
+  ACTIVE_REGION_COUNT: 4, // 가짜를 넣는 지역 수(실제 신청 많은 순). 라운지 가짜 인원 상한 = 이 값 × REGULARS_PER_REGION
   PER_SPOT_MIN: 1, // 가짜를 넣는 지역의 최소 인원
   PER_SPOT_MAX: 2, // 신청이 가장 많은 지역
   REGULARS_PER_REGION: 2, // 지역별 고정 가짜 수. 날짜마다 이 안에서 돌아가며 쓴다.
@@ -188,11 +188,13 @@ function toStudyZone(address?: string): string | null {
     );
     return zone ? zone[0] : '서울 기타';
   }
-  if (city.startsWith('경기')) {
-    return GYEONGGI_SOUTH.includes(district) ? '경기 남부' : '경기 북부·동부';
-  }
+  // 수원·용인은 신청이 많아 따로 묶는다. 나머지 경기 남부 도시는 "경기 남부".
   // "수원시 팔달구"처럼 도 이름 없이 시로 시작하는 주소도 있다.
-  if (GYEONGGI_SOUTH.includes(city)) return '경기 남부';
+  const gyeonggiCity = city.startsWith('경기') ? district : city;
+  if (gyeonggiCity === '수원시') return '수원';
+  if (gyeonggiCity === '용인시') return '용인';
+  if (GYEONGGI_SOUTH.includes(gyeonggiCity)) return '경기 남부';
+  if (city.startsWith('경기')) return '경기 북부·동부';
   if (city.startsWith('인천')) return '인천';
   // 수도권 밖(부산·천안 등). 주소가 비어 있으면 위에서 null로 빠진다.
   return '기타 지역';
