@@ -39,7 +39,7 @@ import { IGroupStudyRepository } from '../interfaces/GroupStudyRepository.interf
 import GroupCommentService from './groupComment.service';
 
 // 홈 화면 "26년 2학기 동아리, 핫한 동아리" 섹션에 노출할 후보 group id 목록.
-// 여기에 등록된 id 중 매 요청마다 랜덤으로 6개를 뽑아 맨 앞 섹션에 노출한다.
+// 여기에 등록된 id 중 매 요청마다 랜덤으로 12개를 뽑아 소모임 섹션(2단락)에 노출한다.
 const HOT_CLUB_GROUP_ID_LIST: number[] = [
   245, 176, 104, 135, 152, 234, 102, 106, 256, 271, 277, 320,
 ];
@@ -327,7 +327,7 @@ export default class GroupStudyService {
         })
       : [];
 
-    const hotClubData = suffleArray(hotClubCandidates).slice(0, 6);
+    const hotClubData = suffleArray(hotClubCandidates).slice(0, 12);
     const hotClubIds = new Set(hotClubData.map((group) => group.id));
 
     groupStudyData = groupStudyData.filter(
