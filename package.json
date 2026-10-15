@@ -26,6 +26,7 @@
     "crawl:all": "ts-node -r tsconfig-paths/register src/crawler/crawlAll.ts",
     "crawl:backfill-meta": "ts-node -r tsconfig-paths/register src/crawler/backfillStudyCafeMeta.ts",
     "crawl:backfill-images": "ts-node -r tsconfig-paths/register src/crawler/backfillPlaceImages.ts",
+    "crawl:backfill-rating-names": "ts-node -r tsconfig-paths/register src/crawler/backfillRatingNames.ts",
     "crawl:rescore-space": "ts-node -r tsconfig-paths/register src/crawler/rescoreSpace.ts",
     "study:seed-dummy": "ts-node -r tsconfig-paths/register src/scripts/seedStudyDummy.ts",
     "crawl:restaurant": "ts-node -r tsconfig-paths/register src/crawler/naverMapRestaurant.ts",
