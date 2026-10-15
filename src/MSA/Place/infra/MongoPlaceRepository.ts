@@ -282,8 +282,8 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async findAllRatingsSorted(cursor: number, gap: number): Promise<any[]> {
-    return await this.Place.aggregate([
-      { $unwind: '$ratings' },
+    const items = await this.Place.aggregate([
+      { $unwind: { path: '$ratings', includeArrayIndex: 'ratingIdx' } },
       {
         $sort: {
           'ratings.createdAt': -1,
@@ -297,7 +297,7 @@ export class MongoPlaceReposotory implements PlaceRepository {
           localField: 'ratings.user',
           foreignField: '_id',
           as: 'ratings.userInfo',
-          pipeline: [{ $project: { name: 1, profileImage: 1 } }],
+          pipeline: [{ $project: { profileImage: 1, role: 1 } }],
         },
       },
       {
@@ -323,9 +323,84 @@ export class MongoPlaceReposotory implements PlaceRepository {
             studyCafeMeta: '$studyCafeMeta',
           },
           rating: '$ratings',
+          ratingIdx: 1,
         },
       },
     ]);
+
+    await this.attachReviewSeq(items);
+
+    for (const item of items) {
+      delete item.ratingIdx;
+      if (item.rating?.userInfo) delete item.rating.userInfo.role;
+    }
+    return items;
+  }
+
+  /**
+   * 작성자가 쓴 몇 번째 후기인지(rating.reviewSeq)를 붙인다.
+   * 순서: createdAt(없으면 가장 오래된 것으로) → place _id → 배열 index.
+   * 공용 게스트 계정·'어바웃 AI'·작성자 없는 후기는 제외한다.
+   */
+  private async attachReviewSeq(items: any[]): Promise<void> {
+    const isCountable = (item: any) =>
+      item.rating?.user &&
+      item.rating?.userInfo?.role !== 'guest' &&
+      item.rating?.name !== '어바웃 AI';
+    const reviewerIds = [
+      ...new Set(
+        items.filter(isCountable).map((item) => String(item.rating.user)),
+      ),
+    ].map((id) => new Types.ObjectId(id));
+    if (reviewerIds.length === 0) return;
+
+    const history = await this.Place.aggregate([
+      { $match: { 'ratings.user': { $in: reviewerIds } } },
+      { $project: { ratings: 1 } },
+      { $unwind: { path: '$ratings', includeArrayIndex: 'idx' } },
+      {
+        $match: {
+          'ratings.user': { $in: reviewerIds },
+          'ratings.name': { $ne: '어바웃 AI' },
+        },
+      },
+      {
+        $project: {
+          user: '$ratings.user',
+          createdAt: '$ratings.createdAt',
+          idx: 1,
+        },
+      },
+    ]);
+
+    const toTime = (value: unknown) => {
+      const time = value ? new Date(value as string).getTime() : 0;
+      return Number.isNaN(time) ? 0 : time;
+    };
+    const byUser = new Map<string, any[]>();
+    for (const h of history) {
+      const key = String(h.user);
+      const list = byUser.get(key) ?? [];
+      list.push(h);
+      byUser.set(key, list);
+    }
+    const seqByRating = new Map<string, number>();
+    for (const list of byUser.values()) {
+      list
+        .sort(
+          (a, b) =>
+            toTime(a.createdAt) - toTime(b.createdAt) ||
+            String(a._id).localeCompare(String(b._id)) ||
+            a.idx - b.idx,
+        )
+        .forEach((h, i) => seqByRating.set(`${h._id}:${h.idx}`, i + 1));
+    }
+
+    for (const item of items) {
+      if (!isCountable(item)) continue;
+      const seq = seqByRating.get(`${item.placeInfo._id}:${item.ratingIdx}`);
+      if (seq) item.rating.reviewSeq = seq;
+    }
   }
 
   async findForVote2(): Promise<IPlace[]> {
@@ -392,7 +467,6 @@ export class MongoPlaceReposotory implements PlaceRepository {
   }
 
   async findByUserId(userId: string) {
- 
     const places = await this.Place.find({
       $or: [{ registrant: userId }, { 'ratings.user': userId }],
     }).lean();
