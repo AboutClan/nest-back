@@ -350,6 +350,57 @@ export class GatherRepository implements IGatherRepository {
     return res ?? { month: [], total: [] };
   }
 
+  // 기간 안에 열린 소모임 연결 번개의 개설자 + 실제 참여자(불참·더미 제외) User _id 목록
+  async findGroupParticipantIds(
+    groupId: string,
+    start: Date,
+    end: Date,
+  ): Promise<string[]> {
+    const rows = await this.Gather.aggregate<{ _id: null; ids: any[] }>([
+      // close = 취소된 번개
+      { $match: { groupId, status: { $ne: 'close' } } },
+      {
+        $addFields: {
+          dateAsDate: {
+            $convert: { input: '$date', to: 'date', onError: null, onNull: null },
+          },
+        },
+      },
+      { $match: { dateAsDate: { $gte: start, $lte: end } } },
+      {
+        $project: {
+          ids: {
+            $concatArrays: [
+              ['$user'],
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: '$participants',
+                      as: 'p',
+                      cond: {
+                        $and: [
+                          { $ne: ['$$p.absence', true] },
+                          { $ne: ['$$p.isDummy', true] },
+                        ],
+                      },
+                    },
+                  },
+                  as: 'p',
+                  in: '$$p.user',
+                },
+              },
+            ],
+          },
+        },
+      },
+      { $unwind: '$ids' },
+      { $match: { ids: { $ne: null } } },
+      { $group: { _id: null, ids: { $addToSet: '$ids' } } },
+    ]);
+    return (rows[0]?.ids ?? []).map((id) => id.toString());
+  }
+
   async findByGroupId(groupId: string, type: string): Promise<Gather[] | null> {
     const result = await this.Gather.find({
       groupId,

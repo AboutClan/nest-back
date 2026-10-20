@@ -82,6 +82,27 @@ export class GroupStudyController {
     return await this.groupStudyService.getMannerByGroupId(groupStudyId, type);
   }
 
+  @Get('manner/detail')
+  async getGroupStudyMannerDetail(@Query('groupStudyId') groupStudyId: string) {
+    return await this.groupStudyService.getMannerDetailByGroupId(groupStudyId);
+  }
+
+  @Get('evaluation')
+  async getMonthlyEvaluation(@Query('groupStudyId') groupStudyId: string) {
+    return await this.groupStudyService.getMonthlyEvaluation(groupStudyId);
+  }
+
+  @Post('evaluation')
+  async submitMonthlyEvaluation(
+    @Body('groupStudyId') groupStudyId: string,
+    @Body('infos') infos: { toUid: string; rating: string }[],
+  ) {
+    return await this.groupStudyService.submitMonthlyEvaluation(
+      String(groupStudyId),
+      infos,
+    );
+  }
+
   @Get('memberActivity')
   async getMemberActivity(
     @Query('groupStudyId') groupStudyId: string,

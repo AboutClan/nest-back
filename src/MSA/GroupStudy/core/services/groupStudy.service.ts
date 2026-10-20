@@ -19,6 +19,7 @@ import { IUser } from 'src/MSA/User/entity/user.entity';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
 import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
+import dayjs from 'dayjs';
 import { DateUtils } from 'src/utils/Date';
 import {
   IGATHER_REPOSITORY,
@@ -279,6 +280,187 @@ export default class GroupStudyService {
       result[to][sub]++;
     }
 
+    return result;
+  }
+
+  // 월간 멤버 평가 기간: 전달 1일 00:00(KST) ~ 지금. 참여 여부는 이번 달(period) 기준
+  private getMonthlyEvaluationRange() {
+    const now = dayjs().tz('Asia/Seoul');
+    return {
+      start: now.subtract(1, 'month').startOf('month').toDate(),
+      end: now.toDate(),
+      period: now.format('YYYY-MM'),
+    };
+  }
+
+  async getMonthlyEvaluation(groupId: string) {
+    const token = RequestContext.getDecodedToken();
+    const group = await this.groupStudyRepository.findById(groupId, true);
+    if (!group) throw new HttpException('소모임을 찾을 수 없습니다.', 404);
+
+    const { start, end, period } = this.getMonthlyEvaluationRange();
+    // populate된 User 문서 전체가 나가지 않도록 화면에 필요한 필드만 내보낸다
+    const members = (group.participants ?? [])
+      .filter((p) => !p.isDummy && (p.user as any)?.uid)
+      .map((p) => {
+        const user = p.user as any;
+        return {
+          _id: user._id.toString(),
+          uid: user.uid,
+          name: user.name,
+          profileImage: user.profileImage,
+          avatar: user.avatar,
+          comment: user.comment,
+          badge: user.badge,
+        };
+      });
+
+    const participantIds = new Set(
+      await this.gatherRepository.findGroupParticipantIds(
+        String(group.id),
+        start,
+        end,
+      ),
+    );
+    const submitters = new Set(
+      await this.LogTemperatureRepository.findGroupMonthlySubmitters(
+        String(group.id),
+        period,
+      ),
+    );
+
+    const eligible = members
+      .filter((user) => participantIds.has(user._id))
+      .map((user) => ({ user, submitted: submitters.has(user.uid) }));
+
+    // 기간 안에 내가 각 멤버에게 준 가장 최근 평가(번개·스터디·월간 평가 구분 없음)
+    const given = await this.LogTemperatureRepository.findGivenSince(
+      token.uid,
+      members.map((user) => user.uid),
+      start,
+    );
+    const myRatings: Record<string, string> = {};
+    for (const log of given) {
+      if (!myRatings[log.to]) myRatings[log.to] = log.sub;
+    }
+
+    return {
+      period,
+      start,
+      members,
+      eligible,
+      canVote: eligible.some(({ user }) => user.uid === token.uid),
+      myRatings,
+    };
+  }
+
+  async submitMonthlyEvaluation(
+    groupId: string,
+    infos: { toUid: string; rating: string }[],
+  ) {
+    const token = RequestContext.getDecodedToken();
+    const group = await this.groupStudyRepository.findById(groupId, true);
+    if (!group) throw new HttpException('소모임을 찾을 수 없습니다.', 404);
+
+    const { start, end, period } = this.getMonthlyEvaluationRange();
+    const participantIds = await this.gatherRepository.findGroupParticipantIds(
+      String(group.id),
+      start,
+      end,
+    );
+    const me = (group.participants ?? []).find(
+      (p) => !p.isDummy && (p.user as any)?.uid === token.uid,
+    );
+    if (!me || !participantIds.includes((me.user as any)._id.toString())) {
+      throw new HttpException(
+        '전달부터 현재까지 모임 참여 기록이 있는 멤버만 투표할 수 있습니다.',
+        403,
+      );
+    }
+
+    const memberUids = new Set(
+      (group.participants ?? [])
+        .filter((p) => !p.isDummy)
+        .map((p) => (p.user as any)?.uid)
+        .filter(Boolean),
+    );
+    const RATINGS = ['great', 'good', 'soso', 'block'];
+    const seen = new Set<string>();
+    const logs = (infos ?? [])
+      .filter(({ toUid, rating }) => {
+        if (toUid === token.uid || !memberUids.has(toUid)) return false;
+        if (!RATINGS.includes(rating) || seen.has(toUid)) return false;
+        seen.add(toUid);
+        return true;
+      })
+      .map(({ toUid, rating }) => ({
+        from: token.uid,
+        to: toUid,
+        sub: rating,
+        timestamp: new Date(),
+        source: 'groupMonthly',
+        groupId: String(group.id),
+        period,
+      }));
+
+    if (!logs.length)
+      throw new HttpException('평가를 1명 이상 선택해 주세요.', 400);
+
+    // 기간 안에 그 멤버에게 준 가장 최근 평가(번개·스터디·월간 무관)가 있으면 이번 평가로 덮어쓰고,
+    // 없을 때만 새로 남긴다. 같은 평가가 매너 집계에 두 번 쌓이지 않게 하기 위함
+    for (const log of logs) {
+      await this.LogTemperatureRepository.overwriteLatestGivenOrCreate(
+        start,
+        log,
+      );
+    }
+  }
+
+  // 관리자용: 멤버별로 평가자당 가장 최근 평가 1건. 평가자는 100% 익명이라 누가 줬는지는 내보내지 않는다
+  // (날짜도 일 단위까지만)
+  async getMannerDetailByGroupId(groupId: string) {
+    const token = RequestContext.getDecodedToken();
+    const group = await this.groupStudyRepository.findById(groupId, true);
+    if (!group) throw new HttpException('소모임을 찾을 수 없습니다.', 404);
+
+    const myRole = (group.participants ?? []).find(
+      (p) => (p.user as any)?.uid === token.uid,
+    )?.role;
+    if (
+      !['admin', 'manager'].includes(myRole as string) &&
+      token.uid !== '2259633694'
+    ) {
+      throw new HttpException('권한이 없습니다.', 403);
+    }
+
+    const userByUid = new Map<string, any>();
+    for (const p of group.participants ?? []) {
+      const user = p.user as any;
+      if (user?.uid) userByUid.set(user.uid, user);
+    }
+
+    // timestamp 오름차순이므로 뒤에 오는 것이 최신
+    const logs = await this.LogTemperatureRepository.findTemperatureByUidArr([
+      ...userByUid.keys(),
+    ]);
+    const latestByPair = new Map<string, any>();
+    for (const log of logs) latestByPair.set(`${log.to}-${log.from}`, log);
+
+    const result: Record<
+      string,
+      { sub: string; date: string; source: string | null }[]
+    > = {};
+    for (const log of latestByPair.values()) {
+      if (!userByUid.has(log.from)) continue;
+      (result[log.to] ??= []).push({
+        sub: log.sub,
+        date: dayjs(log.timestamp).tz('Asia/Seoul').format('YYYY-MM-DD'),
+        source: log.source ?? null,
+      });
+    }
+    for (const list of Object.values(result)) {
+      list.sort((a, b) => b.date.localeCompare(a.date));
+    }
     return result;
   }
 

@@ -39,6 +39,45 @@ export class LogTemperatureRepository implements ILogTemperatureRepository {
     );
   }
 
+  async findGivenSince(fromUid: string, toUids: string[], start: Date) {
+    return await this.LogTemperature.find(
+      { from: fromUid, to: { $in: toUids }, timestamp: { $gte: start } },
+      '-_id -__v',
+    ).sort({ timestamp: -1 });
+  }
+
+  async findGroupMonthlySubmitters(groupId: string, period: string) {
+    return (await this.LogTemperature.distinct('from', {
+      source: 'groupMonthly',
+      groupId,
+      period,
+    })) as string[];
+  }
+
+  async overwriteLatestGivenOrCreate(
+    start: Date,
+    log: Pick<
+      ILogTemperature,
+      'from' | 'to' | 'sub' | 'timestamp' | 'source' | 'groupId' | 'period'
+    >,
+  ) {
+    const updated = await this.LogTemperature.findOneAndUpdate(
+      { from: log.from, to: log.to, timestamp: { $gte: start } },
+      {
+        $set: {
+          sub: log.sub,
+          timestamp: log.timestamp,
+          source: log.source,
+          groupId: log.groupId,
+          period: log.period,
+        },
+      },
+      { sort: { timestamp: -1 }, new: true },
+    );
+    if (updated) return updated;
+    return await this.LogTemperature.create(log);
+  }
+
   async findAllTemperature(page: number = 1, uid: string) {
     const offset = 20;
 
