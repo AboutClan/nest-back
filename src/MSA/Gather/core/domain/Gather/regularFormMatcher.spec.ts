@@ -68,7 +68,7 @@ describe('countFormResponses', () => {
       contents,
       NOW,
     );
-    // 11/13(다음 주)은 세지 않는다
+    // 11/6과 11/13은 둘 다 매주 금요일 일정이라 한 번만 센다
     expect(res).toMatchObject({
       roundKey: '2026-11-02',
       total: 2,
@@ -108,12 +108,33 @@ describe('countFormResponses', () => {
       contents,
       NOW,
     );
-    // 두 번째 응답은 다음 주 날짜만 골라 이번 주 집계에서 빠진다
+    // 다음 주 날짜도 아직 지나지 않았으면 센다
     expect(res).toMatchObject({
       roundKey: '2026-11-02',
-      total: 1,
-      byOption: { 'park-1107': 1, 'park-1108': 1, park: 1 },
+      total: 2,
+      byOption: {
+        'park-1107': 1,
+        'park-1108': 1,
+        park: 1,
+        'sky-1113': 1,
+        sky: 1,
+      },
     });
+  });
+
+  it('고른 날짜가 모두 지났으면 뺀다', () => {
+    const slots = [{ key: 'fri', weekday: 5, time: '19:00' }];
+    // 2026-11-09(월) 12:00 KST
+    const res = countFormResponses(
+      [
+        ['11월 6일(금) 오후 7시'],
+        ['11월 6일(금) 오후 7시', '11월 13일(금) 오후 7시'],
+      ],
+      slots,
+      [],
+      new Date('2026-11-09T03:00:00Z'),
+    );
+    expect(res).toMatchObject({ total: 1, byOption: { fri: 1 } });
   });
 });
 
@@ -127,7 +148,7 @@ describe('getRoundKey', () => {
 });
 
 describe('신청자 목록', () => {
-  it('성별·출생연도·선택 key·제출 시각을 남기고 이번 주 밖 응답은 뺀다', () => {
+  it('성별·출생연도·선택 key·제출 시각을 남긴다', () => {
     const slots = [{ key: 'fri', weekday: 5, time: '19:00' }];
     const res = countFormResponses(
       [
@@ -147,7 +168,7 @@ describe('신청자 목록', () => {
       [],
       NOW,
     );
-    expect(res.total).toBe(1);
+    expect(res.total).toBe(2);
     expect(res.applicants).toEqual([
       {
         gender: '여성',
@@ -155,6 +176,7 @@ describe('신청자 목록', () => {
         keys: ['fri'],
         submittedAt: new Date('2026-11-02T10:00:00Z'),
       },
+      { gender: '남성', birthYear: 1999, keys: ['fri'], submittedAt: null },
     ]);
   });
 

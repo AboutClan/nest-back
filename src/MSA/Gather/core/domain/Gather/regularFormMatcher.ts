@@ -106,12 +106,9 @@ export function getRoundKey(now: Date = new Date()): string {
   return monday.toISOString().slice(0, 10);
 }
 
-/** roundKey(월요일) ~ 그 주 일요일 사이 날짜인가 ('YYYY-MM-DD'끼리 문자열 비교) */
-const isInRound = (date: string, roundKey: string) => {
-  const end = new Date(`${roundKey}T00:00:00Z`);
-  end.setUTCDate(end.getUTCDate() + 6);
-  return date >= roundKey && date <= end.toISOString().slice(0, 10);
-};
+/** now의 KST 날짜 'YYYY-MM-DD' */
+const getKstDate = (now: Date) =>
+  new Date(now.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
 /** Apps Script가 보내는 응답 하나. 예전 형식(선택지 문구 배열)도 받는다. 이름·연락처는 받지 않는다. */
 export type FormResponseInput =
@@ -145,9 +142,9 @@ export function toBirthYear(value?: string | number, now: Date = new Date()) {
 }
 
 /**
- * 응답 목록 → 이번 주 회차 신청 집계와 신청자 목록.
- * 폼에는 여러 주의 날짜가 함께 있으므로, 날짜를 고른 응답은 이번 주(월~일) 날짜만 세고
- * 이번 주 날짜가 하나도 없으면 그 응답은 통째로 뺀다(그 응답의 콘텐츠 선택도 세지 않음).
+ * 응답 목록 → 신청 집계와 신청자 목록.
+ * 폼에는 여러 주의 날짜가 함께 있으므로, 날짜를 고른 응답은 아직 지나지 않은 날짜(오늘 포함, KST)만 세고
+ * 남은 날짜가 하나도 없으면 그 응답은 통째로 뺀다(그 응답의 콘텐츠 선택도 세지 않음).
  * 날짜 선택지가 아예 없는 응답은 그대로 센다.
  */
 export function countFormResponses(
@@ -162,6 +159,7 @@ export function countFormResponses(
   applicants: RegularFormApplicant[];
 } {
   const roundKey = getRoundKey(now);
+  const today = getKstDate(now);
   const byOption: Record<string, number> = {};
   const applicants: RegularFormApplicant[] = [];
 
@@ -177,13 +175,13 @@ export function countFormResponses(
       parsed: parseDateOption(text, now),
     }));
     const hasDate = dated.some(({ parsed }) => parsed);
-    const inRound = dated.filter(
-      ({ parsed }) => !parsed || isInRound(parsed.date, roundKey),
+    const upcoming = dated.filter(
+      ({ parsed }) => !parsed || parsed.date >= today,
     );
-    if (hasDate && !inRound.some(({ parsed }) => parsed)) continue;
+    if (hasDate && !upcoming.some(({ parsed }) => parsed)) continue;
 
     const keys = new Set<string>();
-    for (const { text } of inRound) {
+    for (const { text } of upcoming) {
       for (const key of matchOption(text, slots, contents, now)) keys.add(key);
     }
     for (const key of keys) byOption[key] = (byOption[key] ?? 0) + 1;
