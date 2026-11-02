@@ -1,6 +1,7 @@
 import {
   countFormResponses,
   getRoundKey,
+  matchApplicantsToAppUsers,
   parseDateOption,
   toBirthYear,
 } from './regularFormMatcher';
@@ -223,5 +224,53 @@ describe('회원 ID', () => {
     expect(res.total).toBe(3);
     expect(res.byOption).toEqual({ sat: 1, fri: 2 });
     expect(res.applicants.map((a) => a.uid)).toEqual(['1234', null, null]);
+  });
+});
+
+describe('앱 신청 회원과 폼 응답 짝짓기', () => {
+  const at = (t: string) => new Date(`2026-11-02T${t}:00Z`);
+  const app = (
+    key: string,
+    t: string,
+    gender: '남성' | '여성',
+    birthYear: number,
+  ) => ({
+    key,
+    appliedAt: at(t),
+    gender,
+    birthYear,
+  });
+  const res = (t: string, gender: '남성' | '여성', birthYear: number) => ({
+    submittedAt: at(t),
+    gender,
+    birthYear,
+  });
+
+  it('30분 안, 성별·출생연도가 같으면 잇는다', () => {
+    const map = matchApplicantsToAppUsers(
+      [
+        res('10:05', '여성', 2001),
+        res('10:06', '남성', 2001),
+        res('11:00', '여성', 2001),
+      ],
+      [app('A', '10:00', '여성', 2001)],
+    );
+    expect([...map]).toEqual([[0, 'A']]);
+  });
+
+  it('같은 회원이 여러 번 내면 마지막 응답에 잇는다', () => {
+    const map = matchApplicantsToAppUsers(
+      [res('10:05', '여성', 2001), res('10:20', '여성', 2001)],
+      [app('A', '10:00', '여성', 2001)],
+    );
+    expect([...map]).toEqual([[1, 'A']]);
+  });
+
+  it('같은 시간대에 성별·출생연도가 같은 회원이 둘이면 잇지 않는다', () => {
+    const map = matchApplicantsToAppUsers(
+      [res('10:05', '여성', 2001)],
+      [app('A', '10:00', '여성', 2001), app('B', '10:02', '여성', 2001)],
+    );
+    expect(map.size).toBe(0);
   });
 });

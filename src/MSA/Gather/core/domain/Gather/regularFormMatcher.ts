@@ -241,3 +241,66 @@ export function countFormResponses(
   }
   return { roundKey, total: applicants.length, byOption, applicants };
 }
+
+/** 앱에서 "신청하기"를 누른 회원(대기열)과 프로필의 성별·출생연도 */
+export interface RegularAppApplicant {
+  key: string;
+  appliedAt: Date;
+  gender: '남성' | '여성' | null;
+  birthYear: number | null;
+}
+
+/** 앱 신청 뒤 이 시간 안에 들어온 폼 응답만 그 회원의 응답 후보로 본다 */
+export const APP_TO_FORM_WINDOW_MS = 30 * 60 * 1000;
+
+/**
+ * 폼 응답과 앱 신청 회원을 짝짓는다(폼에 회원 ID를 묻지 않기 위해).
+ * 앱 신청 시각 이후 30분 안에 제출됐고 성별·출생연도가 같은 응답이 후보다.
+ * 잘못 연결하지 않도록, 응답의 후보 회원이 1명이고 그 회원의 후보 응답도 모두 이 회원만을 후보로 가질 때만 잇는다.
+ * 같은 회원이 여러 번 제출했으면 가장 마지막 응답에만 잇는다.
+ * 반환: 응답 index → 회원 key
+ */
+export function matchApplicantsToAppUsers(
+  applicants: Pick<
+    RegularFormApplicant,
+    'gender' | 'birthYear' | 'submittedAt'
+  >[],
+  appUsers: RegularAppApplicant[],
+): Map<number, string> {
+  const candidatesOf = applicants.map((applicant) =>
+    appUsers.filter((user) => {
+      if (!applicant.submittedAt || !applicant.gender || !applicant.birthYear) {
+        return false;
+      }
+      const gap = applicant.submittedAt.getTime() - user.appliedAt.getTime();
+      return (
+        user.gender === applicant.gender &&
+        user.birthYear === applicant.birthYear &&
+        gap >= -60 * 1000 && // 시계 오차 1분 허용
+        gap <= APP_TO_FORM_WINDOW_MS
+      );
+    }),
+  );
+
+  const result = new Map<number, string>();
+  for (const user of appUsers) {
+    const mine = candidatesOf
+      .map((candidates, idx) => ({ candidates, idx }))
+      .filter(({ candidates }) => candidates.some((c) => c.key === user.key));
+    // 후보 응답 중 하나라도 다른 회원과 겹치면 누구인지 확실하지 않으므로 잇지 않는다.
+    if (
+      !mine.length ||
+      mine.some(({ candidates }) => candidates.length !== 1)
+    ) {
+      continue;
+    }
+    const latest = mine.reduce((a, b) =>
+      applicants[b.idx].submittedAt!.getTime() >=
+      applicants[a.idx].submittedAt!.getTime()
+        ? b
+        : a,
+    );
+    result.set(latest.idx, user.key);
+  }
+  return result;
+}

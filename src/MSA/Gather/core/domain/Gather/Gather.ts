@@ -81,8 +81,6 @@ export interface GatherProps {
   contents?: RegularContentProps[];
   formStats?: FormStatsProps | null;
   parentGatherId?: number | null;
-  // 구글폼 "회원 ID" 질문의 미리 채우기 키(예: 'entry.123456'). 앱이 신청 링크에 회원 uid를 채워 연다.
-  formUidEntryId?: string | null;
 }
 
 export class Gather {
@@ -121,7 +119,6 @@ export class Gather {
   public contents: RegularContentProps[];
   public formStats: FormStatsProps | null;
   public parentGatherId: number | null;
-  public formUidEntryId: string | null;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -160,7 +157,6 @@ export class Gather {
     this.contents = props.contents ?? [];
     this.formStats = props.formStats ?? null;
     this.parentGatherId = props.parentGatherId ?? null;
-    this.formUidEntryId = props.formUidEntryId ?? null;
   }
 
   isRegularGather() {
@@ -299,7 +295,6 @@ export class Gather {
       contents: this.contents,
       formStats: this.formStats,
       parentGatherId: this.parentGatherId,
-      formUidEntryId: this.formUidEntryId,
     };
   }
 }

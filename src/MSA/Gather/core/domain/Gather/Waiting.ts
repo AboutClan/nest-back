@@ -14,7 +14,9 @@ export class Waiting {
   constructor(props: WaitingProps) {
     this.user = props.user;
     this.phase = props.phase;
-    this.createdAt = props.createdAt || new Date();
+    // 시각이 없던 예전 대기열은 null로 둔다(null을 "지금"으로 채우면 상시 행사 짝짓기에서 방금 신청한 것처럼 보인다).
+    this.createdAt =
+      props.createdAt === undefined ? new Date() : props.createdAt;
   }
 
   toPrimitives(): WaitingProps {

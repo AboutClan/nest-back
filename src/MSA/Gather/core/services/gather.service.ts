@@ -35,6 +35,8 @@ import { Gather, GatherProps } from '../domain/Gather/Gather';
 import {
   countFormResponses,
   FormResponseInput,
+  matchApplicantsToAppUsers,
+  RegularFormApplicant,
 } from '../domain/Gather/regularFormMatcher';
 import {
   GatherAbsenceType,
@@ -215,34 +217,82 @@ export class GatherService {
       gather.contents,
     );
 
-    // 앱에서 신청해 회원 ID가 미리 채워진 응답은 회원과 연결해 아바타·닉네임을 보여 준다(집계 시점 스냅샷).
-    const uids = [
-      ...new Set(counted.applicants.map((a) => a.uid).filter(Boolean)),
-    ];
-    if (uids.length) {
-      const users = await this.User.find({ uid: { $in: uids } })
-        .select('_id uid nickname avatar profileImage')
-        .lean();
-      const byUid = new Map(users.map((u: any) => [u.uid, u]));
-      for (const applicant of counted.applicants) {
-        const user: any = applicant.uid ? byUid.get(applicant.uid) : null;
-        applicant.user = user
-          ? {
-              _id: user._id.toString(),
-              uid: user.uid,
-              nickname: user.nickname,
-              avatar: user.avatar,
-              profileImage: user.profileImage,
-            }
-          : null;
-      }
-    }
+    await this.linkRegularApplicantsToUsers(gather, counted.applicants);
 
     const updated = await this.gatherRepository.updateFormStats(gatherId, {
       ...counted,
       updatedAt: new Date(),
     });
     if (!updated) throw new HttpException('regularGather not found', 404);
+  }
+
+  /**
+   * 폼 응답(신청자)을 회원과 연결해 아바타·닉네임을 붙인다(집계 시점 스냅샷).
+   * 1) 응답에 회원 uid가 있으면 그 회원
+   * 2) 없으면 앱에서 "신청하기"를 누른 회원(대기열)과 신청 시각·성별·출생연도로 짝짓기
+   *    (matchApplicantsToAppUsers — 확실할 때만 잇는다)
+   */
+  private async linkRegularApplicantsToUsers(
+    gather: Gather,
+    applicants: RegularFormApplicant[],
+  ) {
+    const waitingIds = gather.waiting
+      .map((w) => w.user?.toString())
+      .filter(Boolean);
+    const uids = applicants.map((a) => a.uid).filter(Boolean);
+    if (!waitingIds.length && !uids.length) return;
+
+    const users: any[] = await this.User.find({
+      $or: [{ _id: { $in: waitingIds } }, { uid: { $in: uids } }],
+    })
+      .select('_id uid nickname avatar profileImage gender birth')
+      .lean();
+    const byId = new Map(users.map((u) => [u._id.toString(), u]));
+    const byUid = new Map(users.map((u) => [u.uid, u]));
+    const snapshot = (u: any) => ({
+      _id: u._id.toString(),
+      uid: u.uid,
+      nickname: u.nickname,
+      avatar: u.avatar,
+      profileImage: u.profileImage,
+    });
+    // 프로필 생년월일 'YYMMDD' → 연도 (프론트 birthToAge와 같은 규칙)
+    const toYear = (birth?: string) => {
+      const yy = Number(String(birth ?? '').slice(0, 2));
+      if (!birth || Number.isNaN(yy)) return null;
+      return yy < 50 ? 2000 + yy : 1900 + yy;
+    };
+
+    const linkedUserIds = new Set<string>();
+    applicants.forEach((applicant) => {
+      const user = applicant.uid ? byUid.get(applicant.uid) : null;
+      applicant.user = user ? snapshot(user) : null;
+      if (user) linkedUserIds.add(user._id.toString());
+    });
+
+    const appUsers = gather.waiting
+      .map((w) => ({ w, user: byId.get(w.user?.toString()) }))
+      .filter(
+        ({ w, user }) =>
+          user && w.createdAt && !linkedUserIds.has(user._id.toString()),
+      )
+      .map(({ w, user }) => ({
+        key: user._id.toString(),
+        appliedAt: new Date(w.createdAt),
+        gender:
+          user.gender === '여성' || user.gender === '남성' ? user.gender : null,
+        birthYear: toYear(user.birth),
+      }));
+    const unlinked = applicants
+      .map((applicant, idx) => ({ applicant, idx }))
+      .filter(({ applicant }) => !applicant.user);
+    const matched = matchApplicantsToAppUsers(
+      unlinked.map(({ applicant }) => applicant),
+      appUsers,
+    );
+    matched.forEach((userId, i) => {
+      applicants[unlinked[i].idx].user = snapshot(byId.get(userId));
+    });
   }
 
   async getGatherCount(userId: string) {
@@ -987,7 +1037,8 @@ export class GatherService {
 
       await this.gatherRepository.save(gather);
 
-      if (gather.user) {
+      // 상시 행사 신청은 구글폼으로 받으므로 모임장에게 참여 요청 푸시를 보내지 않는다.
+      if (gather.user && !gather.isRegularGather()) {
         await this.fcmServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           WEBPUSH_MSG.GATHER.TITLE,

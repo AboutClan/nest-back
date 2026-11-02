@@ -506,7 +506,7 @@ export class GatherRepository implements IGatherRepository {
       waiting: doc.waiting.map((w: any) => ({
         user: w.user,
         phase: w.phase,
-        createdAt: w.createdAt || new Date(),
+        createdAt: w.createdAt ?? null,
       })),
       isApprovalRequired: doc.isApprovalRequired ?? null,
       reviewers: doc.reviewers ?? [],
@@ -550,7 +550,6 @@ export class GatherRepository implements IGatherRepository {
           }
         : null,
       parentGatherId: doc.parentGatherId ?? null,
-      formUidEntryId: (doc as any).formUidEntryId ?? null,
     });
   }
 
