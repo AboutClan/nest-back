@@ -27,6 +27,7 @@ import {
   SetWaitingPersonDto,
 } from '../../dtos/dto';
 import { gatherStatus } from '../../entity/gather.entity';
+import { FormResponseInput } from '../domain/Gather/regularFormMatcher';
 import { GatherAbsenceType } from '../domain/Gather/Participants';
 import { GatherService } from '../services/gather.service';
 @ApiTags('gather')
@@ -74,10 +75,7 @@ export class GatherController {
     @Body()
     body: {
       gatherId: number;
-      roundKey?: string;
-      total?: number;
-      byOption?: Record<string, number>;
-      responses?: string[][];
+      responses?: FormResponseInput[];
     },
   ) {
     assertGatherFormSyncKey(key);

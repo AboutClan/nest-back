@@ -113,24 +113,63 @@ const isInRound = (date: string, roundKey: string) => {
   return date >= roundKey && date <= end.toISOString().slice(0, 10);
 };
 
+/** Apps Script가 보내는 응답 하나. 예전 형식(선택지 문구 배열)도 받는다. 이름·연락처는 받지 않는다. */
+export type FormResponseInput =
+  | string[]
+  | {
+      selected?: string[];
+      gender?: string;
+      birthYear?: string | number;
+      submittedAt?: string;
+    };
+
+export interface RegularFormApplicant {
+  gender: '남성' | '여성' | null;
+  birthYear: number | null;
+  keys: string[];
+  submittedAt: Date | null;
+}
+
+const toGender = (text?: string): RegularFormApplicant['gender'] =>
+  text?.includes('여') ? '여성' : text?.includes('남') ? '남성' : null;
+
+/** "2001", "01", "2001년생" → 2001. 범위를 벗어나면 null */
+export function toBirthYear(value?: string | number, now: Date = new Date()) {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  if (!digits) return null;
+  let year = Number(digits.length >= 4 ? digits.slice(0, 4) : digits.slice(-2));
+  if (digits.length < 4) {
+    year += year <= now.getFullYear() % 100 ? 2000 : 1900;
+  }
+  return year >= 1960 && year <= now.getFullYear() - 10 ? year : null;
+}
+
 /**
- * 응답 목록 → 이번 주 회차 신청 집계.
+ * 응답 목록 → 이번 주 회차 신청 집계와 신청자 목록.
  * 폼에는 여러 주의 날짜가 함께 있으므로, 날짜를 고른 응답은 이번 주(월~일) 날짜만 세고
  * 이번 주 날짜가 하나도 없으면 그 응답은 통째로 뺀다(그 응답의 콘텐츠 선택도 세지 않음).
  * 날짜 선택지가 아예 없는 응답은 그대로 센다.
  */
 export function countFormResponses(
-  responses: string[][],
+  responses: FormResponseInput[],
   slots: RegularSlotProps[],
   contents: RegularContentProps[],
   now: Date = new Date(),
-): { roundKey: string; total: number; byOption: Record<string, number> } {
+): {
+  roundKey: string;
+  total: number;
+  byOption: Record<string, number>;
+  applicants: RegularFormApplicant[];
+} {
   const roundKey = getRoundKey(now);
   const byOption: Record<string, number> = {};
-  let total = 0;
+  const applicants: RegularFormApplicant[] = [];
 
-  for (const selected of responses) {
-    const texts = (selected ?? []).filter(
+  for (const response of responses) {
+    const input = Array.isArray(response)
+      ? { selected: response }
+      : (response ?? {});
+    const texts = (input.selected ?? []).filter(
       (text): text is string => typeof text === 'string',
     );
     const dated = texts.map((text) => ({
@@ -147,8 +186,18 @@ export function countFormResponses(
     for (const { text } of inRound) {
       for (const key of matchOption(text, slots, contents, now)) keys.add(key);
     }
-    total += 1;
     for (const key of keys) byOption[key] = (byOption[key] ?? 0) + 1;
+
+    const submittedAt = input.submittedAt ? new Date(input.submittedAt) : null;
+    applicants.push({
+      gender: toGender(input.gender),
+      birthYear: toBirthYear(input.birthYear, now),
+      keys: [...keys],
+      submittedAt:
+        submittedAt && !Number.isNaN(submittedAt.getTime())
+          ? submittedAt
+          : null,
+    });
   }
-  return { roundKey, total, byOption };
+  return { roundKey, total: applicants.length, byOption, applicants };
 }

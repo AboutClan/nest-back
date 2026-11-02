@@ -82,6 +82,7 @@ export const FormStatsZodSchema = z.object({
   roundKey: z.string(),
   total: z.number(),
   byOption: z.record(z.string(), z.number()).default({}),
+  applicants: z.array(z.any()).default([]),
   updatedAt: z.date(),
 });
 
@@ -309,6 +310,8 @@ export const formStatsSchema: Schema<formStatsType> = new Schema(
     roundKey: { type: String },
     total: { type: Number, default: 0 },
     byOption: { type: Schema.Types.Mixed, default: {} },
+    // [{ gender, birthYear, keys, submittedAt }] 이번 주 신청자(익명)
+    applicants: { type: Schema.Types.Mixed, default: [] },
     updatedAt: { type: Date },
   },
   { _id: false, timestamps: false },

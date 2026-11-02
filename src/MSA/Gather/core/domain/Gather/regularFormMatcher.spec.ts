@@ -2,6 +2,7 @@ import {
   countFormResponses,
   getRoundKey,
   parseDateOption,
+  toBirthYear,
 } from './regularFormMatcher';
 
 const NOW = new Date('2026-11-02T03:00:00Z');
@@ -68,7 +69,7 @@ describe('countFormResponses', () => {
       NOW,
     );
     // 11/13(다음 주)은 세지 않는다
-    expect(res).toEqual({
+    expect(res).toMatchObject({
       roundKey: '2026-11-02',
       total: 2,
       byOption: { fri: 1, dfesta: 1, sat: 1, killingstory: 1, spain: 1 },
@@ -108,7 +109,7 @@ describe('countFormResponses', () => {
       NOW,
     );
     // 두 번째 응답은 다음 주 날짜만 골라 이번 주 집계에서 빠진다
-    expect(res).toEqual({
+    expect(res).toMatchObject({
       roundKey: '2026-11-02',
       total: 1,
       byOption: { 'park-1107': 1, 'park-1108': 1, park: 1 },
@@ -122,5 +123,45 @@ describe('getRoundKey', () => {
     expect(getRoundKey(new Date('2026-11-08T14:30:00Z'))).toBe('2026-11-02');
     // 2026-11-09(월) 00:10 KST
     expect(getRoundKey(new Date('2026-11-08T15:10:00Z'))).toBe('2026-11-09');
+  });
+});
+
+describe('신청자 목록', () => {
+  it('성별·출생연도·선택 key·제출 시각을 남기고 이번 주 밖 응답은 뺀다', () => {
+    const slots = [{ key: 'fri', weekday: 5, time: '19:00' }];
+    const res = countFormResponses(
+      [
+        {
+          selected: ['11월 6일(금) 오후 7시'],
+          gender: '여성',
+          birthYear: '2001',
+          submittedAt: '2026-11-02T10:00:00Z',
+        },
+        {
+          selected: ['11월 13일(금) 오후 7시'],
+          gender: '남성',
+          birthYear: '99',
+        },
+      ],
+      slots,
+      [],
+      NOW,
+    );
+    expect(res.total).toBe(1);
+    expect(res.applicants).toEqual([
+      {
+        gender: '여성',
+        birthYear: 2001,
+        keys: ['fri'],
+        submittedAt: new Date('2026-11-02T10:00:00Z'),
+      },
+    ]);
+  });
+
+  it('출생연도 입력 형식', () => {
+    expect(toBirthYear('2001년생', NOW)).toBe(2001);
+    expect(toBirthYear('99', NOW)).toBe(1999);
+    expect(toBirthYear('03', NOW)).toBe(2003);
+    expect(toBirthYear('모름', NOW)).toBeNull();
   });
 });

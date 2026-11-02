@@ -10,6 +10,7 @@ import {
   ParticipantsProps,
 } from './Participants';
 import { Title, TitleProps } from './Title';
+import { RegularFormApplicant } from './regularFormMatcher';
 import { Waiting, WaitingProps } from './Waiting';
 
 export type GatherStatus = 'pending' | 'open' | 'close' | 'end';
@@ -35,10 +36,12 @@ export interface RegularContentProps {
 }
 
 // 상시 행사 구글폼 신청 집계 (Apps Script가 갱신). byOption은 slot·content key별 선택 수.
+// applicants는 이번 주 신청자(익명: 성별·출생연도·선택 key·제출 시각만, 이름·연락처 없음).
 export interface FormStatsProps {
   roundKey: string;
   total: number;
   byOption: Record<string, number>;
+  applicants: RegularFormApplicant[];
   updatedAt: Date;
 }
 

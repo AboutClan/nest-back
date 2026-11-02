@@ -390,7 +390,12 @@ export class GatherRepository implements IGatherRepository {
       {
         $addFields: {
           dateAsDate: {
-            $convert: { input: '$date', to: 'date', onError: null, onNull: null },
+            $convert: {
+              input: '$date',
+              to: 'date',
+              onError: null,
+              onNull: null,
+            },
           },
         },
       },
@@ -539,6 +544,7 @@ export class GatherRepository implements IGatherRepository {
             roundKey: doc.formStats.roundKey,
             total: doc.formStats.total ?? 0,
             byOption: doc.formStats.byOption ?? {},
+            applicants: doc.formStats.applicants ?? [],
             updatedAt: doc.formStats.updatedAt,
           }
         : null,
