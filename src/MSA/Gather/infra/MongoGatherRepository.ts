@@ -136,20 +136,33 @@ export class GatherRepository implements IGatherRepository {
       { path: 'participants.user', select: ENTITY.USER.C_MINI_USER },
     ];
 
-    const featured = await this.Gather.find({
+    // 상시 행사는 date(개설일)가 과거라 날짜 정렬에서 밀리므로 따로 뽑아 맨 앞에 둔다.
+    const regular = await this.Gather.find({
+      category: 'regularGather',
+      status: { $ne: 'close' },
+    })
+      .sort({ id: 1 })
+      .limit(6)
+      .populate(populateOptions);
+
+    const others = await this.Gather.find({
       category: {
         $in: ['openGather', 'officialGather', 'gather2', 'secretGather'],
       },
+      parentGatherId: null,
     })
       .sort({ date: -1 })
       .limit(6)
       .populate(populateOptions);
 
+    const featured = [...regular, ...others].slice(0, 6);
     const featuredIds = featured.map((item) => item._id);
 
     const upcoming = await this.Gather.find({
       status: 'pending',
       _id: { $nin: featuredIds },
+      category: { $ne: 'regularGather' },
+      parentGatherId: null,
     })
       .sort({ date: 1 })
       .limit(6)
@@ -163,6 +176,19 @@ export class GatherRepository implements IGatherRepository {
         .slice(0, 6)
         .concat(Array(Math.max(0, 6 - upcoming.length)).fill(null)),
     ].map((doc) => (doc ? this.mapToDomain(doc) : null));
+  }
+
+  // 상시 행사 구글폼 집계만 갱신한다. save()의 mapToDB는 formStats를 쓰지 않으므로
+  // 다른 저장과 겹쳐도 이 값이 오래된 값으로 덮이지 않는다.
+  async updateFormStats(
+    gatherId: number,
+    formStats: Gather['formStats'],
+  ): Promise<boolean> {
+    const res = await this.Gather.updateOne(
+      { id: gatherId, category: 'regularGather' },
+      { $set: { formStats } },
+    );
+    return res.matchedCount > 0;
   }
 
   async createGather(gatherData: Partial<Gather>): Promise<Gather> {
@@ -258,6 +284,8 @@ export class GatherRepository implements IGatherRepository {
         $and: [
           { status: { $eq: 'pending' } },
           { date: { $lt: current.toISOString() } },
+          // 상시 행사는 date가 개설일일 뿐이라 날짜로 마감 처리하지 않는다.
+          { category: { $ne: 'regularGather' } },
         ],
       },
       [
@@ -484,6 +512,37 @@ export class GatherRepository implements IGatherRepository {
         date: d.date,
         voters: d.voters ?? [],
       })),
+      slots: (doc.slots ?? []).map((s: any) => ({
+        key: s.key,
+        weekday: s.weekday ?? undefined,
+        date: s.date ?? undefined,
+        time: s.time,
+        contentKey: s.contentKey ?? undefined,
+      })),
+      contents: (doc.contents ?? []).map((c: any) => ({
+        key: c.key,
+        title: c.title,
+        description: c.description,
+        url: c.url,
+        badge: c.badge,
+        location: c.location?.main
+          ? {
+              main: c.location.main,
+              sub: c.location.sub,
+              latitude: c.location.latitude,
+              longitude: c.location.longitude,
+            }
+          : undefined,
+      })),
+      formStats: doc.formStats
+        ? {
+            roundKey: doc.formStats.roundKey,
+            total: doc.formStats.total ?? 0,
+            byOption: doc.formStats.byOption ?? {},
+            updatedAt: doc.formStats.updatedAt,
+          }
+        : null,
+      parentGatherId: doc.parentGatherId ?? null,
     });
   }
 
@@ -547,6 +606,7 @@ export class GatherRepository implements IGatherRepository {
       waiting: props.waiting.map((w) => ({
         user: w.user,
         phase: w.phase,
+        createdAt: w.createdAt,
       })),
       isApprovalRequired: props.isApprovalRequired,
       reviewers: props.reviewers,
@@ -558,6 +618,10 @@ export class GatherRepository implements IGatherRepository {
         date: d.date,
         voters: d.voters,
       })),
+      // formStats는 updateFormStats로만 쓴다(여기서 쓰면 오래된 값으로 덮일 수 있음).
+      ...(props.slots?.length ? { slots: props.slots } : {}),
+      ...(props.contents?.length ? { contents: props.contents } : {}),
+      parentGatherId: props.parentGatherId ?? null,
     };
   }
 }

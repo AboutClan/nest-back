@@ -116,7 +116,23 @@ export class GatherService {
     sortBy: 'createdAt' | 'date' | 'basic',
     mode?: 'future' | 'past',
   ) {
-    const query =
+    // 상시 행사는 date가 개설일이라 날짜 조건에 섞지 않고 첫 페이지 맨 앞에 따로 붙인다.
+    // 상시 행사에서 확정된 모임(parentGatherId)은 부모 상세에서만 보여 준다.
+    const excludeRegular = {
+      category: { $ne: 'regularGather' },
+      parentGatherId: null,
+    };
+    const withRegularFirst = async (list: Gather[]) => {
+      if (cursor || (category && category !== '모집중')) return list;
+      const regular = await this.gatherRepository.findWithQueryPop(
+        { category: 'regularGather', status: { $ne: 'close' } },
+        0,
+        { id: 1 },
+      );
+      return [...(regular ?? []), ...(list ?? [])];
+    };
+
+    const baseQuery =
       category === '모집중'
         ? { status: 'pending' }
         : category === '마감 임박'
@@ -134,17 +150,20 @@ export class GatherService {
                 'participants.8': { $exists: true },
               }
             : {};
+    const query = { ...baseQuery, ...excludeRegular };
 
     if (sortBy === 'basic') {
       const todayMidnightKST = dayjs().startOf('day').toISOString();
 
       if (mode !== 'past' && category !== '인기 모임') {
         const futureQuery = { ...query, date: { $gte: todayMidnightKST } };
-        return await this.gatherRepository.findWithQueryPop(
-          futureQuery,
-          cursor,
-          { date: 1 },
-          true,
+        return await withRegularFirst(
+          await this.gatherRepository.findWithQueryPop(
+            futureQuery,
+            cursor,
+            { date: 1 },
+            true,
+          ),
         );
       } else {
         const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
@@ -154,12 +173,51 @@ export class GatherService {
       }
     } else {
       const sortOption: { [key: string]: any } = { [sortBy]: -1 };
-      return await this.gatherRepository.findWithQueryPop(
-        query,
-        cursor,
-        sortOption,
+      return await withRegularFirst(
+        await this.gatherRepository.findWithQueryPop(query, cursor, sortOption),
       );
     }
+  }
+
+  // 상시 행사에서 확정돼 따로 만든 모임들 (최신순)
+  async getChildGathers(parentGatherId: number) {
+    return await this.gatherRepository.findWithQueryPop(
+      { parentGatherId },
+      0,
+      { date: -1 },
+      true,
+    );
+  }
+
+  // Apps Script가 보내는 상시 행사 구글폼 집계. 인증은 컨트롤러에서 내부 키로 한다.
+  async updateFormStats(body: {
+    gatherId: number;
+    roundKey: string;
+    total: number;
+    byOption?: Record<string, number>;
+  }) {
+    const gatherId = Number(body.gatherId);
+    const total = Number(body.total);
+    if (!gatherId || !/^\d{4}-\d{2}-\d{2}$/.test(body.roundKey ?? '')) {
+      throw new HttpException('invalid gatherId or roundKey', 400);
+    }
+    if (!Number.isFinite(total) || total < 0) {
+      throw new HttpException('invalid total', 400);
+    }
+
+    const byOption: Record<string, number> = {};
+    for (const [key, cnt] of Object.entries(body.byOption ?? {})) {
+      const n = Number(cnt);
+      if (Number.isFinite(n) && n >= 0) byOption[key] = n;
+    }
+
+    const updated = await this.gatherRepository.updateFormStats(gatherId, {
+      roundKey: body.roundKey,
+      total,
+      byOption,
+      updatedAt: new Date(),
+    });
+    if (!updated) throw new HttpException('regularGather not found', 404);
   }
 
   async getGatherCount(userId: string) {
@@ -461,6 +519,10 @@ export class GatherService {
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
+    // 상시 행사는 구글폼 신청(waiting) → 확정 모임 초대로만 참여한다. 초대 링크 자동 참여도 여기서 막힌다.
+    if (gather.isRegularGather()) {
+      throw new BadRequestException('상시 행사에는 직접 참여할 수 없어요.');
+    }
 
     try {
       const partData = {
@@ -519,6 +581,9 @@ export class GatherService {
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
+    if (gather.isRegularGather()) {
+      throw new BadRequestException('상시 행사에는 직접 참여할 수 없어요.');
+    }
 
     try {
       const partData = {
@@ -891,6 +956,8 @@ export class GatherService {
         createdAt: DateUtils.getKoreaToday(),
       };
 
+      // 상시 행사는 주마다 다시 신청하므로, 지난 신청이 있으면 지우고 신청 시각을 새로 남긴다.
+      if (gather.isRegularGather()) gather.removeWaiting(token.id);
       gather.setWaiting(user);
 
       await this.gatherRepository.save(gather);
@@ -916,6 +983,13 @@ export class GatherService {
     text?: string,
   ) {
     const gather = await this.gatherRepository.findById(+id);
+    // 상시 행사 신청자는 확정 모임(별도 gather)에 초대로 넣는다. 여기서 승인하면
+    // 부모 행사에 참여자로 들어가고 참여권·포인트가 차감되므로 막는다. 거절(신청 취소)은 허용.
+    if (gather?.isRegularGather() && status === 'agree') {
+      throw new BadRequestException(
+        '상시 행사는 확정 모임에 초대하는 방식으로 참여를 확정해 주세요.',
+      );
+    }
     gather.removeWaiting(userId);
     if (status === 'agree') {
       const ticket = await this.userServiceInstance.getTicketInfo(userId);

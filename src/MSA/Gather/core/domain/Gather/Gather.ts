@@ -14,6 +14,34 @@ import { Waiting, WaitingProps } from './Waiting';
 
 export type GatherStatus = 'pending' | 'open' | 'close' | 'end';
 
+// 상시 행사(regularGather)의 일정. 매주 반복이면 weekday, 특정 날짜면 date.
+// contentKey가 있으면 그 콘텐츠 전용 일정이다.
+export interface RegularSlotProps {
+  key: string;
+  weekday?: number;
+  date?: string;
+  time: string;
+  contentKey?: string;
+}
+
+// 상시 행사의 콘텐츠 라인업 (수시 교체)
+export interface RegularContentProps {
+  key: string;
+  title: string;
+  description?: string;
+  url?: string;
+  badge?: string;
+  location?: LocationProps;
+}
+
+// 상시 행사 구글폼 신청 집계 (Apps Script가 갱신). byOption은 slot·content key별 선택 수.
+export interface FormStatsProps {
+  roundKey: string;
+  total: number;
+  byOption: Record<string, number>;
+  updatedAt: Date;
+}
+
 export interface GatherProps {
   _id?: string;
   title?: string;
@@ -46,6 +74,10 @@ export interface GatherProps {
   groupId?: string | null;
   hasReview?: boolean;
   dateOptions?: DateOptionProps[];
+  slots?: RegularSlotProps[];
+  contents?: RegularContentProps[];
+  formStats?: FormStatsProps | null;
+  parentGatherId?: number | null;
 }
 
 export class Gather {
@@ -80,6 +112,10 @@ export class Gather {
   public groupId?: string | null;
   public hasReview?: boolean;
   public dateOptions: DateOption[];
+  public slots: RegularSlotProps[];
+  public contents: RegularContentProps[];
+  public formStats: FormStatsProps | null;
+  public parentGatherId: number | null;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -114,6 +150,14 @@ export class Gather {
     this.postImage = props.postImage ?? null;
     this.hasReview = props.hasReview ?? false;
     this.dateOptions = (props.dateOptions ?? []).map((d) => new DateOption(d));
+    this.slots = props.slots ?? [];
+    this.contents = props.contents ?? [];
+    this.formStats = props.formStats ?? null;
+    this.parentGatherId = props.parentGatherId ?? null;
+  }
+
+  isRegularGather() {
+    return this.category === 'regularGather';
   }
 
   participate(participant: ParticipantsProps) {
@@ -244,6 +288,10 @@ export class Gather {
       groupId: this.groupId,
       hasReview: this.hasReview,
       dateOptions: this.dateOptions.map((d) => d.toPrimitives()),
+      slots: this.slots,
+      contents: this.contents,
+      formStats: this.formStats,
+      parentGatherId: this.parentGatherId,
     };
   }
 }

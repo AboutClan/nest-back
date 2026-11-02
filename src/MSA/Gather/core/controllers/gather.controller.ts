@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Headers,
   Patch,
   Post,
   Query,
@@ -12,7 +14,9 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
+import { Public } from 'src/decorator/Public';
 import { GeneratePostDraftDto } from 'src/utils/gpt/content-draft.dto';
+import { assertGatherFormSyncKey } from 'src/utils/internalAuth';
 import {
   CreateGatherDto,
   DeleteGatherDto,
@@ -52,6 +56,32 @@ export class GatherController {
         mode,
       );
     }
+  }
+
+  // 상시 행사에서 확정돼 따로 만든 모임 목록
+  @Get('children')
+  async getChildGathers(@Query('parentGatherId') parentGatherId: string) {
+    const id = parseInt(parentGatherId);
+    if (!id) throw new BadRequestException('parentGatherId required');
+    return await this.gatherService.getChildGathers(id);
+  }
+
+  // Apps Script(구글폼 응답 시트) → 상시 행사 회차별 신청 집계. 사용자 JWT 대신 내부 키로 인증.
+  @Public()
+  @Post('regular/form-stats')
+  async updateFormStats(
+    @Headers('x-internal-key') key: string,
+    @Body()
+    body: {
+      gatherId: number;
+      roundKey: string;
+      total: number;
+      byOption?: Record<string, number>;
+    },
+  ) {
+    assertGatherFormSyncKey(key);
+    await this.gatherService.updateFormStats(body);
+    return { status: 'success' };
   }
 
   @Get('group')

@@ -173,6 +173,8 @@ export class AppModule implements NestModule {
         { path: 'cookiepay/order/:orderNo', method: RequestMethod.GET },
         { path: 'cookiepay/mark-result', method: RequestMethod.POST },
         { path: 'cookiepay/finalize', method: RequestMethod.POST },
+        // 상시 행사 구글폼 집계(Apps Script) — 내부 키로 인증
+        { path: 'gather/regular/form-stats', method: RequestMethod.POST },
       )
       .forRoutes('*');
   }

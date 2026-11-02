@@ -14,8 +14,23 @@ const COOKIEPAY_INTERNAL_KEY =
  * 실제 side effect는 항상 사전에 저장된 주문 레코드(orderNo) 기준으로만 실행해야 한다.
  */
 export function assertInternalKey(headerValue: string | undefined) {
-  const expected = COOKIEPAY_INTERNAL_KEY;
+  assertKeyMatches(headerValue, COOKIEPAY_INTERNAL_KEY);
+}
 
+/**
+ * 상시 행사 구글폼 집계(Apps Script → POST /gather/regular/form-stats) 전용 키.
+ * 결제 키와 분리해 Apps Script에 결제 키가 노출되지 않게 한다. env가 없으면 모두 거부한다.
+ */
+export function assertGatherFormSyncKey(headerValue: string | undefined) {
+  const expected = process.env.GATHER_FORM_SYNC_KEY;
+  // deploy.sh가 Secrets Manager에 키가 없을 때 'null' 문자열을 넣을 수 있어 함께 거부한다.
+  if (!expected || expected === 'null' || expected.length < 32) {
+    throw new UnauthorizedException('form sync key not set');
+  }
+  assertKeyMatches(headerValue, expected);
+}
+
+function assertKeyMatches(headerValue: string | undefined, expected: string) {
   const provided = headerValue ?? '';
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);

@@ -13,6 +13,7 @@ export const TimeZodSchema = z.object({
 export const WaitingZodSchema = z.object({
   user: z.union([z.string(), z.custom<IUser>()]),
   phase: z.string(),
+  createdAt: z.date().nullable().optional(),
 });
 export const TitleZodSchema = z.object({
   title: z.string(),
@@ -54,6 +55,36 @@ export const DateOptionZodSchema = z.object({
   voters: z.array(z.union([z.string(), z.custom<IUser>()])).default([]),
 });
 
+// 상시 행사(regularGather)의 일정. 매주 반복이면 weekday, 특정 날짜면 date(YYYY-MM-DD).
+// contentKey가 있으면 그 콘텐츠 전용 일정, 없으면 콘텐츠와 무관한 공통 일정이다.
+// key는 구글폼 집계(formStats.byOption)의 키와 같다.
+export const RegularSlotZodSchema = z.object({
+  key: z.string(),
+  weekday: z.number().optional(),
+  date: z.string().optional(),
+  time: z.string(),
+  contentKey: z.string().optional(),
+});
+
+// 상시 행사의 콘텐츠 라인업. 수시로 교체된다. location이 없으면 행사 공통 location을 쓴다.
+export const RegularContentZodSchema = z.object({
+  key: z.string(),
+  title: z.string(),
+  description: z.string().optional(),
+  url: z.string().optional(),
+  badge: z.string().optional(),
+  location: LocationZodSchema.optional(),
+});
+
+// 상시 행사 구글폼 신청 집계. Apps Script가 POST /gather/regular/form-stats로 통째로 덮어쓴다.
+// roundKey는 그 주 월요일(KST) 'YYYY-MM-DD'. byOption은 slot·content key별 선택 수(복수 선택).
+export const FormStatsZodSchema = z.object({
+  roundKey: z.string(),
+  total: z.number(),
+  byOption: z.record(z.string(), z.number()).default({}),
+  updatedAt: z.date(),
+});
+
 export const GatherZodSchema = z.object({
   title: z.string(),
   type: TitleZodSchema,
@@ -88,6 +119,10 @@ export const GatherZodSchema = z.object({
   groupId: z.string().optional(),
   hasReview: z.boolean().optional().default(false),
   dateOptions: z.array(DateOptionZodSchema).optional().default([]),
+  slots: z.array(RegularSlotZodSchema).optional(),
+  contents: z.array(RegularContentZodSchema).optional(),
+  formStats: FormStatsZodSchema.nullable().optional(),
+  parentGatherId: z.number().nullable().optional(),
 });
 
 export type ITime = z.infer<typeof TimeZodSchema>;
@@ -98,6 +133,9 @@ export type memberCntType = z.infer<typeof MemberCntZodSchema>;
 export type GatherType = z.infer<typeof GathersZodSchema>;
 export type participantsType = z.infer<typeof ParticipantsZodSchema>;
 export type dateOptionType = z.infer<typeof DateOptionZodSchema>;
+export type regularSlotType = z.infer<typeof RegularSlotZodSchema>;
+export type regularContentType = z.infer<typeof RegularContentZodSchema>;
+export type formStatsType = z.infer<typeof FormStatsZodSchema>;
 export type IGatherData = z.infer<typeof GatherZodSchema> & Document;
 
 export const typeSchema: Schema<TitleType> = new Schema(
@@ -236,8 +274,44 @@ export const waitingSchema: Schema<IWaiting> = new Schema(
     phase: {
       type: String,
     },
+    createdAt: {
+      type: Date,
+    },
   },
   { _id: false },
+);
+
+export const regularSlotSchema: Schema<regularSlotType> = new Schema(
+  {
+    key: { type: String },
+    weekday: { type: Number },
+    date: { type: String },
+    time: { type: String },
+    contentKey: { type: String },
+  },
+  { _id: false, timestamps: false },
+);
+
+export const regularContentSchema: Schema<regularContentType> = new Schema(
+  {
+    key: { type: String },
+    title: { type: String },
+    description: { type: String },
+    url: { type: String },
+    badge: { type: String },
+    location: { type: locationSchema },
+  },
+  { _id: false, timestamps: false },
+);
+
+export const formStatsSchema: Schema<formStatsType> = new Schema(
+  {
+    roundKey: { type: String },
+    total: { type: Number, default: 0 },
+    byOption: { type: Schema.Types.Mixed, default: {} },
+    updatedAt: { type: Date },
+  },
+  { _id: false, timestamps: false },
 );
 
 export const GatherSchema: Schema<IGatherData> = new Schema(
@@ -350,6 +424,24 @@ export const GatherSchema: Schema<IGatherData> = new Schema(
     dateOptions: {
       type: [dateOptionSchema],
       default: [],
+    },
+    slots: {
+      type: [regularSlotSchema],
+      default: undefined,
+    },
+    contents: {
+      type: [regularContentSchema],
+      default: undefined,
+    },
+    formStats: {
+      type: formStatsSchema,
+      required: false,
+    },
+    // 상시 행사에서 확정돼 따로 만든 모임이면 부모(상시 행사) gather의 id
+    parentGatherId: {
+      type: Number,
+      required: false,
+      default: null,
     },
   },
   { timestamps: true, strict: false },

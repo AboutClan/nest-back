@@ -37,6 +37,10 @@ export interface IGatherRepository {
     gatherData: Partial<IGatherData>,
   ): Promise<null>;
   save(doc: Gather): Promise<Gather>;
+  updateFormStats(
+    gatherId: number,
+    formStats: Gather['formStats'],
+  ): Promise<boolean>;
   updateNotOpened(current: Date);
   deleteById(gatherId: number): Promise<any>;
   getEnthMembers();

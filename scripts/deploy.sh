@@ -49,6 +49,7 @@ APPLE_TEAM_ID=$(echo "$SECRETS" | jq -r '.APPLE_TEAM_ID')
 APPLE_KEY_ID=$(echo "$SECRETS" | jq -r '.APPLE_KEY_ID')
 APPLE_PRIVATE_KEY=$(echo "$SECRETS" | jq -r '.APPLE_PRIVATE_KEY')
 APPLE_REDIRECT_URI=$(echo "$SECRETS" | jq -r '.APPLE_REDIRECT_URI')
+GATHER_FORM_SYNC_KEY=$(echo "$SECRETS" | jq -r '.GATHER_FORM_SYNC_KEY // empty')
 EOF
 
 echo ".env file created successfully."
