@@ -32,6 +32,7 @@ import {
   ParticipantsZodSchema,
 } from '../../entity/gather.entity';
 import { Gather, GatherProps } from '../domain/Gather/Gather';
+import { countFormResponses } from '../domain/Gather/regularFormMatcher';
 import {
   GatherAbsenceType,
   ParticipantsProps,
@@ -190,29 +191,53 @@ export class GatherService {
   }
 
   // Apps Script가 보내는 상시 행사 구글폼 집계. 인증은 컨트롤러에서 내부 키로 한다.
+  // responses(응답마다 고른 선택지 문구)를 보내면 서버가 이 행사의 slots·contents에 맞춰
+  // 이번 주(월~일, KST) 회차만 센다. roundKey도 서버가 정한다.
+  // 이미 센 값(roundKey·total·byOption)을 보내는 방식도 받는다.
   async updateFormStats(body: {
     gatherId: number;
-    roundKey: string;
-    total: number;
+    roundKey?: string;
+    total?: number;
     byOption?: Record<string, number>;
+    responses?: string[][];
   }) {
     const gatherId = Number(body.gatherId);
-    const total = Number(body.total);
-    if (!gatherId || !/^\d{4}-\d{2}-\d{2}$/.test(body.roundKey ?? '')) {
-      throw new HttpException('invalid gatherId or roundKey', 400);
-    }
-    if (!Number.isFinite(total) || total < 0) {
-      throw new HttpException('invalid total', 400);
-    }
+    if (!gatherId) throw new HttpException('invalid gatherId', 400);
 
+    let roundKey: string;
+    let total: number;
     const byOption: Record<string, number> = {};
-    for (const [key, cnt] of Object.entries(body.byOption ?? {})) {
-      const n = Number(cnt);
-      if (Number.isFinite(n) && n >= 0) byOption[key] = n;
+
+    if (Array.isArray(body.responses)) {
+      const gather = await this.gatherRepository.findById(gatherId);
+      if (!gather?.isRegularGather()) {
+        throw new HttpException('regularGather not found', 404);
+      }
+      const counted = countFormResponses(
+        body.responses.filter((r) => Array.isArray(r)),
+        gather.slots,
+        gather.contents,
+      );
+      roundKey = counted.roundKey;
+      total = counted.total;
+      Object.assign(byOption, counted.byOption);
+    } else {
+      roundKey = body.roundKey;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(roundKey ?? '')) {
+        throw new HttpException('invalid roundKey', 400);
+      }
+      total = Number(body.total);
+      if (!Number.isFinite(total) || total < 0) {
+        throw new HttpException('invalid total', 400);
+      }
+      for (const [key, cnt] of Object.entries(body.byOption ?? {})) {
+        const n = Number(cnt);
+        if (Number.isFinite(n) && n >= 0) byOption[key] = n;
+      }
     }
 
     const updated = await this.gatherRepository.updateFormStats(gatherId, {
-      roundKey: body.roundKey,
+      roundKey,
       total,
       byOption,
       updatedAt: new Date(),

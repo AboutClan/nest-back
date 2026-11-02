@@ -74,9 +74,10 @@ export class GatherController {
     @Body()
     body: {
       gatherId: number;
-      roundKey: string;
-      total: number;
+      roundKey?: string;
+      total?: number;
       byOption?: Record<string, number>;
+      responses?: string[][];
     },
   ) {
     assertGatherFormSyncKey(key);
