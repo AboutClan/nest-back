@@ -274,3 +274,22 @@ describe('앱 신청 회원과 폼 응답 짝짓기', () => {
     expect(map.size).toBe(0);
   });
 });
+
+describe('이름·연락처', () => {
+  it('신청자 목록에는 넣지 않고 contacts로만 돌려준다', () => {
+    const res = countFormResponses(
+      [
+        {
+          selected: ['11월 6일(금) 오후 7시'],
+          name: '홍 길동',
+          phone: '010-1234-5678',
+        },
+      ],
+      [{ key: 'fri', weekday: 5, time: '19:00' }],
+      [],
+      NOW,
+    );
+    expect(res.contacts).toEqual([{ name: '홍길동', phone: '01012345678' }]);
+    expect(JSON.stringify(res.applicants)).not.toMatch(/홍|5678/);
+  });
+});

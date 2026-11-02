@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
+import * as CryptoJS from 'crypto-js';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 import { CONST } from 'src/Constants/CONSTANTS';
@@ -37,6 +38,7 @@ import {
   FormResponseInput,
   matchApplicantsToAppUsers,
   RegularFormApplicant,
+  RegularFormContact,
 } from '../domain/Gather/regularFormMatcher';
 import {
   GatherAbsenceType,
@@ -217,10 +219,12 @@ export class GatherService {
       gather.contents,
     );
 
-    await this.linkRegularApplicantsToUsers(gather, counted.applicants);
+    // contacts(이름·연락처)는 회원 연결에만 쓰고 저장하지 않는다.
+    const { contacts, ...stats } = counted;
+    await this.linkRegularApplicantsToUsers(gather, stats.applicants, contacts);
 
     const updated = await this.gatherRepository.updateFormStats(gatherId, {
-      ...counted,
+      ...stats,
       updatedAt: new Date(),
     });
     if (!updated) throw new HttpException('regularGather not found', 404);
@@ -235,12 +239,14 @@ export class GatherService {
   private async linkRegularApplicantsToUsers(
     gather: Gather,
     applicants: RegularFormApplicant[],
+    contacts: RegularFormContact[],
   ) {
     const waitingIds = gather.waiting
       .map((w) => w.user?.toString())
       .filter(Boolean);
     const uids = applicants.map((a) => a.uid).filter(Boolean);
-    if (!waitingIds.length && !uids.length) return;
+    const names = [...new Set(contacts.map((c) => c?.name).filter(Boolean))];
+    if (!waitingIds.length && !uids.length && !names.length) return;
 
     const users: any[] = await this.User.find({
       $or: [{ _id: { $in: waitingIds } }, { uid: { $in: uids } }],
@@ -269,6 +275,43 @@ export class GatherService {
       applicant.user = user ? snapshot(user) : null;
       if (user) linkedUserIds.add(user._id.toString());
     });
+
+    // 폼의 이름·성별·출생연도로 후보를 좁히고, 그 후보의 전화번호만 복호화해 연락처까지 같으면 잇는다.
+    // (전화번호는 매번 다른 암호문이라 DB에서 바로 비교할 수 없다)
+    if (names.length) {
+      const sameNameUsers: any[] = await this.User.find({
+        name: { $in: names },
+      })
+        .select(
+          '_id uid nickname avatar profileImage gender birth telephone name',
+        )
+        .lean();
+      const key = process.env.cryptoKey;
+      const decodePhone = (encoded?: string) => {
+        if (!encoded || !key) return '';
+        try {
+          return CryptoJS.AES.decrypt(encoded, key)
+            .toString(CryptoJS.enc.Utf8)
+            .replace(/\D/g, '');
+        } catch {
+          return '';
+        }
+      };
+      applicants.forEach((applicant, idx) => {
+        const contact = contacts[idx];
+        if (applicant.user || !contact?.name || !contact?.phone) return;
+        const found = sameNameUsers.filter(
+          (u) =>
+            String(u.name ?? '').replace(/\s/g, '') === contact.name &&
+            (!applicant.gender || u.gender === applicant.gender) &&
+            (!applicant.birthYear || toYear(u.birth) === applicant.birthYear) &&
+            decodePhone(u.telephone) === contact.phone,
+        );
+        if (found.length !== 1) return;
+        applicant.user = snapshot(found[0]);
+        linkedUserIds.add(found[0]._id.toString());
+      });
+    }
 
     const appUsers = gather.waiting
       .map((w) => ({ w, user: byId.get(w.user?.toString()) }))

@@ -122,7 +122,17 @@ export type FormResponseInput =
       birthYear?: string | number;
       submittedAt?: string;
       uid?: string;
+      /** 회원 연결에만 쓰고 저장하지 않는다 */
+      name?: string;
+      /** 회원 연결에만 쓰고 저장하지 않는다 */
+      phone?: string;
     };
+
+/** 응답의 이름·연락처. 회원을 찾는 데만 쓰고 formStats에는 저장하지 않는다. */
+export interface RegularFormContact {
+  name: string | null;
+  phone: string | null;
+}
 
 /** 신청자와 연결된 회원(집계 시점 스냅샷) */
 export interface RegularApplicantUser {
@@ -198,11 +208,14 @@ export function countFormResponses(
   total: number;
   byOption: Record<string, number>;
   applicants: RegularFormApplicant[];
+  /** applicants와 같은 순서. 저장하지 말 것 */
+  contacts: RegularFormContact[];
 } {
   const roundKey = getRoundKey(now);
   const today = getKstDate(now);
   const byOption: Record<string, number> = {};
   const applicants: RegularFormApplicant[] = [];
+  const contacts: RegularFormContact[] = [];
 
   for (const response of keepLatestPerUid(responses)) {
     const input: Exclude<FormResponseInput, string[]> = Array.isArray(response)
@@ -238,8 +251,12 @@ export function countFormResponses(
           : null,
       uid: toUid(input.uid),
     });
+    contacts.push({
+      name: String(input.name ?? '').replace(/\s/g, '') || null,
+      phone: String(input.phone ?? '').replace(/\D/g, '') || null,
+    });
   }
-  return { roundKey, total: applicants.length, byOption, applicants };
+  return { roundKey, total: applicants.length, byOption, applicants, contacts };
 }
 
 /** 앱에서 "신청하기"를 누른 회원(대기열)과 프로필의 성별·출생연도 */
