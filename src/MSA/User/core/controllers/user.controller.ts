@@ -41,6 +41,7 @@ import {
   UpdateTicketDto,
 } from '../../dtos/dto';
 import { IUser } from '../../entity/user.entity';
+import { RANDOM_NICKNAME_POOL } from '../domain/User/randomNickname';
 import { UserService } from '../services/user.service';
 
 @ApiTags('user')
@@ -57,6 +58,12 @@ export class UserController {
   @Get('nicknames')
   async getAllNicknames() {
     return await this.userService.getAllNicknames();
+  }
+
+  // 기본(랜덤) 닉네임 후보 목록. 프론트는 이 목록으로 기본 닉네임 여부를 판단한다.
+  @Get('nicknames/default')
+  getDefaultNicknames() {
+    return RANDOM_NICKNAME_POOL;
   }
 
   @Get('simple')

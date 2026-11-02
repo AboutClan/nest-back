@@ -17,6 +17,7 @@ import { DateUtils } from 'src/utils/Date';
 import { IREGISTER_REPOSITORY } from 'src/utils/di.tokens';
 import { IRegistered } from '../../entity/register.entity';
 import { RegisterRepository } from '../../infra/MongoRegisterRepository';
+import { pickRandomNickname } from '../domain/User/randomNickname';
 import { UserService } from './user.service';
 
 const REFERRAL_REWARD_POINT = 3000;
@@ -182,6 +183,31 @@ export default class RegisterService {
       { upsert: true, new: true },
     );
     await this.removeUnnecessaryUserField();
+    await this.ensureNickname(uid);
+  }
+
+  // 닉네임이 없는 어바웃 회원에게 겹치지 않는 랜덤 닉네임을 부여한다.
+  // 실패해도 가입 처리를 막지 않는다(닉네임은 나중에 프로필에서 정할 수 있음).
+  private async ensureNickname(uid: string) {
+    try {
+      const user = await this.User.findOne({ uid }).lean();
+      if (!user || user.nickname) return;
+
+      const used = new Set<string>(
+        await this.User.distinct('nickname', {
+          nickname: { $exists: true, $nin: [null, ''] },
+        }),
+      );
+      await this.User.updateOne(
+        { uid, nickname: { $in: [null, ''] } },
+        { $set: { nickname: pickRandomNickname(used) } },
+      );
+    } catch (err) {
+      logger.logger.error('가입 닉네임 부여 실패', {
+        uid,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
   }
 
   async isAdmin(uid: string): Promise<boolean> {
@@ -252,6 +278,7 @@ export default class RegisterService {
         { upsert: true, new: true },
       );
       await this.removeUnnecessaryUserField();
+      await this.ensureNickname(uid);
 
       await this.deleteRegisterUser(uid, true);
     } catch (err: any) {

@@ -12,6 +12,7 @@ import { CONST } from 'src/Constants/CONSTANTS';
 import { ENTITY } from 'src/Constants/ENTITY';
 import { AppError } from 'src/errors/AppError';
 import { logger } from 'src/logger';
+import { NICKNAME_MAX_LENGTH } from 'src/MSA/User/core/domain/User/randomNickname';
 import { STUDY_BADGE_PRIZE_START_MONTH } from 'src/MSA/Store/core/services/prize.service';
 import NoticeService from 'src/MSA/Notice/core/services/notice.service';
 import { FcmService } from 'src/MSA/Notification/core/services/fcm.service';
@@ -193,6 +194,25 @@ export class UserService {
 
   async updateUser(updateInfo: Partial<IUser>) {
     const token = RequestContext.getDecodedToken();
+
+    // 닉네임은 전체 회원(카공지도 포함) 사이에서 중복 불가
+    if (updateInfo.nickname !== undefined) {
+      const nickname = String(updateInfo.nickname ?? '').trim();
+      if (!nickname) throw new BadRequestException('닉네임을 입력해주세요.');
+      const user = await this.UserRepository.findByUid(token.uid);
+      if (user?.nickname !== nickname) {
+        if (nickname.length > NICKNAME_MAX_LENGTH) {
+          throw new BadRequestException(
+            `닉네임은 ${NICKNAME_MAX_LENGTH}글자까지 가능합니다.`,
+          );
+        }
+        const nicknames = await this.UserRepository.findAllNicknames();
+        if (nicknames.includes(nickname)) {
+          throw new BadRequestException('이미 사용 중인 닉네임입니다.');
+        }
+      }
+      updateInfo = { ...updateInfo, nickname };
+    }
 
     const updated = await this.UserRepository.updateUser(token.uid, updateInfo);
     return updated;
@@ -415,6 +435,7 @@ export class UserService {
           _id: user._id,
           uid: user.uid,
           name: user.name,
+          nickname: user.nickname,
           profileImage: user.profileImage,
           avatar: user.avatar,
           role: user.role,
