@@ -110,7 +110,10 @@ export function getRoundKey(now: Date = new Date()): string {
 const getKstDate = (now: Date) =>
   new Date(now.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-/** Apps Script가 보내는 응답 하나. 예전 형식(선택지 문구 배열)도 받는다. 이름·연락처는 받지 않는다. */
+/**
+ * Apps Script가 보내는 응답 하나. 예전 형식(선택지 문구 배열)도 받는다. 이름·연락처는 받지 않는다.
+ * uid는 앱에서 신청할 때 폼의 "회원 ID" 질문에 미리 채워 보낸 값(외부 신청자는 없음).
+ */
 export type FormResponseInput =
   | string[]
   | {
@@ -118,14 +121,52 @@ export type FormResponseInput =
       gender?: string;
       birthYear?: string | number;
       submittedAt?: string;
+      uid?: string;
     };
+
+/** 신청자와 연결된 회원(집계 시점 스냅샷) */
+export interface RegularApplicantUser {
+  _id: string;
+  uid: string;
+  nickname?: string;
+  avatar?: { type: number; bg: number };
+  profileImage?: string;
+}
 
 export interface RegularFormApplicant {
   gender: '남성' | '여성' | null;
   birthYear: number | null;
   keys: string[];
   submittedAt: Date | null;
+  uid: string | null;
+  user?: RegularApplicantUser | null;
 }
+
+const toUid = (value?: string) => {
+  const uid = String(value ?? '').trim();
+  return /^[A-Za-z0-9_-]{1,64}$/.test(uid) ? uid : null;
+};
+
+/** 같은 회원이 여러 번 제출했으면 가장 마지막 응답만 남긴다(회원 ID 없는 응답은 그대로). */
+const keepLatestPerUid = (responses: FormResponseInput[]) => {
+  const latest = new Map<string, number>();
+  responses.forEach((response, idx) => {
+    if (Array.isArray(response)) return;
+    const uid = toUid(response?.uid);
+    if (!uid) return;
+    const prev = latest.get(uid);
+    const time = (r: FormResponseInput) =>
+      Array.isArray(r) ? 0 : new Date(r?.submittedAt ?? 0).getTime() || 0;
+    if (prev === undefined || time(response) >= time(responses[prev])) {
+      latest.set(uid, idx);
+    }
+  });
+  return responses.filter((response, idx) => {
+    if (Array.isArray(response)) return true;
+    const uid = toUid(response?.uid);
+    return !uid || latest.get(uid) === idx;
+  });
+};
 
 const toGender = (text?: string): RegularFormApplicant['gender'] =>
   text?.includes('여') ? '여성' : text?.includes('남') ? '남성' : null;
@@ -163,8 +204,8 @@ export function countFormResponses(
   const byOption: Record<string, number> = {};
   const applicants: RegularFormApplicant[] = [];
 
-  for (const response of responses) {
-    const input = Array.isArray(response)
+  for (const response of keepLatestPerUid(responses)) {
+    const input: Exclude<FormResponseInput, string[]> = Array.isArray(response)
       ? { selected: response }
       : (response ?? {});
     const texts = (input.selected ?? []).filter(
@@ -195,6 +236,7 @@ export function countFormResponses(
         submittedAt && !Number.isNaN(submittedAt.getTime())
           ? submittedAt
           : null,
+      uid: toUid(input.uid),
     });
   }
   return { roundKey, total: applicants.length, byOption, applicants };

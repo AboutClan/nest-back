@@ -175,8 +175,15 @@ describe('신청자 목록', () => {
         birthYear: 2001,
         keys: ['fri'],
         submittedAt: new Date('2026-11-02T10:00:00Z'),
+        uid: null,
       },
-      { gender: '남성', birthYear: 1999, keys: ['fri'], submittedAt: null },
+      {
+        gender: '남성',
+        birthYear: 1999,
+        keys: ['fri'],
+        submittedAt: null,
+        uid: null,
+      },
     ]);
   });
 
@@ -185,5 +192,36 @@ describe('신청자 목록', () => {
     expect(toBirthYear('99', NOW)).toBe(1999);
     expect(toBirthYear('03', NOW)).toBe(2003);
     expect(toBirthYear('모름', NOW)).toBeNull();
+  });
+});
+
+describe('회원 ID', () => {
+  it('같은 회원의 응답은 마지막 것만 남기고 uid를 남긴다', () => {
+    const slots = [
+      { key: 'fri', weekday: 5, time: '19:00' },
+      { key: 'sat', weekday: 6, time: '13:00' },
+    ];
+    const res = countFormResponses(
+      [
+        {
+          selected: ['11월 6일(금) 오후 7시'],
+          uid: '1234',
+          submittedAt: '2026-11-02T01:00:00Z',
+        },
+        {
+          selected: ['11월 7일(토) 오후 1시'],
+          uid: '1234',
+          submittedAt: '2026-11-02T02:00:00Z',
+        },
+        { selected: ['11월 6일(금) 오후 7시'], uid: '' },
+        { selected: ['11월 6일(금) 오후 7시'], uid: 'x y<script>' },
+      ],
+      slots,
+      [],
+      NOW,
+    );
+    expect(res.total).toBe(3);
+    expect(res.byOption).toEqual({ sat: 1, fri: 2 });
+    expect(res.applicants.map((a) => a.uid)).toEqual(['1234', null, null]);
   });
 });

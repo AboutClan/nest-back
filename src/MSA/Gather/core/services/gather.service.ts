@@ -215,6 +215,29 @@ export class GatherService {
       gather.contents,
     );
 
+    // 앱에서 신청해 회원 ID가 미리 채워진 응답은 회원과 연결해 아바타·닉네임을 보여 준다(집계 시점 스냅샷).
+    const uids = [
+      ...new Set(counted.applicants.map((a) => a.uid).filter(Boolean)),
+    ];
+    if (uids.length) {
+      const users = await this.User.find({ uid: { $in: uids } })
+        .select('_id uid nickname avatar profileImage')
+        .lean();
+      const byUid = new Map(users.map((u: any) => [u.uid, u]));
+      for (const applicant of counted.applicants) {
+        const user: any = applicant.uid ? byUid.get(applicant.uid) : null;
+        applicant.user = user
+          ? {
+              _id: user._id.toString(),
+              uid: user.uid,
+              nickname: user.nickname,
+              avatar: user.avatar,
+              profileImage: user.profileImage,
+            }
+          : null;
+      }
+    }
+
     const updated = await this.gatherRepository.updateFormStats(gatherId, {
       ...counted,
       updatedAt: new Date(),

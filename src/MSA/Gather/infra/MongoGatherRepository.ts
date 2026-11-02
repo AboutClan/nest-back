@@ -550,6 +550,7 @@ export class GatherRepository implements IGatherRepository {
           }
         : null,
       parentGatherId: doc.parentGatherId ?? null,
+      formUidEntryId: (doc as any).formUidEntryId ?? null,
     });
   }
 
