@@ -2183,7 +2183,7 @@ export class Vote2Service {
               .filter((member) => member.arrived && !member.absence)
               .map((member) => {
                 const user = member.userId as unknown as IUser;
-                return { uid: user?.uid, name: user?.name };
+                return { uid: user?.uid, name: user?.name, nickname: user?.nickname };
               })
               .filter((info) => info.uid),
           }))

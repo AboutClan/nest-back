@@ -21,6 +21,7 @@ import { RequestContext } from 'src/request-context';
 import { CounterService } from 'src/routes/counter/counter.service';
 import dayjs from 'dayjs';
 import { DateUtils } from 'src/utils/Date';
+import { getDisplayName } from 'src/utils/displayName';
 import {
   IGATHER_REPOSITORY,
   IGROUPSTUDY_REPOSITORY,
@@ -308,6 +309,7 @@ export default class GroupStudyService {
           _id: user._id.toString(),
           uid: user.uid,
           name: user.name,
+          nickname: user.nickname,
           profileImage: user.profileImage,
           avatar: user.avatar,
           comment: user.comment,
@@ -329,9 +331,10 @@ export default class GroupStudyService {
       ),
     );
 
+    // 다른 멤버의 투표 여부는 누구에게도 내려주지 않는다. 내 투표 여부만 mySubmitted로
     const eligible = members
       .filter((user) => participantIds.has(user._id))
-      .map((user) => ({ user, submitted: submitters.has(user.uid) }));
+      .map((user) => ({ user }));
 
     // 기간 안에 내가 각 멤버에게 준 가장 최근 평가(번개·스터디·월간 평가 구분 없음)
     const given = await this.LogTemperatureRepository.findGivenSince(
@@ -350,6 +353,7 @@ export default class GroupStudyService {
       members,
       eligible,
       canVote: eligible.some(({ user }) => user.uid === token.uid),
+      mySubmitted: submitters.has(token.uid),
       myRatings,
     };
   }
@@ -1105,8 +1109,8 @@ export default class GroupStudyService {
     try {
       groupStudy.attend(
         token.id,
-        token.name,
         token.uid,
+        getDisplayName(token),
         weekRecord,
         type as any,
         weekRecordSub,
@@ -1446,12 +1450,12 @@ export default class GroupStudyService {
               });
               await group.attendance.thisWeek.push({
                 uid: who?.uid,
-                name: who?.name,
+                name: getDisplayName(who),
                 attendRecord: [],
               });
               await group.attendance.lastWeek.push({
                 uid: who?.uid,
-                name: who?.name,
+                name: getDisplayName(who),
                 attendRecord: [],
               });
             }

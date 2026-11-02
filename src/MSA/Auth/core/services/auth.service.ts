@@ -23,6 +23,7 @@ export interface AuthUserPayload {
     id: string;
     uid: string;
     name: string;
+    nickname?: string;
     role: string;
     isActive: boolean;
     profileImage: string;
@@ -53,6 +54,7 @@ export class AuthService {
             id: payload.id,
             uid: payload.uid,
             name: payload.name ?? '게스트',
+            nickname: payload.nickname ?? '',
             role: payload.role,
             isActive: payload.isActive,
             profileImage: payload.profileImage,
@@ -158,6 +160,7 @@ export class AuthService {
                 id: findUser._id?.toString() ?? profile.id,
                 uid: findUser.uid ?? profile.uid,
                 name: findUser.name ?? profile.name,
+                nickname: findUser.nickname ?? '',
                 role: findUser.role ?? profile.role,
                 isActive: findUser.isActive ?? profile.isActive,
                 profileImage:
@@ -206,6 +209,7 @@ export class AuthService {
             id: user.id,
             uid: user.uid,
             name: user.name ?? '',
+            nickname: user.nickname ?? '',
             profileImage: user.profileImage ?? DEFAULT_PROFILE_IMAGE,
             role: user.role ?? 'newUser',
             isActive: user.isActive ?? false,
@@ -275,6 +279,7 @@ export class AuthService {
             id: String(decoded.id ?? ''),
             uid: String(decoded.uid ?? ''),
             name: String(decoded.name ?? ''),
+            nickname: String(decoded.nickname ?? ''),
             role: String(decoded.role ?? 'newUser'),
             isActive: Boolean(decoded.isActive),
             profileImage: String(decoded.profileImage ?? ''),
@@ -304,6 +309,7 @@ export class AuthService {
                 id: String(token.id ?? ''),
                 uid: String(token.uid ?? ''),
                 name: String(token.name ?? ''),
+                nickname: String(token.nickname ?? ''),
                 role: String(token.role ?? 'newUser'),
                 isActive: Boolean(token.isActive),
                 profileImage: String(token.profileImage ?? ''),
@@ -320,6 +326,7 @@ export class AuthService {
                     id: String(token.id ?? ''),
                     uid: String(token.uid ?? ''),
                     name: String(token.name ?? ''),
+                    nickname: String(token.nickname ?? ''),
                     role: String(token.role ?? 'newUser'),
                     isActive: Boolean(token.isActive),
                     profileImage: String(token.profileImage ?? ''),
@@ -331,6 +338,7 @@ export class AuthService {
             id: String(token.id ?? ''),
             uid: String(token.uid ?? ''),
             name: String(token.name ?? ''),
+            nickname: String(token.nickname ?? ''),
             role: String(token.role ?? 'newUser'),
             isActive: Boolean(token.isActive),
             profileImage: String(token.profileImage ?? ''),

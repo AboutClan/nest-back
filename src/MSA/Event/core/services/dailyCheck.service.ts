@@ -2,6 +2,7 @@ import { Inject } from '@nestjs/common';
 import { CONST } from 'src/Constants/CONSTANTS';
 import { DailyCheck } from 'src/domain/entities/DailyCheck';
 import { RequestContext } from 'src/request-context';
+import { getDisplayName } from 'src/utils/displayName';
 import { CollectionService } from 'src/MSA/Event/core/services/collection.service';
 import { IDAILYCHECK_REPOSITORY } from 'src/utils/di.tokens';
 import { IDailyCheckRepository } from '../interfaces/DailyCheckRepository.interface';
@@ -32,7 +33,7 @@ export class DailyCheckService {
 
     const newDailyCheck = new DailyCheck({
       uid: token.uid,
-      name: token.name,
+      name: getDisplayName(token),
     });
 
     await this.dailyCheckRepository.create(newDailyCheck);

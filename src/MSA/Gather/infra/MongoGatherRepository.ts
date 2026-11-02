@@ -248,6 +248,7 @@ export class GatherRepository implements IGatherRepository {
             count: 1,
             uid: '$userDetails.uid', // userDetails.uid를 바로 꺼냄
             name: '$userDetails.name', // userDetails.name을 바로 꺼냄
+            nickname: '$userDetails.nickname',
           },
         },
       ]);

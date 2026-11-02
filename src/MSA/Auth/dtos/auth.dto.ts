@@ -28,6 +28,7 @@ export class SessionUserDto {
     id: string;
     uid: string;
     name: string;
+    nickname?: string;
     role: string;
     isActive: boolean;
     profileImage: string;

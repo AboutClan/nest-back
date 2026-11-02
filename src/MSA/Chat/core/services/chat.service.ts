@@ -70,6 +70,7 @@ export class ChatService {
           return {
             user: {
               name: opponent.name,
+              nickname: opponent.nickname,
               profileImage: opponent.profileImage,
               avatar: opponent.avatar,
               _id: opponent._id,

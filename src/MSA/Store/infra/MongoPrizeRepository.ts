@@ -36,7 +36,7 @@ export class PrizeRepository implements IPrizeRepository {
       .sort({ date: -1 })
       .skip(offset)
       .limit(20)
-      .populate('winner', '_id uid name avatar profileImage');
+      .populate('winner', '_id uid name nickname avatar profileImage');
     return a;
   }
 }

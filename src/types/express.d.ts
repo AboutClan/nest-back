@@ -6,6 +6,7 @@ export interface decodedTokenType {
   id: string;
   uid: string;
   name?: string;
+  nickname?: string;
   accessToken?: string;
   location?: string;
 }
@@ -29,6 +30,7 @@ declare module 'next-auth/jwt' {
     uid: string; // `uid` 필드를 추가합니다. 필요에 따라 `string` 외의 다른 타입으로 변경할 수 있습니다.
     id: string;
     name?: string;
+    nickname?: string;
     accessToken?: string;
     location?: string;
   }

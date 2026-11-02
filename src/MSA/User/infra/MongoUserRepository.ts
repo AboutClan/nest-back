@@ -328,7 +328,7 @@ export class UserRepository implements IUserRepository {
   async findStudyBadgeRanking(limit: number) {
     return await this.UserModel.find({ 'studyBadge.monthCnt': { $gt: 0 } })
       // 프론트 Avatar가 avatar·role까지 읽으므로 함께 내려준다.
-      .select('_id uid name profileImage avatar role studyBadge')
+      .select('_id uid name nickname profileImage avatar role studyBadge')
       .sort({ 'studyBadge.monthCnt': -1, 'studyBadge.lastAt': 1 })
       .limit(limit)
       .lean();
