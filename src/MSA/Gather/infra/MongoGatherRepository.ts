@@ -180,6 +180,17 @@ export class GatherRepository implements IGatherRepository {
 
   // 상시 행사 구글폼 집계만 갱신한다. save()의 mapToDB는 formStats를 쓰지 않으므로
   // 다른 저장과 겹쳐도 이 값이 오래된 값으로 덮이지 않는다.
+  /** 상시 행사 앱 신청 기록: 같은 회원의 이전 기록을 지우고 지금 시각으로 다시 남긴다 */
+  async recordAppApply(gatherId: number, userId: string): Promise<void> {
+    const user = new Types.ObjectId(userId);
+    await this.Gather.updateOne({ id: gatherId }, {
+      $pull: { appApplies: { user } },
+    } as any);
+    await this.Gather.updateOne({ id: gatherId }, {
+      $push: { appApplies: { user, createdAt: new Date() } },
+    } as any);
+  }
+
   async updateFormStats(
     gatherId: number,
     formStats: Gather['formStats'],
@@ -550,6 +561,10 @@ export class GatherRepository implements IGatherRepository {
           }
         : null,
       parentGatherId: doc.parentGatherId ?? null,
+      appApplies: ((doc as any).appApplies ?? []).map((a: any) => ({
+        user: a.user?.toString(),
+        createdAt: a.createdAt,
+      })),
     });
   }
 

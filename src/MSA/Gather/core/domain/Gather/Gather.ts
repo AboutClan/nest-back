@@ -81,6 +81,8 @@ export interface GatherProps {
   contents?: RegularContentProps[];
   formStats?: FormStatsProps | null;
   parentGatherId?: number | null;
+  // 상시 행사에서 앱 "신청하기"를 누른 기록(대기열과 별개). 폼 응답과 짝지어 회원을 연결하는 데만 쓴다.
+  appApplies?: { user: string; createdAt: Date }[];
 }
 
 export class Gather {
@@ -119,6 +121,7 @@ export class Gather {
   public contents: RegularContentProps[];
   public formStats: FormStatsProps | null;
   public parentGatherId: number | null;
+  public appApplies: { user: string; createdAt: Date }[];
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -157,6 +160,7 @@ export class Gather {
     this.contents = props.contents ?? [];
     this.formStats = props.formStats ?? null;
     this.parentGatherId = props.parentGatherId ?? null;
+    this.appApplies = props.appApplies ?? [];
   }
 
   isRegularGather() {

@@ -249,7 +249,7 @@ export class GatherService {
   /**
    * 폼 응답(신청자)을 회원과 연결해 아바타·닉네임을 붙인다(집계 시점 스냅샷).
    * 1) 응답에 회원 uid가 있으면 그 회원
-   * 2) 없으면 앱에서 "신청하기"를 누른 회원(대기열)과 신청 시각·성별·출생연도로 짝짓기
+   * 2) 없으면 앱에서 "신청하기"를 누른 회원(앱 신청 기록 appApplies)과 신청 시각·성별·출생연도로 짝짓기
    *    (matchApplicantsToAppUsers — 확실할 때만 잇는다)
    */
   private async linkRegularApplicantsToUsers(
@@ -257,7 +257,7 @@ export class GatherService {
     applicants: RegularFormApplicant[],
     contacts: RegularFormContact[],
   ) {
-    const waitingIds = gather.waiting
+    const waitingIds = gather.appApplies
       .map((w) => w.user?.toString())
       .filter(Boolean);
     const uids = applicants.map((a) => a.uid).filter(Boolean);
@@ -331,7 +331,7 @@ export class GatherService {
       });
     }
 
-    const appUsers = gather.waiting
+    const appUsers = gather.appApplies
       .map((w) => ({ w, user: byId.get(w.user?.toString()) }))
       .filter(
         ({ w, user }) =>
@@ -1085,6 +1085,12 @@ export class GatherService {
     const gather = await this.gatherRepository.findById(id);
     if (!gather) throw new Error();
 
+    // 상시 행사는 구글폼으로 신청받으므로 대기열에 넣지 않고 앱 신청 기록만 남긴다(폼 응답과 회원 짝짓기용).
+    if (gather.isRegularGather()) {
+      await this.gatherRepository.recordAppApply(id, token.id);
+      return;
+    }
+
     try {
       const user = {
         user: token.id,
@@ -1092,14 +1098,11 @@ export class GatherService {
         createdAt: DateUtils.getKoreaToday(),
       };
 
-      // 상시 행사는 주마다 다시 신청하므로, 지난 신청이 있으면 지우고 신청 시각을 새로 남긴다.
-      if (gather.isRegularGather()) gather.removeWaiting(token.id);
       gather.setWaiting(user);
 
       await this.gatherRepository.save(gather);
 
-      // 상시 행사 신청은 구글폼으로 받으므로 모임장에게 참여 요청 푸시를 보내지 않는다.
-      if (gather.user && !gather.isRegularGather()) {
+      if (gather.user) {
         await this.fcmServiceInstance.sendNotificationToXWithId(
           gather?.user as string,
           WEBPUSH_MSG.GATHER.TITLE,

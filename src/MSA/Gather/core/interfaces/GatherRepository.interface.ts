@@ -9,7 +9,11 @@ export interface IGatherRepository {
   findHomeGatherSections(): Promise<Gather[] | null>;
   findByPeriod(firstDay: Date, secondDay: Date): Promise<Gather[] | null>;
   findByGroupId(groupId, type): Promise<Gather[] | null>;
-  findGroupParticipantIds(groupId: string, start: Date, end: Date): Promise<string[]>;
+  findGroupParticipantIds(
+    groupId: string,
+    start: Date,
+    end: Date,
+  ): Promise<string[]>;
 
   findGroupActivity(
     groupId: string,
@@ -37,6 +41,7 @@ export interface IGatherRepository {
     gatherData: Partial<IGatherData>,
   ): Promise<null>;
   save(doc: Gather): Promise<Gather>;
+  recordAppApply(gatherId: number, userId: string): Promise<void>;
   updateFormStats(
     gatherId: number,
     formStats: Gather['formStats'],
