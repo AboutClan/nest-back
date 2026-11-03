@@ -59,6 +59,15 @@ export class GatherController {
     }
   }
 
+  // 공개 페이지(/gather/[id]/p) 공유 미리보기용 OG. 로그인 없이 부르며, 구글폼이 있는 공개 모임의 제목·설명·이미지만 준다.
+  @Public()
+  @Get('og')
+  async getGatherOg(@Query('gatherId') gatherId: string) {
+    const id = parseInt(gatherId);
+    if (!id) throw new BadRequestException('gatherId required');
+    return await this.gatherService.getGatherOg(id);
+  }
+
   // 상시 행사에서 확정돼 따로 만든 모임 목록
   @Get('children')
   async getChildGathers(@Query('parentGatherId') parentGatherId: string) {

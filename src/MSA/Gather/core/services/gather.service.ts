@@ -187,6 +187,22 @@ export class GatherService {
     }
   }
 
+  /** 공유 미리보기용 최소 정보. 구글폼이 없는(공개하지 않는) 모임은 404 */
+  async getGatherOg(gatherId: number) {
+    const gather = await this.gatherRepository.findById(gatherId);
+    if (!gather?.googleFormUrl)
+      throw new HttpException('Gather not found', 404);
+    const description = (gather.content ?? '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 100);
+    return {
+      title: gather.title,
+      description,
+      image: gather.coverImage || gather.image || null,
+    };
+  }
+
   // 상시 행사에서 확정돼 따로 만든 모임들 (최신순)
   async getChildGathers(parentGatherId: number) {
     return await this.gatherRepository.findWithQueryPop(
