@@ -251,13 +251,15 @@ export class GatherService {
     const users: any[] = await this.User.find({
       $or: [{ _id: { $in: waitingIds } }, { uid: { $in: uids } }],
     })
-      .select('_id uid nickname avatar profileImage gender birth')
+      .select('_id uid name nickname avatar profileImage gender birth')
       .lean();
     const byId = new Map(users.map((u) => [u._id.toString(), u]));
     const byUid = new Map(users.map((u) => [u.uid, u]));
+    // name(실명)은 관리자·모임장 화면에서만 보여 준다(참여자 목록이 실명을 내려 주는 것과 같은 수준).
     const snapshot = (u: any) => ({
       _id: u._id.toString(),
       uid: u.uid,
+      name: u.name,
       nickname: u.nickname,
       avatar: u.avatar,
       profileImage: u.profileImage,
