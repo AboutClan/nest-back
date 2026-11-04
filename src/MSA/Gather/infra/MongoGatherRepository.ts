@@ -561,6 +561,7 @@ export class GatherRepository implements IGatherRepository {
           }
         : null,
       parentGatherId: doc.parentGatherId ?? null,
+      confirmGroupId: (doc as any).confirmGroupId ?? null,
       appApplies: ((doc as any).appApplies ?? []).map((a: any) => ({
         user: a.user?.toString(),
         createdAt: a.createdAt,

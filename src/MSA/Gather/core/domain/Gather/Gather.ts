@@ -83,6 +83,8 @@ export interface GatherProps {
   parentGatherId?: number | null;
   // 상시 행사에서 앱 "신청하기"를 누른 기록(대기열과 별개). 폼 응답과 짝지어 회원을 연결하는 데만 쓴다.
   appApplies?: { user: string; createdAt: Date }[];
+  // 상시 행사의 확정 모임을 연결할 소모임 id(GroupStudy.id). 있으면 확정 모임이 그 소모임 모임이 된다.
+  confirmGroupId?: string | null;
 }
 
 export class Gather {
@@ -122,6 +124,7 @@ export class Gather {
   public formStats: FormStatsProps | null;
   public parentGatherId: number | null;
   public appApplies: { user: string; createdAt: Date }[];
+  public confirmGroupId: string | null;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -161,6 +164,7 @@ export class Gather {
     this.formStats = props.formStats ?? null;
     this.parentGatherId = props.parentGatherId ?? null;
     this.appApplies = props.appApplies ?? [];
+    this.confirmGroupId = props.confirmGroupId ?? null;
   }
 
   isRegularGather() {

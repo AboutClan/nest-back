@@ -65,6 +65,9 @@ const DUMMY_COMMENT_POOL = [
 ];
 
 //commit
+/** 상시 행사에서 만든 확정 모임의 최대 인원 */
+const CONFIRMED_GATHER_MAX = 8;
+
 @Injectable()
 export class GatherService {
   constructor(
@@ -242,6 +245,16 @@ export class GatherService {
     const nextId =
       await this.counterServiceInstance.getNextSequence('counterid');
 
+    // 상시 행사에 연결 소모임(confirmGroupId)이 있으면 확정 모임을 그 소모임의 모임으로 만들고 썸네일도 소모임 이미지를 쓴다.
+    const group: any = parent.confirmGroupId
+      ? await this.User.db
+          .collection('groupstudies')
+          .findOne(
+            { id: Number(parent.confirmGroupId) },
+            { projection: { id: 1, image: 1 } },
+          )
+      : null;
+
     const child = new Gather({
       title,
       type: parent.type.toPrimitives(),
@@ -253,7 +266,7 @@ ${content.title}`
           : ''
       }`,
       location,
-      memberCnt: { min: 1, max: 0 },
+      memberCnt: { min: 1, max: CONFIRMED_GATHER_MAX },
       age: parent.age,
       genderCondition: false,
       status: 'open',
@@ -268,11 +281,12 @@ ${content.title}`
       user: parent.user,
       id: nextId,
       date: date.toISOString(),
-      image: parent.image,
+      image: group?.image || parent.image,
       coverImage: parent.coverImage,
       reviewers: [],
       deposit: 0,
-      category: 'gather',
+      category: group ? 'group' : 'gather',
+      groupId: group ? String(group.id) : null,
       parentGatherId: parent.id,
     } as GatherProps);
 
