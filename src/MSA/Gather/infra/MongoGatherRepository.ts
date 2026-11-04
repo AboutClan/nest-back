@@ -160,7 +160,7 @@ export class GatherRepository implements IGatherRepository {
     const upcoming = await this.Gather.find({
       status: 'pending',
       _id: { $nin: featuredIds },
-      category: { $ne: 'regularGather' },
+      category: { $nin: ['regularGather', 'partnerGather'] },
     })
       .sort({ date: 1 })
       .limit(6)
@@ -295,7 +295,8 @@ export class GatherRepository implements IGatherRepository {
           { status: { $eq: 'pending' } },
           { date: { $lt: current.toISOString() } },
           // 상시 행사는 date가 개설일일 뿐이라 날짜로 마감 처리하지 않는다.
-          { category: { $ne: 'regularGather' } },
+          // 상시 행사·제휴 프로그램은 date가 개설일일 뿐이라 날짜로 마감 처리하지 않는다.
+          { category: { $nin: ['regularGather', 'partnerGather'] } },
         ],
       },
       [
@@ -560,6 +561,8 @@ export class GatherRepository implements IGatherRepository {
         : null,
       parentGatherId: doc.parentGatherId ?? null,
       confirmGroupId: (doc as any).confirmGroupId ?? null,
+      applyUrl: (doc as any).applyUrl ?? null,
+      benefit: (doc as any).benefit ?? null,
       appApplies: ((doc as any).appApplies ?? []).map((a: any) => ({
         user: a.user?.toString(),
         createdAt: a.createdAt,

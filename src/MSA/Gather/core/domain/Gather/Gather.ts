@@ -85,6 +85,9 @@ export interface GatherProps {
   appApplies?: { user: string; createdAt: Date }[];
   // 상시 행사의 확정 모임을 연결할 소모임 id(GroupStudy.id). 있으면 확정 모임이 그 소모임 모임이 된다.
   confirmGroupId?: string | null;
+  // 제휴 프로그램(partnerGather): 신청하기를 누르면 이동할 외부 URL과 할인 혜택 문구
+  applyUrl?: string | null;
+  benefit?: string | null;
 }
 
 export class Gather {
@@ -125,6 +128,8 @@ export class Gather {
   public parentGatherId: number | null;
   public appApplies: { user: string; createdAt: Date }[];
   public confirmGroupId: string | null;
+  public applyUrl: string | null;
+  public benefit: string | null;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -165,10 +170,16 @@ export class Gather {
     this.parentGatherId = props.parentGatherId ?? null;
     this.appApplies = props.appApplies ?? [];
     this.confirmGroupId = props.confirmGroupId ?? null;
+    this.applyUrl = props.applyUrl ?? null;
+    this.benefit = props.benefit ?? null;
   }
 
   isRegularGather() {
     return this.category === 'regularGather';
+  }
+
+  isPartnerGather() {
+    return this.category === 'partnerGather';
   }
 
   participate(participant: ParticipantsProps) {

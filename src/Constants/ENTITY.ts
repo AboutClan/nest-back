@@ -25,6 +25,8 @@ export const ENTITY = {
       'officialGather',
       'gather2',
       'regularGather',
+      // 어바웃 외부 파트너 프로그램(유료, 어바웃 통해 신청 시 할인). 안내용이며 신청은 applyUrl로 이동.
+      'partnerGather',
     ] as const,
     DEFAULT_CATEGORY_TYPE: 'gather' as const,
   },

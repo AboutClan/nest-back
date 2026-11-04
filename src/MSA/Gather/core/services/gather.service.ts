@@ -131,12 +131,16 @@ export class GatherService {
     // 상시 행사는 date가 개설일이라 날짜 조건에 섞지 않고 첫 페이지 맨 앞에 따로 붙인다.
     // 상시 행사에서 확정된 모임(parentGatherId)은 일반 모임처럼 목록에도 나온다.
     const excludeRegular = {
-      category: { $ne: 'regularGather' },
+      category: { $nin: ['regularGather', 'partnerGather'] },
     };
     const withRegularFirst = async (list: Gather[]) => {
       if (cursor || (category && category !== '모집중')) return list;
       const regular = await this.gatherRepository.findWithQueryPop(
-        { category: 'regularGather', status: { $ne: 'close' } },
+        // 상시 행사, 그다음 제휴 프로그램
+        {
+          category: { $in: ['regularGather', 'partnerGather'] },
+          status: { $ne: 'close' },
+        },
         0,
         { id: 1 },
       );
@@ -779,8 +783,9 @@ ${content.title}`
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
     // 상시 행사는 구글폼 신청(waiting) → 확정 모임 초대로만 참여한다. 초대 링크 자동 참여도 여기서 막힌다.
-    if (gather.isRegularGather()) {
-      throw new BadRequestException('상시 행사에는 직접 참여할 수 없어요.');
+    // 제휴 프로그램은 외부 URL로 신청하므로 직접 참여가 없다.
+    if (gather.isRegularGather() || gather.isPartnerGather()) {
+      throw new BadRequestException('이 모임에는 직접 참여할 수 없어요.');
     }
 
     try {
@@ -840,8 +845,8 @@ ${content.title}`
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);
     if (!gather) throw new Error();
-    if (gather.isRegularGather()) {
-      throw new BadRequestException('상시 행사에는 직접 참여할 수 없어요.');
+    if (gather.isRegularGather() || gather.isPartnerGather()) {
+      throw new BadRequestException('이 모임에는 직접 참여할 수 없어요.');
     }
 
     try {
@@ -1213,6 +1218,8 @@ ${content.title}`
       await this.gatherRepository.recordAppApply(id, token.id);
       return;
     }
+    // 제휴 프로그램은 외부 URL로 신청하므로 대기열을 쓰지 않는다
+    if (gather.isPartnerGather()) return;
 
     try {
       const user = {
