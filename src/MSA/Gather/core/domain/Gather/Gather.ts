@@ -88,6 +88,8 @@ export interface GatherProps {
   // 제휴 프로그램(partnerGather): 신청하기를 누르면 이동할 외부 URL과 할인 혜택 문구
   applyUrl?: string | null;
   benefit?: string | null;
+  // 상시 행사 카드에 보일 기간 문구(예: '11~12월 진행'). 없으면 일정으로 자동 요약.
+  scheduleLabel?: string | null;
 }
 
 export class Gather {
@@ -130,6 +132,7 @@ export class Gather {
   public confirmGroupId: string | null;
   public applyUrl: string | null;
   public benefit: string | null;
+  public scheduleLabel: string | null;
 
   constructor(props: GatherProps) {
     this._id = props._id ?? null;
@@ -172,6 +175,7 @@ export class Gather {
     this.confirmGroupId = props.confirmGroupId ?? null;
     this.applyUrl = props.applyUrl ?? null;
     this.benefit = props.benefit ?? null;
+    this.scheduleLabel = props.scheduleLabel ?? null;
   }
 
   isRegularGather() {
