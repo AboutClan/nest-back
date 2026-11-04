@@ -149,7 +149,6 @@ export class GatherRepository implements IGatherRepository {
       category: {
         $in: ['openGather', 'officialGather', 'gather2', 'secretGather'],
       },
-      parentGatherId: null,
     })
       .sort({ date: -1 })
       .limit(6)
@@ -162,7 +161,6 @@ export class GatherRepository implements IGatherRepository {
       status: 'pending',
       _id: { $nin: featuredIds },
       category: { $ne: 'regularGather' },
-      parentGatherId: null,
     })
       .sort({ date: 1 })
       .limit(6)

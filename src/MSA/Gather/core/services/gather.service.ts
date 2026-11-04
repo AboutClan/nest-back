@@ -129,10 +129,9 @@ export class GatherService {
     mode?: 'future' | 'past',
   ) {
     // 상시 행사는 date가 개설일이라 날짜 조건에 섞지 않고 첫 페이지 맨 앞에 따로 붙인다.
-    // 상시 행사에서 확정된 모임(parentGatherId)은 부모 상세에서만 보여 준다.
+    // 상시 행사에서 확정된 모임(parentGatherId)은 일반 모임처럼 목록에도 나온다.
     const excludeRegular = {
       category: { $ne: 'regularGather' },
-      parentGatherId: null,
     };
     const withRegularFirst = async (list: Gather[]) => {
       if (cursor || (category && category !== '모집중')) return list;
