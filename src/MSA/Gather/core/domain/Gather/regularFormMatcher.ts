@@ -194,6 +194,9 @@ export function toBirthYear(value?: string | number, now: Date = new Date()) {
   return year >= 1960 && year <= now.getFullYear() - 10 ? year : null;
 }
 
+/** 이보다 먼저 태어난 폼 신청자는 앱에 반영하지 않는다 */
+export const MIN_APPLICANT_BIRTH_YEAR = 1997;
+
 /**
  * 응답 목록 → 신청 집계와 신청자 목록.
  * 폼에는 여러 주의 날짜가 함께 있으므로, 날짜를 고른 응답은 아직 지나지 않은 날짜(오늘 포함, KST)만 세고
@@ -236,6 +239,10 @@ export function countFormResponses(
     );
     if (hasDate && !upcoming.some(({ parsed }) => parsed)) continue;
 
+    // 대상 나이대가 아닌 신청자(1997년생보다 나이 많음)는 폼에 응답했어도 앱 명단·인원에 넣지 않는다
+    const birthYear = toBirthYear(input.birthYear, now);
+    if (birthYear && birthYear < MIN_APPLICANT_BIRTH_YEAR) continue;
+
     const keys = new Set<string>();
     for (const { text } of upcoming) {
       for (const key of matchOption(text, slots, contents, now)) keys.add(key);
@@ -245,7 +252,7 @@ export function countFormResponses(
     const submittedAt = input.submittedAt ? new Date(input.submittedAt) : null;
     applicants.push({
       gender: toGender(input.gender),
-      birthYear: toBirthYear(input.birthYear, now),
+      birthYear,
       keys: [...keys],
       submittedAt:
         submittedAt && !Number.isNaN(submittedAt.getTime())

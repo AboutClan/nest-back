@@ -188,6 +188,25 @@ describe('신청자 목록', () => {
     ]);
   });
 
+  it('1997년생보다 나이 많은 신청자는 빼고, 출생연도를 모르면 남긴다', () => {
+    const slots = [{ key: 'fri', weekday: 5, time: '19:00' }];
+    const pick = (birthYear?: string) => ({
+      selected: ['11월 6일(금) 오후 7시'],
+      gender: '남성',
+      birthYear,
+    });
+    const res = countFormResponses(
+      [pick('1996'), pick('97'), pick('1990년생'), pick()],
+      slots,
+      [],
+      NOW,
+    );
+    expect(res.total).toBe(2);
+    expect(res.byOption).toEqual({ fri: 2 });
+    expect(res.applicants.map((a) => a.birthYear)).toEqual([1997, null]);
+    expect(res.contacts).toHaveLength(2);
+  });
+
   it('출생연도 입력 형식', () => {
     expect(toBirthYear('2001년생', NOW)).toBe(2001);
     expect(toBirthYear('99', NOW)).toBe(1999);
