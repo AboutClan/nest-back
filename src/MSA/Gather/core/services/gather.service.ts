@@ -251,7 +251,7 @@ export class GatherService {
           .collection('groupstudies')
           .findOne(
             { id: Number(parent.confirmGroupId) },
-            { projection: { id: 1, image: 1 } },
+            { projection: { id: 1, image: 1, squareImage: 1 } },
           )
       : null;
 
@@ -269,7 +269,8 @@ ${content.title}`
       memberCnt: { min: 1, max: CONFIRMED_GATHER_MAX },
       age: parent.age,
       genderCondition: false,
-      status: 'open',
+      // 모집중으로 두고, 신청하기는 상위 상시 행사로 보낸다(프론트 GatherBottomNav)
+      status: 'pending',
       participants: userIds.map((user) => ({
         user,
         phase: 'first',
@@ -281,7 +282,8 @@ ${content.title}`
       user: parent.user,
       id: nextId,
       date: date.toISOString(),
-      image: group?.image || parent.image,
+      // 카드 썸네일은 정사각형이라 소모임의 정사각형 이미지(squareImage)를 우선 쓴다
+      image: group?.squareImage || group?.image || parent.image,
       coverImage: parent.coverImage,
       reviewers: [],
       deposit: 0,
