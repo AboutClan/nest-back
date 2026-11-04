@@ -76,6 +76,22 @@ export class GatherController {
     return await this.gatherService.getChildGathers(id);
   }
 
+  // 상시 행사 관리 화면: 회차(또는 콘텐츠)로 확정 모임을 만들고 선택한 회원을 초대 참여자로 넣는다.
+  @Post('regular/confirm')
+  async createConfirmedGather(
+    @Body()
+    body: {
+      parentGatherId: number;
+      optionKey: string;
+      date: string;
+      title: string;
+      userIds: string[];
+    },
+  ) {
+    const gatherId = await this.gatherService.createConfirmedGather(body);
+    return { gatherId };
+  }
+
   // Apps Script(구글폼 응답 시트) → 상시 행사 회차별 신청 집계. 사용자 JWT 대신 내부 키로 인증.
   @Public()
   @Post('regular/form-stats')

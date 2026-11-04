@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   Inject,
   Injectable,
@@ -185,6 +186,113 @@ export class GatherService {
         await this.gatherRepository.findWithQueryPop(query, cursor, sortOption),
       );
     }
+  }
+
+  /**
+   * 상시 행사에서 확정 모임(별도 gather, parentGatherId로 연결)을 만들고 선택한 회원을 초대 참여자로 넣는다.
+   * 운영진(previliged·manager) 또는 상시 행사 모임장만 가능. 초대 참여라 참여권·포인트는 차감하지 않는다.
+   * optionKey는 일정(slot) key 또는, 일정이 없는 행사면 콘텐츠 key. 장소는 그 콘텐츠 장소 → 행사 공통 장소 순.
+   */
+  async createConfirmedGather(body: {
+    parentGatherId: number;
+    optionKey: string;
+    date: string;
+    title: string;
+    userIds: string[];
+  }) {
+    const token = RequestContext.getDecodedToken();
+    const parent = await this.gatherRepository.findById(
+      Number(body.parentGatherId),
+    );
+    if (!parent?.isRegularGather()) {
+      throw new HttpException('regularGather not found', 404);
+    }
+
+    const requester: any = await this.User.findById(token.id)
+      .select('role')
+      .lean();
+    const isManager = ['previliged', 'manager'].includes(requester?.role);
+    if (!isManager && parent.user?.toString() !== token.id?.toString()) {
+      throw new ForbiddenException('권한이 없습니다.');
+    }
+
+    const date = new Date(body.date);
+    const title = String(body.title ?? '').trim();
+    if (Number.isNaN(date.getTime()) || !title) {
+      throw new BadRequestException('date and title required');
+    }
+
+    const slot = parent.slots.find((s) => s.key === body.optionKey);
+    const contentKey = slot?.contentKey ?? (slot ? null : body.optionKey);
+    const content = contentKey
+      ? parent.contents.find((c) => c.key === contentKey)
+      : null;
+    if (!slot && !content) throw new BadRequestException('invalid optionKey');
+
+    const parentLocation = parent.location?.toPrimitives();
+    const location = content?.location?.main
+      ? content.location
+      : parentLocation?.main
+        ? parentLocation
+        : { main: '', sub: '' };
+
+    const userIds = [
+      ...new Set((body.userIds ?? []).map(String).filter(Boolean)),
+    ];
+    const nextId =
+      await this.counterServiceInstance.getNextSequence('counterid');
+
+    const child = new Gather({
+      title,
+      type: parent.type.toPrimitives(),
+      gatherList: [],
+      content: `${parent.title}에서 확정된 모임이에요.${
+        content
+          ? `
+${content.title}`
+          : ''
+      }`,
+      location,
+      memberCnt: { min: 1, max: 0 },
+      age: parent.age,
+      genderCondition: false,
+      status: 'open',
+      participants: userIds.map((user) => ({
+        user,
+        phase: 'first',
+        invited: true,
+        absence: false,
+        withCompanion: false,
+        isDummy: false,
+      })),
+      user: parent.user,
+      id: nextId,
+      date: date.toISOString(),
+      image: parent.image,
+      coverImage: parent.coverImage,
+      reviewers: [],
+      deposit: 0,
+      category: 'gather',
+      parentGatherId: parent.id,
+    } as GatherProps);
+
+    const created = await this.gatherRepository.createGather(child);
+    if (!created) throw new DatabaseError('create confirmed gather failed');
+
+    // 초대 참여와 같게 참여 점수만 준다
+    const users: any[] = await this.User.find({ _id: { $in: userIds } })
+      .select('uid')
+      .lean();
+    for (const u of users) {
+      await this.userServiceInstance.updateScore(
+        CONST.SCORE.PARTICIPATE_GATHER,
+        '번개 모임 참여',
+        undefined,
+        u.uid,
+      );
+    }
+
+    return nextId;
   }
 
   /** 공유 미리보기용 최소 정보. 구글폼이 없는(공개하지 않는) 모임은 404 */
