@@ -47,6 +47,8 @@ export class GatherController {
     const gatherIdNum = gatherId ? parseInt(gatherId) : null;
     if (gatherIdNum) {
       return await this.gatherService.getGatherById(gatherIdNum);
+    } else if (cursorNum === -2) {
+      return await this.gatherService.getHomeGatherSectionsV2();
     } else if (cursorNum === -1) {
       return await this.gatherService.getHomeGatherSections();
     } else {

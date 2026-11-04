@@ -7,6 +7,7 @@ export interface IGatherRepository {
   findById(id: number, pop?: boolean): Promise<Gather | null>;
   findAllTemp();
   findHomeGatherSections(): Promise<Gather[] | null>;
+  findHomeGatherSectionsV2(): Promise<Record<string, Gather[]>>;
   findByPeriod(firstDay: Date, secondDay: Date): Promise<Gather[] | null>;
   findByGroupId(groupId, type): Promise<Gather[] | null>;
   findGroupParticipantIds(

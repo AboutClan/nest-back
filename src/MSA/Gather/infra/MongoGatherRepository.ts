@@ -1,5 +1,6 @@
 import { HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import dayjs from 'dayjs';
 import { Model, Types } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { ENTITY } from 'src/Constants/ENTITY';
@@ -174,6 +175,66 @@ export class GatherRepository implements IGatherRepository {
         .slice(0, 6)
         .concat(Array(Math.max(0, 6 - upcoming.length)).fill(null)),
     ].map((doc) => (doc ? this.mapToDomain(doc) : null));
+  }
+
+  /**
+   * 홈 번개 섹션(카드 3개씩)
+   * - regular: 상시 행사
+   * - upcoming: 오늘 이후 모집중 모임. 구글폼이 붙은 모임 먼저, 그다음 날짜 빠른 순
+   * - past: 지난 모임. 구글폼이 붙은 모임 먼저(최근 순), 그다음 인기 모임(참여 9명 이상, 최근 순)
+   * - partner: 제휴 프로그램
+   */
+  async findHomeGatherSectionsV2(): Promise<Record<string, Gather[]>> {
+    const populateOptions = [
+      { path: 'user', select: ENTITY.USER.C_MINI_USER },
+      { path: 'participants.user', select: ENTITY.USER.C_MINI_USER },
+    ];
+    const SIZE = 3;
+    const today = dayjs().startOf('day').toISOString();
+    const dated = { category: { $nin: ['regularGather', 'partnerGather'] } };
+    const hasForm = { googleFormUrl: { $nin: [null, ''] } };
+    const noForm = { googleFormUrl: { $in: [null, ''] } };
+    const find = (query: any, sort: any, limit = SIZE) =>
+      this.Gather.find(query).sort(sort).limit(limit).populate(populateOptions);
+    const fill = async (first: any[], nextQuery: any, sort: any) =>
+      first.length >= SIZE
+        ? first
+        : [...first, ...(await find(nextQuery, sort, SIZE - first.length))];
+
+    const [regular, partner, upcomingForm, pastForm] = await Promise.all([
+      find({ category: 'regularGather', status: { $ne: 'close' } }, { id: 1 }),
+      find({ category: 'partnerGather', status: { $ne: 'close' } }, { id: 1 }),
+      find(
+        { ...dated, ...hasForm, status: 'pending', date: { $gte: today } },
+        { date: 1 },
+      ),
+      find({ ...dated, ...hasForm, date: { $lt: today } }, { date: -1 }),
+    ]);
+    const [upcoming, past] = await Promise.all([
+      fill(
+        upcomingForm,
+        { ...dated, ...noForm, status: 'pending', date: { $gte: today } },
+        { date: 1 },
+      ),
+      fill(
+        pastForm,
+        {
+          ...dated,
+          ...noForm,
+          date: { $lt: today },
+          'participants.8': { $exists: true },
+        },
+        { date: -1 },
+      ),
+    ]);
+
+    const toDomain = (docs: any[]) => docs.map((doc) => this.mapToDomain(doc));
+    return {
+      regular: toDomain(regular),
+      upcoming: toDomain(upcoming),
+      past: toDomain(past),
+      partner: toDomain(partner),
+    };
   }
 
   // 상시 행사 구글폼 집계만 갱신한다. save()의 mapToDB는 formStats를 쓰지 않으므로

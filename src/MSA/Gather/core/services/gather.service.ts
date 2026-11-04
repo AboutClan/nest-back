@@ -122,6 +122,11 @@ export class GatherService {
 
     return gatherData;
   }
+  /** 홈 번개 섹션: 상시 행사 / 이번 주 번개 / 지난 인기 모임 / 제휴 프로그램 */
+  async getHomeGatherSectionsV2() {
+    return await this.gatherRepository.findHomeGatherSectionsV2();
+  }
+
   async getGather(
     cursor: number | null,
     category: '모집중' | '마감 임박' | '인기 모임' | null,
@@ -133,18 +138,19 @@ export class GatherService {
     const excludeRegular = {
       category: { $nin: ['regularGather', 'partnerGather'] },
     };
-    const withRegularFirst = async (list: Gather[]) => {
-      if (cursor || (category && category !== '모집중')) return list;
-      const regular = await this.gatherRepository.findWithQueryPop(
-        // 상시 행사, 그다음 제휴 프로그램
-        {
-          category: { $in: ['regularGather', 'partnerGather'] },
-          status: { $ne: 'close' },
-        },
-        0,
-        { id: 1 },
-      );
-      return [...(regular ?? []), ...(list ?? [])];
+    // 노출 순서: 상시 행사(첫 페이지 맨 앞) → 날짜 모임 → 제휴 프로그램(날짜 모임의 마지막 페이지 끝)
+    const withRegularFirst = async (list: Gather[], pageSize: number) => {
+      if (category && category !== '모집중') return list;
+      const findOpen = (type: string) =>
+        this.gatherRepository.findWithQueryPop(
+          { category: type, status: { $ne: 'close' } },
+          0,
+          { id: 1 },
+        );
+      const regular = cursor ? [] : await findOpen('regularGather');
+      const isLastPage = (list ?? []).length < pageSize;
+      const partner = isLastPage ? await findOpen('partnerGather') : [];
+      return [...(regular ?? []), ...(list ?? []), ...(partner ?? [])];
     };
 
     const baseQuery =
@@ -179,6 +185,7 @@ export class GatherService {
             { date: 1 },
             true,
           ),
+          24,
         );
       } else {
         const pastQuery = { ...query, date: { $lt: todayMidnightKST } };
@@ -190,6 +197,7 @@ export class GatherService {
       const sortOption: { [key: string]: any } = { [sortBy]: -1 };
       return await withRegularFirst(
         await this.gatherRepository.findWithQueryPop(query, cursor, sortOption),
+        15,
       );
     }
   }
