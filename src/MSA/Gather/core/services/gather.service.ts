@@ -92,6 +92,7 @@ export class GatherService {
 
   async getGatherById(gatherId: number) {
     const gatherData = await this.gatherRepository.findById(gatherId, true);
+    await this.gatherRepository.attachGroupMembers([gatherData]);
 
     const par = gatherData.participants;
 
@@ -147,7 +148,11 @@ export class GatherService {
           0,
           { id: 1 },
         );
-      const regular = cursor ? [] : await findOpen('regularGather');
+      const regular = cursor
+        ? []
+        : await this.gatherRepository.attachGroupMembers(
+            (await findOpen('regularGather')) ?? [],
+          );
       const isLastPage = (list ?? []).length < pageSize;
       const partner = isLastPage ? await findOpen('partnerGather') : [];
       return [...(regular ?? []), ...(list ?? []), ...(partner ?? [])];
@@ -648,6 +653,7 @@ ${content.title}`
 
   async getGatherGroup(groupId, type) {
     const gatherData = await this.gatherRepository.findByGroupId(groupId, type);
+    if (gatherData) await this.gatherRepository.attachGroupMembers(gatherData);
 
     if (!gatherData) {
       throw new HttpException('Gather not found', 404);

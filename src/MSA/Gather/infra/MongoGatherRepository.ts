@@ -178,6 +178,71 @@ export class GatherRepository implements IGatherRepository {
   }
 
   /**
+   * 소모임형 상시 행사(구글폼 없이 소모임과 연결)에 groupMembers를 붙인다.
+   * 소모임 멤버 중 그 소모임 모임(groupId가 같은 gather)에 참여한 기록이 1회 이상 있는 회원만, 참여 많은 순.
+   * 운영 계정·더미는 뺀다.
+   */
+  async attachGroupMembers<T extends Gather | null>(
+    gathers: T[],
+  ): Promise<T[]> {
+    const ADMIN_ID = '65df1ddcd73ecfd250b42c89';
+    const targets = gathers.filter(
+      (g) => g?.category === 'regularGather' && !g.googleFormUrl && !!g.groupId,
+    );
+    if (!targets.length) return gathers;
+
+    const db = this.Gather.db;
+    const cache = new Map<string, any[]>();
+    for (const groupId of new Set(targets.map((g) => String(g.groupId)))) {
+      const group: any = await db
+        .collection('groupstudies')
+        .findOne({ id: Number(groupId) }, { projection: { participants: 1 } });
+      const memberIds = new Set<string>(
+        (group?.participants ?? [])
+          .filter((p: any) => p?.user && !p.isDummy)
+          .map((p: any) => String(p.user)),
+      );
+      const counts: { _id: Types.ObjectId; n: number }[] =
+        await this.Gather.aggregate([
+          { $match: { groupId } },
+          { $unwind: '$participants' },
+          { $group: { _id: '$participants.user', n: { $sum: 1 } } },
+        ]);
+      const active = counts
+        .filter(
+          (c) =>
+            c._id && memberIds.has(String(c._id)) && String(c._id) !== ADMIN_ID,
+        )
+        .sort((a, b) => b.n - a.n);
+      const users = await db
+        .collection('users')
+        .find(
+          { _id: { $in: active.map((c) => c._id) }, role: { $ne: 'dummy' } },
+          {
+            projection: {
+              _id: 1,
+              uid: 1,
+              nickname: 1,
+              avatar: 1,
+              profileImage: 1,
+              role: 1,
+            },
+          },
+        )
+        .toArray();
+      const byId = new Map(users.map((u) => [String(u._id), u]));
+      cache.set(
+        groupId,
+        active.map((c) => byId.get(String(c._id))).filter(Boolean),
+      );
+    }
+    targets.forEach((g) => {
+      (g as any).groupMembers = cache.get(String(g.groupId)) ?? [];
+    });
+    return gathers;
+  }
+
+  /**
    * 홈 번개 섹션(카드 3개씩)
    * - regular: 상시 행사
    * - upcoming: 오늘 이후 모집중 모임. 구글폼이 붙은 모임 먼저, 그다음 날짜 빠른 순
@@ -230,7 +295,7 @@ export class GatherRepository implements IGatherRepository {
 
     const toDomain = (docs: any[]) => docs.map((doc) => this.mapToDomain(doc));
     return {
-      regular: toDomain(regular),
+      regular: await this.attachGroupMembers(toDomain(regular)),
       upcoming: toDomain(upcoming),
       past: toDomain(past),
       partner: toDomain(partner),
