@@ -5,7 +5,6 @@ import Redis from 'ioredis';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
 import { WEBPUSH_MSG } from 'src/Constants/WEBPUSH_MSG';
-import { AppError } from 'src/errors/AppError';
 import { DatabaseError } from 'src/errors/DatabaseError';
 import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 import {
@@ -14,6 +13,7 @@ import {
   ParticipantProps,
 } from 'src/MSA/GroupStudy/core/domain/GroupStudy';
 import { ILogTemperatureRepository } from 'src/MSA/User/core/interfaces/LogTemperature.interface';
+import { linkFriendIfMutualGreat } from 'src/MSA/User/core/services/mutualFriend';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { IUser } from 'src/MSA/User/entity/user.entity';
 import { GROUPSTUDY_FULL_DATA, REDIS_CLIENT } from 'src/redis/keys';
@@ -417,6 +417,14 @@ export default class GroupStudyService {
         start,
         log,
       );
+      if (log.sub === 'great') {
+        await linkFriendIfMutualGreat(
+          this.LogTemperatureRepository,
+          this.User,
+          log.from,
+          log.to,
+        );
+      }
     }
   }
 
@@ -607,11 +615,6 @@ export default class GroupStudyService {
 
   async getUserGroupsTitleByUserId(userId: string) {
     return await this.groupStudyRepository.getUserGroupsTitleByUserId(userId);
-  }
-
-  async getMyNextTicket(userId: string) {
-    const gs =
-      await this.groupStudyRepository.getUserGroupsTitleByUserId(userId);
   }
 
   async getSigningGroupByStatus(status: string) {
@@ -826,7 +829,6 @@ export default class GroupStudyService {
     // 참가자 추가를 원자적(atomic) DB 연산으로 먼저 처리한다.
     // 동시에 같은 유저의 중복 요청이 들어와도 'participants.user' $ne 조건 때문에
     // 정확히 한 번만 성공하고, 두 번째 요청은 null을 받아 즉시 실패한다.
-    // 이 성공 여부로 아래 티켓/포인트 차감의 중복 실행을 막는다.
     const newParticipant: ParticipantProps = {
       user: token.id,
       randomId: Math.floor(Math.random() * 1000000),
@@ -848,32 +850,6 @@ export default class GroupStudyService {
       throw new Error('User is already a participant');
     }
 
-    //ticket 차감 로직
-    const ticketInfo = await this.userServiceInstance.getTicketInfo(token.id);
-    const extraTemp = groupStudy.requiredTicket - ticketInfo.groupStudyTicket;
-
-    if (extraTemp <= 0) {
-      await this.userServiceInstance.updateReduceTicket(
-        'group',
-        token.id,
-        -groupStudy.requiredTicket,
-      );
-    } else {
-      if (ticketInfo.groupStudyTicket >= 0) {
-        await this.userServiceInstance.updateReduceTicket(
-          'group',
-          token.id,
-          -ticketInfo.groupStudyTicket,
-        );
-      }
-      await this.userServiceInstance.updatePoint(
-        -1000 * extraTemp,
-        '월간 소모임 참여권 초과 사용 사용',
-        'ticket',
-      );
-    }
-    //ticket 차감 로직
-
     await this.fcmServiceInstance.sendNotificationToXWithId(
       groupStudy.organizer.toString(),
       '소모임',
@@ -888,16 +864,6 @@ export default class GroupStudyService {
     const groupStudy = await this.groupStudyRepository.findById(id);
     const user = await this.userServiceInstance.getUserWithUserId(userId);
     if (!groupStudy) throw new Error();
-
-    //ticket 차감 로직
-    const ticketInfo = await this.userServiceInstance.getTicketInfo(user._id);
-    if (ticketInfo.groupStudyTicket > 0) {
-      await this.userServiceInstance.updateReduceTicket(
-        'group',
-        user._id,
-        -groupStudy.requiredTicket,
-      );
-    }
 
     groupStudy.participateGroupStudy(user._id, 'member');
 
@@ -1029,45 +995,20 @@ export default class GroupStudyService {
     try {
       if (status === 'agree') {
         groupStudy.agreeWaiting(userId);
-
-        //ticket 소모 로직
-        const ticketInfo = await this.userServiceInstance.getTicketInfo(userId);
-        const extraTemp =
-          groupStudy.requiredTicket - ticketInfo.groupStudyTicket;
-
-        if (extraTemp <= 0) {
-          await this.userServiceInstance.updateReduceTicket(
-            'group',
-            userId,
-            -groupStudy.requiredTicket,
-          );
-        } else {
-          if (ticketInfo.groupStudyTicket > 0) {
-            await this.userServiceInstance.updateReduceTicket(
-              'group',
-              userId,
-              -ticketInfo.groupStudyTicket,
-            );
-          }
-          await this.userServiceInstance.updatePointById(
-            -1000 * extraTemp,
-            '월간 소모임 참여권 초과 사용 사용',
-            'ticket',
-            userId,
-          );
-
-          await this.fcmServiceInstance.sendNotificationToXWithId(
-            userId,
-            WEBPUSH_MSG.GROUPSTUDY.TITLE,
-            WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
-            `/groupStudy/${groupStudy.id}`,
-          );
-        }
       } else {
         groupStudy.disagreeWaiting(userId);
       }
 
       await this.groupStudyRepository.save(groupStudy);
+
+      if (status === 'agree') {
+        await this.fcmServiceInstance.sendNotificationToXWithId(
+          userId,
+          WEBPUSH_MSG.GROUPSTUDY.TITLE,
+          WEBPUSH_MSG.GROUPSTUDY.AGREE(groupStudy.title),
+          `/group/${groupStudy.id}`,
+        );
+      }
     } catch (err) {
       throw new Error();
     }
@@ -1263,107 +1204,6 @@ export default class GroupStudyService {
     await this.groupStudyRepository.save(groupStudy);
 
     return;
-  }
-
-  async processGroupStudyAttend(targetUserId?: string) {
-    const groupStudies = await this.groupStudyRepository.findAll();
-    if (!groupStudies) throw new Error('No group studies found');
-
-    try {
-      // 유저별로 그룹핑: { userId -> [{group, par, requiredTicket}] }
-      const userGroupMap = new Map<
-        string,
-        { group: (typeof groupStudies)[0]; par: any; requiredTicket: number }[]
-      >();
-
-      for (const group of groupStudies) {
-        if (group.status !== 'pending') continue;
-
-        for (const par of group.participants) {
-          if (!par?.user) continue;
-
-          const userId = par.user.toString();
-          const isMember =
-            (par.role as string) === 'regularMember' || par.role === 'admin';
-          const requiredTicket = isMember
-            ? group.requiredTicket - 1
-            : group.requiredTicket;
-
-          if (!userGroupMap.has(userId)) userGroupMap.set(userId, []);
-          userGroupMap.get(userId).push({ group, par, requiredTicket });
-        }
-      }
-
-      // 유저별 순차 처리, 유저 간 병렬
-      const userJobs = [...userGroupMap.entries()].map(
-        async ([userId, items]) => {
-          const isTarget = targetUserId && userId === targetUserId;
-
-          for (const { group, par, requiredTicket } of items) {
-            try {
-              const ticketInfo =
-                await this.userServiceInstance.getTicketInfo(userId);
-              const currentTicket = ticketInfo?.groupStudyTicket ?? 0;
-              const actualDeduct = Math.min(
-                requiredTicket,
-                Math.max(0, currentTicket),
-              );
-              const deficit = requiredTicket - actualDeduct;
-
-              if (isTarget) {
-                console.log(
-                  `[target] group=${group.id} "${group.title}" | role=${par.role} isMember=${par.role === 'regularMember' || par.role === 'admin'} | requiredTicket=${requiredTicket} currentTicket=${currentTicket} actualDeduct=${actualDeduct} deficit=${deficit}`,
-                );
-              }
-
-              if (actualDeduct > 0) {
-                await this.userServiceInstance.updateReduceTicket(
-                  'group',
-                  par?.user,
-                  -actualDeduct,
-                );
-              }
-
-              if (deficit > 0) {
-                const userInfo =
-                  await this.userServiceInstance.getUserWithUserId(userId);
-                const currentPoint = userInfo?.point ?? 0;
-                const deductAmount = Math.min(
-                  deficit * 1000,
-                  Math.max(0, currentPoint),
-                );
-
-                if (isTarget) {
-                  console.log(
-                    `[target] 포인트 차감 | deficit=${deficit} currentPoint=${currentPoint} deductAmount=${deductAmount}`,
-                  );
-                }
-
-                if (deductAmount > 0) {
-                  await this.userServiceInstance.updatePointById(
-                    -deductAmount,
-                    '소모임 참여 차감',
-                    'groupStudy',
-                    userId,
-                  );
-                }
-              }
-            } catch (err) {
-              console.error(
-                `processGroupStudyAttend skip: group=${group.id} user=${userId} err=${err?.message}`,
-              );
-            }
-          }
-        },
-      );
-
-      await Promise.all(userJobs);
-    } catch (err) {
-      throw new AppError(
-        err?.message ?? 'Failed to process group study attendance',
-        500,
-      );
-    }
   }
 
   async getRecommendGroupStudy(recommend: string) {

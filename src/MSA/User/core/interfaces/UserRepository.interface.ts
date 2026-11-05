@@ -6,7 +6,6 @@ export interface IUserRepository {
   findByUserId(userId: string): Promise<User | null>;
   findByUids(uids: string[]): Promise<User[]>;
   findAll(queryString?: string): Promise<User[]>;
-  findAllForTicket();
   findAllForStudyEngage();
   findAllForGatherNotification();
   updateUser(uid: string, updateInfo: any): Promise<null>;
@@ -18,8 +17,6 @@ export interface IUserRepository {
   findByIsActive(isActive: boolean, queryString?: string): Promise<User[]>;
   create(user: User): Promise<User>;
   save(user: User): Promise<User>;
-  resetGatherTicket(): Promise<null>;
-  processTicket(whiteList: any);
   resetMonthScore();
   resetMonthStudyRecord();
   incrementStudyBadge(userId: string, count?: number);
@@ -38,15 +35,11 @@ export interface IUserRepository {
   processMonthScore();
   findMonthPrize(ranks: any[]);
   updateUser(uid: string, updateInfo: any): Promise<null>;
-  updateGatherTicket(uid: string, value: number): Promise<number | null>;
-  updateGroupStudyTicket(uid: string, value: number): Promise<number | null>;
-  updateTicketWithUserIds(userIds: string[], ticketNum: number);
   updateLocationDetailAll();
   test(): Promise<any>;
 
   findAllForPrize();
   initMembership(): Promise<null>;
-  findUsersWithNegativeGroupStudyTicket(): Promise<import('../domain/User/User').User[]>;
   resetNegativePoint(): Promise<void>;
   findAllNicknames(): Promise<string[]>;
 }

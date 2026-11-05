@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as CryptoJS from 'crypto-js';
 import { Model } from 'mongoose';
 import { DB_SCHEMA } from 'src/Constants/DB_SCHEMA';
-import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
 import * as logger from 'src/logger';
 import {
@@ -169,10 +168,6 @@ export default class RegisterService {
       registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
       point: 5000,
-      ticket: {
-        gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
-        groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
-      },
       avatar: { type: null, bg: null },
       membership: 'newbie',
     };
@@ -260,10 +255,6 @@ export default class RegisterService {
       registerDate: DateUtils.getTodayYYYYMMDD(),
       isActive: true,
       point: depositPoint,
-      ticket: {
-        gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
-        groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
-      },
       avatar: {
         type: null,
         bg: null,

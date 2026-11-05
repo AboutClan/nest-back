@@ -89,27 +89,4 @@ export default class LogService {
     const logs = await this.logRepository.findAllByType(type, scope);
     return logs;
   }
-
-  async getTicketLog(category: string) {
-    const token = RequestContext.getDecodedToken();
-    let logs;
-    switch (category) {
-      case 'gather':
-        logs = await this.logRepository.findTicketLog(token.uid, [
-          'gather',
-          'gatherTicket',
-        ]);
-
-        break;
-      case 'groupStudy':
-        logs = await this.logRepository.findTicketLog(token.uid, [
-          'groupOffline',
-          'groupOnline',
-        ]);
-        break;
-      default:
-    }
-
-    return logs;
-  }
 }

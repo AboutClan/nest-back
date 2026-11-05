@@ -68,10 +68,4 @@ export class LogController {
     const logs = await this.logService.getAllLog('deposit');
     return logs;
   }
-
-  @Get('ticket/:category')
-  async getTicketLog(@Param('category') category: string) {
-    const logs = await this.logService.getTicketLog(category);
-    return logs;
-  }
 }

@@ -230,13 +230,3 @@ export class SelectBadgeDto {
   @IsNumber()
   badgeIdx: number;
 }
-
-export class UpdateTicketDto {
-  @IsNotEmpty()
-  @IsNumber()
-  ticketNum: number;
-
-  @IsNotEmpty()
-  @IsString()
-  type: 'gather' | 'groupStudy' | 'groupOnline' | 'groupOffline';
-}

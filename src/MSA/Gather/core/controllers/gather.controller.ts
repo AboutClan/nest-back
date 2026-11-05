@@ -138,6 +138,13 @@ export class GatherController {
     return await this.gatherService.getReviewGather();
   }
 
+  // [내 정보] '할 수 있는 멤버 평가' 목록용. 행 표시에 필요한 필드만 내려준다
+  @Get('review/list')
+  async getReviewableGathers() {
+    const gathers = await this.gatherService.findReviewableGathers();
+    return gathers.map((g) => ({ id: g.id, title: g.title, date: g.date }));
+  }
+
   @Post('ai/draft')
   async generatePostDraft(@Body() body: GeneratePostDraftDto) {
     return await this.gatherService.generatePostDraft(body.text);

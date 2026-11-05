@@ -8,7 +8,6 @@ import { BackupService } from 'src/Database/backup.service';
 import { IGatherRepository } from 'src/MSA/Gather/core/interfaces/GatherRepository.interface';
 import { GatherService } from 'src/MSA/Gather/core/services/gather.service';
 import { IGroupStudyRepository } from 'src/MSA/GroupStudy/core/interfaces/GroupStudyRepository.interface';
-import GroupStudyService from 'src/MSA/GroupStudy/core/services/groupStudy.service';
 import { Vote2Service } from 'src/MSA/Study/core/services/vote2.service';
 import { UserService } from 'src/MSA/User/core/services/user.service';
 import { DateUtils } from 'src/utils/Date';
@@ -28,7 +27,6 @@ export class NotificationScheduler {
     @Inject(IGROUPSTUDY_REPOSITORY)
     private groupstudyRepository: IGroupStudyRepository,
 
-    private readonly groupStudyService: GroupStudyService,
     private readonly vote2Service: Vote2Service,
     private readonly gatherService: GatherService,
     private readonly userService: UserService,
@@ -287,46 +285,6 @@ export class NotificationScheduler {
     }
     try {
       await this.userService.processMonthScore();
-      await this.logSchedule(name, 'success', flag);
-    } catch (err: any) {
-      await this.logSchedule(name, 'failure', flag, err);
-      throw new Error(err);
-    }
-  }
-
-  // ticket 정산
-  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
-    timeZone: 'Asia/Seoul',
-  })
-  async processTicket() {
-    const name = SCHEDULE_CONST.PROCESS_TICKET;
-    const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlagAndName(flag, name);
-    if (log) {
-      return;
-    }
-    try {
-      await this.userService.processTicket();
-      await this.logSchedule(name, 'success', flag);
-    } catch (err: any) {
-      await this.logSchedule(name, 'failure', flag, err);
-      throw new Error(err);
-    }
-  }
-
-  //매월 1일 0시 10분
-  @Cron('0 10 0 1 * *', {
-    timeZone: 'Asia/Seoul',
-  })
-  async processGroupStudyAttend() {
-    const name = SCHEDULE_CONST.PROCESS_GROUP_ATTENDANCE;
-    const flag = DateUtils.getYearMonth();
-    const log = await this.findLogByFlagAndName(flag, name);
-    if (log) {
-      return;
-    }
-    try {
-      await this.groupStudyService.processGroupStudyAttend();
       await this.logSchedule(name, 'success', flag);
     } catch (err: any) {
       await this.logSchedule(name, 'failure', flag, err);

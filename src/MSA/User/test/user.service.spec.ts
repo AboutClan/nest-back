@@ -80,10 +80,6 @@ const mockUser = {
     type: 1,
     bg: 1,
   },
-  ticket: {
-    gatherTicket: 2,
-    groupStudyTicke: 4,
-  },
   badge: {
     badgeIdx: 1,
     badgeList: [1],

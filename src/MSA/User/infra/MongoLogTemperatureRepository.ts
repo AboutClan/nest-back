@@ -14,6 +14,15 @@ export class LogTemperatureRepository implements ILogTemperatureRepository {
     return await this.LogTemperature.create(logTemperature);
   }
 
+  async existsGreat(fromUid: string, toUid: string) {
+    const found = await this.LogTemperature.exists({
+      from: fromUid,
+      to: toUid,
+      sub: 'great',
+    });
+    return !!found;
+  }
+
   async findTemperature(uid: string) {
     return await this.LogTemperature.find({ to: uid }, '-_id -__v');
   }

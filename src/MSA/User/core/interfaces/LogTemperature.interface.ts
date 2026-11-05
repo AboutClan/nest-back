@@ -7,6 +7,7 @@ export interface ILogTemperatureRepository {
     findTemperature(uid: string);
     findTemperatureByUidArr(uidArr: string[]);
     findTemperatureByPeriod(start: Date, end: Date);
+    existsGreat(fromUid: string, toUid: string): Promise<boolean>;
     findGivenSince(fromUid: string, toUids: string[], start: Date);
     findGroupMonthlySubmitters(groupId: string, period: string): Promise<string[]>;
     overwriteLatestGivenOrCreate(

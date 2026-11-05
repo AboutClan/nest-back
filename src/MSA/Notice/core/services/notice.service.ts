@@ -20,6 +20,7 @@ import { INotice, NoticeZodSchema } from '../../entity/notice.entity';
 import { NoticeRepository } from '../interfaces/notice.repository.interface';
 import { ILogTemperatureRepository } from 'src/MSA/User/core/interfaces/LogTemperature.interface';
 import { ILogTemperature } from 'src/MSA/User/entity/logTemperature.entity';
+import { linkFriendIfMutualGreat } from 'src/MSA/User/core/services/mutualFriend';
 
 export default class NoticeService {
   constructor(
@@ -199,6 +200,14 @@ export default class NoticeService {
           sub: info.rating,
           timestamp: new Date(),
         } as ILogTemperature);
+        if (info.rating === 'great') {
+          await linkFriendIfMutualGreat(
+            this.logTemperatureRepository,
+            this.User,
+            token.uid,
+            info.toUid,
+          );
+        }
       }
 
       const gather = await this.gatherRepository.findById(parseInt(gatherId));
@@ -222,6 +231,14 @@ export default class NoticeService {
           sub: info.rating,
           timestamp: new Date(),
         } as ILogTemperature);
+        if (info.rating === 'great') {
+          await linkFriendIfMutualGreat(
+            this.logTemperatureRepository,
+            this.User,
+            token.uid,
+            info.toUid,
+          );
+        }
       }
 
       const study = await this.vote2Repository.findByDateWithoutPopulate(date);

@@ -217,7 +217,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
           title: 1,
           squareImage: 1,
           id: 1,
-          requiredTicket: 1,
           meetingType: 1,
           isMember: 1,
         },
@@ -513,7 +512,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       updatedAt: (doc as any).updatedAt,
       notionUrl: doc?.notionUrl,
       googleFormUrl: doc?.googleFormUrl,
-      requiredTicket: doc?.requiredTicket,
       totalDeposit: doc?.totalDeposit,
       randomTicket: doc?.randomTicket,
     };
@@ -595,7 +593,6 @@ export class GroupStudyRepository implements IGroupStudyRepository {
       squareImage: p.squareImage,
       meetingType: p.meetingType as IGroupStudyData['meetingType'],
       id: p.id,
-      requiredTicket: p.requiredTicket,
       randomTicket: p.randomTicket,
     };
   }

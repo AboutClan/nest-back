@@ -28,7 +28,6 @@ jest.mock('src/MSA/Store/core/services/prize.service', () => ({
 import { AppError } from 'src/errors/AppError';
 import { RequestContext } from 'src/request-context';
 import { User } from '../domain/User/User';
-import { Ticket } from '../domain/User/Ticket';
 import { UserService } from './user.service';
 
 const makeUser = (fields: Partial<User> = {}) => {
@@ -51,7 +50,6 @@ function createService() {
     findByUserId: jest.fn(),
     save: jest.fn().mockResolvedValue(undefined),
     incrementPointByUid: jest.fn().mockResolvedValue(undefined),
-    findUsersWithNegativeGroupStudyTicket: jest.fn(),
     resetPointByMonthScore: jest.fn().mockResolvedValue([]),
     processMonthScore: jest.fn().mockResolvedValue(undefined),
     resetMonthScore: jest.fn().mockResolvedValue(undefined),
@@ -135,7 +133,7 @@ describe('UserService.updateUser 닉네임 검증', () => {
   });
 });
 
-describe('User 도메인 (포인트 / 참여권 / 매너온도)', () => {
+describe('User 도메인 (포인트 / 매너온도)', () => {
   it('포인트 차감은 0 미만으로 내려가지 않는다', () => {
     const user = makeUser({ point: 1000 });
     user.increasePoint(-3000);
@@ -146,20 +144,6 @@ describe('User 도메인 (포인트 / 참여권 / 매너온도)', () => {
     const user = makeUser({ point: 1000 });
     user.increasePoint(500);
     expect(user.point).toBe(1500);
-  });
-
-  it('참여권 기본값: 번개 2 / 소모임 4', () => {
-    expect(new Ticket().toPrimitives()).toEqual({
-      gatherTicket: 2,
-      groupStudyTicket: 4,
-    });
-  });
-
-  it('0개 참여권은 기본값으로 덮어쓰지 않는다 (?? 사용)', () => {
-    expect(new Ticket(0, 0).toPrimitives()).toEqual({
-      gatherTicket: 0,
-      groupStudyTicket: 0,
-    });
   });
 
   it('setTemperature는 기본 36.5에 변화량을 더해 저장한다', () => {
@@ -233,52 +217,6 @@ describe('UserService.updatePoint (포인트 적립/차감)', () => {
     );
 
     expect(UserRepository.incrementPointByUid).toHaveBeenCalledWith('me', 100);
-  });
-});
-
-// ---------------------------------------------------------------------------
-describe('UserService 참여권(ticket)', () => {
-  it.each([
-    ['gather', undefined, { gatherTicket: 3, groupStudyTicket: 4 }],
-    ['gather', 2, { gatherTicket: 4, groupStudyTicket: 4 }],
-    ['groupStudy', undefined, { gatherTicket: 2, groupStudyTicket: 5 }],
-    ['groupOnline', undefined, { gatherTicket: 2, groupStudyTicket: 5 }],
-    ['groupOffline', undefined, { gatherTicket: 2, groupStudyTicket: 6 }],
-  ] as const)(
-    'updateAddTicket(%s, ticketNum=%p) → %o',
-    async (type, ticketNum, expected) => {
-      const { service, UserRepository } = createService();
-      const user = makeUser({ ticket: new Ticket(2, 4) });
-      UserRepository.findByUserId.mockResolvedValue(user);
-
-      await service.updateAddTicket(type, 'user-id', ticketNum, 'return');
-
-      expect(UserRepository.save).toHaveBeenCalledWith(user);
-      expect(user.ticket.toPrimitives()).toEqual(expected);
-    },
-  );
-
-  it('월간 정산: 음수 소모임 참여권은 1장당 1000P로 차감하고 0으로 맞춘다', async () => {
-    const { service, UserRepository } = createService();
-    const user = makeUser({ point: 5000, ticket: new Ticket(2, -3) });
-    UserRepository.findUsersWithNegativeGroupStudyTicket.mockResolvedValue([user]);
-
-    await service.penalizeNegativeGroupStudyTicket();
-
-    expect(user.point).toBe(2000);
-    expect(user.ticket.groupStudyTicket).toBe(0);
-    expect(UserRepository.save).toHaveBeenCalledWith(user);
-  });
-
-  it('월간 정산: 차감액이 보유 포인트보다 크면 포인트는 0에서 멈춘다', async () => {
-    const { service, UserRepository } = createService();
-    const user = makeUser({ point: 1000, ticket: new Ticket(2, -3) });
-    UserRepository.findUsersWithNegativeGroupStudyTicket.mockResolvedValue([user]);
-
-    await service.penalizeNegativeGroupStudyTicket();
-
-    expect(user.point).toBe(0);
-    expect(user.ticket.groupStudyTicket).toBe(0);
   });
 });
 

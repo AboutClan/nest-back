@@ -10,7 +10,6 @@ import { Preference } from 'src/MSA/User/core/domain/User/Preference';
 import { Rest } from 'src/MSA/User/core/domain/User/Rest';
 import { StudyRecord } from 'src/MSA/User/core/domain/User/StudyRecord';
 import { Temperature } from 'src/MSA/User/core/domain/User/Temperature';
-import { Ticket } from 'src/MSA/User/core/domain/User/Ticket';
 import { User } from 'src/MSA/User/core/domain/User/User';
 import { IUserRepository } from '../core/interfaces/UserRepository.interface';
 import {
@@ -62,44 +61,6 @@ export class UserRepository implements IUserRepository {
       { new: true, upsert: false },
     );
     return null;
-  }
-
-  async updateGatherTicket(
-    userId: string,
-    value: number,
-  ): Promise<number | null> {
-    const updatedUser = await this.UserModel.findOneAndUpdate(
-      {
-        _id: userId,
-      },
-      {
-        $inc: { 'ticket.gatherTicket': value },
-      },
-      { new: true, upsert: false },
-    );
-    return updatedUser?.ticket?.gatherTicket ?? null;
-  }
-  async updateGroupStudyTicket(
-    userId: string,
-    value: number,
-  ): Promise<number | null> {
-    const updatedUser = await this.UserModel.findOneAndUpdate(
-      {
-        _id: userId,
-      },
-      {
-        $inc: { 'ticket.groupStudyTicket': value },
-      },
-      { new: true, upsert: false },
-    );
-    return updatedUser?.ticket?.groupStudyTicket ?? null;
-  }
-
-  async updateTicketWithUserIds(userIds: string[], ticketNum: number) {
-    await this.UserModel.updateMany(
-      { _id: { $in: userIds } },
-      { $inc: { 'ticket.groupStudyTicket': ticketNum } },
-    );
   }
 
   async findAll(queryString?: string): Promise<User[]> {
@@ -182,17 +143,6 @@ export class UserRepository implements IUserRepository {
     return this.mapToDomain(updated);
   }
 
-  async resetGatherTicket(): Promise<null> {
-    await this.UserModel.findOneAndUpdate(
-      { 'ticket.gatherTicket': { $lt: 3 } },
-      {
-        $set: { 'ticket.gatherTicket': 3 },
-      },
-      { new: true, upsert: false },
-    );
-    return null;
-  }
-
   async resetTemperature(): Promise<null> {
     await this.UserModel.updateMany(
       {},
@@ -211,7 +161,7 @@ export class UserRepository implements IUserRepository {
   async resetPointByMonthScore(maxDate: string) {
     const uids = await this.UserModel.find(
       {
-        monthScore: { $lt: 2 },
+        monthScore: { $lt: 1 },
         role: { $ne: 'resting' },
         registerDate: { $lt: maxDate },
       },
@@ -220,7 +170,8 @@ export class UserRepository implements IUserRepository {
 
     await this.UserModel.updateMany(
       {
-        monthScore: { $lt: 5 },
+        // 월간 최소 활동: 이번 달 점수가 1점이라도 있으면 만족(출석체크 1번으로도 충족)
+        monthScore: { $lt: 1 },
         role: { $ne: 'resting' },
         registerDate: { $lt: maxDate },
       },
@@ -388,12 +339,6 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async findAllForTicket() {
-    return await this.UserModel.find({})
-      .select('_id uid ticket temperature')
-      .lean();
-  }
-
   async initMembership(): Promise<null> {
     //registerDate가 오늘 기준 한달 이전인 경우 membership을 normal로 변경
     const today = new Date();
@@ -401,137 +346,6 @@ export class UserRepository implements IUserRepository {
     await this.UserModel.updateMany(
       { registerDate: { $lt: oneMonthAgo }, membership: 'newbie' },
       { $set: { membership: 'normal' } },
-    );
-    return null;
-  }
-
-  async processTicket(whiteList: any) {
-    // A유형 (<36.5)
-    await this.UserModel.updateMany(
-      { 'temperature.temperature': { $lt: 36.5 } },
-      [
-        { $set: { 'ticket.gatherTicket': 1 } },
-        {
-          $set: {
-            'ticket.groupStudyTicket': 2,
-          },
-        },
-      ],
-    );
-
-    // B유형 (36.5 ≤ t < 38)
-    await this.UserModel.updateMany(
-      { 'temperature.temperature': { $gte: 36.5, $lt: 38 } },
-      [
-        { $set: { 'ticket.gatherTicket': 2 } },
-        {
-          $set: {
-            'ticket.groupStudyTicket': 4,
-          },
-        },
-      ],
-    );
-
-    // C유형 (38 ≤ t < 40)
-    await this.UserModel.updateMany(
-      { 'temperature.temperature': { $gte: 38, $lt: 40 } },
-      [
-        { $set: { 'ticket.gatherTicket': 3 } },
-        {
-          $set: {
-            'ticket.groupStudyTicket': 4,
-          },
-        },
-      ],
-    );
-
-    await this.UserModel.updateMany(
-      { 'temperature.temperature': { $gte: 40, $lt: 42 } },
-      [
-        { $set: { 'ticket.gatherTicket': 3 } },
-        {
-          $set: {
-            'ticket.groupStudyTicket': 5,
-          },
-        },
-      ],
-    );
-
-    await this.UserModel.updateMany(
-      { 'temperature.temperature': { $gte: 42, $lt: 44 } },
-      [
-        { $set: { 'ticket.gatherTicket': 4 } },
-        {
-          $set: {
-            'ticket.groupStudyTicket': 5,
-          },
-        },
-      ],
-    );
-
-    await this.UserModel.updateMany(
-      { 'temperature.temperature': { $gte: 44 } },
-      [
-        { $set: { 'ticket.gatherTicket': 4 } },
-        {
-          $set: {
-            'ticket.groupStudyTicket': 6,
-          },
-        },
-      ],
-    );
-
-    //여성: gather 1, group 2장 추가
-    await this.UserModel.updateMany(
-      { gender: '여성' },
-      {
-        $inc: {
-          'ticket.gatherTicket': 1,
-          'ticket.groupStudyTicket': 1,
-        },
-      },
-    );
-
-    /** set과 inc 같이 적용 안된다고 해서 확인해 주세요! */
-    // for (const item of whiteList) {
-    //   await this.UserModel.updateMany(
-    //     { uid: item.uid },
-    //     { $set: { 'ticket.gatherTicket': 4 } },
-    //     {
-    //       $inc: {
-    //         'ticket.gatherTicket': item.gatherTicket,
-    //         'ticket.groupStudyTicket': item.groupStudyTicket,
-    //       },
-    //     },
-    //   );
-    // }
-
-    //membership이 뉴비면 번개 +1, 소모임 +2 / 운영진/소모임장이면 번개 +2 소모임 +4 / 번개 서포터즈면 번개 +2
-    await this.UserModel.updateMany(
-      { membership: 'newbie' },
-      {
-        $inc: {
-          'ticket.gatherTicket': 1,
-          'ticket.groupStudyTicket': 2,
-        },
-      },
-    );
-    await this.UserModel.updateMany(
-      { membership: 'manager' },
-      {
-        $inc: {
-          'ticket.gatherTicket': 2,
-          'ticket.groupStudyTicket': 4,
-        },
-      },
-    );
-    await this.UserModel.updateMany(
-      { membership: 'gatherSupporters' },
-      {
-        $inc: {
-          'ticket.gatherTicket': 2,
-        },
-      },
     );
     return null;
   }
@@ -565,13 +379,6 @@ export class UserRepository implements IUserRepository {
       { point: { $lt: 0 } },
       { $set: { point: 0 } },
     );
-  }
-
-  async findUsersWithNegativeGroupStudyTicket(): Promise<User[]> {
-    const users = await this.UserModel.find({
-      'ticket.groupStudyTicket': { $lt: 0 },
-    });
-    return users.map((user) => this.mapToDomain(user));
   }
 
   async findAllNicknames(): Promise<string[]> {
@@ -622,10 +429,6 @@ export class UserRepository implements IUserRepository {
           ),
         )
       : null;
-    const ticket = new Ticket(
-      doc?.ticket?.gatherTicket,
-      doc?.ticket?.groupStudyTicket,
-    );
     const badge = doc.badge
       ? new Badge(doc?.badge?.badgeIdx, doc?.badge?.badgeList)
       : undefined;
@@ -680,7 +483,6 @@ export class UserRepository implements IUserRepository {
       doc?.instagram,
       preference,
       locationDetail,
-      ticket,
       badge,
       studyRecord,
       temperature,
@@ -733,7 +535,6 @@ export class UserRepository implements IUserRepository {
       result.studyPreference = p.studyPreference || {};
     if (p.locationDetail !== null)
       result.locationDetail = p.locationDetail || {};
-    if (p.ticket !== null) result.ticket = p.ticket || [];
     if (p.badge !== null) result.badge = p.badge || [];
     if (p.studyRecord !== null) result.studyRecord = p.studyRecord || [];
     if (p.temperature !== null) result.temperature = p.temperature || 0;

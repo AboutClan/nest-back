@@ -699,78 +699,6 @@ export class UserService {
     return;
   }
 
-  async updateAddTicket(
-    type: 'gather' | 'groupOnline' | 'groupOffline' | 'groupStudy',
-    userId: string,
-    ticketNum?: number,
-    category?: 'create' | 'return',
-  ) {
-    const user = await this.UserRepository.findByUserId(userId);
-    switch (type) {
-      case 'gather':
-        if (!ticketNum) ticketNum = 1;
-        user.increaseGatherTicket(ticketNum);
-        break;
-      case 'groupStudy':
-        if (!ticketNum) ticketNum = 1;
-        user.increaseGroupStudyTicket(ticketNum);
-        break;
-      case 'groupOffline':
-        if (!ticketNum) ticketNum = 2;
-        user.increaseGroupStudyTicket(ticketNum);
-        break;
-      case 'groupOnline':
-        if (!ticketNum) ticketNum = 1;
-        user.increaseGroupStudyTicket(ticketNum);
-        break;
-      default:
-        break;
-    }
-    const { uid } = await this.getUserWithUserId(userId);
-
-    const first = type === 'gather' ? '번개' : '소모임';
-    const second = category === 'create' ? '구매' : '반환';
-
-    logger?.info(`${first} 참여권 ${second}`, {
-      type,
-      uid,
-      value: ticketNum,
-    });
-    await this.UserRepository.save(user);
-  }
-
-  async updateReduceTicket(
-    type: 'gather' | 'group',
-    userId: string,
-    ticketNum: number,
-  ) {
-    let updatedTicket = null;
-    if (type === 'gather') {
-      updatedTicket = await this.UserRepository.updateGatherTicket(
-        userId,
-        ticketNum,
-      );
-    } else {
-      updatedTicket = await this.UserRepository.updateGroupStudyTicket(
-        userId,
-        ticketNum,
-      );
-    }
-
-    const { uid } = await this.getUserWithUserId(userId);
-
-    const message =
-      type === 'gather' ? '번개 모임 참여' : '소모임 가입(또는 유지)';
-
-    logger?.info(message, {
-      type: `${type}Ticket`,
-      uid,
-      value: ticketNum,
-    });
-
-    return updatedTicket;
-  }
-
   async addBadge(id: string, badgeName: string) {
     const token = RequestContext.getDecodedToken();
     let user;
@@ -803,18 +731,6 @@ export class UserService {
       img.buffer,
     );
     this.updateUser({ profileImage: profileImgUrl });
-  }
-
-  async resetGatherTicket() {
-    await this.UserRepository.resetGatherTicket();
-  }
-
-  async getTicketInfo(userId: string) {
-    const user = await this.UserRepository.findByUserId(userId);
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-    return user.ticket;
   }
 
   async setVoteArriveInfo(userId: string, end: string) {
@@ -1189,15 +1105,6 @@ export class UserService {
     return logs;
   }
 
-  async processTicket() {
-    const whiteList = [];
-    await this.UserRepository.processTicket(whiteList);
-  }
-
-  async updateTicketWithUserIds(userIds: string[], ticketNum: number) {
-    await this.UserRepository.updateTicketWithUserIds(userIds, ticketNum);
-  }
-
   async processStudyEngage() {
     const users = await this.UserRepository.findAllForStudyEngage();
 
@@ -1206,17 +1113,32 @@ export class UserService {
       return;
     }
 
-    const random = Math.floor(Math.random() * 2);
-    const title =
-      random === 0
-        ? '이번주 카공 같이 할 사람? ✨'
-        : '공부도 하고, 상품도 GET! 💰';
     // 목요일 20시 발송이라 "다음 주"가 아니라 이번 주말을 가리켜야 한다.
     // "신청만 해도 포인트"는 실제로 지급되지 않아(STUDY_ALL_RESULT는 주석 처리됨) 뺐다.
-    const description =
-      random === 0
-        ? '근처에 있는 멤버들이 스터디 기다리고 있어요! 지금 신청하고 같이 카공해요!'
-        : '출석만 해도 포인트가 와르르 🎁 이번 주 함께 공부할 멤버를 찾고 있어요 🚀';
+    const messages = [
+      {
+        title: '주말에 같이 카공할 사람 🙋',
+        description:
+          '이번 주말 근처 카페에서 함께 공부할 멤버를 찾고 있어요. 미리 신청해 두면 당일 아침 9시에 스터디가 확정돼요!',
+      },
+      {
+        title: '이번 주말, 혼자 공부하기 아쉽다면 ☕',
+        description:
+          '어바웃 멤버들과 카페에서 같이 집중해 봐요. 지금 주말 스터디를 신청할 수 있어요!',
+      },
+      {
+        title: '주말 공부 계획 세우셨나요? 📚',
+        description:
+          '같이 하면 더 오래 앉아 있게 돼요. 이번 주말 스터디 신청하러 가요!',
+      },
+      {
+        title: '공부 메이트 구해요 ✏️',
+        description:
+          '이번 주말 스터디 신청이 열려 있어요. 가까운 멤버와 같은 조로 매칭해 드릴게요!',
+      },
+    ];
+    const { title, description } =
+      messages[Math.floor(Math.random() * messages.length)];
 
     await this.fcmServiceInstance.sendNotificationUserIds(
       userIds,
@@ -1237,16 +1159,30 @@ export class UserService {
       return;
     }
 
-    const random = Math.floor(Math.random() * 2);
-    const title =
-      random === 0
-        ? '👀 오늘은 어떤 모임이 열렸을까?'
-        : '✨ 취향 맞는 번개 모임 둘러보기';
-
-    const description =
-      random === 0
-        ? '지금 참여 가능한 다양한 번개 모임을 확인해 보세요🍀'
-        : '관심사 맞는 사람들과 새로운 취미와 일상을 함께해요🍀';
+    const messages = [
+      {
+        title: '이번 주엔 뭐 하고 놀까? 🎈',
+        description:
+          '멤버들이 연 번개 모임이 기다리고 있어요. 마음에 드는 모임에 바로 참여해 보세요!',
+      },
+      {
+        title: '한 주의 시작, 약속 하나 잡아볼까요? 📅',
+        description:
+          '이번 주 번개 모임 일정을 확인하고 끌리는 모임에 참여해 보세요!',
+      },
+      {
+        title: '새로운 사람, 새로운 취미 🌱',
+        description:
+          '관심사가 맞는 멤버들과 가볍게 만나 보세요. 이번 주 번개 모임이 열려 있어요!',
+      },
+      {
+        title: '직접 모임을 열어 보는 건 어때요? ⚡',
+        description:
+          '하고 싶은 게 있다면 번개를 열고 같이 할 멤버를 모아 보세요!',
+      },
+    ];
+    const { title, description } =
+      messages[Math.floor(Math.random() * messages.length)];
 
     await this.fcmServiceInstance.sendNotificationUserIds(
       userIds,
@@ -1405,28 +1341,6 @@ export class UserService {
 
   async resetNegativePoint() {
     await this.UserRepository.resetNegativePoint();
-  }
-
-  async penalizeNegativeGroupStudyTicket() {
-    const users =
-      await this.UserRepository.findUsersWithNegativeGroupStudyTicket();
-
-    for (const user of users) {
-      const deficit = Math.abs(user.ticket.groupStudyTicket);
-      const penalty = deficit * 1000;
-
-      user.increasePoint(-penalty);
-      user.ticket.groupStudyTicket = 0;
-
-      await this.UserRepository.save(user);
-
-      logger?.info('월간 소모임 참여권 정산 (포인트 대체)', {
-        type: 'point',
-        sub: '소모임 티켓 정산',
-        uid: user.uid,
-        value: -penalty,
-      });
-    }
   }
 
   async processTemperature2() {

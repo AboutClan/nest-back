@@ -39,11 +39,6 @@ const preferenceZodSchema = z.object({
   subPlace: z.union([z.array(z.string()), z.array(z.custom<IPlace>())]), // Replace z.any() with IPlace if necessary
 });
 
-const ticketZodSchema = z.object({
-  gatherTicket: z.number().default(ENTITY.USER.DEFAULT_GATHER_TICKET),
-  groupStudyTicket: z.number().default(ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET),
-});
-
 const badgeZodSchema = z
   .object({
     badgeIdx: z.number(),
@@ -117,7 +112,6 @@ export function parseStudyIntroduce(raw: unknown): studyIntroduceType {
 }
 export type avatarType = z.infer<typeof avatarZodSchema>;
 export type preferenceType = z.infer<typeof preferenceZodSchema>;
-export type ticketType = z.infer<typeof ticketZodSchema>;
 export type badgeType = z.infer<typeof badgeZodSchema>;
 export type studyBadgeType = z.infer<typeof studyBadgeZodSchema>;
 export type studyRecordType = z.infer<typeof studyRecordZodSchema>;
@@ -173,7 +167,6 @@ export const userZodSchema = z.object({
   studyPreference: preferenceZodSchema.optional(),
   weekStudyTragetHour: z.number().default(0),
   weekStudyAccumulationMinutes: z.number().default(0),
-  ticket: ticketZodSchema,
   badge: badgeZodSchema,
   studyBadge: studyBadgeZodSchema,
   isLocationSharingDenided: z.boolean().default(false).optional(),
@@ -211,7 +204,6 @@ export interface IUser extends Document, IRegistered {
   monthScore: number;
   isPrivate?: boolean;
   instagram?: string;
-  ticket: ticketType;
   badge: badgeType;
   studyBadge: studyBadgeType;
   monthStudyTarget: number;
@@ -309,22 +301,6 @@ export const temperatureSchema: Schema<temperatureType> = new Schema(
   {
     _id: false,
     timestamps: false,
-  },
-);
-
-export const ticketSchema: Schema<ticketType> = new Schema(
-  {
-    gatherTicket: {
-      type: Number,
-      default: ENTITY.USER.DEFAULT_GATHER_TICKET,
-    },
-    groupStudyTicket: {
-      type: Number,
-      default: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
-    },
-  },
-  {
-    _id: false,
   },
 );
 
@@ -504,13 +480,6 @@ export const UserSchema: Schema<IUser> = new Schema({
   },
   locationDetail: { type: locationDetailSchema },
 
-  ticket: {
-    type: ticketSchema,
-    default: () => ({
-      gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
-      groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
-    }),
-  },
   badge: {
     type: badgeSchema,
     default: () => ({ badgeIdx: 0, badgeList: [] }),

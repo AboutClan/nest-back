@@ -5,7 +5,6 @@ jest.mock('src/logger', () => ({
 // UserService는 firebase/S3 등 무거운 의존성을 끌고 오므로 모듈째 대체한다.
 jest.mock('./user.service', () => ({ UserService: class {} }));
 
-import { ENTITY } from 'src/Constants/ENTITY';
 import { ValidationError } from 'src/errors/ValidationError';
 import {
   BLOCKED_UIDS,
@@ -81,7 +80,7 @@ describe('RegisterService.approve (가입 승인)', () => {
     );
   });
 
-  it('추천인 없이 승인 → member / 보증금 5000P / 기본 참여권 / newbie, 대기 문서 삭제', async () => {
+  it('추천인 없이 승인 → member / 보증금 5000P / newbie, 대기 문서 삭제', async () => {
     await service.approve(UID);
 
     expect(UserModel.findOneAndUpdate).toHaveBeenCalledWith(
@@ -97,10 +96,6 @@ describe('RegisterService.approve (가입 승인)', () => {
       isActive: true,
       point: 5000,
       membership: 'newbie',
-      ticket: {
-        gatherTicket: ENTITY.USER.DEFAULT_GATHER_TICKET,
-        groupStudyTicket: ENTITY.USER.DEFAULT_GROUPSTUDY_TICKET,
-      },
     });
     // 대기 문서의 _id / __v 가 User 문서로 새어 들어가면 안 된다
     expect(form).not.toHaveProperty('_id');

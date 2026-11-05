@@ -209,7 +209,7 @@ export class GatherService {
 
   /**
    * 상시 행사에서 확정 모임(별도 gather, parentGatherId로 연결)을 만들고 선택한 회원을 초대 참여자로 넣는다.
-   * 운영진(previliged·manager) 또는 상시 행사 모임장만 가능. 초대 참여라 참여권·포인트는 차감하지 않는다.
+   * 운영진(previliged·manager) 또는 상시 행사 모임장만 가능. 초대 참여라 포인트는 차감하지 않는다.
    * optionKey는 일정(slot) key 또는, 일정이 없는 행사면 콘텐츠 key. 장소는 그 콘텐츠 장소 → 행사 공통 장소 순.
    */
   async createConfirmedGather(body: {
@@ -618,6 +618,12 @@ ${content.title}`
   }
 
   async getReviewGather(): Promise<Gather | null> {
+    const reviewable = await this.findReviewableGathers();
+    return reviewable[0] ?? null;
+  }
+
+  // 내가 아직 멤버 평가를 남기지 않은 번개(최근 2주, 다음 날부터, 오픈번개 제외)
+  async findReviewableGathers(): Promise<Gather[]> {
     const token = RequestContext.getDecodedToken();
     const userIdString = token.id.toString();
 
@@ -648,7 +654,7 @@ ${content.title}`
       );
     });
 
-    return notReviewed[0] ?? null;
+    return notReviewed;
   }
 
   async getGatherGroup(groupId, type) {
@@ -791,7 +797,6 @@ ${content.title}`
     withCompanion?: boolean,
   ) {
     const token = RequestContext.getDecodedToken();
-    const ticket = await this.userServiceInstance.getTicketInfo(token.id);
 
     //type 수정필요
     const gather = await this.gatherRepository.findById(gatherId);
@@ -820,22 +825,6 @@ ${content.title}`
       await this.gatherRepository.save(gather);
     } catch (err) {
       throw new BadRequestException('Invalid participate data');
-    }
-
-    if (!isFree) {
-      if (ticket.gatherTicket <= 0) {
-        await this.userServiceInstance.updatePoint(
-          -2000,
-          '번개 참여권 구매',
-          'gatherTicket',
-        );
-      } else {
-        await this.userServiceInstance.updateReduceTicket(
-          'gather',
-          token.id,
-          -1,
-        );
-      }
     }
 
     await this.userServiceInstance.updateScore(
@@ -1017,9 +1006,9 @@ ${content.title}`
       return;
     }
 
-    // 모임 이틀 전까지 = 포인트 100% + 티켓 반환
-    // 모임 하루 전 = 포인트만 50% 반환
-    // 모임 당일 = 반환 X
+    // 모임 이틀 전까지 = 패널티 없음
+    // 모임 하루 전 = 1000P 패널티
+    // 모임 당일 = 2000P 패널티
     try {
       const handlePointPenalty = async (day: 0 | 1, point: number) => {
         await this.userServiceInstance.updatePointById(
@@ -1033,20 +1022,7 @@ ${content.title}`
         dayjs(gather.date).startOf('day').toISOString(),
       );
 
-      if (diffDay >= 2) {
-        const targetInfo = participants.find(
-          (data) => data.user?.toString() == targetId.toString(),
-        );
-
-        if (targetInfo?.invited === false) {
-          await this.userServiceInstance.updateAddTicket(
-            'gather',
-            targetId,
-            1,
-            'return',
-          );
-        }
-      } else if (diffDay === 1 && !userId) {
+      if (diffDay === 1 && !userId) {
         //1000원 벌금
         await handlePointPenalty(1, CONST.POINT.PARTICIPATE_GATHER / 2);
       } else if (diffDay === 0 && !userId) {
@@ -1268,7 +1244,7 @@ ${content.title}`
   ) {
     const gather = await this.gatherRepository.findById(+id);
     // 상시 행사 신청자는 확정 모임(별도 gather)에 초대로 넣는다. 여기서 승인하면
-    // 부모 행사에 참여자로 들어가고 참여권·포인트가 차감되므로 막는다. 거절(신청 취소)은 허용.
+    // 부모 행사에 참여자로 들어가므로 막는다. 거절(신청 취소)은 허용.
     if (gather?.isRegularGather() && status === 'agree') {
       throw new BadRequestException(
         '상시 행사는 확정 모임에 초대하는 방식으로 참여를 확정해 주세요.',
@@ -1276,19 +1252,6 @@ ${content.title}`
     }
     gather.removeWaiting(userId);
     if (status === 'agree') {
-      const ticket = await this.userServiceInstance.getTicketInfo(userId);
-
-      if (ticket.gatherTicket <= 0) {
-        await this.userServiceInstance.updatePointById(
-          -2000,
-          '번개 참여권 구매',
-          'gatherTicket',
-          userId,
-        );
-      } else {
-        await this.userServiceInstance.updateReduceTicket('gather', userId, -1);
-      }
-
       const validatedParticipate = ParticipantsZodSchema.parse({
         user: userId,
         phase: 'first',
@@ -1439,7 +1402,6 @@ ${content.title}`
   async deleteGather(gatherId: string) {
     const gather = await this.gatherRepository.findById(+gatherId, true);
     await this.returnDepositToRemoveGather(gather);
-    await this.distributeTicket(gather);
 
     const deleted = await this.gatherRepository.deleteById(+gatherId);
     if (!deleted?.deletedCount) throw new DatabaseError('delete failed');
@@ -1449,23 +1411,6 @@ ${content.title}`
       '번개 모임 개설 취소',
     );
     return;
-  }
-
-  async distributeTicket(gather: Gather) {
-    const today = DateUtils.getTodayYYYYMMDD();
-
-    if (gather.date < today) return;
-
-    for (const participant of gather.participants) {
-      if (!participant.invited) {
-        await this.userServiceInstance.updateAddTicket(
-          'gather',
-          participant.user,
-          1,
-          'return',
-        );
-      }
-    }
   }
 
   async test() {

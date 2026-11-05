@@ -81,7 +81,6 @@ export interface GroupStudyProps {
   updatedAt?: Date;
   notionUrl?: string;
   googleFormUrl?: string;
-  requiredTicket?: number;
   totalDeposit?: number;
   randomTicket?: number;
 }
@@ -123,7 +122,6 @@ export class GroupStudy {
   public updatedAt?: Date;
   public notionUrl?: string;
   public googleFormUrl?: string;
-  public requiredTicket?: number;
   public totalDeposit?: number;
   public randomTicket?: number;
   constructor(props: GroupStudyProps) {
@@ -161,7 +159,6 @@ export class GroupStudy {
     this.updatedAt = props.updatedAt;
     this.notionUrl = props.notionUrl;
     this.googleFormUrl = props.googleFormUrl;
-    this.requiredTicket = props.requiredTicket ?? 1;
     this.totalDeposit = props.totalDeposit ?? 0;
     this.randomTicket = props.randomTicket ?? 0;
   }
@@ -446,7 +443,6 @@ export class GroupStudy {
       meetingType: this.meetingType,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      requiredTicket: this.requiredTicket,
       totalDeposit: this.totalDeposit,
       randomTicket: this.randomTicket,
     };

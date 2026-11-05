@@ -38,7 +38,6 @@ import {
   UpdateInstagramDto,
   UpdatePointDto,
   UpdateScoreDto,
-  UpdateTicketDto,
 } from '../../dtos/dto';
 import { IUser } from '../../entity/user.entity';
 import { RANDOM_NICKNAME_POOL } from '../domain/User/randomNickname';
@@ -338,17 +337,6 @@ export class UserController {
   async updateProfileImg(@UploadedFile() file: Express.Multer.File) {
     // TODO: 프로필 이미지 업데이트 로직 구현
     return { message: 'Profile image uploaded successfully' };
-  }
-
-  @Post('ticket')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async updateTicket(@Req() req: Request, @Body() body: UpdateTicketDto) {
-    await this.userService.updateAddTicket(
-      body.type,
-      req.decodedToken.id,
-      body.ticketNum,
-      'create',
-    );
   }
 
   @Get('membership/log')

@@ -87,7 +87,6 @@ const groupStudyZodSchema = z.object({
   meetingType: z.enum(ENTITY.GROUPSTUDY.ENUM_MEETING_TYPE).optional(),
   notionUrl: z.string().optional(),
   googleFormUrl: z.string().optional(),
-  requiredTicket: z.number().default(1),
   totalDeposit: z.number().default(0),
   randomTicket: z.number().default(0),
 });
@@ -319,9 +318,6 @@ export const GroupStudySchema: Schema<IGroupStudyData> = new Schema(
     },
     googleFormUrl: {
       type: String,
-    },
-    requiredTicket: {
-      type: Number,
     },
     totalDeposit: {
       type: Number,

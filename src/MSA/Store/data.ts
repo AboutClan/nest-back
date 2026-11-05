@@ -234,27 +234,6 @@ export const STORE_GIFT_ACTIVE: any[] = [
     max: 30,
     giftId: 82,
   },
-
-  {
-    image: '/ticket1.png',
-    name: '번개 참여권',
-    brand: '',
-    point: 100,
-    winner: 100,
-    max: 100,
-    giftId: 85,
-    type: 'ticket',
-  },
-  {
-    image: '/ticket2.png',
-    name: '소모임 참여권',
-    brand: '',
-    point: 100,
-    winner: 100,
-    max: 100,
-    giftId: 86,
-    type: 'ticket',
-  },
 ];
 
 export const STORE_GIFT_INACTIVE: any[] = [

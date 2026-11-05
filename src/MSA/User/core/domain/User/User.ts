@@ -12,7 +12,6 @@ import { Preference } from './Preference';
 import { Rest } from './Rest';
 import { StudyRecord } from './StudyRecord';
 import { Temperature } from './Temperature';
-import { Ticket } from './Ticket';
 
 export interface IUser {
   _id?: string;
@@ -45,7 +44,6 @@ export interface IUser {
   instagram?: string | undefined;
   studyPreference?: Preference | undefined;
   locationDetail?: LocationDetail;
-  ticket?: Ticket;
   badge?: Badge | undefined;
   studyRecord?: StudyRecord | undefined;
   temperature?: Temperature | undefined;
@@ -91,7 +89,6 @@ export class User {
     public instagram?: string | undefined,
     public studyPreference?: Preference | undefined,
     public locationDetail?: LocationDetail,
-    public ticket?: Ticket,
     public badge?: Badge | undefined,
     public studyRecord?: StudyRecord | undefined,
     public temperature?: Temperature | undefined,
@@ -134,7 +131,6 @@ export class User {
     this.instagram = instagram || '';
     this.studyPreference = studyPreference || null;
     this.locationDetail = locationDetail || null;
-    this.ticket = ticket || new Ticket();
     this.badge = badge || new Badge();
     this.studyRecord = studyRecord || new StudyRecord();
     this.temperature = temperature || new Temperature();
@@ -222,13 +218,6 @@ export class User {
     }
   }
 
-  increaseGatherTicket(num: number): void {
-    this.ticket.gatherTicket += num;
-  }
-  increaseGroupStudyTicket(num: number): void {
-    this.ticket.groupStudyTicket += num;
-  }
-
   addBadge(badgeName: string): void {
     this.badge?.addBadge(badgeName);
   }
@@ -314,7 +303,6 @@ export class User {
       instagram: this.instagram,
       studyPreference: this.studyPreference?.toPrimitives(),
       locationDetail: this.locationDetail.toPrimitives(),
-      ticket: this.ticket.toPrimitives(),
       badge: this.badge?.toPrimitives(),
       studyRecord: this.studyRecord?.toPrimitives(),
       temperature: this.temperature,

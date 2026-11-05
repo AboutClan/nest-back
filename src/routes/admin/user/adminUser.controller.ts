@@ -116,52 +116,9 @@ export class AdminUserController {
     }
   }
 
-  @Post('/run/monthly-ticket-attend')
-  async runMonthlyTicketAndAttend(@Res() res: Response) {
-    const result = await this.adminUserService.runMonthlyTicketAndAttend();
-    return res.status(200).json(result);
-  }
-
-  @Post('/recover/groupstudy-ticket-points')
-  async recoverGroupStudyTicketPoints(@Res() res: Response) {
-    const result =
-      await this.adminUserService.recoverGroupStudyTicketPoints();
-    return res.status(200).json(result);
-  }
-
   @Post('/reconcile/points')
   async reconcileUserPoints(@Res() res: Response) {
     const result = await this.adminUserService.reconcileUserPoints();
-    return res.status(200).json(result);
-  }
-
-  @Post('/delete/groupstudy-attend-logs')
-  async deleteGroupStudyAttendLogs(@Res() res: Response) {
-    const result = await this.adminUserService.deleteGroupStudyAttendLogs();
-    return res.status(200).json(result);
-  }
-
-  @Post('/rollback/groupstudy-attend-deduction')
-  async rollbackGroupStudyAttendDeduction(@Res() res: Response) {
-    const result =
-      await this.adminUserService.rollbackGroupStudyAttendDeduction();
-    return res.status(200).json(result);
-  }
-
-  @Post('/rollback/groupstudy-ticket-points')
-  async rollbackGroupStudyTicketPoints(@Res() res: Response) {
-    const result =
-      await this.adminUserService.rollbackGroupStudyTicketPoints();
-    return res.status(200).json(result);
-  }
-
-  @Get('/test/schedule/:userId')
-  async testSchedule(
-    @Param('userId') userId: string,
-    @Res() res: Response,
-  ) {
-    const result =
-      await this.adminUserService.testProcessScheduleForUser(userId);
     return res.status(200).json(result);
   }
 }

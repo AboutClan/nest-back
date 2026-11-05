@@ -10,8 +10,6 @@ export const SCHEDULE_CONST = {
   GATHER_PANELTY: 'Gather Penalty Scheduler',
   PROCESS_TEMPERATURE: 'Temperature Processing Scheduler',
   PROCESS_MONTH_SCORE: 'Monthly Score Processing Scheduler',
-  PROCESS_TICKET: 'Ticket Processing Scheduler',
-  PROCESS_GROUP_ATTENDANCE: 'Group Attendance Processing Scheduler',
   BACKUP_DATABASE: 'BACKUP_DATABASE',
   PROCESS_VOTE_RESULT: 'Vote Result Processing Scheduler',
   PROCESS_STUDY_ABSENCE: 'Study Absence Processing Scheduler',

@@ -117,9 +117,6 @@ export const ENTITY = {
     C_SIMPLE_USER:
       ` _id belong name profileImage uid avatar comment birth badge temperature monthScore nickname studyRecord role ` as const,
 
-    DEFAULT_GATHER_TICKET: 2 as const,
-    DEFAULT_GROUPSTUDY_TICKET: 4 as const,
-
     ENUM_LOCATION: [
       '수원',
       '양천',
