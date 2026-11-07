@@ -123,7 +123,7 @@ export class GatherService {
 
     return gatherData;
   }
-  /** 홈 번개 섹션: 상시 행사 / 이번 주 번개 / 지난 인기 모임 / 제휴 프로그램 */
+  /** 홈 번개 섹션: 공식 모임 / 소모임 상시 모임 / 지난 인기 모임 / 제휴 프로그램 */
   async getHomeGatherSectionsV2() {
     return await this.gatherRepository.findHomeGatherSectionsV2();
   }

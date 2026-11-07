@@ -8,6 +8,14 @@ import { Gather } from '../core/domain/Gather/Gather';
 import { IGatherRepository } from '../core/interfaces/GatherRepository.interface';
 import { IGatherData } from '../entity/gather.entity';
 
+// 홈 [매주 진행되는 어바웃 공식 모임]에 노출할 모임 id(2열 x 3개, 왼쪽 열부터 순서대로).
+// 비우면 상시 행사(regularGather)를 id순으로 6개 보여 준다.
+const HOME_REGULAR_ID_ORDER: number[] = [5254, 5255, 5256, 5258, 5269, 5257];
+
+// 홈 [소모임에서 진행되는 상시 모임]에 노출할 모임 id(3개, 순서대로).
+// 비우면 소모임형 상시 행사(구글폼 없이 groupId만 있는 regularGather)를 id순으로 3개 보여 준다.
+const HOME_GROUP_REGULAR_ID_ORDER: number[] = [5265, 5267, 5266];
+
 export class GatherRepository implements IGatherRepository {
   constructor(
     @InjectModel(DB_SCHEMA.GATHER)
@@ -243,9 +251,9 @@ export class GatherRepository implements IGatherRepository {
   }
 
   /**
-   * 홈 번개 섹션(카드 3개씩)
-   * - regular: 상시 행사
-   * - upcoming: 오늘 이후 모집중 모임. 구글폼이 붙은 모임 먼저, 그다음 날짜 빠른 순
+   * 홈 번개 섹션(카드 3개씩, regular만 2열 x 3개)
+   * - regular: HOME_REGULAR_ID_ORDER에 적은 모임을 그 순서대로(닫힌 모임 제외). 비어 있으면 상시 행사 id순
+   * - groupRegular: 소모임형 상시 행사. HOME_GROUP_REGULAR_ID_ORDER 순서, 비어 있으면 id순
    * - past: 지난 모임. 구글폼이 붙은 모임 먼저(최근 순), 그다음 인기 모임(참여 9명 이상, 최근 순)
    * - partner: 제휴 프로그램
    */
@@ -255,6 +263,7 @@ export class GatherRepository implements IGatherRepository {
       { path: 'participants.user', select: ENTITY.USER.C_MINI_USER },
     ];
     const SIZE = 3;
+    const REGULAR_SIZE = 6;
     const today = dayjs().startOf('day').toISOString();
     const dated = { category: { $nin: ['regularGather', 'partnerGather'] } };
     const hasForm = { googleFormUrl: { $nin: [null, ''] } };
@@ -266,37 +275,54 @@ export class GatherRepository implements IGatherRepository {
         ? first
         : [...first, ...(await find(nextQuery, sort, SIZE - first.length))];
 
-    const [regular, partner, upcomingForm, pastForm] = await Promise.all([
-      find({ category: 'regularGather', status: { $ne: 'close' } }, { id: 1 }),
-      find({ category: 'partnerGather', status: { $ne: 'close' } }, { id: 1 }),
-      find(
-        { ...dated, ...hasForm, status: 'pending', date: { $gte: today } },
-        { date: 1 },
+    // ids에 적은 모임을 그 순서대로(닫힌 모임 제외). ids가 비어 있으면 fallback 쿼리를 id순으로.
+    const findByIdOrder = async (
+      ids: number[],
+      fallback: any,
+      limit: number,
+    ) =>
+      ids.length
+        ? (
+            await this.Gather.find({
+              id: { $in: ids },
+              status: { $ne: 'close' },
+            }).populate(populateOptions)
+          ).sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
+        : await find(
+            { ...fallback, status: { $ne: 'close' } },
+            { id: 1 },
+            limit,
+          );
+
+    const [regular, groupRegular, partner, pastForm] = await Promise.all([
+      findByIdOrder(
+        HOME_REGULAR_ID_ORDER,
+        { category: 'regularGather' },
+        REGULAR_SIZE,
       ),
+      findByIdOrder(
+        HOME_GROUP_REGULAR_ID_ORDER,
+        { category: 'regularGather', ...noForm, groupId: { $nin: [null, ''] } },
+        SIZE,
+      ),
+      find({ category: 'partnerGather', status: { $ne: 'close' } }, { id: 1 }),
       find({ ...dated, ...hasForm, date: { $lt: today } }, { date: -1 }),
     ]);
-    const [upcoming, past] = await Promise.all([
-      fill(
-        upcomingForm,
-        { ...dated, ...noForm, status: 'pending', date: { $gte: today } },
-        { date: 1 },
-      ),
-      fill(
-        pastForm,
-        {
-          ...dated,
-          ...noForm,
-          date: { $lt: today },
-          'participants.8': { $exists: true },
-        },
-        { date: -1 },
-      ),
-    ]);
+    const past = await fill(
+      pastForm,
+      {
+        ...dated,
+        ...noForm,
+        date: { $lt: today },
+        'participants.8': { $exists: true },
+      },
+      { date: -1 },
+    );
 
     const toDomain = (docs: any[]) => docs.map((doc) => this.mapToDomain(doc));
     return {
       regular: await this.attachGroupMembers(toDomain(regular)),
-      upcoming: toDomain(upcoming),
+      groupRegular: await this.attachGroupMembers(toDomain(groupRegular)),
       past: toDomain(past),
       partner: toDomain(partner),
     };
