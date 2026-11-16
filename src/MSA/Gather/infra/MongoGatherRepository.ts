@@ -252,7 +252,8 @@ export class GatherRepository implements IGatherRepository {
 
   /**
    * 홈 번개 섹션(카드 3개씩, regular만 2열 x 3개)
-   * - regular: HOME_REGULAR_ID_ORDER에 적은 모임을 그 순서대로(닫힌 모임 제외). 비어 있으면 상시 행사 id순
+   * - regular: 다가오는 공식 모임(officialGather, 날짜순) + HOME_REGULAR_ID_ORDER에 적은 모임을 그 순서대로(닫힌 모임 제외, 최대 6개).
+   *   ID 목록이 비어 있으면 상시 행사 id순
    * - groupRegular: 소모임형 상시 행사. HOME_GROUP_REGULAR_ID_ORDER 순서, 비어 있으면 id순
    * - past: 지난 모임. 구글폼이 붙은 모임 먼저(최근 순), 그다음 인기 모임(참여 9명 이상, 최근 순)
    * - partner: 제휴 프로그램
@@ -294,20 +295,39 @@ export class GatherRepository implements IGatherRepository {
             limit,
           );
 
-    const [regular, groupRegular, partner, pastForm] = await Promise.all([
-      findByIdOrder(
-        HOME_REGULAR_ID_ORDER,
-        { category: 'regularGather' },
-        REGULAR_SIZE,
-      ),
-      findByIdOrder(
-        HOME_GROUP_REGULAR_ID_ORDER,
-        { category: 'regularGather', ...noForm, groupId: { $nin: [null, ''] } },
-        SIZE,
-      ),
-      find({ category: 'partnerGather', status: { $ne: 'close' } }, { id: 1 }),
-      find({ ...dated, ...hasForm, date: { $lt: today } }, { date: -1 }),
-    ]);
+    const [official, regularOrdered, groupRegular, partner, pastForm] =
+      await Promise.all([
+        // 아직 지나지 않은 공식 모임(officialGather)은 regular 맨 앞에 날짜순으로 붙인다
+        find(
+          {
+            category: 'officialGather',
+            status: { $ne: 'close' },
+            date: { $gte: today },
+          },
+          { date: 1 },
+          REGULAR_SIZE,
+        ),
+        findByIdOrder(
+          HOME_REGULAR_ID_ORDER,
+          { category: 'regularGather' },
+          REGULAR_SIZE,
+        ),
+        findByIdOrder(
+          HOME_GROUP_REGULAR_ID_ORDER,
+          {
+            category: 'regularGather',
+            ...noForm,
+            groupId: { $nin: [null, ''] },
+          },
+          SIZE,
+        ),
+        find(
+          { category: 'partnerGather', status: { $ne: 'close' } },
+          { id: 1 },
+        ),
+        find({ ...dated, ...hasForm, date: { $lt: today } }, { date: -1 }),
+      ]);
+    const regular = [...official, ...regularOrdered].slice(0, REGULAR_SIZE);
     const past = await fill(
       pastForm,
       {
