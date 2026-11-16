@@ -10,7 +10,9 @@ import { IGatherData } from '../entity/gather.entity';
 
 // 홈 [매주 진행되는 어바웃 공식 모임]에 노출할 모임 id(2열 x 3개, 왼쪽 열부터 순서대로).
 // 비우면 상시 행사(regularGather)를 id순으로 6개 보여 준다.
-const HOME_REGULAR_ID_ORDER: number[] = [5254, 5255, 5256, 5258, 5269, 5257];
+const HOME_REGULAR_ID_ORDER: number[] = [
+  5273, 5254, 5255, 5256, 5258, 5269, 5257,
+];
 
 // 홈 [소모임에서 진행되는 상시 모임]에 노출할 모임 id(3개, 순서대로).
 // 비우면 소모임형 상시 행사(구글폼 없이 groupId만 있는 regularGather)를 id순으로 3개 보여 준다.
@@ -327,7 +329,12 @@ export class GatherRepository implements IGatherRepository {
         ),
         find({ ...dated, ...hasForm, date: { $lt: today } }, { date: -1 }),
       ]);
-    const regular = [...official, ...regularOrdered].slice(0, REGULAR_SIZE);
+    // ID 목록에도 있는 공식 모임은 한 번만
+    const officialIds = new Set(official.map((g) => g.id));
+    const regular = [
+      ...official,
+      ...regularOrdered.filter((g) => !officialIds.has(g.id)),
+    ].slice(0, REGULAR_SIZE);
     const past = await fill(
       pastForm,
       {
